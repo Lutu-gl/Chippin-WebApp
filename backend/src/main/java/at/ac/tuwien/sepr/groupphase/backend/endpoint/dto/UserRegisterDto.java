@@ -8,12 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Setter
 @Getter
+@Setter
 @EqualsAndHashCode
 @ToString
 @Builder
-public class UserLoginDto {
+public class UserRegisterDto {
 
     @NotNull(message = "Email must not be null")
     @Email
@@ -21,4 +21,5 @@ public class UserLoginDto {
 
     @NotNull(message = "Password must not be null")
     private String password;
+
 }
