@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.security.PermitAll;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class RegistrationEndpoint {
 
     @PermitAll
     @PostMapping
-    public String register(@RequestBody UserRegisterDto userRegisterDto) throws UserAlreadyExistsException {
+    public String register(@Valid @RequestBody UserRegisterDto userRegisterDto) throws UserAlreadyExistsException {
         log.info("Registering user");
         return userService.register(userRegisterDto, false);
     }
