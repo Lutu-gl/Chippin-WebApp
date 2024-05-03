@@ -43,7 +43,7 @@ public class RegistrationEndpointTest extends BaseTest {
   public void givenValidUser_whenRegister_then201() throws Exception {
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isCreated());
@@ -54,7 +54,7 @@ public class RegistrationEndpointTest extends BaseTest {
   public void givenValidUser_whenRegister_then201AndUserExistsInDatabase() throws Exception {
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isCreated());
@@ -68,13 +68,13 @@ public class RegistrationEndpointTest extends BaseTest {
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
     // Register the user once
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isCreated());
 
     // Attempt to register the user again
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isConflict());
@@ -88,7 +88,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -102,7 +102,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -116,7 +116,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -130,7 +130,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -144,7 +144,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -158,7 +158,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -172,7 +172,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());
@@ -186,7 +186,7 @@ public class RegistrationEndpointTest extends BaseTest {
 
     String body = objectMapper.writeValueAsString(userRegisterDto);
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isBadRequest());

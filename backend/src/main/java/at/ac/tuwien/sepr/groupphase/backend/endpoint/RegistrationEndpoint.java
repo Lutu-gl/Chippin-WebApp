@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/registration")
+@RequestMapping("/api/v1/authentication/registration")
 @Slf4j
 @RequiredArgsConstructor
 public class RegistrationEndpoint {
@@ -29,4 +29,5 @@ public class RegistrationEndpoint {
         log.info("Registering user");
         return userService.register(userRegisterDto, false);
     }
+
 }

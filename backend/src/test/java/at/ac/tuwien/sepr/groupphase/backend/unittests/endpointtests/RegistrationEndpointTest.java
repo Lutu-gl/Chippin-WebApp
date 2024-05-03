@@ -37,7 +37,7 @@ public class RegistrationEndpointTest extends BaseTest {
         .email("test@example.com").password("Test1234").build();
     when(userService.register(userRegisterDto, false)).thenReturn("jwtToken");
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userRegisterDto)))
         .andExpect(status().isCreated());
@@ -51,7 +51,7 @@ public class RegistrationEndpointTest extends BaseTest {
         .email("text@example.com").password("Test1234").build();
     when(userService.register(userRegisterDto, false)).thenThrow(new UserAlreadyExistsException("User already exists"));
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userRegisterDto)))
         .andExpect(status().isConflict());
@@ -64,7 +64,7 @@ public class RegistrationEndpointTest extends BaseTest {
     UserRegisterDto userRegisterDto = UserRegisterDto.builder()
         .email("invalid-Email").password("weak").build();
 
-    mockMvc.perform(post("/api/v1/registration")
+    mockMvc.perform(post("/api/v1/authentication/registration")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userRegisterDto)))
         .andExpect(status().isBadRequest());
