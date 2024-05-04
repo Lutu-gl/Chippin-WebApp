@@ -1,5 +1,17 @@
 <h2>Pantry</h2>
 
+<form class="d-flex flex-row w-auto mb-3">
+  <div class="flex-grow-2">
+    <i class="bi bi-search"></i>
+    <input type="text" id="searchDescription" name="searchDescription"
+           class="form-control"
+           placeholder="Description"
+           [(ngModel)]="searchString"
+           (ngModelChange)="searchChanged()"
+    >
+  </div>
+</form>
+
 <div class="mt-3">
   <table class="table table-hover">
     <thead>
@@ -11,19 +23,35 @@
     </tr>
     </thead>
     <tbody>
+    <tr>
+        <td>
+          <a class="btn btn btn-sm btn-info">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+        </td>
+        <td>
+          <input type="number" class="form-control" id="newItemAmount" placeholder="0" [(ngModel)]="newItem">
+        </td>
+        <td>
+          <select class="form-select" [(ngModel)]="newItem.unit">
+            <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key" [selected]="newItem.unit===unit.key">{{ unit.value }}</option>
+          </select>
+        </td>
+        <td>
+          <input class="form-control" placeholder="Add a new item">
+        </td>
+    </tr>
     <tr *ngFor="let item of items" class="center-td">
       <td>
-        <div class="btn-group">
-          <a class="btn btn-sm responsive-danger-button">
-            <i class="bi bi-trash"></i>
-          </a>
-        </div>
+        <a class="btn btn-sm responsive-danger-button">
+          <i class="bi bi-trash"></i>
+        </a>
       </td>
       <td>
-        <input type="number" class="form-control" id="itemAmount" placeholder="{{item.amount}}" [(ngModel)]="item.amount">
+        <input type="number" class="form-control" id="itemAmount" placeholder="{{item.amount}}" [(ngModel)]="item.amount" disabled>
       </td>
       <td>
-        <select class="form-select" [(ngModel)]="item.unit">
+        <select class="form-select" [(ngModel)]="item.unit" disabled>
           <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key" [selected]="item.unit===unit.key">{{ unit.value }}</option>
         </select>
       </td>

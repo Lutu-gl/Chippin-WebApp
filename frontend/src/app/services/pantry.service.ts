@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {PantryDetailDto} from "../dtos/pantry";
+import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
 
 @Injectable({
   providedIn: 'root'
@@ -15,5 +15,11 @@ export class PantryService {
 
   getPantryById(id: number): Observable<PantryDetailDto> {
     return this.httpClient.get<PantryDetailDto>(`${this.pantryBaseUri}/${id}/pantry`);
+  }
+
+  filterPantry(id: number, pantrySearch: PantrySearch): Observable<PantryDetailDto> {
+    let params = new HttpParams();
+    params = params.append('details', pantrySearch.details)
+    return this.httpClient.get<PantryDetailDto>(`${this.pantryBaseUri}/${id}/pantry/search`, { params });
   }
 }

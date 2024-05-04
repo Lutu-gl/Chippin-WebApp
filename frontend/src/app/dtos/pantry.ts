@@ -1,7 +1,7 @@
 import {ItemDetailDto} from "./item";
 
-export interface PantrySearchDto {
-
+export interface PantrySearch {
+  details: string;
 }
 
 export interface PantryDetailDto {
