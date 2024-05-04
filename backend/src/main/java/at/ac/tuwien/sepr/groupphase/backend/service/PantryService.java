@@ -6,9 +6,8 @@ import java.util.List;
 
 public interface PantryService {
 
-    //TODO change pantry to group id later (exactly one pantry per group, group id = pantry id)
     /**
-     * Find all items in a pantry ordered by the item id.
+     * Find all items in a pantry.
      *
      * @param pantryId the pantry id
      * @return ordered list of all items in the pantry

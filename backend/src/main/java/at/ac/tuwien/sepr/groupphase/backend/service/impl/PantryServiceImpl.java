@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -23,21 +24,25 @@ public class PantryServiceImpl implements PantryService {
     private final PantryRepository pantryRepository;
 
     @Override
+    @Transactional
     public List<Item> findAllItems(long pantryId) {
         LOGGER.debug("Find all items in pantry with id {}", pantryId);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
-            return itemRepository.findByPantryOrderById(pantry.get());
+            LOGGER.debug("Found pantry: {}", pantry.get());
+            return pantry.get().getItems();
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
     }
 
     @Override
+    @Transactional
     public List<Item> findItemsByDescription(String description, long pantryId) {
         LOGGER.debug("Find all items in pantry with id {} matching the description \"{}\"", pantryId, description);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
+            LOGGER.debug("Found pantry: {}", pantry.get());
             return itemRepository.findByDescriptionLikeAndPantryIsOrderById(description, pantry.get());
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
