@@ -43,7 +43,7 @@ public class PantryServiceImpl implements PantryService {
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
             LOGGER.debug("Found pantry: {}", pantry.get());
-            return itemRepository.findByDescriptionLikeAndPantryIsOrderById(description, pantry.get());
+            return itemRepository.findByDescriptionContainingAndPantryIsOrderById(description, pantry.get());
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }

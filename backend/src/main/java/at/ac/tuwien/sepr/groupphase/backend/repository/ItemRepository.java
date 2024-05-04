@@ -21,5 +21,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      *
      * @return ordered list of all items in the pantry where {@code description} is a substring of the item description
      */
-    List<Item> findByDescriptionLikeAndPantryIsOrderById(String description, Pantry pantry);
+    List<Item> findByDescriptionContainingAndPantryIsOrderById(String description, Pantry pantry);
 }
+

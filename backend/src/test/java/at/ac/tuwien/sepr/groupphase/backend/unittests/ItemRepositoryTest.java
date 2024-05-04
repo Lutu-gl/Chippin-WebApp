@@ -58,7 +58,7 @@ public class ItemRepositoryTest {
         pantry.addItem(otherItem);
         pantryRepository.save(pantry);
 
-        assertEquals(1, itemRepository.findByDescriptionLikeAndPantryIsOrderById("%oothp%", pantry).size());
+        assertEquals(1, itemRepository.findByDescriptionContainingAndPantryIsOrderById("oothp", pantry).size());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ItemRepositoryTest {
         pantry.addItem(otherItem);
         pantryRepository.save(pantry);
 
-        List<Item> items = itemRepository.findByDescriptionLikeAndPantryIsOrderById("%o%", pantry);
+        List<Item> items = itemRepository.findByDescriptionContainingAndPantryIsOrderById("o", pantry);
         assertAll(
             () -> assertEquals(2, items.size()),
             () -> assertTrue(items.get(0).getId() < items.get(1).getId())
