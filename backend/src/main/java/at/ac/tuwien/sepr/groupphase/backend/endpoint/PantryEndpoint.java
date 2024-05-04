@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantrySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
@@ -31,16 +32,16 @@ public class PantryEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/{pantryId}/pantry")
-    public List<ItemDetailDto> findAllInPantry(@PathVariable long pantryId) {
+    public PantryDetailDto findAllInPantry(@PathVariable long pantryId) {
         LOGGER.info("GET /api/v1/group/{}/pantry", pantryId);
-        return itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findAllItems(pantryId));
+        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findAllItems(pantryId)));
     }
 
     @Secured("ROLE_USER")
     @GetMapping("/{pantryId}/pantry/search")
-    public List<ItemDetailDto> searchItemsInPantry(@PathVariable long pantryId, PantrySearchDto searchParams) {
+    public PantryDetailDto searchItemsInPantry(@PathVariable long pantryId, PantrySearchDto searchParams) {
         LOGGER.info("GET /api/v1/group/{}/pantry/search", pantryId);
         LOGGER.debug("request parameters: {}", searchParams.getDetails());
-        return itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId));
+        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId)));
     }
 }

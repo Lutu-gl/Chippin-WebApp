@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
@@ -102,10 +103,13 @@ public class PantryEndpointTest {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-            ItemDetailDto[].class));
+        PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
+        LOGGER.debug("detailDto: " + detailDto);
+        LOGGER.debug("detailDto2: " + detailDto.getItems());
+        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
+        //    ItemDetailDto[].class));
 
-        assertEquals(0, itemDetailDtos.size());
+        assertEquals(0, detailDto.getItems().size());
     }
 
     @Test
@@ -120,11 +124,12 @@ public class PantryEndpointTest {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-            ItemDetailDto[].class));
+        PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
+        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
+        //    ItemDetailDto[].class));
 
-        assertEquals(1, itemDetailDtos.size());
-        ItemDetailDto itemDetailDto = itemDetailDtos.get(0);
+        assertEquals(1, detailDto.getItems().size());
+        ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(item.getDescription(), itemDetailDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDetailDto.getAmount()),
@@ -147,11 +152,12 @@ public class PantryEndpointTest {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-            ItemDetailDto[].class));
+        PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
+        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
+        //    ItemDetailDto[].class));
 
-        assertEquals(1, itemDetailDtos.size());
-        ItemDetailDto itemDetailDto = itemDetailDtos.get(0);
+        assertEquals(1, detailDto.getItems().size());
+        ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(item.getDescription(), itemDetailDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDetailDto.getAmount()),
