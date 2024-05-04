@@ -39,8 +39,8 @@ public class PantryEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/{pantryId}/pantry/search")
     public List<ItemDetailDto> searchItemsInPantry(@PathVariable long pantryId, PantrySearchDto searchParams) {
-        LOGGER.info("GET /api/v1/group/{}/pantry", pantryId);
-        LOGGER.debug("request parameters: {}", searchParams);
+        LOGGER.info("GET /api/v1/group/{}/pantry/search", pantryId);
+        LOGGER.debug("request parameters: {}", searchParams.getDetails());
         return itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId));
     }
 }
