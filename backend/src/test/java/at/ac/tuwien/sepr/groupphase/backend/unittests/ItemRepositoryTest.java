@@ -5,7 +5,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
-import lombok.Builder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,7 @@ public class ItemRepositoryTest {
         pantry.addItem(otherItem);
         pantryRepository.save(pantry);
 
-        assertEquals(1, itemRepository.findByDescriptionContainingAndPantryIsOrderById("oothp", pantry).size());
+        assertEquals(1, itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("oothp", pantry).size());
     }
 
     @Test
@@ -71,7 +70,7 @@ public class ItemRepositoryTest {
         pantry.addItem(otherItem);
         pantryRepository.save(pantry);
 
-        List<Item> items = itemRepository.findByDescriptionContainingAndPantryIsOrderById("o", pantry);
+        List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("o", pantry);
         assertAll(
             () -> assertEquals(2, items.size()),
             () -> assertTrue(items.get(0).getId() < items.get(1).getId())
