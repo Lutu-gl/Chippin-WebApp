@@ -23,10 +23,10 @@ public class UserRegisterDto {
     @Email
     private String email;
 
-    // Validate 8-64 characters, at least one uppercase letter, one lowercase letter and one number
+    // Validate at least 8 characters, at least one uppercase letter, one lowercase letter and one number
     @NotNull(message = "must not be null")
     @NotBlank(message = "must not be blank")
-    @Length(min = 8, max = 64, message = "must be between 8 and 64 characters")
+    @Length(min = 8, message = "must be at least 8 characters long")
     // @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "must contain at least one uppercase letter, one lowercase letter and one number")
     @Pattern(regexp = "^(?=.*[a-z]).*$", message = "must contain at least one lowercase letter")
     @Pattern(regexp = "^(?=.*[A-Z]).*$", message = "must contain at least one uppercase letter")
