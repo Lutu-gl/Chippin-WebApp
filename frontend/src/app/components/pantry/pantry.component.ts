@@ -3,7 +3,7 @@ import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
 import {ItemDetailDto, Unit} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
 
@@ -20,6 +20,9 @@ import {PantrySearch} from "../../dtos/pantry";
   styleUrl: './pantry.component.scss'
 })
 export class PantryComponent implements OnInit {
+
+  error = false;
+  errorMessage = '';
 
   items: ItemDetailDto[];
   newItem: ItemDetailDto = {
@@ -38,36 +41,89 @@ export class PantryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe({
+      next: params => {
         this.id = +params['id'];
-        this.service.getPantryById(this.id).subscribe(p => {
-          this.items = p.items;
-        }, error => {
-          console.error('Error loading pantry data from backend: ', error);
-        })
+        this.getPantry(this.id);
       },
-      error => {
-        console.error('Error: ', error);
-      })
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
     this.searchChangedObservable
       .pipe(debounceTime(300))
       .subscribe({next: () => this.filterPantry()});
   }
 
+  onSubmit(form: NgForm) {
+    console.log('is form valid?', form.valid);
+    if(form.valid){
+      this.addItem();
+    }
+  }
+
+  getPantry(id: number) {
+    this.service.getPantryById(id).subscribe({
+      next: res => {
+        this.items = res.items;
+      },
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
+  }
+
   filterPantry() {
-    console.log('Success!');
     let search: PantrySearch = {
       details: this.searchString
     };
 
-    this.service.filterPantry(this.id, search).subscribe(p => {
-      this.items = p.items;
-    })
+    this.service.filterPantry(this.id, search).subscribe({
+      next: res => {
+        this.items = res.items;
+      },
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
+  }
+
+  addItem() {
+    this.service.createItem(this.id, this.newItem).subscribe({
+      next: res => {
+        console.log("Item created: ", res);
+        this.newItem.amount = 0;
+        this.newItem.unit = Unit.Piece;
+        this.newItem.description = '';
+        this.getPantry(this.id);
+      },
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
   }
 
   searchChanged() {
     this.searchChangedObservable.next();
   }
 
+  private defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
+  }
+
+  /**
+   * Error flag will be deactivated, which clears the error message
+   */
+  vanishError() {
+    this.error = false;
+  }
+
   protected readonly Unit = Unit;
+  protected readonly onsubmit = onsubmit;
 }

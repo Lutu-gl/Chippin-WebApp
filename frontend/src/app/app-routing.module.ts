@@ -10,9 +10,10 @@ const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
-  {path: 'group/:id', children: [
+  {path: 'group/:id', canActivate:mapToCanActivate([AuthGuard]), children: [
       {path: 'pantry', component: PantryComponent}
-    ]}
+    ]},
+  {path: '**', redirectTo: ''}
 ];
 
 @NgModule({

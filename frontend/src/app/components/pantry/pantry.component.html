@@ -1,64 +1,76 @@
-<h2>Pantry</h2>
+<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error! </strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 
-<form class="d-flex flex-row w-auto mb-3">
-  <div class="flex-grow-2">
-    <i class="bi bi-search"></i>
-    <input type="text" id="searchDescription" name="searchDescription"
-           class="form-control"
-           placeholder="Description"
-           [(ngModel)]="searchString"
-           (ngModelChange)="searchChanged()"
-    >
-  </div>
-</form>
-
-<div class="mt-3">
-  <table class="table table-hover">
-    <thead>
-    <tr>
-      <th class="min-width"></th>
-      <th width="10%">Amount</th>
-      <th width="20%">Unit</th>
-      <th>Item</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-          <a class="btn btn btn-sm btn-info">
+<div class="pt-5">
+  <div class="row">
+    <div class="col">
+      <h2>Pantry</h2>
+    </div>
+  </div >
+  <div class="row">
+    <div class="mt-3">
+      <input type="text" id="searchDescription" name="searchDescription"
+             class="form-control col-9"
+             placeholder="Search for an item"
+             [(ngModel)]="searchString"
+             (ngModelChange)="searchChanged()"
+      >
+      <form #form="ngForm" class="row pt-3" (ngSubmit)="onSubmit(form)">
+        <div class="col-1">
+          <button name="submit" type="submit" class="btn btn btn-sm btn-info">
             <i class="bi bi-plus-lg"></i>
-          </a>
-        </td>
-        <td>
-          <input type="number" class="form-control" id="newItemAmount" placeholder="0" [(ngModel)]="newItem">
-        </td>
-        <td>
-          <select class="form-select" [(ngModel)]="newItem.unit">
-            <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key" [selected]="newItem.unit===unit.key">{{ unit.value }}</option>
+          </button>
+        </div>
+        <div class="col-2">
+          <input name="newItemAmount" type="number" class="form-control" id="newItemAmount" placeholder="0" [(ngModel)]="newItem.amount" required>
+        </div>
+        <div class="col-2">
+          <select name="newItemUnit" class="form-select" [(ngModel)]="newItem.unit" required>
+            <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
+                    [selected]="newItem.unit===unit.key">{{ unit.value }}</option>
           </select>
-        </td>
-        <td>
-          <input class="form-control" placeholder="Add a new item">
-        </td>
-    </tr>
-    <tr *ngFor="let item of items" class="center-td">
-      <td>
-        <a class="btn btn-sm responsive-danger-button">
-          <i class="bi bi-trash"></i>
-        </a>
-      </td>
-      <td>
-        <input type="number" class="form-control" id="itemAmount" placeholder="{{item.amount}}" [(ngModel)]="item.amount" disabled>
-      </td>
-      <td>
-        <select class="form-select" [(ngModel)]="item.unit" disabled>
-          <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key" [selected]="item.unit===unit.key">{{ unit.value }}</option>
-        </select>
-      </td>
-      <td>
-        {{item.description}}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+        </div>
+        <div class="col">
+          <input name="newItemDescription" class="form-control" placeholder="Add a new item" [(ngModel)]="newItem.description" required>
+        </div>
+      </form>
+      <table class="table table-hover">
+        <thead>
+        <tr>
+          <th class="col-1"></th>
+          <th class="col-2">Amount</th>
+          <th class="col-2">Unit</th>
+          <th>Item</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr *ngFor="let item of items" class="center-td">
+          <td>
+            <a class="btn btn-sm responsive-danger-button">
+              <i class="bi bi-trash"></i>
+            </a>
+          </td>
+          <td>
+            <input type="number" class="form-control" id="itemAmount" placeholder="{{item.amount}}"
+                   [(ngModel)]="item.amount" disabled>
+          </td>
+          <td>
+            <select class="form-select" [(ngModel)]="item.unit" disabled>
+              <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
+                      [selected]="item.unit===unit.key">{{ unit.value }}</option>
+            </select>
+          </td>
+          <td>
+            {{item.description}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
