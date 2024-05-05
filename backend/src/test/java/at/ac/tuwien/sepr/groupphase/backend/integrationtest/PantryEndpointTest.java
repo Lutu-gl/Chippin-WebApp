@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
@@ -29,12 +30,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -106,8 +106,6 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
         LOGGER.debug("detailDto: " + detailDto);
         LOGGER.debug("detailDto2: " + detailDto.getItems());
-        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-        //    ItemDetailDto[].class));
 
         assertEquals(0, detailDto.getItems().size());
     }
@@ -125,8 +123,6 @@ public class PantryEndpointTest {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
-        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-        //    ItemDetailDto[].class));
 
         assertEquals(1, detailDto.getItems().size());
         ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
@@ -153,8 +149,6 @@ public class PantryEndpointTest {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
-        //List<ItemDetailDto> itemDetailDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(),
-        //    ItemDetailDto[].class));
 
         assertEquals(1, detailDto.getItems().size());
         ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
@@ -163,5 +157,50 @@ public class PantryEndpointTest {
             () -> assertEquals(item.getAmount(), itemDetailDto.getAmount()),
             () -> assertEquals(item.getUnit(), itemDetailDto.getUnit())
         );
+    }
+
+    @Test
+    public void givenNothing_whenAddItemToPantry_thenItemWithAllPropertiesPlusId()
+        throws Exception {
+        ItemDetailDto itemDetailDto = ItemDetailDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        String body = objectMapper.writeValueAsString(itemDetailDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
+
+        assertAll(
+            () -> assertEquals(itemDetailDto.getDescription(), itemDto.getDescription()),
+            () -> assertEquals(itemDetailDto.getAmount(), itemDto.getAmount()),
+            () -> assertEquals(itemDetailDto.getUnit(), itemDto.getUnit()),
+            () -> assertNotNull(itemDto.getId())
+        );
+    }
+
+    @Test
+    public void givenNothing_whenAddInvalidItemToPantry_then400()
+        throws Exception {
+        String body = objectMapper.writeValueAsString(ItemDetailDto.builder().amount(-4).unit(null).description("").build());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     }
 }

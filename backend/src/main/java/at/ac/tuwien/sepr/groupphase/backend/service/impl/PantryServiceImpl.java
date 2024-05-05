@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -44,6 +46,20 @@ public class PantryServiceImpl implements PantryService {
         if (pantry.isPresent()) {
             LOGGER.debug("Found pantry: {}", pantry.get());
             return itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById(description, pantry.get());
+        } else {
+            throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
+        }
+    }
+
+    @Override
+    @Transactional
+    public Item addItemToPantry(Item item, long pantryId) {
+        LOGGER.debug("Add item {} to pantry with ID {}", item, pantryId);
+        Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
+        if (optionalPantry.isPresent()) {
+            Pantry pantry = optionalPantry.get();
+            pantry.addItem(item);
+            return itemRepository.save(item);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
