@@ -16,6 +16,14 @@ export class AuthService {
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
 
+
+  registerUser(authRequest: AuthRequest): Observable<string> {
+    return this.httpClient.post(this.authBaseUri + '/registration', authRequest, {responseType: 'text'})
+      .pipe(
+        tap((authResponse: string) => this.setToken(authResponse))
+      )
+  }
+
   /**
    * Login in the user. If it was successful, a valid JWT token will be stored
    *
