@@ -203,8 +203,6 @@ public class PantryEndpointTest {
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     }
 
-
-    //TODO
     @Test
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
@@ -220,6 +218,33 @@ public class PantryEndpointTest {
             () -> assertFalse(pantryRepository.findById(pantry.getId()).get().getItems().contains(item)),
             () -> assertFalse(itemRepository.existsById(item.getId()))
         );
+    }
 
+    @Test
+    public void givenNothing_whenPut_thenItemWithAllProperties()
+        throws Exception {
+        String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());
+
+        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        ItemDto returned = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
+        Item fromRepository = itemRepository.findById(item.getId()).get();
+
+        assertAll(
+            () -> assertEquals(fromRepository.getUnit(), returned.getUnit()),
+            () -> assertEquals(fromRepository.getAmount(), returned.getAmount()),
+            () -> assertEquals(fromRepository.getDescription(), returned.getDescription()),
+            () -> assertEquals(fromRepository.getId(), returned.getId())
+        );
     }
 }

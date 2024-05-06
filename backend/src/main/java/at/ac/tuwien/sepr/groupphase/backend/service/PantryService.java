@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 
 import java.util.List;
 
@@ -39,4 +41,13 @@ public interface PantryService {
      * @param pantryId the pantry id
      */
     void deleteItem(long itemId, long pantryId);
+
+    /**
+     * Updates an item in a pantry.
+     *
+     * @param item the item to update
+     * @param pantryId the pantry id
+     * @return the updated item
+     */
+    Item updateItem(ItemDto item, long pantryId);
 }
