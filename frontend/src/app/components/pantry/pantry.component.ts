@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {ItemDetailDto, Unit} from "../../dtos/item";
+import {ItemCreateDto, ItemDetailDto, Unit} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -25,7 +25,7 @@ export class PantryComponent implements OnInit {
   errorMessage = '';
 
   items: ItemDetailDto[];
-  newItem: ItemDetailDto = {
+  newItem: ItemCreateDto = {
     amount: 0,
     unit: Unit.Piece,
     description: ""
@@ -57,7 +57,7 @@ export class PantryComponent implements OnInit {
 
   onSubmit(form: NgForm) {
     console.log('is form valid?', form.valid);
-    if(form.valid){
+    if (form.valid) {
       this.addItem();
     }
   }
@@ -65,7 +65,20 @@ export class PantryComponent implements OnInit {
   getPantry(id: number) {
     this.service.getPantryById(id).subscribe({
       next: res => {
+        console.log(res.items);
         this.items = res.items;
+      },
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
+  }
+
+  deleteItem(id: number) {
+    this.service.deleteItem(this.id, id).subscribe({
+      next: res => {
+        console.log('deleted item: ', res)
+        this.getPantry(this.id);
       },
       error: err => {
         this.defaultServiceErrorHandling(err);
