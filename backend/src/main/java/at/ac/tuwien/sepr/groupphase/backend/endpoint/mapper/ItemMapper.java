@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface ItemMapper {
-    List<ItemCreateDto> listOfItemsToListOfItemCreateDto(List<Item> items);
+    List<ItemDto> listOfItemsToListOfItemDto(List<Item> items);
 
     Item itemCreateDtoToItem(ItemCreateDto itemCreateDto);
 

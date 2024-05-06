@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 @Table(name = "pantry")
 public class Pantry {
     //TODO change id to PK of group when groups exist and add OneToOne annotation
