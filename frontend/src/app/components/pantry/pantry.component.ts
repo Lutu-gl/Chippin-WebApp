@@ -6,6 +6,7 @@ import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
+import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 
 @Component({
   selector: 'app-pantry',
@@ -14,7 +15,8 @@ import {PantrySearch} from "../../dtos/pantry";
     NgForOf,
     KeyValuePipe,
     NgIf,
-    FormsModule
+    FormsModule,
+    ConfirmDeleteDialogComponent
   ],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
@@ -30,6 +32,7 @@ export class PantryComponent implements OnInit {
     unit: Unit.Piece,
     description: ""
   };
+  itemForDeletion: ItemDetailDto = undefined;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -128,6 +131,10 @@ export class PantryComponent implements OnInit {
     } else {
       this.errorMessage = error.error;
     }
+  }
+
+  setItemForDeletion(item: ItemDetailDto) {
+    this.itemForDeletion = item;
   }
 
   /**
