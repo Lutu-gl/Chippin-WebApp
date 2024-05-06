@@ -11,11 +11,11 @@
   vertical-align: middle;
 }
 
-.responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button {
+.responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button, .responsive-success-button {
   opacity: 0;
 }
 
-@each $color in (info, warning, danger) {
+@each $color in (info, warning, danger, success) {
   $value: map.get($theme-colors, $color);
   tr:hover .responsive-#{$color}-button {
     @include button-variant($value, $value);

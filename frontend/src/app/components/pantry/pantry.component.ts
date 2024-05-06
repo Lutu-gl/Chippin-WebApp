@@ -2,11 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
 import {ItemCreateDto, ItemDetailDto, Unit} from "../../dtos/item";
-import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
+import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
+import {EditPantryItemDialogComponent} from "../edit-pantry-item-dialog/edit-pantry-item-dialog.component";
+import {clone} from "lodash";
 
 @Component({
   selector: 'app-pantry',
@@ -16,7 +18,10 @@ import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-del
     KeyValuePipe,
     NgIf,
     FormsModule,
-    ConfirmDeleteDialogComponent
+    ConfirmDeleteDialogComponent,
+    NgSwitchCase,
+    NgSwitch,
+    EditPantryItemDialogComponent
   ],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
@@ -32,7 +37,8 @@ export class PantryComponent implements OnInit {
     unit: Unit.Piece,
     description: ""
   };
-  itemForDeletion: ItemDetailDto = undefined;
+  selectedItem: ItemDetailDto = undefined;
+  itemToEdit: ItemDetailDto = undefined;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -119,6 +125,30 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  editItem() {
+    this.service.updateItem(this.itemToEdit, this.id).subscribe({
+      next: dto => {
+        this.selectedItem = dto;
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    });
+  }
+
+  changeAmount(item: ItemDetailDto, amountChanged: number) {
+    item.amount = item.amount + amountChanged > 0 ? item.amount + amountChanged : 0;
+    this.service.updateItem(item, this.id).subscribe({
+      next: dto => {
+        console.log(dto);
+        this.selectedItem = dto;
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    });
+  }
+
   searchChanged() {
     this.searchChangedObservable.next();
   }
@@ -133,8 +163,12 @@ export class PantryComponent implements OnInit {
     }
   }
 
-  setItemForDeletion(item: ItemDetailDto) {
-    this.itemForDeletion = item;
+  selectItem(item: ItemDetailDto) {
+    this.selectedItem = item;
+  }
+
+  selectEditItem(item: ItemDetailDto) {
+    this.itemToEdit = item;
   }
 
   /**
@@ -144,6 +178,44 @@ export class PantryComponent implements OnInit {
     this.error = false;
   }
 
+  getUnitStep(unit: Unit, largeStep: boolean, positive: boolean): number {
+    let value: number = 0;
+    let prefixNum = positive === true ? 1 : -1;
+    switch (unit) {
+      case Unit.Piece:
+        value = prefixNum * 1;
+        break
+      case Unit.Gram:
+        value = prefixNum * 10;
+        break;
+      case Unit.Kilogram:
+        value = prefixNum * .1;
+        break;
+      case Unit.Liter:
+        value = prefixNum * .1;
+        break;
+      case Unit.Milliliter:
+        value = prefixNum * 10;
+        break;
+      case Unit.Tablespoon:
+        value = prefixNum * 1;
+        break;
+      case Unit.Teaspoon:
+        value = prefixNum * 1;
+        break;
+      default:
+        console.error("Undefined unit");
+    }
+
+    return largeStep ? value * 10 : value;
+  }
+
+  getUnitStepString(value: number): string {
+    if (value > 0) return "+" + value;
+    else return value.toString();
+
+  }
+
   protected readonly Unit = Unit;
-  protected readonly onsubmit = onsubmit;
+  protected readonly clone = clone;
 }

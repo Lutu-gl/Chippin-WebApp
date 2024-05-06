@@ -56,4 +56,15 @@ export class PantryService {
   deleteItem(pantryId: number, id: number): Observable<ItemDetailDto> {
     return this.httpClient.delete<ItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/${id}`);
   }
+
+  /**
+   * Updates an item in a pantry.
+   *
+   * @param itemToUpdate the item to update
+   * @param pantryId the pantry id
+   */
+  updateItem(itemToUpdate: ItemDetailDto, pantryId: number) {
+    console.log("item: ", itemToUpdate)
+    return this.httpClient.put<ItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
+  }
 }
