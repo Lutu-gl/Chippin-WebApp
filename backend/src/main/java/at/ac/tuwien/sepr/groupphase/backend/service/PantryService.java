@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import jakarta.xml.bind.ValidationException;
 
 import java.util.List;
 
@@ -31,5 +30,13 @@ public interface PantryService {
      * @param pantryId the id of the corresponding pantry
      * @return the saved item
      */
-    Item addItemToPantry(Item item, long pantryId) throws ValidationException;
+    Item addItemToPantry(Item item, long pantryId);
+
+    /**
+     * Deletes an item in a pantry.
+     *
+     * @param itemId the id of the item to delete
+     * @param pantryId the pantry id
+     */
+    void deleteItem(long itemId, long pantryId);
 }

@@ -33,8 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -125,11 +124,11 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemCreateDto itemCreateDto = detailDto.getItems().get(0);
+        ItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
-            () -> assertEquals(item.getDescription(), itemCreateDto.getDescription()),
-            () -> assertEquals(item.getAmount(), itemCreateDto.getAmount()),
-            () -> assertEquals(item.getUnit(), itemCreateDto.getUnit())
+            () -> assertEquals(item.getDescription(), itemDto.getDescription()),
+            () -> assertEquals(item.getAmount(), itemDto.getAmount()),
+            () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
     }
 
@@ -151,11 +150,11 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemCreateDto itemCreateDto = detailDto.getItems().get(0);
+        ItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
-            () -> assertEquals(item.getDescription(), itemCreateDto.getDescription()),
-            () -> assertEquals(item.getAmount(), itemCreateDto.getAmount()),
-            () -> assertEquals(item.getUnit(), itemCreateDto.getUnit())
+            () -> assertEquals(item.getDescription(), itemDto.getDescription()),
+            () -> assertEquals(item.getAmount(), itemDto.getAmount()),
+            () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
     }
 
@@ -202,5 +201,25 @@ public class PantryEndpointTest {
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+
+    //TODO
+    @Test
+    public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
+        throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/pantry/{1}", pantry.getId(), item.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+        assertAll(
+            () -> assertFalse(pantryRepository.findById(pantry.getId()).get().getItems().contains(item)),
+            () -> assertFalse(itemRepository.existsById(item.getId()))
+        );
+
     }
 }

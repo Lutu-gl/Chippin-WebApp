@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
@@ -26,9 +27,9 @@ public class ItemMappingTest {
 
     @Test
     public void givenNothing_whenMapListWithOneItem_thenReturnListWithOneElementAndAllProperties() {
-        List<ItemCreateDto> dtoList = itemMapper.listOfItemsToListOfItemCreateDto(items);
+        List<ItemDto> dtoList = itemMapper.listOfItemsToListOfItemDto(items);
         assertEquals(1, dtoList.size());
-        ItemCreateDto item = dtoList.get(0);
+        ItemDto item = dtoList.get(0);
         assertAll(
             () -> assertEquals(2, item.getAmount()),
             () -> assertEquals("Potato", item.getDescription()),

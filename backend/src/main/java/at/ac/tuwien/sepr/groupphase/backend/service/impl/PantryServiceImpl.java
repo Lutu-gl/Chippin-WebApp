@@ -62,4 +62,16 @@ public class PantryServiceImpl implements PantryService {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
     }
+
+    @Override
+    @Transactional
+    public void deleteItem(long pantryId, long itemId) {
+        LOGGER.debug("Delete item {} in pantry with ID {}", itemId, pantryId);
+        Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
+        if (optionalPantry.isPresent()) {
+            Pantry pantry = optionalPantry.get();
+            Item item = itemRepository.getReferenceById(itemId);
+            pantry.removeItem(item);
+        }
+    }
 }
