@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantrySearchDto;
@@ -42,7 +42,7 @@ public class PantryEndpoint {
     @GetMapping("/{pantryId}/pantry")
     public PantryDetailDto findAllInPantry(@PathVariable long pantryId) {
         LOGGER.info("GET /api/v1/group/{}/pantry", pantryId);
-        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findAllItems(pantryId)));
+        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemCreateDto(pantryService.findAllItems(pantryId)));
     }
 
     @Secured("ROLE_USER")
@@ -50,15 +50,15 @@ public class PantryEndpoint {
     public PantryDetailDto searchItemsInPantry(@PathVariable long pantryId, PantrySearchDto searchParams) {
         LOGGER.info("GET /api/v1/group/{}/pantry/search", pantryId);
         LOGGER.debug("request parameters: {}", searchParams);
-        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemDetailDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId)));
+        return new PantryDetailDto(itemMapper.listOfItemsToListOfItemCreateDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId)));
     }
 
     @Secured("ROLE_USER")
     @PostMapping("/{pantryId}/pantry")
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto addItemToPantry(@PathVariable long pantryId, @Valid @RequestBody ItemDetailDto itemDetailDto) throws ValidationException {
-        LOGGER.info("POST /api/v1/group/{}/pantry body: {}", pantryId, itemDetailDto);
-        Item item = itemMapper.itemDetailDtoToItem(itemDetailDto);
+    public ItemDto addItemToPantry(@PathVariable long pantryId, @Valid @RequestBody ItemCreateDto itemCreateDto) throws ValidationException {
+        LOGGER.info("POST /api/v1/group/{}/pantry body: {}", pantryId, itemCreateDto);
+        Item item = itemMapper.itemCreateDtoToItem(itemCreateDto);
         return itemMapper.itemToItemDto(pantryService.addItemToPantry(item, pantryId));
     }
 }

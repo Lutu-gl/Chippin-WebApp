@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ItemDetailDto {
+public class ItemCreateDto {
     @NotNull
     @NotBlank
     @Size(min = 2, max = 60)

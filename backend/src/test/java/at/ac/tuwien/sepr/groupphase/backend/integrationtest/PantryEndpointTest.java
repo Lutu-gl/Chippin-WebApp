@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -125,11 +125,11 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
+        ItemCreateDto itemCreateDto = detailDto.getItems().get(0);
         assertAll(
-            () -> assertEquals(item.getDescription(), itemDetailDto.getDescription()),
-            () -> assertEquals(item.getAmount(), itemDetailDto.getAmount()),
-            () -> assertEquals(item.getUnit(), itemDetailDto.getUnit())
+            () -> assertEquals(item.getDescription(), itemCreateDto.getDescription()),
+            () -> assertEquals(item.getAmount(), itemCreateDto.getAmount()),
+            () -> assertEquals(item.getUnit(), itemCreateDto.getUnit())
         );
     }
 
@@ -151,19 +151,19 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemDetailDto itemDetailDto = detailDto.getItems().get(0);
+        ItemCreateDto itemCreateDto = detailDto.getItems().get(0);
         assertAll(
-            () -> assertEquals(item.getDescription(), itemDetailDto.getDescription()),
-            () -> assertEquals(item.getAmount(), itemDetailDto.getAmount()),
-            () -> assertEquals(item.getUnit(), itemDetailDto.getUnit())
+            () -> assertEquals(item.getDescription(), itemCreateDto.getDescription()),
+            () -> assertEquals(item.getAmount(), itemCreateDto.getAmount()),
+            () -> assertEquals(item.getUnit(), itemCreateDto.getUnit())
         );
     }
 
     @Test
     public void givenNothing_whenAddItemToPantry_thenItemWithAllPropertiesPlusId()
         throws Exception {
-        ItemDetailDto itemDetailDto = ItemDetailDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
-        String body = objectMapper.writeValueAsString(itemDetailDto);
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        String body = objectMapper.writeValueAsString(itemCreateDto);
 
         MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
@@ -180,9 +180,9 @@ public class PantryEndpointTest {
         ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
 
         assertAll(
-            () -> assertEquals(itemDetailDto.getDescription(), itemDto.getDescription()),
-            () -> assertEquals(itemDetailDto.getAmount(), itemDto.getAmount()),
-            () -> assertEquals(itemDetailDto.getUnit(), itemDto.getUnit()),
+            () -> assertEquals(itemCreateDto.getDescription(), itemDto.getDescription()),
+            () -> assertEquals(itemCreateDto.getAmount(), itemDto.getAmount()),
+            () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
             () -> assertNotNull(itemDto.getId())
         );
     }
@@ -190,7 +190,7 @@ public class PantryEndpointTest {
     @Test
     public void givenNothing_whenAddInvalidItemToPantry_then400()
         throws Exception {
-        String body = objectMapper.writeValueAsString(ItemDetailDto.builder().amount(-4).unit(null).description("").build());
+        String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
         MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))

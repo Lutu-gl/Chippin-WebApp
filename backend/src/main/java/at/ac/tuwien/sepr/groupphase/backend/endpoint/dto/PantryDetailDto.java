@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class PantryDetailDto {
-    private List<ItemDetailDto> items;
+    private List<ItemCreateDto> items;
 }
