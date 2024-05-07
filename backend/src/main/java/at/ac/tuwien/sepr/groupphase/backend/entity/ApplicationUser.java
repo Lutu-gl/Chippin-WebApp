@@ -1,6 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.*;
+
 //TODO: replace this class with a correct ApplicationUser Entity implementation
+@Entity
 public class ApplicationUser {
 
     private String email;
