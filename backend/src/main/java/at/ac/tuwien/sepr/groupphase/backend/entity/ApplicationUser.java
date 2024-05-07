@@ -1,42 +1,40 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-//TODO: replace this class with a correct ApplicationUser Entity implementation
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ApplicationUser {
 
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(unique = true)
+    @NotBlank
+    @Email
     private String email;
+
+    @Column
+    @NotBlank
     private String password;
+
+    @Column
     private Boolean admin;
 
-    public ApplicationUser() {
-    }
 
-    public ApplicationUser(String email, String password, Boolean admin) {
-        this.email = email;
-        this.password = password;
-        this.admin = admin;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Boolean getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Boolean admin) {
-        this.admin = admin;
-    }
 }
