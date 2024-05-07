@@ -2,6 +2,7 @@ logging:
   file.name: ./log/backend.log
   level:
     root: INFO
+    at.ac.tuwien.sepr.groupphase.backend: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
   pattern:
     level: r=%X{r} ip=%X{ip} u=%X{u} %5p
