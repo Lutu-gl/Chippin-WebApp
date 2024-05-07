@@ -102,6 +102,7 @@ public class CustomUserDetailService implements UserService {
 
 
     // TODO this should not make it into production
+    /*
     @PostConstruct
     private void init() {
         LOGGER.info("Creating default users");
@@ -113,7 +114,7 @@ public class CustomUserDetailService implements UserService {
         } catch (UserAlreadyExistsException e) {
             LOGGER.info("Default users already exist");
         }
-    }
+    }*/
 
 
 }
