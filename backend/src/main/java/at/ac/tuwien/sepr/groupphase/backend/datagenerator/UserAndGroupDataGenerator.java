@@ -36,17 +36,6 @@ public class UserAndGroupDataGenerator {
             return;
         }
         LOGGER.debug("generating {} message entries with 2 groups", NUMBER_OF_USERS_TO_GENERATE);
-        ApplicationUser user1 = ApplicationUser.builder()
-            .email("alice@example.com")
-            .password("password123")
-            .admin(true)
-            .build();
-
-        ApplicationUser user2 = ApplicationUser.builder()
-            .email("bob@example.com")
-            .password("password456")
-            .admin(false)
-            .build();
 
         GroupEntity group1 = new GroupEntity();
         group1.setGroupName("WG-TUW");
@@ -59,6 +48,17 @@ public class UserAndGroupDataGenerator {
         Set<GroupEntity> groups = new HashSet<>();
         groups.add(group1);
         //groups.add(group2);
+        ApplicationUser user1 = ApplicationUser.builder()
+            .email("alice@example.com")
+            .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
+            .admin(true)
+            .build();
+
+        ApplicationUser user2 = ApplicationUser.builder()
+            .email("bob@example.com")
+            .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
+            .admin(false)
+            .build();
 
         user1.setGroups(groups);
         user2.setGroups(groups);
@@ -66,10 +66,10 @@ public class UserAndGroupDataGenerator {
         userRepository.save(user1);
         userRepository.save(user2);
 
-        for (int i = 0; i < NUMBER_OF_USERS_TO_GENERATE-2; i++) {
+        for (int i = 0; i < NUMBER_OF_USERS_TO_GENERATE - 2; i++) {
             ApplicationUser user = ApplicationUser.builder()
                 .email((i < 5 ? "user" : "admin") + i + "@email.com")
-                .password("sec" + i)
+                .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")   // precomputed> password is the value
                 .admin(i >= 5)
                 .build();
             userRepository.save(user);
