@@ -71,6 +71,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String login(UserLoginDto userLoginDto) {
+        LOGGER.trace("login({})", userLoginDto);
         UserDetails userDetails = loadUserByUsername(userLoginDto.getEmail());
         if (userDetails != null
             && userDetails.isAccountNonExpired()
@@ -89,6 +90,8 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String register(UserRegisterDto userRegisterDto, boolean admin) throws UserAlreadyExistsException {
+        LOGGER.trace("register({}, {})", userRegisterDto, admin);
+
         ApplicationUser existingUser = userRepository.findByEmail(userRegisterDto.getEmail());
         if (existingUser != null) {
             throw new UserAlreadyExistsException("User with given email already exists");
@@ -103,6 +106,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public Set<GroupEntity> getGroupsByUserEmail(String email) {
+        LOGGER.trace("getGroupsByUserEmail({})", email);
         return userRepository.findGroupsByUserEmail(email);
     }
 

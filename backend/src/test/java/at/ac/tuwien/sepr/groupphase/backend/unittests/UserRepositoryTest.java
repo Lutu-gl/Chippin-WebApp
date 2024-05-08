@@ -43,7 +43,7 @@ public class UserRepositoryTest {
         assertEquals(user, foundUser.orElse(null));
     }
     @Test
-    public void testFindGroupsByUserId() {
+    public void testFindGroupsByUserEmail() {
         ApplicationUser user = createUserWithGroups();
 
         System.out.println(user.getId());

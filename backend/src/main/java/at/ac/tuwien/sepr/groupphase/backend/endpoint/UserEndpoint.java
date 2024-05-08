@@ -35,9 +35,8 @@ public class UserEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/groups")
     public Set<GroupDetailDto> getUserGroups() {
-        LOGGER.info("GET /api/v1/users/groups");
+        LOGGER.info("GET /api/users/groups");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Set<GroupDetailDto> groupDetailDtos = groupMapper.setOfGroupEntityToSetOfGroupDto(userService.getGroupsByUserEmail(authentication.getName()));
-        return groupDetailDtos;
+        return groupMapper.setOfGroupEntityToSetOfGroupDto(userService.getGroupsByUserEmail(authentication.getName()));
     }
 }

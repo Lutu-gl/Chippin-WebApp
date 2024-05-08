@@ -13,5 +13,5 @@ import lombok.Setter;
 @Builder
 public class GroupDetailDto {
     private Long id;
-    private String groupName; //TODO still without Set of user > ask Luki
+    private String groupName;
 }
