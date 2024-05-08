@@ -12,9 +12,6 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
 
     ApplicationUser findByEmail(String email);
 
-    @Query("SELECT u.groups FROM ApplicationUser u WHERE u.id = :id")
-    Set<GroupEntity> findGroupsByUserId(Long id);
-
-    @Query("SELECT u FROM ApplicationUser u WHERE u.id = :id")
-    ApplicationUser findByUserId(Long id);
+    @Query("SELECT u.groups FROM ApplicationUser u WHERE u.email = :email")
+    Set<GroupEntity> findGroupsByUserEmail(String email);
 }

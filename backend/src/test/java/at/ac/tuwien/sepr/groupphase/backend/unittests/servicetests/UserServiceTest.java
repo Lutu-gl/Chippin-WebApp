@@ -70,4 +70,6 @@ public class UserServiceTest extends BaseTest {
 
     verify(userRepository, times(0)).save(any(ApplicationUser.class));
   }
+
+  //TODO UserServiceTest for getting groups the user is part of
 }

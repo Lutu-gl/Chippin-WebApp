@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,8 +39,8 @@ public class UserRepositoryTest {
     public void testFindUserById() {
         ApplicationUser user = createUserWithGroups();
 
-        ApplicationUser foundUser = userRepository.findByUserId(user.getId());
-        assertEquals(user, foundUser);
+        Optional<ApplicationUser> foundUser = userRepository.findById(user.getId());
+        assertEquals(user, foundUser.orElse(null));
     }
     @Test
     public void testFindGroupsByUserId() {
@@ -52,7 +53,7 @@ public class UserRepositoryTest {
             System.out.println(">>" + group);
         }
 
-        Set<GroupEntity> foundGroups = userRepository.findGroupsByUserId(user.getId());
+        Set<GroupEntity> foundGroups = userRepository.findGroupsByUserEmail(user.getEmail());
         System.out.println(foundGroups);
 
 
