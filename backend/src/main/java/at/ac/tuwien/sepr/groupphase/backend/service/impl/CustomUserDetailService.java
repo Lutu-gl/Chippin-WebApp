@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +113,6 @@ public class CustomUserDetailService implements UserService {
 
 
     // TODO this should not make it into production
-    /*
     @PostConstruct
     private void init() {
         LOGGER.info("Creating default users");
@@ -125,6 +125,6 @@ public class CustomUserDetailService implements UserService {
             LOGGER.info("Default users already exist");
         }
     }
-    */
+
 
 }

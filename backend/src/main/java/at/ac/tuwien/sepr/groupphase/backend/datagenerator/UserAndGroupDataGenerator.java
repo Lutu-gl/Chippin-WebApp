@@ -68,7 +68,7 @@ public class UserAndGroupDataGenerator {
 
         for (int i = 0; i < NUMBER_OF_USERS_TO_GENERATE - 2; i++) {
             ApplicationUser user = ApplicationUser.builder()
-                .email((i < 5 ? "user" : "admin") + (i == 5 || i == 0 ? "" : i) + "@email.com")
+                .email((i < 5 ? "user" : "admin") + i + "@email.com")
                 .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")   // precomputed> password is the value
                 .admin(i >= 5)
                 .build();
