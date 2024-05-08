@@ -6,11 +6,14 @@ import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {RegisterComponent} from "./components/register/register.component";
+import {GroupListComponent} from "./components/group-list/group-list.component";
+
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
+  {path: 'groups', canActivate: mapToCanActivate([AuthGuard]), component: GroupListComponent},
   {path: 'group/:id', canActivate:mapToCanActivate([AuthGuard]), children: [
       {path: 'pantry', component: PantryComponent}
     ]},
