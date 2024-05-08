@@ -13,6 +13,9 @@ import lombok.Setter;
 
 import java.util.Set;
 
+/**
+ * Entity to represent a Group. The members of the group are ApplicationUser.
+ */
 @Entity
 @Getter
 @Setter

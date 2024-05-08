@@ -12,6 +12,12 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
 
     ApplicationUser findByEmail(String email);
 
+    /**
+     * Query to get find the groups the user is part of.
+     *
+     * @param email to identify which user.
+     * @return Set of Groups the user is part of.
+     */
     @Query("SELECT u.groups FROM ApplicationUser u WHERE u.email = :email")
     Set<GroupEntity> findGroupsByUserEmail(String email);
 }
