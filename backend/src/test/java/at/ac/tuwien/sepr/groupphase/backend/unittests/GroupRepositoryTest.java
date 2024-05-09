@@ -2,8 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
-import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,16 +13,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @ActiveProfiles("test")
-public class UserRepositoryTest {
-
+public class GroupRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
@@ -35,17 +36,11 @@ public class UserRepositoryTest {
         groupRepository.deleteAll();
     }
     @Test
-    public void testFindUserById() {
-        ApplicationUser user = createUserWithGroups();
-
-        Optional<ApplicationUser> foundUser = userRepository.findById(user.getId());
-        assertEquals(user, foundUser.orElse(null));
-    }
-    @Test
-    public void testFindGroupsByUserEmail() {
+    public void testCreateGroupWith3MembersAndGroupName() {
         ApplicationUser user = createUserWithGroups();
 
         Set<GroupEntity> foundGroups = userRepository.findGroupsByUserEmail(user.getEmail());
+        System.out.println(foundGroups);
 
 
         assertAll(
