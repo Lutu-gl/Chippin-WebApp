@@ -9,7 +9,6 @@ import {HeaderComponent} from './components/header/header.component';
 import {FooterComponent} from './components/footer/footer.component';
 import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
-import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import {GroupListComponent} from "./components/group-list/group-list.component";
@@ -21,7 +20,6 @@ import {GroupListComponent} from "./components/group-list/group-list.component";
     FooterComponent,
     HomeComponent,
     LoginComponent,
-    MessageComponent,
     GroupListComponent,
   ],
   imports: [
