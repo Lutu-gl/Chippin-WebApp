@@ -1,10 +1,65 @@
 <div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to the SE PR group phase!</h1>
-  <hr class="my-4">
-  <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
-  <div *ngIf="authService.isLoggedIn()">
+  <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
+      <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
+      <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
+    <a class="btn btn-primary btn-lg" routerLink="/register" role="button">Start now</a>
+  </div>
+  <div *ngIf="authService.isLoggedIn()" class="pt-5">
+    <div class="row row-cols-2 g-5">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5>Shopping lists</h5>
+          </div>
+          <div class="card-body">
+            content here
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5>Groups</h5>
+          </div>
+          <div class="card-body">
+            <div>
+              <ul class="group-list">
+                <li *ngFor="let group of groups | slice:0:3; let i=index" [routerLink]="['/group/', group.id]">
+                  {{ group.groupName }}
+                </li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <a class="btn btn-secondary" routerLink="/groups">View all groups</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5>Expenses</h5>
+          </div>
+          <div class="card-body">
+            content here
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5>Data</h5>
+          </div>
+          <div class="card-body">
+            <div>Add data here</div>
+            <div class="mt-3">
+              <a class="btn btn-secondary">Overview and visualization</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!--add dashboard here-->
+    </div>
 
   </div>
 </div>
