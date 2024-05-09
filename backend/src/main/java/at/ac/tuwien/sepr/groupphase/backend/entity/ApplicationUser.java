@@ -4,6 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -11,6 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Getter
@@ -37,4 +42,11 @@ public class ApplicationUser {
     private Boolean admin;
 
 
+    @ManyToMany
+    @JoinTable(
+        name = "user_group",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<GroupEntity> groups;
 }

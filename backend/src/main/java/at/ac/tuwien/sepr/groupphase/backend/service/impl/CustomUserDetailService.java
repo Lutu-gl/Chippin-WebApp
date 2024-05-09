@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -70,6 +72,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String login(UserLoginDto userLoginDto) {
+        LOGGER.trace("login({})", userLoginDto);
         UserDetails userDetails = loadUserByUsername(userLoginDto.getEmail());
         if (userDetails != null
             && userDetails.isAccountNonExpired()
@@ -88,6 +91,8 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String register(UserRegisterDto userRegisterDto, boolean admin) throws UserAlreadyExistsException {
+        LOGGER.trace("register({}, {})", userRegisterDto, admin);
+
         ApplicationUser existingUser = userRepository.findByEmail(userRegisterDto.getEmail());
         if (existingUser != null) {
             throw new UserAlreadyExistsException("User with given email already exists");
@@ -98,6 +103,12 @@ public class CustomUserDetailService implements UserService {
         UserDetails userDetails = loadUserByUsername(userRegisterDto.getEmail());
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         return jwtTokenizer.getAuthToken(userDetails.getUsername(), roles);
+    }
+
+    @Override
+    public Set<GroupEntity> getGroupsByUserEmail(String email) {
+        LOGGER.trace("getGroupsByUserEmail({})", email);
+        return userRepository.findGroupsByUserEmail(email);
     }
 
 
