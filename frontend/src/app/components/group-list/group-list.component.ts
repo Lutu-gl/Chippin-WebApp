@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {GroupService} from "../../services/group.service";
-import {GroupDto} from "../../dtos/group";
+import {GroupListDto} from "../../dtos/group";
 
 @Component({
   selector: 'app-group-list',
@@ -8,7 +8,7 @@ import {GroupDto} from "../../dtos/group";
   styleUrl: './group-list.component.scss'
 })
 export class GroupListComponent implements OnInit {
-  groups: GroupDto[] = [];
+  groups: GroupListDto[] = [];
 
   constructor(private groupService: GroupService) { }
 

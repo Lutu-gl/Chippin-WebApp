@@ -13,6 +13,10 @@ import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import {GroupListComponent} from "./components/group-list/group-list.component";
+import {GroupCreateComponent} from "./components/group-list/group-create/group-create.component";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ToastrModule} from "ngx-toastr";
+import {AutocompleteComponent} from "./components/autocomplete/autocomplete.component";
 
 @NgModule({
   declarations: [
@@ -20,9 +24,11 @@ import {GroupListComponent} from "./components/group-list/group-list.component";
     HeaderComponent,
     FooterComponent,
     HomeComponent,
+    AutocompleteComponent,
     LoginComponent,
     MessageComponent,
     GroupListComponent,
+    GroupCreateComponent,
   ],
   imports: [
     BrowserModule,
@@ -31,6 +37,7 @@ import {GroupListComponent} from "./components/group-list/group-list.component";
     HttpClientModule,
     NgbModule,
     FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot()
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

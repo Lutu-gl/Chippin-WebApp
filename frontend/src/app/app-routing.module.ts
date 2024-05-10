@@ -7,6 +7,7 @@ import {MessageComponent} from './components/message/message.component';
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {GroupListComponent} from "./components/group-list/group-list.component";
+import {GroupCreateComponent, GroupCreateEditMode} from "./components/group-list/group-create/group-create.component";
 
 
 const routes: Routes = [
@@ -14,11 +15,11 @@ const routes: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
   {path: 'groups', canActivate: mapToCanActivate([AuthGuard]), component: GroupListComponent},
+  {path: 'groups/create', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
   {path: 'group/:id', canActivate:mapToCanActivate([AuthGuard]), children: [
       {path: 'pantry', component: PantryComponent}
     ]},
   {path: 'register', component: RegisterComponent},
-  {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
   {path: '**', redirectTo: ''}
 ];
 

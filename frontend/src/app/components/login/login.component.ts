@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit {
     this.authService.loginUser(authRequest).subscribe({
       next: () => {
         console.log('Successfully logged in user: ' + authRequest.email);
+        localStorage.setItem('userEmail', authRequest.email);
         this.router.navigate(['/message']);
       },
       error: error => {
