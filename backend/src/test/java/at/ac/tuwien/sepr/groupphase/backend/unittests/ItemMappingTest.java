@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class ItemMappingTest {
-    private final List<Item> items = List.of(new Item(1L, "Potato", 2, Unit.Piece, null));
+    private final List<Item> items = List.of(new Item(1L, "Potato", 2, Unit.Piece, null, null));
     @Autowired
     private ItemMapper itemMapper;
 
