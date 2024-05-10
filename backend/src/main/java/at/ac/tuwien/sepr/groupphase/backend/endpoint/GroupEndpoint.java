@@ -2,11 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
