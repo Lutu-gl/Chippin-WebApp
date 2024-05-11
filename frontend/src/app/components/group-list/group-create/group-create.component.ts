@@ -88,6 +88,18 @@ export class GroupCreateComponent implements OnInit {
     this.route.data.subscribe(data => {
       this.mode = data.mode;
     });
+
+    // add logged in user to group
+    let emailString = this.userService.getUserEmail();
+    if(emailString === null) {
+      this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
+      return;
+    }
+
+    let loggedInUser: UserSelection = {
+      email: emailString
+    };
+    this.members.push(loggedInUser);
   }
 
   public dynamicCssClassesForInput(input: NgModel): any {
@@ -102,16 +114,6 @@ export class GroupCreateComponent implements OnInit {
       return;
     }
     if (form.valid) {
-      let emailString = this.userService.getUserEmail();
-      if(emailString === null) {
-        this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
-        return;
-      }
-
-      let loggedInUser: UserSelection = {
-        email: emailString
-      };
-      this.members.push(loggedInUser);
       this.group.members = this.members;
 
       let observable: Observable<GroupDto>;
@@ -124,7 +126,6 @@ export class GroupCreateComponent implements OnInit {
           break;
         default:
           console.error('Unknown GroupCreateEditMode', this.mode);
-          this.members.pop(); // Remove the logged in user from the list
           return;
       }
       observable.subscribe({
@@ -159,7 +160,6 @@ export class GroupCreateComponent implements OnInit {
           }
         }
       });
-      this.members.pop(); // Remove the logged in user from the list
     }
   }
 
@@ -192,6 +192,11 @@ export class GroupCreateComponent implements OnInit {
       }))));
 
   public removeMember(index: number) {
+    if(this.userService.getUserEmail() == this.members[index].email) {
+      this.notification.error(`You can't remove yourself from the group.`);
+      return;
+    }
+
     this.members.splice(index, 1);
   }
 
