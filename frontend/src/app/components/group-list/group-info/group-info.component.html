@@ -1,0 +1,19 @@
+<h1 class="display-1">{{group?.groupName}}</h1>
+<div *ngIf="group">
+  <h3 class="members">Members</h3>
+  <div class="member-list">
+    <div *ngFor="let member of group.members" class="member-list-item">
+      {{ member.email }}
+    </div>
+  </div>
+</div>
+
+<div class="mt-4 d-flex flex-row">
+  <button type="button"
+          class="btn btn-secondary"
+          [routerLink]="['edit']"
+  >
+    <i class="bi bi-pencil"></i>
+    Edit
+  </button>
+</div>
