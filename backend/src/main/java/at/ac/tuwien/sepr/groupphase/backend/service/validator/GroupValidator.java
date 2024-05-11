@@ -2,7 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.service.validator;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -12,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.CollectionNode;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -27,13 +28,16 @@ public class GroupValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private Validator validator;
     private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
+
 
     @Autowired
-    public GroupValidator(UserRepository userRepository) {
+    public GroupValidator(UserRepository userRepository, GroupRepository groupRepository) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
 
         this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
     }
 
     public void validateForCreation(GroupCreateDto group, String ownerEmail) throws ValidationException, ConflictException {
@@ -100,5 +104,38 @@ public class GroupValidator {
             }
         }*/
         return true;
+    }
+
+    public void validateForUpdate(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException, NotFoundException {
+        LOGGER.trace("validateForUpdate({})", groupCreateDto);
+
+        // Check if the group exists
+        if (!groupRepository.findById(groupCreateDto.getId()).isPresent()) {
+            throw new NotFoundException("Group to update does not exist");
+        }
+
+        List<String> validationErrors = new ArrayList<>();
+
+        Set<ConstraintViolation<GroupCreateDto>> violations = validator.validate(groupCreateDto);
+        if (!violations.isEmpty()) {
+            for (ConstraintViolation<GroupCreateDto> violation : violations) {
+                validationErrors.add(violation.getMessage());
+            }
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of group for update failed", validationErrors);
+        }
+
+        List<String> conflictErrors = new ArrayList<>();
+
+        checkOwnerFriendsWithEveryOne(groupCreateDto, ownerEmail, conflictErrors);
+        checkGroupMembersExist(groupCreateDto, conflictErrors);
+        //TODO: checkNobodyDeletedWithExpenses(groupCreateDto, conflictErrors);
+
+
+        if (!conflictErrors.isEmpty()) {
+            throw new ConflictException("Update of group failed because of conflict", conflictErrors);
+        }
     }
 }

@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import org.slf4j.Logger;
@@ -12,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -58,6 +61,36 @@ public class GroupEndpoint {
         return res;
     }
 
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("{id}")
+    public GroupCreateDto updateGroup(@PathVariable("id") long id, @RequestBody GroupCreateDto groupCreateDto) {
+        LOGGER.info("PUT " + BASE_PATH + "/{}", id);
+        LOGGER.debug("request parameters: {}, {}", groupCreateDto, id);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        GroupCreateDto res = null;
+        groupCreateDto.setId(id);   // set the id of the group to update
+
+        try {
+            res = groupService.update(groupCreateDto, authentication.getName());
+        } catch (ValidationException e) {
+            HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+            logClientError(status, "Group update failed because of wrong parameters", e);
+            throw new ResponseStatusException(status, e.getMessage(), e);
+        } catch (ConflictException e) {
+            HttpStatus status = HttpStatus.CONFLICT;
+            logClientError(status, "Group update failed because of wrong parameters", e);
+            throw new ResponseStatusException(status, e.getMessage(), e);
+        } catch (NotFoundException e) {
+            HttpStatus status = HttpStatus.NOT_FOUND;
+            logClientError(status, "Group to update not found", e);
+            throw new ResponseStatusException(status, e.getMessage(), e);
+        }
+
+        return res;
+    }
 
     private void logClientError(HttpStatus status, String message, Exception e) {
         LOGGER.warn("{} {}: {}: {}", status.value(), message, e.getClass().getSimpleName(), e.getMessage());
