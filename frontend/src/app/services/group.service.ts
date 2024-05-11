@@ -27,7 +27,6 @@ export class GroupService {
       groupName: group.groupName,
       members: Array.from(memberEmails)
     };
-    console.log('Creating group with formatted data:', formattedGroup);
     return this.http.post<GroupDto>('http://localhost:8080/api/group', formattedGroup);
   }
 
@@ -59,7 +58,6 @@ export class GroupService {
       groupName: group.groupName,
       members: Array.from(memberEmails)
     };
-    console.log('Creating group with formatted data:', formattedGroup);
     return this.http.put<GroupDto>(`http://localhost:8080/api/group/${group.id}`, formattedGroup);
 
   }

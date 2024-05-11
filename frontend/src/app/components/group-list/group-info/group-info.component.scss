@@ -1,0 +1,15 @@
+.members {
+  font-weight: normal;
+}
+
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.member-list-item {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
