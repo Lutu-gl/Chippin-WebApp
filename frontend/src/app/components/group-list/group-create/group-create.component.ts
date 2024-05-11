@@ -87,7 +87,6 @@ export class GroupCreateComponent implements OnInit {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.mode = data.mode;
-
     });
 
     // add logged in user to group
@@ -110,7 +109,6 @@ export class GroupCreateComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.service.getById(id)
       .subscribe(pGroup => {
-        console.log(pGroup);
         this.group = pGroup;
         this.members = pGroup.members;
       });

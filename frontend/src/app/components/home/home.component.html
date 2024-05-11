@@ -21,6 +21,7 @@
               </div>
             </div>
           </div>
+
           <div class="col">
             <div class="card">
               <div class="card-header">
@@ -40,11 +41,13 @@
                   </ul>
                 </div>
               </div>
-              <div class="card-footer">
-                <a class="btn btn-secondary" routerLink="/groups">View all groups</a>
+              <div class="card-footer d-flex justify-content-between">
+                <a class="btn btn-secondary" routerLink="/group">View all groups</a>
+                <a class="btn btn-primary" routerLink="/group/create">+</a>
               </div>
             </div>
           </div>
+
           <div class="col">
             <div class="card">
               <div class="card-header">
@@ -53,8 +56,9 @@
               <div class="card-body details-card">
                 expenses overview
               </div>
-              <div class="card-footer">
-                <a class="btn btn-secondary">Details</a>
+              <div class="card-footer d-flex justify-content-between">
+                <a class="btn btn-secondary" routerLink="invalid">Details</a>
+                <a class="btn btn-primary" routerLink="invalid">+</a>
               </div>
             </div>
           </div>

@@ -51,6 +51,7 @@ public class GroupValidator {
                 validationErrors.add(violation.getMessage());
             }
         }
+        checkAtLeastTwoMembers(group, validationErrors);
 
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of group for creation failed", validationErrors);
@@ -64,6 +65,15 @@ public class GroupValidator {
         if (!confictErrors.isEmpty()) {
             throw new ConflictException("group creation failed because of conflict", confictErrors);
         }
+    }
+
+    private boolean checkAtLeastTwoMembers(GroupCreateDto group, List<String> errors) {
+        if (group.getMembers().size() < 2) {
+            errors.add("Group must have at least two members.");
+            return false;
+        }
+
+        return true;
     }
 
     private boolean checkGroupMembersExist(GroupCreateDto group, List<String> conflictErrors) {
@@ -122,6 +132,8 @@ public class GroupValidator {
                 validationErrors.add(violation.getMessage());
             }
         }
+
+        checkAtLeastTwoMembers(groupCreateDto, validationErrors);
 
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of group for update failed", validationErrors);

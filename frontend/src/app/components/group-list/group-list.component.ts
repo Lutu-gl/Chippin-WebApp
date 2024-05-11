@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {GroupService} from "../../services/group.service";
 import {GroupListDto} from "../../dtos/group";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-group-list',
@@ -10,21 +11,23 @@ import {GroupListDto} from "../../dtos/group";
 export class GroupListComponent implements OnInit {
   groups: GroupListDto[] = [];
 
-  constructor(private groupService: GroupService) { }
+  constructor(
+    private groupService: GroupService,
+    private notification: ToastrService,
+) { }
 
   ngOnInit(): void {
     this.groupService.getGroups().subscribe({
        next: data => {
          this.groups = data;
-         console.log(this.groups);
        },
       error: error => {
         if (error && error.error && error.error.errors) {
           for (let i = 0; i < error.error.errors.length; i++) {
-            console.error(`${error.error.errors[i]}`); // TODO this.notification.error(`${error.error.errors[i]}`); ?
+            this.notification.error(`${error.error.errors[i]}`);
           }
         } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-          console.error(`${error.error.message}`) ; // TODO this.notification.error(`${error.error.message}`);
+          this.notification.error(`${error.error.message}`);
         } else {
           console.error('Error getting groups', error);
         }
