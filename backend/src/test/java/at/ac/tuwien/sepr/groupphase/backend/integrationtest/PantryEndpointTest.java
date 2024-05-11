@@ -58,7 +58,6 @@ public class PantryEndpointTest {
 
     @Autowired
     private SecurityProperties securityProperties;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     List<String> ADMIN_ROLES = new ArrayList<>() {
         {
@@ -90,6 +89,18 @@ public class PantryEndpointTest {
         pantryRepository.save(emptyPantry);
     }
 
+
+    @Test
+    public void givenInvalidPantryId_whenFindAllInPantry_then404()
+        throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", -1))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
+
     @Test
     public void givenEmptyPantry_whenFindAllInPantry_thenEmptyList()
         throws Exception {
@@ -99,14 +110,12 @@ public class PantryEndpointTest {
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
 
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
-
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
-        LOGGER.debug("detailDto: " + detailDto);
-        LOGGER.debug("detailDto2: " + detailDto.getItems());
-
-        assertEquals(0, detailDto.getItems().size());
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+            () ->assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(0, detailDto.getItems().size())
+        );
     }
 
     @Test

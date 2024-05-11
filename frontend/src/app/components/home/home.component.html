@@ -1,11 +1,91 @@
 <div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to the SE PR group phase!</h1>
-  <hr class="my-4">
-  <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
-  <div *ngIf="authService.isLoggedIn()">
-    <p>Check out the latest message from the SE PR group phase.</p>
-    <p class="lead">
-      <a class="btn btn-primary btn-lg" routerLink="/message" role="button">Message</a>
-    </p>
+  <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
+      <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
+      <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
+    <a class="btn btn-primary btn-lg" routerLink="/register" role="button">Start now</a>
+  </div>
+  <div *ngIf="authService.isLoggedIn()" class="pt-5">
+    <div class="row">
+      <div class="col">
+        <div class="row row-cols-2 g-5">
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Shopping lists</h5>
+              </div>
+              <div class="card-body details-card">
+                shopping lists here
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary">Add shopping list</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Groups</h5>
+              </div>
+              <div class="card-body details-card">
+                <div>
+                  <ul class="group-list" *ngIf="groups.length > 0">
+                    <li *ngFor="let group of groups | slice:0:3; let i=index" [routerLink]="['/group/', group.id]">
+                      {{ group.groupName }}
+                    </li>
+                  </ul>
+                  <ul class="group-list" *ngIf="groups === null || groups.length === 0">
+                    <li>
+                      You are in no group
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary" routerLink="/groups">View all groups</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Expenses</h5>
+              </div>
+              <div class="card-body details-card">
+                expenses overview
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary">Details</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Data</h5>
+              </div>
+              <div class="card-body details-card">
+                <div>Add data here</div>
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary">Overview and visualization</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-header">
+            <h5>Friends</h5>
+          </div>
+          <div class="card-body friends-card">
+            <div>Add friends here</div>
+          </div>
+          <div class="card-footer">
+              <a class="btn btn-secondary">Add friend</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

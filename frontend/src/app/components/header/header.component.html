@@ -8,12 +8,19 @@
   <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/message" routerLinkActive="active">Message</a>
+        <div class="dropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false" *ngIf="authService.isLoggedIn()">
+          <a class="btn btn-secondary dropdown-toggle" role="button">
+            <i class="bi bi-person"></i> Profile
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" *ngIf="authService.isLoggedIn()" routerLink="/profile" >Settings</a></li>
+            <li><a class="dropdown-item" *ngIf="authService.isLoggedIn()" routerLink="/" (click)="authService.logoutUser()">Logout</a></li>
+          </ul>
+        </div>
       </li>
     </ul>
     <ul class="navbar-nav mr-5">
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
-      <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/" (click)="authService.logoutUser()">Logout</a>
     </ul>
   </div>
 </nav>

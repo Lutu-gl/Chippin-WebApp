@@ -3,7 +3,6 @@ import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
-import {MessageComponent} from './components/message/message.component';
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {GroupListComponent} from "./components/group-list/group-list.component";
@@ -13,7 +12,6 @@ import {GroupCreateComponent, GroupCreateEditMode} from "./components/group-list
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
-  {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
   {path: 'groups', canActivate: mapToCanActivate([AuthGuard]), component: GroupListComponent},
   {path: 'groups/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
   {path: 'groups/create', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
