@@ -35,18 +35,45 @@ public class GroupRepositoryTest {
         userRepository.deleteAll();
         groupRepository.deleteAll();
     }
+
     @Test
     public void testCreateGroupWith3MembersAndGroupName() {
         ApplicationUser user = createUserWithGroups();
 
         Set<GroupEntity> foundGroups = userRepository.findGroupsByUserEmail(user.getEmail());
-        System.out.println(foundGroups);
 
 
         assertAll(
             () -> assertNotNull(foundGroups, "Groups should not be null"),
             () -> assertFalse(foundGroups.isEmpty(), "Groups should not be empty"),
             () -> assertTrue(foundGroups.containsAll(user.getGroups()), "Groups should contain all assigned groups")
+        );
+    }
+
+    @Test
+    public void testUpdateGroupWith3MembersAndGroupName() {
+        ApplicationUser user = createUserWithGroups();
+
+        Set<GroupEntity> foundGroups = userRepository.findGroupsByUserEmail(user.getEmail());
+
+        assertAll(
+            () -> assertNotNull(foundGroups, "Groups should not be null"),
+            () -> assertFalse(foundGroups.isEmpty(), "Groups should not be empty"),
+            () -> assertTrue(foundGroups.containsAll(user.getGroups()), "Groups should contain all assigned groups")
+        );
+
+        GroupEntity group1 = foundGroups.stream().filter(group -> group.getGroupName().equals("Developers")).findFirst().get();
+        group1.setGroupName("NewDevelopers");
+
+        groupRepository.save(group1);
+
+        Set<GroupEntity> updatedGroups = userRepository.findGroupsByUserEmail(user.getEmail());
+        System.out.println(updatedGroups);
+
+        assertAll(
+            () -> assertNotNull(updatedGroups, "Groups should not be null"),
+            () -> assertFalse(updatedGroups.isEmpty(), "Groups should not be empty"),
+            () -> assertTrue(updatedGroups.contains(group1), "Groups should contain updated group")
         );
     }
 

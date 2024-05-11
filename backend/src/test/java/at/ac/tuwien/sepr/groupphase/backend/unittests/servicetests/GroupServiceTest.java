@@ -1,11 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -17,11 +14,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GroupServiceTest {
     @Mock
@@ -46,7 +51,8 @@ public class GroupServiceTest {
     @Test
     public void testCreateGroupSuccess() throws Exception {
         // Mock-Konfigurationen
-        GroupEntity mockGroupEntity = new GroupEntity();;
+        GroupEntity mockGroupEntity = new GroupEntity();
+        ;
         when(groupMapper.groupCreateDtoToGroupEntity(any(GroupCreateDto.class))).thenReturn(mockGroupEntity);
         when(groupRepository.save(any(GroupEntity.class))).thenReturn(mockGroupEntity);
         when(groupMapper.groupEntityToGroupCreateDto(any(GroupEntity.class)))
@@ -70,6 +76,31 @@ public class GroupServiceTest {
         assertTrue(result.getMembers().contains("user1@example.com"));
         assertTrue(result.getMembers().contains("user2@example.com"));
         verify(groupValidator, times(1)).validateForCreation(groupCreateDto, "user1@example.com");
+    }
+
+    @Test
+    public void testUpdateGroupSuccess() throws Exception {
+        GroupEntity existingGroupEntity = new GroupEntity();
+        existingGroupEntity.setId(1L); // assuming this ID exists in the database
+
+        GroupCreateDto updateDto = GroupCreateDto.builder()
+            .groupName("UpdatedTestGroup")
+            .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
+            .build();
+
+        when(groupMapper.groupCreateDtoToGroupEntity(updateDto)).thenReturn(existingGroupEntity);
+        when(groupRepository.save(existingGroupEntity)).thenReturn(existingGroupEntity);
+        when(groupMapper.groupEntityToGroupCreateDto(existingGroupEntity)).thenReturn(updateDto);
+
+        // Act
+        GroupCreateDto result = groupService.update(updateDto, "user1@example.com");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("UpdatedTestGroup", result.getGroupName());
+        assertEquals(2, result.getMembers().size());
+        assertTrue(result.getMembers().contains("user1@example.com"));
+        assertTrue(result.getMembers().contains("user2@example.com"));
     }
 
     @Test

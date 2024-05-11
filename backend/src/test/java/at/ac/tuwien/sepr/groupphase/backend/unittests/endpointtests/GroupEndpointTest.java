@@ -1,49 +1,35 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.GroupEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -81,15 +67,43 @@ public class GroupEndpointTest {
 
         String groupJson = "{\"name\":\"Test Group\",\"members\":[\"user1@example.com\",\"user2@example.com\"]}";
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/group")
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(groupJson))
+                .post("/api/group")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsByteArray();
 
         GroupCreateDto groupResult = objectMapper.readerFor(GroupCreateDto.class)
-                .readValue(body);
+            .readValue(body);
+
+        assertNotNull(groupResult, "Response should not be null");
+        assertEquals("Test Group", groupResult.getGroupName(), "Group name should match");
+        assertTrue(groupResult.getMembers().contains("user1@example.com"), "Member list should contain user1@example.com");
+        assertTrue(groupResult.getMembers().contains("user2@example.com"), "Member list should contain user2@example.com");
+        assertEquals(groupResult.getMembers().size(), 2, "Members should have the size 2");
+    }
+
+    @Test
+    public void testUpdateGroupValid() throws Exception {
+        GroupCreateDto mockResponse = GroupCreateDto.builder()
+            .groupName("Test Group")
+            .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
+            .build();
+        when(groupService.update(any(), anyString())).thenReturn(mockResponse);
+
+        String groupUpdateJson = "{\"name\":\"Test Group\",\"members\":[\"user1@example.com\",\"user2@example.com\"]}";
+
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders
+                .put("/api/group/1")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupUpdateJson))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsByteArray();
+
+        GroupCreateDto groupResult = objectMapper.readerFor(GroupCreateDto.class)
+            .readValue(body);
 
         assertNotNull(groupResult, "Response should not be null");
         assertEquals("Test Group", groupResult.getGroupName(), "Group name should match");

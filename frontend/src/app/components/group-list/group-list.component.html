@@ -8,7 +8,27 @@
   </a>
 </div>
 
-<h2>Your groups</h2>
-<ul class="group-list">
-  <li *ngFor="let group of groups">{{ group.groupName }}</li>
-</ul>
+<div class="mt-2">
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th class="min-width">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let group of groups" class="center-td">
+      <td>{{group.groupName}}</td>
+      <td>
+        <div class="btn-group">
+          <a class="btn btn-sm responsive-info-button "
+             [routerLink]="[group.id, 'edit']"
+             aria-label="Show group details">
+            <i class="bi bi-pencil"></i>
+          </a>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
