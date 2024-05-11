@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -35,6 +36,25 @@ public class GroupEndpoint {
     @Autowired
     public GroupEndpoint(GroupService groupService) {
         this.groupService = groupService;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("{id}")
+    public GroupCreateDto getById(@PathVariable("id") long id) {
+        LOGGER.info("GET " + BASE_PATH + "/{}", id);
+        LOGGER.debug("request parameters: {}", id);
+
+        GroupCreateDto res = null;
+        try {
+            res = groupService.getById(id);
+        } catch (NotFoundException e) {
+            HttpStatus status = HttpStatus.NOT_FOUND;
+            logClientError(status, "Group not found", e);
+            throw new ResponseStatusException(status, e.getMessage(), e);
+        }
+
+        return res;
     }
 
     @Secured("ROLE_USER")

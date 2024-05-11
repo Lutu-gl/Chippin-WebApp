@@ -87,6 +87,7 @@ export class GroupCreateComponent implements OnInit {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.mode = data.mode;
+
     });
 
     // add logged in user to group
@@ -100,6 +101,19 @@ export class GroupCreateComponent implements OnInit {
       email: emailString
     };
     this.members.push(loggedInUser);
+
+    if (!this.modeIsCreate) {
+      this.getGroup();
+    }
+  }
+  getGroup(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.service.getById(id)
+      .subscribe(pGroup => {
+        console.log(pGroup);
+        this.group = pGroup;
+        this.members = pGroup.members;
+      });
   }
 
   public dynamicCssClassesForInput(input: NgModel): any {
@@ -122,7 +136,7 @@ export class GroupCreateComponent implements OnInit {
           observable = this.service.create(this.group);
           break;
         case GroupCreateEditMode.edit:
-          //observable = this.service.update(this.group);
+          observable = this.service.update(this.group);
           break;
         default:
           console.error('Unknown GroupCreateEditMode', this.mode);

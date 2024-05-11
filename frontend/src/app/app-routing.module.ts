@@ -15,6 +15,7 @@ const routes: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
   {path: 'groups', canActivate: mapToCanActivate([AuthGuard]), component: GroupListComponent},
+  {path: 'groups/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
   {path: 'groups/create', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
   {path: 'group/:id', canActivate:mapToCanActivate([AuthGuard]), children: [
       {path: 'pantry', component: PantryComponent}

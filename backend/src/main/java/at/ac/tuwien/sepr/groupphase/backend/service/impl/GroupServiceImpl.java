@@ -74,4 +74,15 @@ public class GroupServiceImpl implements GroupService {
 
         return groupMapper.groupEntityToGroupCreateDto(savedGroup);
     }
+
+    @Override
+    @Transactional
+    public GroupCreateDto getById(long id) throws NotFoundException {
+        LOGGER.trace("getById({})", id);
+
+        GroupEntity groupEntity = groupRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("No group found with this id"));
+
+        return groupMapper.groupEntityToGroupCreateDto(groupEntity);
+    }
 }

@@ -31,4 +31,14 @@ public interface GroupService {
      * @throws NotFoundException   if the group with given ID does not exist in the persistent data store
      */
     GroupCreateDto update(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException, NotFoundException;
+
+
+    /**
+     * Get the group with given ID, with more detail information.
+     *
+     * @param id the ID of the group to get
+     * @return the group with ID {@code id}
+     * @throws NotFoundException if the group with the given ID does not exist in the persistent data store
+     */
+    GroupCreateDto getById(long id) throws NotFoundException;
 }
