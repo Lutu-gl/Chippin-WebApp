@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
-import {GroupDto} from "../../dtos/group";
+import {GroupListDto} from "../../dtos/group";
 import {GroupService} from "../../services/group.service";
 
 @Component({
@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private groupService: GroupService) { }
-  groups: GroupDto[] = [];
+  groups: GroupListDto[] = [];
   ngOnInit(): void {
     this.groupService.getGroups().subscribe({
       next: data => {
