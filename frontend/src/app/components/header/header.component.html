@@ -22,10 +22,5 @@
     <ul class="navbar-nav mr-5">
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
     </ul>
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/friends" routerLinkActive="active">Friends</a>
-      </li>
-    </ul>
   </div>
 </nav>

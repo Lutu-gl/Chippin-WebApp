@@ -85,8 +85,9 @@
           <div class="card-body friends-card">
             <div>Add friends here</div>
           </div>
-          <div class="card-footer">
-              <a class="btn btn-secondary">Add friend</a>
+          <div class="card-footer d-flex justify-content-between">
+            <a class="btn btn-secondary" *ngIf="authService.isLoggedIn()" routerLink="/friends" routerLinkActive="active" >Friends</a>
+            <a class="btn btn-primary" routerLink="/add-friend">+</a>
           </div>
         </div>
       </div>
