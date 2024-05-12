@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -16,6 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,5 +75,20 @@ public class UserServiceTest extends BaseTest {
     assertThrows(UserAlreadyExistsException.class, () -> userService.register(userRegisterDto, false));
 
     verify(userRepository, times(0)).save(any(ApplicationUser.class));
+  }
+
+  @Test
+  void testGetGroupsByUserEmail() {
+      String userEmail = "test@example.com";
+      Set<GroupEntity> expectedGroups = new HashSet<>();
+      expectedGroups.add(new GroupEntity(1L, "Group 1", null));
+      expectedGroups.add(new GroupEntity(2L, "Group 2", null));
+
+      when(userRepository.findGroupsByUserEmail(userEmail)).thenReturn(expectedGroups);
+
+      Set<GroupEntity> resultGroups = userService.getGroupsByUserEmail(userEmail);
+
+      assertEquals(expectedGroups, resultGroups, "The returned groups should match the expected groups");
+      verify(userRepository).findGroupsByUserEmail(userEmail);
   }
 }
