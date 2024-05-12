@@ -1,8 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.FriendshipMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
+import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -10,9 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 
 @RestController
 @RequestMapping(value = "/api/v1/friendship")
@@ -31,15 +39,58 @@ public class FriendshipEndpoint {
     @Secured("ROLE_USER")
     @PostMapping
     @Operation(summary = "Send a friend request", security = @SecurityRequirement(name = "apiKey"))
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.CREATED)
     public void sendFriendRequest(@RequestBody FriendRequestDto friendRequestDto) {
         LOGGER.info("POST /api/v1/friendship body: {}", friendRequestDto);
-
-        //System.out.println("-------------------------");
-        //System.out.println(friendRequestDto.getReceiverEmail());
-        //System.out.println("-------------------------");
-
-        friendshipService.sendFriendRequest(friendRequestDto.getReceiverEmail());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String senderEmail = authentication.getName();
+        try {
+            friendshipService.sendFriendRequest(senderEmail, friendRequestDto.getReceiverEmail());
+        }
+        catch (InvalidFriendRequest e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/friend-requests")
+    public Collection<String> getIncomingFriendRequest() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return friendshipService.getIncomingFriendRequest(email);
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/friends")
+    public Collection<String> getFriends() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return friendshipService.getFriends(email);
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping(value = "/accept")
+    public void acceptFriendRequest(@RequestBody AcceptFriendRequestDto acceptFriendRequestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        try {
+            friendshipService.acceptFriendRequest(acceptFriendRequestDto.getSenderEmail(), email);
+        }
+        catch (InvalidFriendRequest e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    @Secured("ROLE_USER")
+    @DeleteMapping(value = "/reject/{sender-email}")
+    public void rejectFriendRequest(@PathVariable(name = "sender-email") String senderEmail) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        try {
+            friendshipService.rejectFriendRequest(senderEmail, email);
+        }
+        catch (InvalidFriendRequest e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
 }

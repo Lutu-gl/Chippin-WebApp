@@ -1,10 +1,16 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Friendship {
 
     @Id
@@ -23,43 +29,4 @@ public class Friendship {
     @Column(nullable = false, name = "friendship_status")
     private FriendshipStatus friendshipStatus;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ApplicationUser getSender() {
-        return sender;
-    }
-
-    public void setSender(ApplicationUser sender) {
-        this.sender = sender;
-    }
-
-    public ApplicationUser getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(ApplicationUser receiver) {
-        this.receiver = receiver;
-    }
-
-    public LocalDateTime getSentAt() {
-        return sentAt;
-    }
-
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
-    }
-
-    public FriendshipStatus getFriendshipStatus() {
-        return friendshipStatus;
-    }
-
-    public void setFriendshipStatus(FriendshipStatus friendshipStatus) {
-        this.friendshipStatus = friendshipStatus;
-    }
 }

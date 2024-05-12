@@ -1,10 +1,31 @@
 <div>
+    <div *ngIf="incomingFriendRequests.length > 0">
+        <h1>Incoming friend requests</h1>
+        <div>
+            <div *ngFor="let email of incomingFriendRequests" class="friend-request">
+                <span>{{ email }}</span>
+                <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm">
+                    <i class="bi bi-check"></i> Accept
+                </button>
+                <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm">
+                    <i class="bi bi-x"></i> Reject
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h1>Friends</h1>
+        <div>
+            <div *ngFor="let email of friends">
+                <span>{{ email }}</span>
+            </div>
+        </div>
+    </div>
+    
+
     <a class="btn btn-primary btn-lg" routerLink="/add-friend" role="button">Add friend</a>
-    <ul>
-        <li>Friend 1</li>
-        <li>Friend 2</li>
-        <li>Friend 3</li>
-    </ul>
+    
 </div>
 
   
