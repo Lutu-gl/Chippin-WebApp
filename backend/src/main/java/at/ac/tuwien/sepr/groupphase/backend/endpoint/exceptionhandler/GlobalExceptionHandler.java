@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected UserAlreadyExistsErrorDto handleUserAlreadyExists(Throwable ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         return new UserAlreadyExistsErrorDto(ex.getMessage());
+    }
+
+    //Exception handler for PreAuthorize annotation
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    protected String handleAccessDenied(RuntimeException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return ex.getMessage();
     }
 
     /**
