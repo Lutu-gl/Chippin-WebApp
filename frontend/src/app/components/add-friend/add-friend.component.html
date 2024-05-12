@@ -1,0 +1,11 @@
+<!-- <div>
+    <input [(ngModel)]="receiverEmail" type="text"/>
+    <button (click)="addFriend()">Add friend</button>
+</div> -->
+
+<h1 style="text-align: center; margin-top: 2%; margin-bottom: 5%">Add New Friend</h1>
+<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; display: block; width: 400px; text-align: center; margin: 0 auto 20px;">
+    <label for="receiverEmail">Receiver Email:</label><br>
+    <input [(ngModel)]="receiverEmail" type="text" id="receiverEmail" style="margin-bottom: 10px; width: 100%;"><br>
+    <button (click)="addFriend()" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%;">Add friend</button>
+</div>

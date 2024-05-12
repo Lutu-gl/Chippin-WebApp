@@ -3,6 +3,8 @@ import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
+import { FriendsComponent } from './components/friends/friends.component';
+import { AddFriendComponent } from './components/add-friend/add-friend.component';
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {GroupListComponent} from "./components/group-list/group-list.component";
@@ -20,6 +22,8 @@ const routes: Routes = [
       {path: 'pantry', component: PantryComponent}
     ]},
   {path: 'register', component: RegisterComponent},
+  {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
+  {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
   {path: '**', redirectTo: ''}
 ];
 
