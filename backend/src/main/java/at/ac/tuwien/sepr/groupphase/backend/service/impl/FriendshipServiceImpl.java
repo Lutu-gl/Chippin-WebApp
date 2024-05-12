@@ -62,13 +62,6 @@ public class FriendshipServiceImpl implements FriendshipService {
         // get the receiver application user
         ApplicationUser receiver = userService.findApplicationUserByEmail(receiverEmail);
 
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
-        System.out.println("------------------------");
-        System.out.println(sender.getEmail());
-        System.out.println(receiver.getEmail());
-        System.out.println("------------------------");
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
-
         // check if receiver already sent a friend request
         // if so, accept that friend request and return
         if (friendshipRepository.pendingFriendRequestExists(receiver, sender)) {
