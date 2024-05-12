@@ -9,4 +9,8 @@ public class AcceptFriendRequestDto {
     public String getSenderEmail() {
         return senderEmail;
     }
+
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
 }

@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
@@ -26,8 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -51,16 +51,19 @@ public class FriendshipEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    private static String TEST_EMAIL_1 = "friendshipTestUser1@test.com";
+    private static String TEST_EMAIL_2 = "friendshipTestUser2@test.com";
+
     @BeforeEach
     public void registerTestUser() {
         friendshipRepository.deleteAll();
         UserRegisterDto userRegisterDto1 = UserRegisterDto.builder()
-            .email("friendshipTestUser1@test.com")
+            .email(TEST_EMAIL_1)
             .password("Password0")
             .build();
 
         UserRegisterDto userRegisterDto2 = UserRegisterDto.builder()
-            .email("friendshipTestUser2@test.com")
+            .email(TEST_EMAIL_2)
             .password("Password0")
             .build();
 
@@ -72,8 +75,8 @@ public class FriendshipEndpointTest implements TestData {
     }
 
     private String[] getLoginTokensOfTestUsers() {
-        String bearerToken1 = jwtTokenizer.getAuthToken("friendshipTestUser1@test.com", List.of("ROLE_USER"));
-        String bearerToken2 = jwtTokenizer.getAuthToken("friendshipTestUser2@test.com", List.of("ROLE_USER"));
+        String bearerToken1 = jwtTokenizer.getAuthToken(TEST_EMAIL_1, List.of("ROLE_USER"));
+        String bearerToken2 = jwtTokenizer.getAuthToken(TEST_EMAIL_2, List.of("ROLE_USER"));
 
         return new String[]{ bearerToken1, bearerToken2 };
     }
@@ -84,7 +87,7 @@ public class FriendshipEndpointTest implements TestData {
         String[] tokens = getLoginTokensOfTestUsers();
 
         FriendRequestDto friendRequestDto = new FriendRequestDto();
-        friendRequestDto.setReceiverEmail("friendshipTestUser2@test.com");
+        friendRequestDto.setReceiverEmail(TEST_EMAIL_2);
 
         mockMvc.perform(post("/api/v1/friendship")
                 .header(securityProperties.getAuthHeader(), tokens[0])
@@ -94,22 +97,35 @@ public class FriendshipEndpointTest implements TestData {
             .andExpect(status().isCreated());
     }
 
-    /*
     @Test
-    public void testSendFriendRequestShouldReturn400ForUnknownUser() throws Exception {
+    public void testAcceptFriendRequestShouldReturn200() throws Exception {
 
         String[] tokens = getLoginTokensOfTestUsers();
 
-        FriendRequestDto friendRequestDto = new FriendRequestDto();
-        friendRequestDto.setReceiverEmail("unkown@email.com");
+        friendshipService.sendFriendRequest(TEST_EMAIL_2, TEST_EMAIL_1);
 
-        mockMvc.perform(post("/api/v1/friendship")
+        AcceptFriendRequestDto acceptFriendRequestDto = new AcceptFriendRequestDto();
+        acceptFriendRequestDto.setSenderEmail(TEST_EMAIL_2);
+
+        mockMvc.perform(put("/api/v1/friendship/accept")
                 .header(securityProperties.getAuthHeader(), tokens[0])
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(friendRequestDto))
+                .content(objectMapper.writeValueAsString(acceptFriendRequestDto))
             )
-            .andExpect(status().isNotFound());
+            .andExpect(status().isOk());
+
     }
 
-     */
+    @Test
+    public void testRejectFriendRequestShouldReturn200() throws Exception {
+        String[] tokens = getLoginTokensOfTestUsers();
+
+        friendshipService.sendFriendRequest(TEST_EMAIL_2, TEST_EMAIL_1);
+
+        mockMvc.perform(delete("/api/v1/friendship/reject/{parameter}", TEST_EMAIL_2)
+                .header(securityProperties.getAuthHeader(), tokens[0])
+            )
+            .andExpect(status().isOk());
+    }
+
 }
