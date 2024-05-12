@@ -83,7 +83,34 @@
             <h5>Friends</h5>
           </div>
           <div class="card-body friends-card">
-            <div>Add friends here</div>
+            <div>
+              <div *ngIf="incomingFriendRequests !== null && incomingFriendRequests.length > 0">
+                <span>Incoming friend requests</span>
+                <ul class="group-list">
+                  <li *ngFor="let email of incomingFriendRequests">
+                    <span>{{ email }}</span>
+                    <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm" style="margin-left: 10px;">
+                      <i class="bi bi-check"></i> Accept
+                    </button>
+                    <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
+                        <i class="bi bi-x"></i> Reject
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <ul class="group-list" *ngIf="friends !== null && friends.length > 0">
+                <li *ngFor="let email of friends">
+                  {{ email }}
+                </li>
+              </ul>
+
+              <ul class="group-list" *ngIf="(incomingFriendRequests === null || incomingFriendRequests.length === 0) && (friends === null || friends.length === 0)">
+                <li>
+                  You have no friends yet
+                </li>
+              </ul>
+            </div>
           </div>
           <div class="card-footer d-flex justify-content-between">
             <a class="btn btn-secondary" *ngIf="authService.isLoggedIn()" routerLink="/friends" routerLinkActive="active" >Friends</a>

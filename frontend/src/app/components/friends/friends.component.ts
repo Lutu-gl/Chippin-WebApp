@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { AcceptFriendRequest } from 'src/app/dtos/friend-request';
 import { AuthService } from 'src/app/services/auth.service';
 import { FriendshipService } from 'src/app/services/friendship.service';
@@ -12,7 +14,12 @@ export class FriendsComponent implements OnInit {
   incomingFriendRequests: string[] = [];
   friends: string[] = [];
 
-  constructor(public authService: AuthService, private friendshipService: FriendshipService) { }
+  constructor(
+    public authService: AuthService,
+    private friendshipService: FriendshipService,
+    private notification: ToastrService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.friendshipService.getIncomingFriendRequests().subscribe({
@@ -20,7 +27,7 @@ export class FriendsComponent implements OnInit {
         this.incomingFriendRequests = data;
       },
       error: (e) => {
-        alert("Get incoming friend requests failed!");
+        this.notification.error("Failed to load incoming friend requests!");
       }
     });
 
@@ -29,9 +36,9 @@ export class FriendsComponent implements OnInit {
         this.friends = data;
       },
       error: (e) => {
-        alert("Get friends failed!");
+        this.notification.error("Failed to load friends!");
       }
-    })
+    });
 
   }
 
@@ -40,10 +47,12 @@ export class FriendsComponent implements OnInit {
     acceptFriendRequest.senderEmail = email;
     this.friendshipService.acceptFriendRequest(acceptFriendRequest).subscribe({
       next: () => {
-        alert("it worked!");
+        this.notification.success("Accepted friend request successfully!");
+        this.incomingFriendRequests = this.incomingFriendRequests.filter(senderEmail => senderEmail !== email);
+        this.friends.push(email);
       },
-      error: () => {
-        alert("It did not work!");
+      error: (error) => {
+        this.notification.error(error.error.detail);
       }
     })
   }
@@ -51,10 +60,11 @@ export class FriendsComponent implements OnInit {
   rejectFriendRequest(email: string): void {
     this.friendshipService.rejectFriendRequest(email).subscribe({
       next: () => {
-        alert("It worked!");
+        this.notification.success("Rejected friend request successfully!");
+        this.incomingFriendRequests = this.incomingFriendRequests.filter(senderEmail => senderEmail !== email);
       },
-      error: () => {
-        alert("It did not work!");
+      error: (error) => {
+        this.notification.error(error.error.detail);
       }
     })
   }

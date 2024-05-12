@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { FriendRequest } from 'src/app/dtos/friend-request';
 import { AuthService } from 'src/app/services/auth.service';
 import { FriendshipService } from 'src/app/services/friendship.service';
@@ -12,7 +14,12 @@ export class AddFriendComponent implements OnInit {
   receiverEmail: string;
 
 
-  constructor(public authService: AuthService, private friendshipService: FriendshipService) { }
+  constructor(
+    public authService: AuthService,
+    private friendshipService: FriendshipService,
+    private notification: ToastrService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
   }
@@ -23,10 +30,11 @@ export class AddFriendComponent implements OnInit {
     console.log(friendRequest);
     this.friendshipService.sendFriendRequest(friendRequest).subscribe({
       next: () => {
-        alert("It worked!");
+        this.notification.success("Send friend request successfully!");
+        this.router.navigate(["/"])
       },
-      error: () => {
-        alert("It did not work!");
+      error: (error) => {
+        this.notification.error(error.error.detail);
       }
     });
   }

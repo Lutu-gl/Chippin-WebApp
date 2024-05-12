@@ -1,13 +1,13 @@
-<div>
+<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;">
     <div *ngIf="incomingFriendRequests.length > 0">
-        <h1>Incoming friend requests</h1>
+        <h2 style="margin-bottom: 15px;">Incoming Friend Requests</h2>
         <div>
-            <div *ngFor="let email of incomingFriendRequests" class="friend-request">
-                <span>{{ email }}</span>
-                <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm">
+            <div *ngFor="let email of incomingFriendRequests" class="friend-request" style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
+                <span style="font-weight: bold;">{{ email }}</span>
+                <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm" style="margin-left: 10px;">
                     <i class="bi bi-check"></i> Accept
                 </button>
-                <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm">
+                <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
                     <i class="bi bi-x"></i> Reject
                 </button>
             </div>
@@ -15,17 +15,13 @@
     </div>
 
     <div>
-        <h1>Friends</h1>
+        <h2 style="margin-bottom: 15px;">Friends</h2>
         <div>
-            <div *ngFor="let email of friends">
+            <div *ngFor="let email of friends" style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
                 <span>{{ email }}</span>
             </div>
         </div>
     </div>
-    
 
-    <a class="btn btn-primary btn-lg" routerLink="/add-friend" role="button">Add friend</a>
-    
+    <a class="btn btn-primary btn-lg" routerLink="/add-friend" role="button" style="margin-top: 20px;">Add New Friend</a>
 </div>
-
-  
