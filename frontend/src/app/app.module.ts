@@ -17,6 +17,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ToastrModule} from "ngx-toastr";
 import {AutocompleteComponent} from "./components/autocomplete/autocomplete.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
+import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
 
 @NgModule({
   declarations: [
@@ -30,15 +31,15 @@ import {GroupInfoComponent} from "./components/group-list/group-info/group-info.
     GroupCreateComponent,
     GroupInfoComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot()
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
 })
