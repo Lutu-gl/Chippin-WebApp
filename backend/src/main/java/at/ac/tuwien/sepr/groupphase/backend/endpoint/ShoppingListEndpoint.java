@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
@@ -32,7 +33,7 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PostMapping
-    public ShoppingListDetailDto createShoppingListForGroup(@PathVariable Long groupId, @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
+    public ShoppingListDetailDto createShoppingListForGroup(@PathVariable Long groupId, @Valid @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
         log.debug("request body: {}", shoppingListCreateDto);
         var shoppingList = shoppingListService.createShoppingList(shoppingListCreateDto, groupId);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
@@ -66,7 +67,7 @@ public class ShoppingListEndpoint {
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PutMapping("/{shoppingListId}")
     public ShoppingListDetailDto updateShoppingList(@PathVariable Long groupId, @PathVariable Long shoppingListId,
-                                                    @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
+                                                    @Valid @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
         var shoppingList = shoppingListService.updateShoppingList(shoppingListId, shoppingListUpdateDto);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
     }
