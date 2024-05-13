@@ -21,15 +21,22 @@ import {
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
-  {path: 'group', canActivate: mapToCanActivate([AuthGuard]), component: GroupListComponent},
-  {path: 'group/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
-  {path: 'group/create', canActivate: mapToCanActivate([AuthGuard]), component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
-  {path: 'group/:id', component: GroupInfoComponent,canActivate:mapToCanActivate([AuthGuard]), children: [
-      {path: 'pantry', component: PantryComponent},
+  {path: 'group', canActivate: mapToCanActivate([AuthGuard]), children: [
+      {path: '', component: GroupListComponent},
+      {path: ':id', children: [
+          {path: '', component: GroupInfoComponent},
+          {path: 'pantry', component: PantryComponent},
+          {path: 'edit', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
+          {path: 'shoppingList', children: [
+              {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
+              {path: ':shoppingListId', children: [
+                  {path: '', component: ShoppingListDetailComponent},
+                  {path: 'edit', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.edit}},
+                ]}
+            ]}
+        ]},
+      {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
     ]},
-  {path: 'group/:id/shoppingList/create', component: ShoppingListCreateComponent, canActivate: mapToCanActivate([AuthGuard]), data: {mode: ShoppingListCreateEditMode.create}},
-  {path: 'group/:id/shoppingList/:shoppingListId/edit', component: ShoppingListCreateComponent, canActivate: mapToCanActivate([AuthGuard]), data: {mode: ShoppingListCreateEditMode.edit}},
-  {path: 'group/:id/shoppingList/:shoppingListId', component: ShoppingListDetailComponent, canActivate: mapToCanActivate([AuthGuard])},
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
