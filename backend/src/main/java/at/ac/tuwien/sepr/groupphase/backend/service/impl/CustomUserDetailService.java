@@ -1,11 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -58,7 +64,7 @@ public class CustomUserDetailService implements UserService {
     @Override
     public ApplicationUser findApplicationUserByEmail(String email) {
         LOGGER.debug("Find application user by email");
-        ApplicationUser applicationUser = userRepository.findUserByEmail(email);
+        ApplicationUser applicationUser = userRepository.findByEmail(email);
         if (applicationUser != null) {
             return applicationUser;
         }
@@ -67,6 +73,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String login(UserLoginDto userLoginDto) {
+        LOGGER.trace("login({})", userLoginDto);
         UserDetails userDetails = loadUserByUsername(userLoginDto.getEmail());
         if (userDetails != null
             && userDetails.isAccountNonExpired()
@@ -82,4 +89,43 @@ public class CustomUserDetailService implements UserService {
         }
         throw new BadCredentialsException("Username or password is incorrect or account is locked");
     }
+
+    @Override
+    public String register(UserRegisterDto userRegisterDto, boolean admin) throws UserAlreadyExistsException {
+        LOGGER.trace("register({}, {})", userRegisterDto, admin);
+
+        ApplicationUser existingUser = userRepository.findByEmail(userRegisterDto.getEmail());
+        if (existingUser != null) {
+            throw new UserAlreadyExistsException("User with given email already exists");
+        }
+        ApplicationUser applicationUser =
+            ApplicationUser.builder().email(userRegisterDto.getEmail()).password(passwordEncoder.encode(userRegisterDto.getPassword())).admin(admin).build();
+        userRepository.save(applicationUser);
+        UserDetails userDetails = loadUserByUsername(userRegisterDto.getEmail());
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+        return jwtTokenizer.getAuthToken(userDetails.getUsername(), roles);
+    }
+
+    @Override
+    public Set<GroupEntity> getGroupsByUserEmail(String email) {
+        LOGGER.trace("getGroupsByUserEmail({})", email);
+        return userRepository.findGroupsByUserEmail(email);
+    }
+
+
+    // TODO this should not make it into production
+    @PostConstruct
+    private void init() {
+        LOGGER.info("Creating default users");
+        UserRegisterDto user = UserRegisterDto.builder().email("user@email.com").password("password").build();
+        UserRegisterDto admin = UserRegisterDto.builder().email("admin@email.com").password("password").build();
+        try {
+            register(user, false);
+            register(admin, true);
+        } catch (UserAlreadyExistsException e) {
+            LOGGER.info("Default users already exist");
+        }
+    }
+
+
 }

@@ -2,6 +2,7 @@ logging:
   file.name: ./log/backend.log
   level:
     root: INFO
+    at.ac.tuwien.sepr.groupphase.backend: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
   pattern:
     level: r=%X{r} ip=%X{ip} u=%X{u} %5p
@@ -12,6 +13,9 @@ spring:
     driver-class-name: org.h2.Driver
     username: admin
     password: password
+  h2:
+    console:
+      enabled: true
   jpa:
     # Set this property to true if you want to see the executed queries
     show-sql: false

@@ -1,11 +1,179 @@
 <div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to the SE PR group phase!</h1>
-  <hr class="my-4">
-  <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
-  <div *ngIf="authService.isLoggedIn()">
-    <p>Check out the latest message from the SE PR group phase.</p>
-    <p class="lead">
-      <a class="btn btn-primary btn-lg" routerLink="/message" role="button">Message</a>
-    </p>
+  <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
+    <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
+    <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
+    <a class="btn btn-primary btn-lg" routerLink="/register" role="button">Start now</a>
+  </div>
+  <div *ngIf="authService.isLoggedIn()" class="pt-5">
+    <div class="row">
+      <div class="col">
+        <div class="row row-cols-2 g-5">
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Shopping lists</h5>
+              </div>
+              <div class="card-body details-card">
+                shopping lists here
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary">Add shopping list</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Groups</h5>
+              </div>
+              <div class="card-body details-card">
+                <div>
+                  <ul class="group-list" *ngIf="groups.length > 0">
+                    <li *ngFor="let group of groups | slice:0:3; let i=index" [routerLink]="['/group/', group.id]">
+                      {{ group.groupName }}
+                    </li>
+                  </ul>
+                  <ul class="group-list" *ngIf="groups === null || groups.length === 0">
+                    <li>
+                      You are in no group
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <a class="btn btn-secondary" routerLink="/group">View all groups</a>
+                <a class="btn btn-primary" [routerLink] = "['group', 'create']">+</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Expenses</h5>
+              </div>
+              <div class="card-body details-card">
+                expenses overview
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <a class="btn btn-secondary" routerLink="invalid">Details</a>
+                <a class="btn btn-primary" routerLink="invalid">+</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-header">
+                <h5>Data</h5>
+              </div>
+              <div class="card-body details-card">
+                <div>Add data here</div>
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-secondary">Overview and visualization</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-header">
+            <h5>Friends</h5>
+          </div>
+          <div class="card-body friends-card">
+            <div>
+              <div *ngIf="incomingFriendRequests !== null && incomingFriendRequests.length > 0">
+                <span>Incoming friend requests</span>
+                <ul class="group-list">
+                  <li *ngFor="let email of incomingFriendRequests">
+                    <span>{{ email }}</span>
+                    <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm" style="margin-left: 10px;">
+                      <i class="bi bi-check"></i> Accept
+                    </button>
+                    <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
+                      <i class="bi bi-x"></i> Reject
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <ul class="group-list" *ngIf="friends !== null && friends.length > 0">
+                <li *ngFor="let email of friends">
+                  {{ email }}
+                </li>
+              </ul>
+
+              <ul class="group-list" *ngIf="(incomingFriendRequests === null || incomingFriendRequests.length === 0) && (friends === null || friends.length === 0)">
+                <li>
+                  You have no friends yet
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-between">
+            <a class="btn btn-secondary" *ngIf="authService.isLoggedIn()" routerLink="/friends" routerLinkActive="active" >Friends</a>
+            <a class="btn btn-primary" routerLink="/add-friend">+</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h5>Item Lists</h5>
+        </div>
+        <div class="card-body details-card">
+          <div>
+            <ul class="group-list" *ngIf="itemLists.length > 0">
+              <li *ngFor="let itemList of itemLists | slice:0:3; let i=index" [routerLink]="['/itemList/', itemList.id]">
+                {{ itemList.itemListName }}
+              </li>
+            </ul>
+            <ul class="group-list" *ngIf="itemLists === null || itemLists.length === 0">
+              <li>
+                You have no item lists
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a class="btn btn-secondary" routerLink="/item-list">View all item lists</a>
+          <a class="btn btn-primary" routerLink="/item-list/create">+</a>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recipes</h5>
+        </div>
+        <div class="card-body details-card">
+          <div>
+            <ul class="group-list" *ngIf="recipes.length > 0">
+              <li *ngFor="let recipe of recipes | slice:0:3; let i=index" [routerLink]="['/recipe/', recipe.id]">
+                {{ recipe.recipeName }}
+              </li>
+            </ul>
+            <ul class="group-list" *ngIf="recipes === null || recipes.length === 0">
+              <li>
+                You have no recipes
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a class="btn btn-secondary" routerLink="/recipe">View all recipes</a>
+          <a class="btn btn-primary" routerLink="/recipe/create">+</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

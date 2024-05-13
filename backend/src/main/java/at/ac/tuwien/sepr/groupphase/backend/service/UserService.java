@@ -1,10 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Set;
 
 public interface UserService extends UserDetailsService {
 
@@ -37,4 +42,23 @@ public interface UserService extends UserDetailsService {
      * @throws org.springframework.security.authentication.BadCredentialsException if credentials are bad
      */
     String login(UserLoginDto userLoginDto);
+
+    /**
+     * Register a new user.
+     *
+     * @param userLoginDto the user to register
+     * @param admin        if the user is an admin
+     * @return the JWT, if successful
+     * @throws UserAlreadyExistsException if the user already exists
+     */
+    String register(UserRegisterDto userLoginDto, boolean admin) throws UserAlreadyExistsException;
+
+
+    /**
+     * Getting the groups the user is part of.
+     *
+     * @param email email of the user
+     * @return Set of groups the user is part of
+     */
+    Set<GroupEntity> getGroupsByUserEmail(String email);
 }

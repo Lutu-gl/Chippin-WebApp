@@ -1,0 +1,42 @@
+<h1>Group overview</h1>
+
+<div class="d-flex flex-row w-auto">
+  <span style="flex: 1"></span>
+  <a class="btn btn-secondary" routerLink="create" aria-label="New Group">
+    <i class="bi bi-plus-lg"></i>
+    New Group
+  </a>
+</div>
+
+<div class="mt-2">
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th class="min-width">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let group of groups" class="center-td">
+      <td>{{group.groupName}}</td>
+      <td>
+        <div class="btn-group">
+          <a class="btn btn-sm responsive-info-button "
+             [routerLink]="[group.id, 'edit']"
+             aria-label="Show group details">
+            <i class="bi bi-pencil"></i>
+          </a>
+        </div>
+
+        <div class="btn-group">
+          <a class="btn btn-sm responsive-info-button "
+             [routerLink]="[group.id]"
+             aria-label="Show group details">
+            <i class="bi bi-info"></i>
+          </a>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

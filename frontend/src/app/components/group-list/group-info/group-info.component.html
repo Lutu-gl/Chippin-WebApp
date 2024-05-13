@@ -1,0 +1,32 @@
+<h1 class="display-1">{{ group?.groupName }}</h1>
+<div *ngIf="group">
+  <h3 class="members">Members</h3>
+  <div class="member-list">
+    <div *ngFor="let member of group.members" class="member-list-item">
+      {{ member.email }}
+    </div>
+  </div>
+
+  <h3 class="budgets">Budgets</h3>
+  <div class="budget-list">
+    <div *ngFor="let budget of budgets" class="budget-list-item">
+      {{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}
+    </div>
+  </div>
+
+</div>
+<div>
+
+  <div class="mt-4 d-flex flex-row">
+    <button type="button"
+            class="btn btn-secondary"
+            [routerLink]="['edit']"
+    >
+      <i class="bi bi-pencil"></i>
+      Edit
+    </button>
+  </div>
+  <div class="">
+    <app-shopping-list [groupId]="group.id"></app-shopping-list>
+  </div>
+</div>

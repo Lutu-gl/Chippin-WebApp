@@ -1,0 +1,24 @@
+<div class="flex justify-between items-center">
+  <h2 class="pt-2">Shopping Lists</h2>
+  <div class="d-flex flex-row w-auto">
+    <span style="flex: 1"></span>
+    <a class="btn btn-secondary" [routerLink]="['shoppingList', 'create']" aria-label="New Shopping List">
+      <i class="bi bi-plus-lg"></i>
+      New Shopping List
+    </a>
+    </div>
+</div>
+
+<div class="h-96 overflow-y-auto overflow-x-hidden">
+  <div *ngFor="let shoppingList of shoppingLists"
+  class="">
+    <a [routerLink]="['shoppingList', shoppingList.id]"
+    class="no-underline text-black">
+    <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
+    flex justify-between items-center
+    hover:bg-slate-100 hover:cursor-pointer">
+      <div>{{shoppingList.name}}</div>
+    </div>
+    </a>
+  </div>
+</div>

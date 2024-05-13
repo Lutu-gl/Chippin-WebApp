@@ -1,0 +1,29 @@
+<h1 *ngIf="mode===ShoppingListCreateEditMode.create">Create Shopping List</h1>
+<h1 *ngIf="mode===ShoppingListCreateEditMode.edit">Edit Shopping List</h1>
+<form #form="ngForm" class="row pt-3" (ngSubmit)="onSubmit(form)">
+
+  <div class="col-md-11 col-lg-10">
+    <label for="shoppingListTitle">Titel</label>
+    <input name="shoppingListTitle" type="text" class="form-control" id="shoppingListTitle" placeholder="Titel"
+           [(ngModel)]="shoppingListCreateDto.name"
+           [class]="dynamicCssClassesForInput(shoppingListTitleModel)"
+            #shoppingListTitleModel="ngModel" required minlength="1">
+    <div class="invalid-feedback">Name is required</div>
+  </div>
+  <div class="col-md-11 col-lg-10">
+    <label for="shoppingListBudget">Budget</label>
+    <input name="shoppingListBudget" type="number" class="form-control" id="shoppingListBudget" placeholder="89.99"
+           [(ngModel)]="shoppingListCreateDto.budget"
+           [class]="dynamicCssClassesForInput(shoppingListBudgetModel)"
+            #shoppingListBudgetModel="ngModel"
+           required min="1">
+    <div class="invalid-feedback">Budget is required</div>
+  </div>
+  <!-- Submit button -->
+  <div class="col-md-11 col-lg-10">
+    <button name="submit" type="submit" class="btn btn-info m-2">
+      Save
+    </button>
+  </div>
+
+</form>
