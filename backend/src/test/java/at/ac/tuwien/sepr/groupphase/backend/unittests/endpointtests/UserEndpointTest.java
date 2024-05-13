@@ -71,7 +71,7 @@ public class UserEndpointTest {
         when(userService.getGroupsByUserEmail("user@example.com")).thenReturn(groupEntities);
         when(groupMapper.setOfGroupEntityToSetOfGroupDto(groupEntities)).thenReturn(groupDetailDtos);
 
-        mockMvc.perform(get("/api/users/groups")
+        mockMvc.perform(get("/api/v1/users/groups")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -83,7 +83,7 @@ public class UserEndpointTest {
         when(userService.getGroupsByUserEmail("user@example.com")).thenReturn(Collections.emptySet());
         when(groupMapper.setOfGroupEntityToSetOfGroupDto(Collections.emptySet())).thenReturn(Collections.emptySet());
 
-        mockMvc.perform(get("/api/users/groups")
+        mockMvc.perform(get("/api/v1/users/groups")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
