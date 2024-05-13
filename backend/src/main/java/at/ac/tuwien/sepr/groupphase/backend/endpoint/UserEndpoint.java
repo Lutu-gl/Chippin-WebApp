@@ -20,7 +20,7 @@ import java.util.Set;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 public class UserEndpoint {
     private final UserService userService;
     private final GroupMapper groupMapper;

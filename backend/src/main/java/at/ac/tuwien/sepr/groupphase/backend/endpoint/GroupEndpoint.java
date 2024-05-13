@@ -29,7 +29,7 @@ import java.lang.invoke.MethodHandles;
 @RequestMapping(value = GroupEndpoint.BASE_PATH)
 public class GroupEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    static final String BASE_PATH = "/api/group";
+    static final String BASE_PATH = "/api/v1/group";
 
     private final GroupService groupService;
 
