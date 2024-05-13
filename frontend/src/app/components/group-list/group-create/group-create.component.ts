@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from 'ngx-toastr';
 import {NgForm, NgModel} from '@angular/forms';
 import {GroupDto} from "../../../dtos/group";
+import { BudgetDto } from '../../../dtos/budget';
 import {UserSelection} from "../../../dtos/user";
 import {map, Observable} from "rxjs";
 import {UserService} from "../../../services/user.service";
@@ -30,6 +31,9 @@ export class GroupCreateComponent implements OnInit {
   };
   members: (UserSelection | null)[] = new Array(0);
   dummyMemberSelectionModel: unknown; // Just needed for the autocomplete
+  budgets: BudgetDto[] = [];
+  newBudget: BudgetDto = {
+     name: '', amount: 0 };
 
   constructor(
     private service: GroupService,
@@ -105,6 +109,7 @@ export class GroupCreateComponent implements OnInit {
 
     if (!this.modeIsCreate) {
       this.getGroup();
+      this.getGroupBudgets();
     }
   }
   getGroup(): void {
@@ -115,6 +120,33 @@ export class GroupCreateComponent implements OnInit {
         this.members = pGroup.members;
       });
   }
+
+  
+  getGroupBudgets(): void{
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.service.getGroupBudgets(id)
+      .subscribe(budgets =>{
+        this.budgets = budgets;
+        console.log(budgets[0].id)
+      })
+  }
+
+  addBudget(): void {
+    console.log(this.newBudget.name)
+    console.log(this.newBudget.amount)
+    if (this.newBudget.name && this.newBudget.amount > 0) {
+      this.budgets.push(this.newBudget);
+      this.newBudget = { name: '', amount: 0 };
+    } else {
+      this.notification.error('Please provide a valid budget name and amount.');
+    }
+  }
+
+  removeBudget(index: number): void {
+    //only in frontend
+    this.budgets.splice(index, 1);
+  }
+
 
   public dynamicCssClassesForInput(input: NgModel): any {
     return {
@@ -145,6 +177,18 @@ export class GroupCreateComponent implements OnInit {
       observable.subscribe({
         next: data => {
           this.notification.success(`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`);
+          const groupId = data.id || this.group.id;
+          this.budgets.forEach(budget => {
+            if (budget.id) {
+              console.log("Budget wird geupdated")
+              this.service.updateBudget(groupId, budget.id, budget).subscribe();
+            } else {
+              console.log("Budget wird created")
+              this.service.createBudget(groupId, budget).subscribe();
+            }
+          });
+          
+          
           this.router.navigate(['/groups']);
         },
         error: error => {

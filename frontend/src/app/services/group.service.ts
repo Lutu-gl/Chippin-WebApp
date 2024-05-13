@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {map, Observable} from 'rxjs';
 import {GroupDto, GroupListDto} from "../dtos/group";
 import {UserSelection} from "../dtos/user";
+import { BudgetDto } from '../dtos/budget';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,18 @@ export class GroupService {
 
   getGroups(): Observable<GroupListDto[]> {
     return this.http.get<GroupListDto[]>('http://localhost:8080/api/users/groups');
+  }
+
+  getGroupBudgets(groupId: number): Observable<BudgetDto[]> {
+    return this.http.get<BudgetDto[]>(`http://localhost:8080/api/v1/group/${groupId}/budgets`);
+  }
+
+  createBudget(groupId: number, budget: BudgetDto): Observable<BudgetDto> {
+    return this.http.post<BudgetDto>(`http://localhost:8080/api/v1/group/${groupId}/budget`, budget);
+  }
+
+  updateBudget(groupId: number, budgetId: number, budget: BudgetDto): Observable<BudgetDto> {
+    return this.http.put<BudgetDto>(`http://localhost:8080/api/v1/group/${groupId}/budget/${budgetId}`, budget);
   }
 
   create(group: GroupDto): Observable<GroupDto> {
