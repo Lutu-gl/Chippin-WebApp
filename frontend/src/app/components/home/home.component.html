@@ -1,7 +1,7 @@
 <div class="jumbotron mt-5">
   <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
-      <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
-      <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
+    <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
+    <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
     <a class="btn btn-primary btn-lg" routerLink="/register" role="button">Start now</a>
   </div>
   <div *ngIf="authService.isLoggedIn()" class="pt-5">
@@ -93,7 +93,7 @@
                       <i class="bi bi-check"></i> Accept
                     </button>
                     <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
-                        <i class="bi bi-x"></i> Reject
+                      <i class="bi bi-x"></i> Reject
                     </button>
                   </li>
                 </ul>
@@ -118,6 +118,62 @@
           </div>
         </div>
       </div>
+
     </div>
+
+
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h5>Item Lists</h5>
+        </div>
+        <div class="card-body details-card">
+          <div>
+            <ul class="group-list" *ngIf="itemLists.length > 0">
+              <li *ngFor="let itemList of itemLists | slice:0:3; let i=index" [routerLink]="['/itemList/', itemList.id]">
+                {{ itemList.itemListName }}
+              </li>
+            </ul>
+            <ul class="group-list" *ngIf="itemLists === null || itemLists.length === 0">
+              <li>
+                You have no item lists
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a class="btn btn-secondary" routerLink="/item-list">View all item lists</a>
+          <a class="btn btn-primary" routerLink="/item-list/create">+</a>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recipes</h5>
+        </div>
+        <div class="card-body details-card">
+          <div>
+            <ul class="group-list" *ngIf="recipes.length > 0">
+              <li *ngFor="let recipe of recipes | slice:0:3; let i=index" [routerLink]="['/recipe/', recipe.id]">
+                {{ recipe.recipeName }}
+              </li>
+            </ul>
+            <ul class="group-list" *ngIf="recipes === null || recipes.length === 0">
+              <li>
+                You have no recipes
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a class="btn btn-secondary" routerLink="/recipe">View all recipes</a>
+          <a class="btn btn-primary" routerLink="/recipe/create">+</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

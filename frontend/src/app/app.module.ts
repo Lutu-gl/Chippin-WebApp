@@ -19,6 +19,13 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ToastrModule} from "ngx-toastr";
 import {AutocompleteComponent} from "./components/autocomplete/autocomplete.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
+import {ItemListComponent} from "./components/item-list/item-list.component";
+import {RecipeComponent} from "./components/recipe/recipe.component";
+import {RecipeCreateEditComponent} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+import {
+  ItemListCreateEditComponent
+} from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
+
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
 
 @NgModule({
@@ -34,16 +41,20 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     GroupListComponent,
     GroupCreateComponent,
     GroupInfoComponent,
+    ItemListComponent,
+    ItemListCreateEditComponent,
+    RecipeComponent,
+    RecipeCreateEditComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+  ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
 })

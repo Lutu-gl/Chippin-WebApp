@@ -3,6 +3,8 @@ import {AuthService} from '../../services/auth.service';
 import {GroupListDto} from "../../dtos/group";
 import {GroupService} from "../../services/group.service";
 import {ToastrService} from "ngx-toastr";
+import {ItemListDetailDto} from "../../dtos/itemlist";
+import {RecipeDetailDto} from "../../dtos/recipe";
 import { FriendshipService } from 'src/app/services/friendship.service';
 import { AcceptFriendRequest } from 'src/app/dtos/friend-request';
 
@@ -18,11 +20,13 @@ export class HomeComponent implements OnInit {
     private groupService: GroupService,
     private friendshipService: FriendshipService,
     private notification: ToastrService,
-    ) { }
+  ) { }
   groups: GroupListDto[] = [];
   incomingFriendRequests: string[] = [];
   friends: string[] = [];
 
+  itemLists: ItemListDetailDto[] = [];
+  recipes: RecipeDetailDto[]=[];
   ngOnInit(): void {
     console.log("logged in? ", this.authService.isLoggedIn());
     if(this.authService.isLoggedIn()){

@@ -57,5 +57,11 @@ public class Item {
     @JoinColumn(name = "item_list_id")
     private ItemList itemList;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "recipe_id")
+    private Recipe recipe;
+
 }
+
+
 

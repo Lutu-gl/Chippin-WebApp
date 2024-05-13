@@ -10,6 +10,16 @@ import {RegisterComponent} from "./components/register/register.component";
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent, GroupCreateEditMode} from "./components/group-list/group-create/group-create.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
+import {RecipeComponent} from "./components/recipe/recipe.component";
+import {ItemListComponent} from "./components/item-list/item-list.component";
+import {
+  RecipeCreateEditComponent,
+  RecipeCreateEditMode
+} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+import {
+  ItemListCreateEditComponent, ItemListCreateEditMode
+} from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
+
 import {
   ShoppingListCreateComponent, ShoppingListCreateEditMode
 } from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
@@ -40,7 +50,18 @@ const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
-  {path: '**', redirectTo: ''}
+  //May need to change if recipe is dependent on group
+  {path: 'recipe', canActivate: mapToCanActivate([AuthGuard]), component: RecipeComponent},
+  {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.create}},
+  {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.edit}},
+  {path: 'itemList', component: ItemListComponent},
+  {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
+  {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},
+  {path: '**', redirectTo: ''},
+
+
+
+
 ];
 
 @NgModule({
