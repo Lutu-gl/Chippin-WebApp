@@ -48,7 +48,6 @@ public class GroupServiceImpl implements GroupService {
                 .collect(Collectors.toSet());
             groupEntity.setUsers(users);
         }
-
         GroupEntity savedGroup = groupRepository.save(groupEntity);
 
         return groupMapper.groupEntityToGroupCreateDto(savedGroup);
