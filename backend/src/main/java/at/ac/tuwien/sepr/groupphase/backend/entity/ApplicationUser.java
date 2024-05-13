@@ -46,4 +46,5 @@ public class ApplicationUser {
     @ManyToMany(mappedBy = "users")
     @Builder.Default
     private Set<GroupEntity> groups = new HashSet<>();
+
 }

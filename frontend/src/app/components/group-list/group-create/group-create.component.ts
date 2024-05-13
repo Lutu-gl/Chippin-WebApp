@@ -7,6 +7,7 @@ import {GroupDto} from "../../../dtos/group";
 import {UserSelection} from "../../../dtos/user";
 import {map, Observable} from "rxjs";
 import {UserService} from "../../../services/user.service";
+import {FriendshipService} from "../../../services/friendship.service";
 
 
 export enum GroupCreateEditMode {
@@ -33,6 +34,7 @@ export class GroupCreateComponent implements OnInit {
   constructor(
     private service: GroupService,
     private userService: UserService,
+    private friendshipService: FriendshipService,
     private router: Router,
     private route: ActivatedRoute,
     private notification: ToastrService,
@@ -186,7 +188,7 @@ export class GroupCreateComponent implements OnInit {
       return;
     setTimeout(() => {
       const members = this.members;
-      if (members.some(m => m?.id === member.id)) {
+      if (members.some(m => m?.email === member.email)) {
         this.notification.error(`${member.email} is already in participant list`, "Duplicate Participant");
         this.dummyMemberSelectionModel = null;
         return;
@@ -197,10 +199,9 @@ export class GroupCreateComponent implements OnInit {
   }
 
   memberSuggestions = (input: string): Observable<UserSelection[]> =>
-    this.userService.searchFriends({name: input, limit: 5})
-      .pipe(map(members => members.map(h => ({
-        id: h.id,
-        email: h.email,
+    this.friendshipService.getFriends()
+      .pipe(map(members => members.map((h) => ({
+        email: h
       }))));
 
   public removeMember(index: number) {

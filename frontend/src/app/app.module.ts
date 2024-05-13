@@ -11,6 +11,8 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
+import { FriendsComponent } from './components/friends/friends.component';
+import { AddFriendComponent } from './components/add-friend/add-friend.component';
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent} from "./components/group-list/group-create/group-create.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -27,6 +29,8 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,
+    FriendsComponent,
+    AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
     GroupInfoComponent,

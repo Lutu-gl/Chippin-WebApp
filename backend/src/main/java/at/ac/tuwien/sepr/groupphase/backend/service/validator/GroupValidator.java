@@ -59,7 +59,7 @@ public class GroupValidator {
 
         List<String> confictErrors = new ArrayList<>();
 
-        checkOwnerFriendsWithEveryOne(group, ownerEmail, confictErrors);
+        checkOwnerMemberOfGroupAndNotEmptyGroup(group, ownerEmail, confictErrors);
         checkGroupMembersExist(group, confictErrors);
 
         if (!confictErrors.isEmpty()) {
@@ -91,7 +91,7 @@ public class GroupValidator {
         return allMembersExist;
     }
 
-    private boolean checkOwnerFriendsWithEveryOne(GroupCreateDto group, String ownerEmail, List<String> conflictErrors) {
+    private boolean checkOwnerMemberOfGroupAndNotEmptyGroup(GroupCreateDto group, String ownerEmail, List<String> conflictErrors) {
         if (group.getMembers() == null || group.getMembers().isEmpty()) {
             conflictErrors.add("No members provided in the group.");
             return false;
@@ -102,17 +102,6 @@ public class GroupValidator {
             conflictErrors.add("Owner must be a member of the group.");
             return false;
         }
-
-        /* TODO: Check this when friends are implemented!
-        for (String memberEmail : group.getMembers()) {
-            if (!memberEmail.equals(ownerEmail)) { // No need to check if the owner is friends with themselves
-                boolean areFriends = friendshipService.areFriends(ownerEmail, memberEmail);
-                if (!areFriends) {
-                    conflictErrors.add("Owner is not friends with member: " + memberEmail);
-                    return false;
-                }
-            }
-        }*/
         return true;
     }
 
@@ -141,7 +130,7 @@ public class GroupValidator {
 
         List<String> conflictErrors = new ArrayList<>();
 
-        checkOwnerFriendsWithEveryOne(groupCreateDto, ownerEmail, conflictErrors);
+        checkOwnerMemberOfGroupAndNotEmptyGroup(groupCreateDto, ownerEmail, conflictErrors);
         checkGroupMembersExist(groupCreateDto, conflictErrors);
         //TODO: checkNobodyDeletedWithExpenses(groupCreateDto, conflictErrors);
 
