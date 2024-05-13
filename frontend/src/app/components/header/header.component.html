@@ -5,10 +5,10 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
+  <div class="navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav">
       <li class="nav-item">
-        <div class="dropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false" *ngIf="authService.isLoggedIn()">
+        <div class="dropdown mr-5" href="#" data-bs-toggle="dropdown" aria-expanded="false" *ngIf="authService.isLoggedIn()">
           <a class="btn btn-secondary dropdown-toggle" role="button">
             <i class="bi bi-person"></i> Profile
           </a>
@@ -19,7 +19,7 @@
         </div>
       </li>
     </ul>
-    <ul class="navbar-nav mr-5">
+    <ul class="navbar-nav mr-auto">
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
     </ul>
   </div>
