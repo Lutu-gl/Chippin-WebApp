@@ -73,7 +73,7 @@ public class GroupEndpointTest implements TestData {
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
-        String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
@@ -92,7 +92,7 @@ public class GroupEndpointTest implements TestData {
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
@@ -116,7 +116,7 @@ public class GroupEndpointTest implements TestData {
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@example.com", ADMIN_ROLES)))
@@ -141,7 +141,7 @@ public class GroupEndpointTest implements TestData {
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))

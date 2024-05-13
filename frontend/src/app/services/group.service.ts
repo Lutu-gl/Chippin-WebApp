@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {map, Observable} from 'rxjs';
+import {Globals} from '../global/globals';
 import {GroupDto, GroupListDto} from "../dtos/group";
 import {UserSelection} from "../dtos/user";
 import { BudgetDto } from '../dtos/budget';
@@ -9,23 +10,23 @@ import { BudgetDto } from '../dtos/budget';
   providedIn: 'root'
 })
 export class GroupService {
-
-  constructor(private http: HttpClient) { }
+  private groupBaseUri: string = this.globals.backendUri + '/group';
+  constructor(private http: HttpClient, private globals: Globals) { }
 
   getGroups(): Observable<GroupListDto[]> {
-    return this.http.get<GroupListDto[]>('http://localhost:8080/api/users/groups');
+    return this.http.get<GroupListDto[]>(this.globals.backendUri + '/users/groups');
   }
 
   getGroupBudgets(groupId: number): Observable<BudgetDto[]> {
-    return this.http.get<BudgetDto[]>(`http://localhost:8080/api/v1/group/${groupId}/budgets`);
+    return this.http.get<BudgetDto[]>(this.groupBaseUri + `/${groupId}/budgets`);
   }
 
   createBudget(groupId: number, budget: BudgetDto): Observable<BudgetDto> {
-    return this.http.post<BudgetDto>(`http://localhost:8080/api/v1/group/${groupId}/budget`, budget);
+    return this.http.post<BudgetDto>(this.groupBaseUri + `/${groupId}/budget`, budget);
   }
 
   updateBudget(groupId: number, budgetId: number, budget: BudgetDto): Observable<BudgetDto> {
-    return this.http.put<BudgetDto>(`http://localhost:8080/api/v1/group/${groupId}/budget/${budgetId}`, budget);
+    return this.http.put<BudgetDto>(this.groupBaseUri + `/${groupId}/budget/${budgetId}`, budget);
   }
 
   create(group: GroupDto): Observable<GroupDto> {
@@ -40,11 +41,11 @@ export class GroupService {
       groupName: group.groupName,
       members: Array.from(memberEmails)
     };
-    return this.http.post<GroupDto>('http://localhost:8080/api/group', formattedGroup);
+    return this.http.post<GroupDto>(this.groupBaseUri, formattedGroup);
   }
 
   getById(id: number): Observable<GroupDto> {
-    return this.http.get<any>(`http://localhost:8080/api/group/${id}`).pipe(
+    return this.http.get<any>(this.groupBaseUri + `/${id}`).pipe(
       map(response => {
         // Convert members from string (email) to UserSelection
         const members: UserSelection[] = response.members.map(email => ({ email: email }));
@@ -71,7 +72,7 @@ export class GroupService {
       groupName: group.groupName,
       members: Array.from(memberEmails)
     };
-    return this.http.put<GroupDto>(`http://localhost:8080/api/group/${group.id}`, formattedGroup);
+    return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, formattedGroup);
 
   }
 }

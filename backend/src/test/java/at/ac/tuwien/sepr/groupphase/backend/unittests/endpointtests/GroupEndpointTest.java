@@ -67,7 +67,7 @@ public class GroupEndpointTest {
 
         String groupJson = "{\"name\":\"Test Group\",\"members\":[\"user1@example.com\",\"user2@example.com\"]}";
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
-                .post("/api/group")
+                .post("/api/v1/group")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
@@ -95,7 +95,7 @@ public class GroupEndpointTest {
         String groupUpdateJson = "{\"name\":\"Test Group\",\"members\":[\"user1@example.com\",\"user2@example.com\"]}";
 
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
-                .put("/api/group/1")
+                .put("/api/v1/group/1")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupUpdateJson))
@@ -119,7 +119,7 @@ public class GroupEndpointTest {
 
         // Act: Perform POST request with invalid data
         String groupJson = "{\"name\":\"   \"}"; // Invalid data due to empty name
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
@@ -138,7 +138,7 @@ public class GroupEndpointTest {
 
         // Act: Perform POST request with conflicting data
         String groupJson = "{\"name\":\"Test Group\",\"members\":[\"user1@example.com\",\"user2@example.com\"]}";
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("userNotInMember@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
