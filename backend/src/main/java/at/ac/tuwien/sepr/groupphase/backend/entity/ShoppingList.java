@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,43 +9,42 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class ApplicationUser {
+@ToString
+public class ShoppingList {
 
     @Id
     @GeneratedValue
+    @Column
     private Long id;
 
-    @Column(unique = true)
-    @NotBlank
-    @Email
-    private String email;
+    @Column
+    private String name;
 
     @Column
-    @NotBlank
-    private String password;
+    private Float budget;
 
-    @Column
-    private Boolean admin;
+    @JoinTable(name = "shopping_list_shopping_list_item")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ShoppingListItem> items = List.of();
 
-    @ManyToMany(mappedBy = "users")
-    @Builder.Default
-    private Set<GroupEntity> groups = new HashSet<>();
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private GroupEntity group;
 
 }

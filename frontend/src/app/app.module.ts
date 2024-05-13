@@ -11,12 +11,15 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
+import { FriendsComponent } from './components/friends/friends.component';
+import { AddFriendComponent } from './components/add-friend/add-friend.component';
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent} from "./components/group-list/group-create/group-create.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ToastrModule} from "ngx-toastr";
 import {AutocompleteComponent} from "./components/autocomplete/autocomplete.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
+import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
 
 @NgModule({
   declarations: [
@@ -26,19 +29,21 @@ import {GroupInfoComponent} from "./components/group-list/group-info/group-info.
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,
+    FriendsComponent,
+    AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
     GroupInfoComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot()
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
 })

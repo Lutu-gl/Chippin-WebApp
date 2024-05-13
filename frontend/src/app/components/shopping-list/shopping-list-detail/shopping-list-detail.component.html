@@ -1,0 +1,39 @@
+<div class="pt-4 flex items-center justify-between">
+  <h1>{{ shoppingListDetailDto.name }}</h1>
+  <div class="flex gap-4 items-center">
+    <div class="p-2 bg-amber-200 outline outline-1 outline-gray-400 rounded-md">
+      Budget: <span class="font-medium bi-currency-euro">{{ shoppingListDetailDto.budget }}</span>
+    </div>
+    <div>
+      <a class="btn btn-secondary" [routerLink]="['edit']">
+        <i class="bi bi-pencil"></i>
+        Edit
+      </a>
+    </div>
+    <div>
+      <button class="btn btn-danger" (click)="deleteShoppingList()">
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+
+</div>
+<div class="pt-4">
+  <div class="flex items-center justify-between">
+    <h2>Items</h2>
+    <a class="btn btn-primary" [routerLink]="['shoppingList', shoppingListDetailDto.id, 'item', 'create']">
+      <i class="bi bi-plus-lg"></i>
+      Add Item
+    </a>
+  </div>
+  <div class="h-96 overflow-y-auto scroll-auto">
+    <div *ngFor="let item of shoppingListDetailDto.items" class="">
+      <div
+        class="p-2 m-2 rounded-md outline outline-1 outline-slate-300 flex justify-between items-center hover:bg-slate-100 hover:cursor-pointer">
+        <div>{{ item.description }}</div>
+        <div>{{ item.amount }} {{ item.unit }}</div>
+      </div>
+    </div>
+  </div>
+</div>
