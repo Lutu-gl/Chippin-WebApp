@@ -22,6 +22,7 @@ const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'group', canActivate: mapToCanActivate([AuthGuard]), children: [
+      {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
       {path: '', component: GroupListComponent},
       {path: ':id', children: [
           {path: '', component: GroupInfoComponent},
@@ -35,7 +36,6 @@ const routes: Routes = [
                 ]}
             ]}
         ]},
-      {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
     ]},
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
