@@ -24,32 +24,35 @@ export class HomeComponent implements OnInit {
   friends: string[] = [];
 
   ngOnInit(): void {
-    this.friendshipService.getIncomingFriendRequests().subscribe({
-      next: data => {
-        this.incomingFriendRequests = data;
-      },
-      error: error => {
-        this.printError(error);
-      }
-    });
+    console.log("logged in? ", this.authService.isLoggedIn());
+    if(this.authService.isLoggedIn()){
+      this.friendshipService.getIncomingFriendRequests().subscribe({
+        next: data => {
+          this.incomingFriendRequests = data;
+        },
+        error: error => {
+          this.printError(error);
+        }
+      });
 
-    this.friendshipService.getFriends().subscribe({
-      next: data => {
-        this.friends = data;
-      },
-      error: error => {
-        this.printError(error);
-      }
-    });
+      this.friendshipService.getFriends().subscribe({
+        next: data => {
+          this.friends = data;
+        },
+        error: error => {
+          this.printError(error);
+        }
+      });
 
-    this.groupService.getGroups().subscribe({
-      next: data => {
-        this.groups = data;
-      },
-      error: error => {
-        this.printError(error);
-      }
-    });
+      this.groupService.getGroups().subscribe({
+        next: data => {
+          this.groups = data;
+        },
+        error: error => {
+          this.printError(error);
+        }
+      });
+    }
   }
 
   printError(error): void {
