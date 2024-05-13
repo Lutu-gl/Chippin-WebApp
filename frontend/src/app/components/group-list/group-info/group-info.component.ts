@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {GroupService} from "../../../services/group.service";
 import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
+import { BudgetDto } from '../../../dtos/budget';
 import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
@@ -15,6 +16,9 @@ export class GroupInfoComponent implements OnInit {
     groupName: '',
     members: []
   };
+
+  budgets: BudgetDto[] = []
+
   constructor(
     private service: GroupService,
     private router: Router,
@@ -26,6 +30,7 @@ export class GroupInfoComponent implements OnInit {
 
   ngOnInit(): void {
     this.getGroup();
+    this.getGroupBudgets();
   }
 
   getGroup(): void {
@@ -35,5 +40,14 @@ export class GroupInfoComponent implements OnInit {
         this.group = pGroup;
       });
   }
+
+  getGroupBudgets(): void{
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.service.getGroupBudgets(id)
+      .subscribe(budgets =>{
+        this.budgets = budgets;
+      })
+  }
+
 
 }

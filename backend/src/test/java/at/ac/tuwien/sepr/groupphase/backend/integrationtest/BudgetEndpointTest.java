@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,12 @@ public class BudgetEndpointTest {
         }
     };
 
+    @BeforeEach
+    public void beforeEach() {
+        budgetRepository.deleteAll();
+        groupRepository.deleteAll();
+    }
+
     @Test
     @Transactional
     public void whenCreateBudget_withValidData_thenStatus201() throws Exception {
@@ -105,7 +112,8 @@ public class BudgetEndpointTest {
     @Test
     @Transactional
     public void testAddAndGet4Budgets_thenStatus200() throws Exception {
-        long groupId = 1;
+        int groupId = 1;
+
         GroupEntity group1 = GroupEntity.builder()
             .groupName("Developers")
             .users(new HashSet<>())
@@ -113,12 +121,13 @@ public class BudgetEndpointTest {
 
         groupRepository.save(group1);
 
-        saveBudget("Education", 1000, groupId);
-        saveBudget("Research", 2000, groupId);
-        saveBudget("Development", 3000, groupId);
-        saveBudget("Operations", 4000, groupId);
 
-        mockMvc.perform(get("/api/v1/group/" + groupId + "/budgets")
+        saveBudget("Education", 1000, group1);
+        saveBudget("Research", 2000, group1);
+        saveBudget("Development", 3000, group1);
+        saveBudget("Operations", 4000, group1);
+
+        mockMvc.perform(get("/api/v1/group/" + group1.getId() + "/budgets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
             .andExpect(status().isOk())
@@ -131,9 +140,7 @@ public class BudgetEndpointTest {
     }
 
 
-    private void saveBudget(String name, double amount, long groupId) {
-        GroupEntity group = new GroupEntity(); // Stellen Sie sicher, dass diese Gruppe existiert oder im Test erstellt wird.
-        group.setId(groupId);
+    private void saveBudget(String name, double amount, GroupEntity group) {
 
         Budget budget = Budget.builder()
             .name(name)
