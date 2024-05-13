@@ -25,6 +25,11 @@ export class AddFriendComponent implements OnInit {
   }
 
   addFriend(): void {
+    if (!this.receiverEmail) {
+      this.notification.warning("Please enter an email address");
+      return;
+    }
+
     const friendRequest: FriendRequest = new FriendRequest();
     friendRequest.receiverEmail = this.receiverEmail;
     console.log(friendRequest);
@@ -34,7 +39,13 @@ export class AddFriendComponent implements OnInit {
         this.router.navigate(["/"])
       },
       error: (error) => {
-        this.notification.error(error.error.detail);
+        if (error.status === 404) {
+          this.notification.error(error.error);
+        } else if (error.error.detail) {
+          this.notification.error(error.error.detail);
+        } else {
+          this.notification.error("Error occured!");
+        }
       }
     });
   }
