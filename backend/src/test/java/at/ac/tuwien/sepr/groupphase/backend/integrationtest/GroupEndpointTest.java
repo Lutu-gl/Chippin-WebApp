@@ -4,16 +4,17 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,6 +52,8 @@ public class GroupEndpointTest implements TestData {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void whenCreateGroup_withValidData_thenStatus201() throws Exception {
         userRepository.deleteAll();
 
@@ -65,7 +68,8 @@ public class GroupEndpointTest implements TestData {
         userRepository.save(user1);
         userRepository.save(user2);
 
-        GroupCreateDto groupCreateDto = GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+        GroupCreateDto groupCreateDto =
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
@@ -80,12 +84,15 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
-        GroupCreateDto groupCreateDto = GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+        GroupCreateDto groupCreateDto =
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
@@ -101,8 +108,11 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
-        GroupCreateDto groupCreateDto = GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+        GroupCreateDto groupCreateDto =
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
@@ -121,6 +131,8 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("     ")
