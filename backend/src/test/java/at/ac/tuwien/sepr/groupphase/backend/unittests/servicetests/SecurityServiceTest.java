@@ -1,0 +1,89 @@
+package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
+
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class SecurityServiceTest extends BaseTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private SecurityService securityService;
+
+    @BeforeEach
+    public void setUp() {
+        ApplicationUser user = ApplicationUser.builder().id(1L).email("test@email.com").build();
+        var authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), null, null);
+
+        // Set the security context to a user with the given email
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), null, null));
+    }
+
+
+    @Test
+    public void givenValidUserId_whenHasCorrectId_thenReturnTrue() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(ApplicationUser.builder().id(1L).email("test@email.com").build()));
+        Long id = 1L;
+
+        boolean hasCorrectId = securityService.hasCorrectId(id);
+        assertThat(hasCorrectId).isTrue();
+    }
+
+    @Test
+    public void givenInvalidUserId_whenHasCorrectId_thenReturnFalse() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        Long id = 1L;
+
+        boolean hasCorrectId = securityService.hasCorrectId(id);
+        assertThat(hasCorrectId).isFalse();
+    }
+
+    @Test
+    public void givenValidGroupId_whenIsGroupMember_thenReturnTrue() {
+        when(userRepository.findByEmail("test@email.com"))
+            .thenReturn(ApplicationUser.builder()
+                .id(1L)
+                .groups(Set.of(GroupEntity.builder().id(5L).build()))
+                .build());
+
+        Long groupId = 5L;
+
+        boolean isGroupMember = securityService.isGroupMember(groupId);
+        assertThat(isGroupMember).isTrue();
+    }
+
+    @Test
+    public void givenInvalidGroupId_whenIsGroupMember_thenReturnFalse() {
+        when(userRepository.findByEmail("test@email.com"))
+            .thenReturn(ApplicationUser.builder()
+                .id(1L)
+                .groups(Set.of(GroupEntity.builder().id(5L).build()))
+                .build());
+
+        Long groupId = 6L;
+
+        boolean isGroupMember = securityService.isGroupMember(groupId);
+        assertThat(isGroupMember).isFalse();
+
+    }
+}

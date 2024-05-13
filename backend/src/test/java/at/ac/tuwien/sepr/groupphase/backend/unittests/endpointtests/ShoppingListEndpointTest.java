@@ -80,6 +80,8 @@ public class ShoppingListEndpointTest extends BaseTest {
             .andExpect(content().json(objectMapper.writeValueAsString(
                 ShoppingListDetailDto.builder().id(-1L).groupId(-1L).name("Test Shopping List").budget(100.0F).items(List.of()).build()
             )));
+
+        verify(shoppingListService, times(1)).getShoppingList(-1L);
     }
 
 
