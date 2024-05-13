@@ -13,8 +13,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class ShoppingListEndpointTest {
 
     @Autowired
@@ -53,10 +56,9 @@ public class ShoppingListEndpointTest {
     @WithMockUser(username = "test")
     public void givenValidShoppingListCreateDto_whenCreateShoppingListForGroup_shoppingListForGroupIsPersisted() throws Exception {
         // Get a group id
-        var group = GroupEntity.builder()
-            .id(-1L)
-            .groupName("Test Group")
-            .users(Set.of())
+        GroupEntity group = GroupEntity.builder()
+            .groupName("Test")
+            .users(new HashSet<>())
             .build();
         var savedGroup = groupRepository.save(group);
         Long groupId = savedGroup.getId();
