@@ -112,7 +112,7 @@ public class RecipeEndpointTest {
     }
 
     @Test
-    public void createRecipeSuccessfully() throws Exception {
+    public void createRecipeSuccessfully_then201() throws Exception {
         ItemDto item1 = ItemDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         ItemDto item2 = ItemDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
 
@@ -149,7 +149,7 @@ public class RecipeEndpointTest {
     }
 
     @Test
-    public void createRecipeWithInvalidRecipeGets400() throws Exception {
+    public void createInvalidRecipe_then400() throws Exception {
 
 
         RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().build();

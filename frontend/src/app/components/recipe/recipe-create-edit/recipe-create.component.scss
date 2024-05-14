@@ -1,0 +1,24 @@
+@use "sass:map";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+
+.min-width {
+  width: 0;
+}
+
+.center-td > td {
+  vertical-align: middle;
+}
+
+.responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button, .responsive-success-button {
+  opacity: 0;
+}
+
+@each $color in (info, warning, danger, success) {
+  $value: map.get($theme-colors, $color);
+  tr:hover .responsive-#{$color}-button {
+    @include button-variant($value, $value);
+    opacity: 1;
+  }
+}

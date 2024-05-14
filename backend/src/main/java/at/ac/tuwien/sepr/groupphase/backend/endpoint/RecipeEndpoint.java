@@ -87,7 +87,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PostMapping("/recipe/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateDto recipeDto) {
+    public RecipeDetailDto createRecipe(@RequestBody RecipeCreateDto recipeDto) {
         LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
         return recipeService.createRecipe(recipeDto);
     }

@@ -21,12 +21,14 @@ import {AutocompleteComponent} from "./components/autocomplete/autocomplete.comp
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {RecipeCreateEditComponent} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+import {RecipeCreateComponent} from "./components/recipe/recipe-create-edit/recipe-create.component";
 import {
   ItemListCreateEditComponent
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
+import {EditPantryItemDialogComponent} from "./components/edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 
 @NgModule({
   declarations: [
@@ -44,7 +46,7 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateEditComponent
+    RecipeCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +55,7 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, ConfirmDeleteDialogComponent, EditPantryItemDialogComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

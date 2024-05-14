@@ -1,4 +1,4 @@
-import {ItemDetailDto} from "./item";
+import {ItemCreateDto, ItemDetailDto} from "./item";
 
 export interface RecipeSearch {
   details: string;
@@ -18,8 +18,8 @@ export interface RecipeListDto {
 }
 
 export interface RecipeCreateDto {
+  ingredients: ItemCreateDto[]
   name: String
-  ingredients: ItemDetailDto[]
   description: String
   isPublic: boolean
 }
