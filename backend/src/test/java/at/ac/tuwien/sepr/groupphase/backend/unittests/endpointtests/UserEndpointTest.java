@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -58,6 +60,8 @@ public class UserEndpointTest {
     };
 
     @Test
+    @Transactional
+    @Rollback
     public void givenUserHasGroups_whenGetUserGroups_then200OK() throws Exception {
         Set<GroupEntity> groupEntities = new HashSet<>();
         groupEntities.add(new GroupEntity(1L, "Group 1", null));
@@ -79,6 +83,8 @@ public class UserEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenUserHasNoGroups_whenGetUserGroups_then200OKAndEmpty() throws Exception {
         when(userService.getGroupsByUserEmail("user@example.com")).thenReturn(Collections.emptySet());
         when(groupMapper.setOfGroupEntityToSetOfGroupDto(Collections.emptySet())).thenReturn(Collections.emptySet());

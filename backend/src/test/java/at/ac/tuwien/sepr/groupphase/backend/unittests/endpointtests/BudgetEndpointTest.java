@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -71,6 +73,8 @@ public class BudgetEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateBudgetValid() throws Exception {
         BudgetCreateDto budgetDto = BudgetCreateDto.builder()
             .name("Rent")
@@ -108,6 +112,8 @@ public class BudgetEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testUpdateNotExistingBudget() throws Exception {
         BudgetDto budgetDto = BudgetDto.builder()
             .name("Rent Updated")

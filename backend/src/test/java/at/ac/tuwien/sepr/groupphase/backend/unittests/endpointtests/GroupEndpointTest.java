@@ -7,12 +7,14 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -58,6 +60,8 @@ public class GroupEndpointTest {
     };
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
@@ -85,6 +89,8 @@ public class GroupEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testUpdateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
@@ -113,6 +119,8 @@ public class GroupEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupValidationException() throws Exception {
         // Arrange: Mock the service to throw ValidationException when called
         doThrow(new ValidationException("Invalid data", new ArrayList<>())).when(groupService).create(any(), anyString());
@@ -132,6 +140,8 @@ public class GroupEndpointTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupConflictException() throws Exception {
         // Arrange: Mock the service to throw ConflictException when called
         doThrow(new ConflictException("User not in members list", new ArrayList<>())).when(groupService).create(any(), anyString());

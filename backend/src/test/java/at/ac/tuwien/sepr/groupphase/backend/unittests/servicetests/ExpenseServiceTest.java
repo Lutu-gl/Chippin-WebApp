@@ -7,11 +7,13 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.Map;
 
@@ -40,6 +42,8 @@ public class ExpenseServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateExpenseSuccess() throws Exception {
         // Mock-Konfigurationen
         Expense mockExpenseEntity = new Expense();

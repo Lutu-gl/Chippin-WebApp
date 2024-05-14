@@ -9,12 +9,14 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,8 @@ public class ShoppingListServiceTest extends BaseTest {
     private ShoppingListServiceImpl shoppingListService;
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidShoppingListCreateDto_whenCreateShoppingList_thenNoException() {
         when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
         when(groupRepository.findById(any())).thenReturn(Optional.of(GroupEntity.builder().id(-1L).build()));
@@ -55,6 +59,8 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidShoppingListCreateDtoWithInvalidGroupId_whenCreateShoppingList_thenNotFoundException() {
         when(groupRepository.findById(any())).thenReturn(Optional.empty());
         var shoppingListCreateDto = ShoppingListCreateDto.builder()
@@ -66,6 +72,8 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidShoppingListId_whenGetShoppingList_thenNoException() {
         when(shoppingListRepository.findById(any())).thenReturn(Optional.of(new ShoppingList()));
 
@@ -75,6 +83,8 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidShoppingListId_whenDeleteShoppingList_thenNoException() {
         shoppingListService.deleteShoppingList(-1L);
 
@@ -82,6 +92,8 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidGroupId_whenGetShoppingListsForGroup_thenNoException() {
         when(shoppingListRepository.findAllByGroupId(any())).thenReturn(List.of());
 

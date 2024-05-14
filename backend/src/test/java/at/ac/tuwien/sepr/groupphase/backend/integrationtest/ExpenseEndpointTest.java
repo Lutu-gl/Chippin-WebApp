@@ -12,6 +12,8 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,38 +60,49 @@ public class ExpenseEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @AfterEach
+    public void afterEach() {
+        expenseRepository.deleteAll();
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        expenseRepository.deleteAll();
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateExpense_withValidData_thenStatus201() throws Exception {
-        expenseRepository.deleteAll();
-
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("EXuser2@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupEntity group = GroupEntity.builder()
-            .groupName("TestGroup")
+            .groupName("EXTestGroup")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
             .build();
 
-        groupRepository.save(group);
+        GroupEntity saved = groupRepository.save(group);
 
         ExpenseCreateDto newTestExpense = ExpenseCreateDto.builder()
             .name("NewTestExpense")
             .category(Category.Other)
             .amount(10.0)
-            .payerEmail("user1@example.com")
-            .groupId(1L)
-            .participants(Map.of("user1@example.com", 0.6, "user2@example.com", 0.4))
+            .payerEmail("EXuser1@example.com")
+            .groupId(saved.getId())
+            .participants(Map.of("EXuser1@example.com", 0.6, "EXuser2@example.com", 0.4))
             .build();
 
 
@@ -98,7 +111,7 @@ public class ExpenseEndpointTest implements TestData {
         String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
@@ -110,24 +123,24 @@ public class ExpenseEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateExpense_withInvalidData_thenStatus409() throws Exception {
         expenseRepository.deleteAll();
 
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("EXuser2@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupEntity group = GroupEntity.builder()
-            .groupName("TestGroup")
+            .groupName("EXTestGroup")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
             .build();
 
@@ -137,9 +150,9 @@ public class ExpenseEndpointTest implements TestData {
             .name("NewTestExpense")
             .category(Category.Other)
             .amount(10.0)
-            .payerEmail("user1@example.com")
+            .payerEmail("EXuser1@example.com")
             .groupId(1L)
-            .participants(Map.of("user1@example.com", 0.6, "user2@email.com", 0.4))
+            .participants(Map.of("EXuser1@example.com", 0.6, "user2@email.com", 0.4))
             .build();
 
 
@@ -148,29 +161,29 @@ public class ExpenseEndpointTest implements TestData {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict());
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateExpense_withInvalidData_thenStatus400() throws Exception {
         expenseRepository.deleteAll();
 
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("EXuser2@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupEntity group = GroupEntity.builder()
-            .groupName("TestGroup")
+            .groupName("EXTestGroup")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
             .build();
 
@@ -180,9 +193,9 @@ public class ExpenseEndpointTest implements TestData {
             .name("!!!!")
             .category(Category.Other)
             .amount(10.0)
-            .payerEmail("user1@example.com")
+            .payerEmail("EXuser1@example.com")
             .groupId(1L)
-            .participants(Map.of("user1@example.com", 0.6, "user2@example.com", 0.4))
+            .participants(Map.of("EXuser1@example.com", 0.6, "EXuser2@example.com", 0.4))
             .build();
 
 
@@ -191,7 +204,7 @@ public class ExpenseEndpointTest implements TestData {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isBadRequest());
     }
 

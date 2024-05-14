@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -70,18 +72,20 @@ public class FriendshipEndpointTest implements TestData {
         try {
             userService.register(userRegisterDto1, false);
             userService.register(userRegisterDto2, false);
+        } catch (UserAlreadyExistsException ignored) {
         }
-        catch (UserAlreadyExistsException ignored) {}
     }
 
     private String[] getLoginTokensOfTestUsers() {
         String bearerToken1 = jwtTokenizer.getAuthToken(TEST_EMAIL_1, List.of("ROLE_USER"));
         String bearerToken2 = jwtTokenizer.getAuthToken(TEST_EMAIL_2, List.of("ROLE_USER"));
 
-        return new String[]{ bearerToken1, bearerToken2 };
+        return new String[]{bearerToken1, bearerToken2};
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testSendFriendRequestShouldReturn202() throws Exception {
 
         String[] tokens = getLoginTokensOfTestUsers();
@@ -98,6 +102,8 @@ public class FriendshipEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAcceptFriendRequestShouldReturn200() throws Exception {
 
         String[] tokens = getLoginTokensOfTestUsers();
@@ -117,6 +123,8 @@ public class FriendshipEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testRejectFriendRequestShouldReturn200() throws Exception {
         String[] tokens = getLoginTokensOfTestUsers();
 

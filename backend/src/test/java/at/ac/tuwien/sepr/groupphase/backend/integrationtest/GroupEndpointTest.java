@@ -8,6 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,69 +52,79 @@ public class GroupEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @AfterEach
+    public void afterEach() {
+        userRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        userRepository.deleteAll();
+    }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withValidData_thenStatus201() throws Exception {
-        userRepository.deleteAll();
-
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("GRuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("GRuser2@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("GRuser1@example.com", "GRuser2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
         String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("GRuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
-        assertEquals(res, "{\"id\":1,\"groupName\":\"NewGroup\",\"members\":[\"user2@example.com\",\"user1@example.com\"]}");
+        GroupCreateDto result = objectMapper.readValue(res, GroupCreateDto.class);
+        groupCreateDto.setId(result.getId());
+
+        assertEquals(groupCreateDto, result);
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("GRuser1@example.com", "GRuser2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("GRuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict())
             .andExpect(new ResultMatcher() {
                 @Override
                 public void match(MvcResult result) throws Exception {
                     String content = result.getResponse().getContentAsString();
-                    assertTrue(content.contains("No user found with email: user1@example.com"));
+                    assertTrue(content.contains("No user found with email: GRuser1@example.com"));
                 }
             });
 
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("GRuser1@example.com", "GRuser2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
@@ -131,12 +143,12 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("     ")
-            .members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com")))
+            .members(new HashSet<>(Arrays.asList("GRuser1@example.com", "GRuser2@example.com")))
             .build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
@@ -144,7 +156,7 @@ public class GroupEndpointTest implements TestData {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("GRuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(new ResultMatcher() {
                 @Override

@@ -5,11 +5,13 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -36,6 +38,8 @@ public class ItemRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenNothing_whenSaveItem_thenFindListWithOneItem() {
         Item item = Item.builder().description("Onion").unit(Unit.Piece).amount(2).build();
 
@@ -48,6 +52,8 @@ public class ItemRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenDescription_whenSaveTwoItemsWhereOneDescriptionMatches_thenFindListWithOneItem() {
         Pantry pantry = Pantry.builder().build();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
@@ -61,6 +67,8 @@ public class ItemRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenDescription_whenSaveTwoItemsWhereBothDescriptionMatch_thenFindListWithTwoItemsAndOrderedById() {
         Pantry pantry = Pantry.builder().build();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
@@ -78,6 +86,8 @@ public class ItemRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenNothing_whenSaveTwoItems_thenFindListOrderedById() {
         Pantry pantry = Pantry.builder().build();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();

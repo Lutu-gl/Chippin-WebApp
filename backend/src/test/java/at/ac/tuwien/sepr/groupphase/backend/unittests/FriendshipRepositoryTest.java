@@ -6,12 +6,14 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -44,6 +46,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testGetIncomingFriendRequestsShouldReturnOneUser() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -64,6 +68,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testPendingFriendRequestExistsShouldReturnTrue() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -82,6 +88,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testPendingFriendRequestExistsShouldReturnFalse() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -91,6 +99,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAnyFriendshipRelationBetweenUsersExistsShouldReturnTrueForPendingRequest() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -110,6 +120,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAnyFriendshipRelationBetweenUsersExistsShouldReturnTrueForAcceptedRequest() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -129,6 +141,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAnyFriendshipRelationBetweenUsersExistsShouldReturnFalse() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -139,6 +153,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testFindFriendsOfUserShouldFindOneFriend() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -162,6 +178,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAcceptFriendRequestShouldReturnTrue() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -188,6 +206,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAcceptFriendRequestShouldReturnFalse() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -197,6 +217,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testRejectFriendRequestShouldReturnTrue() {
         // create test user
         ApplicationUser[] testUsers = createTestUsers();
@@ -221,6 +243,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testRejectFriendRequestShouldReturnFalse() {
         // create test user
         ApplicationUser[] testUsers = createTestUsers();
@@ -230,6 +254,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAreFriends() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();
@@ -248,6 +274,8 @@ public class FriendshipRepositoryTest implements TestData {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAreFriendsFailsBecauseArent() {
         // create test users
         ApplicationUser[] testUsers = createTestUsers();

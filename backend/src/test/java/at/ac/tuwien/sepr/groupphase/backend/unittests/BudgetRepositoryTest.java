@@ -4,11 +4,13 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -38,6 +40,8 @@ public class BudgetRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateAndFindBudget() {
 
         GroupEntity group1 = GroupEntity.builder()
@@ -67,6 +71,8 @@ public class BudgetRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testUpdateBudget() {
 
         GroupEntity group1 = GroupEntity.builder()
@@ -97,6 +103,8 @@ public class BudgetRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testDeleteBudget() {
 
         GroupEntity group1 = GroupEntity.builder()

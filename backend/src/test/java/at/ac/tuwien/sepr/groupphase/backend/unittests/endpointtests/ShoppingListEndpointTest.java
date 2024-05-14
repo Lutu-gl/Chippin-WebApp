@@ -7,12 +7,14 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -45,6 +47,8 @@ public class ShoppingListEndpointTest extends BaseTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @Transactional
+    @Rollback
     @WithMockUser(username = "test")
     public void givenValidShoppingListCreateDto_whenCreateShoppingListForGroup_thenNoException() throws Exception {
         when(shoppingListService.createShoppingList(any(), any())).thenReturn(
@@ -66,6 +70,8 @@ public class ShoppingListEndpointTest extends BaseTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     @WithMockUser(username = "test")
     public void givenValidShoppingListId_whenGetShoppingList_thenNoException() throws Exception {
         when(shoppingListService.getShoppingList(-1L)).thenReturn(
@@ -86,6 +92,8 @@ public class ShoppingListEndpointTest extends BaseTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     @WithMockUser(username = "test")
     public void givenValidShoppingListId_whenDeleteShoppingList_thenNoException() throws Exception {
         when(securityService.isGroupMember(-1L)).thenReturn(true);
@@ -99,6 +107,8 @@ public class ShoppingListEndpointTest extends BaseTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     @WithMockUser(username = "test")
     public void givenValidGroupId_whenGetShoppingListsForGroup_thenNoException() throws Exception {
         when(shoppingListService.getShoppingListsForGroup(-1L)).thenReturn(List.of());

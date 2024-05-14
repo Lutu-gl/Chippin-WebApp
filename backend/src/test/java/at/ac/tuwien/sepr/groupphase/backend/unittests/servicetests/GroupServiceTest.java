@@ -8,11 +8,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.GroupServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.GroupValidator;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -49,6 +51,8 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupSuccess() throws Exception {
         // Mock-Konfigurationen
         GroupEntity mockGroupEntity = new GroupEntity();
@@ -81,6 +85,8 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testUpdateGroupSuccess() throws Exception {
         GroupEntity existingGroupEntity = new GroupEntity();
         existingGroupEntity.setId(1L); // assuming this ID exists in the database
@@ -107,6 +113,8 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupValidationException() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder().build();
         doThrow(new ValidationException("Invalid data", null)).when(groupValidator).validateForCreation(any(), anyString());
