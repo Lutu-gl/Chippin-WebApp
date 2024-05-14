@@ -1,0 +1,17 @@
+<div class="col">
+  <div class="card">
+    <div class="card-header">
+      <h5><ng-content select="[title]>"></ng-content></h5>
+    </div>
+    <div class="card-body details-card" *ngIf="!longCard">
+      <ng-content select="[content]>"></ng-content>
+    </div>
+    <div class="card-body long-card" *ngIf="longCard">
+      <ng-content select="[contentLong]>"></ng-content>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <ng-content select="[cardButton1]>"></ng-content>
+      <ng-content select="[cardButton2]>"></ng-content>
+    </div>
+  </div>
+</div>
