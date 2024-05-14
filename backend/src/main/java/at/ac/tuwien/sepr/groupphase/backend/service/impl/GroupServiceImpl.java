@@ -42,7 +42,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto create(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException {
-        LOGGER.trace("create({}, {})", groupCreateDto, ownerEmail);
+        LOGGER.debug("({}, {})", groupCreateDto, ownerEmail);
 
         validator.validateForCreation(groupCreateDto, ownerEmail);
 
@@ -57,8 +57,9 @@ public class GroupServiceImpl implements GroupService {
 
         GroupEntity savedGroup = groupRepository.save(groupEntity);
         makeFriendsWithEveryMember(savedGroup);
+        boolean friendsEveryone = validator.validateFriendsWithEveryone(savedGroup);
 
-        if (!validator.validateFriendsWithEveryone(savedGroup)) {
+        if (!friendsEveryone) {
             throw new FatalException("Not all users are friends with each other after group creation");
         }
 
@@ -87,7 +88,7 @@ public class GroupServiceImpl implements GroupService {
         if (!validator.validateFriendsWithEveryone(savedGroup)) {
             throw new FatalException("Not all users are friends with each other after group creation");
         }
-        
+
         return groupMapper.groupEntityToGroupCreateDto(savedGroup);
     }
 

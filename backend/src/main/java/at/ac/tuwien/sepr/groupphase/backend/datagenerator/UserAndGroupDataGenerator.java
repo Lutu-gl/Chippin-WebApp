@@ -1,16 +1,20 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
+import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +27,13 @@ public class UserAndGroupDataGenerator {
 
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final FriendshipRepository friendshipRepository;
 
-    public UserAndGroupDataGenerator(UserRepository userRepository, GroupRepository groupRepository) {
+
+    public UserAndGroupDataGenerator(UserRepository userRepository, GroupRepository groupRepository, FriendshipRepository friendshipRepository) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.friendshipRepository = friendshipRepository;
     }
 
     @PostConstruct
@@ -38,7 +45,7 @@ public class UserAndGroupDataGenerator {
         LOGGER.debug("generating {} message entries with 2 groups", NUMBER_OF_USERS_TO_GENERATE);
 
         GroupEntity group1 = new GroupEntity();
-        group1.setGroupName("WG-TUW");
+        group1.setGroupName("WGTUW");
         group1 = groupRepository.save(group1);
 
         GroupEntity group2 = new GroupEntity();
@@ -75,5 +82,13 @@ public class UserAndGroupDataGenerator {
             userRepository.save(user);
             LOGGER.debug("Saved user {}", user);
         }
+        Friendship friendship = Friendship.builder()
+            .sender(user1)
+            .receiver(user2)
+            .sentAt(LocalDateTime.now())
+            .friendshipStatus(FriendshipStatus.ACCEPTED)
+            .build();
+
+        friendshipRepository.save(friendship);
     }
 }
