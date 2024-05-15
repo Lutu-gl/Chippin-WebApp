@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import jakarta.validation.constraints.NotBlank;
@@ -8,10 +8,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
+@ToString
 public class ItemCreateDto {
     @NotNull
     @NotBlank

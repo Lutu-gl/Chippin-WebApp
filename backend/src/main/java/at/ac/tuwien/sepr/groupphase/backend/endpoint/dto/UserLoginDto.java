@@ -20,5 +20,6 @@ public class UserLoginDto {
     private String email;
 
     @NotNull(message = "Password must not be null")
+    @ToString.Exclude
     private String password;
 }
