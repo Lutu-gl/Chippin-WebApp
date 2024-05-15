@@ -50,7 +50,6 @@ const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
-  //May need to change if recipe is dependent on group
   {path: 'recipe', canActivate: mapToCanActivate([AuthGuard]), component: RecipeComponent},
   {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent, data: {mode: RecipeCreateEditMode.create}},
   {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent, data: {mode: RecipeCreateEditMode.edit}},

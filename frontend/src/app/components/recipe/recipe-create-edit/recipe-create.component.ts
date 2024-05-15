@@ -115,20 +115,8 @@ export class RecipeCreateComponent implements OnInit {
       case Unit.Gram:
         value = prefixNum * 10;
         break;
-      case Unit.Kilogram:
-        value = prefixNum * .1;
-        break;
-      case Unit.Liter:
-        value = prefixNum * .1;
-        break;
       case Unit.Milliliter:
         value = prefixNum * 10;
-        break;
-      case Unit.Tablespoon:
-        value = prefixNum * 1;
-        break;
-      case Unit.Teaspoon:
-        value = prefixNum * 1;
         break;
       default:
         console.error("Undefined unit");
