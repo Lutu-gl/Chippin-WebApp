@@ -31,6 +31,7 @@ public class UserRegisterDto {
     @Pattern(regexp = "^(?=.*[a-z]).*$", message = "must contain at least one lowercase letter")
     @Pattern(regexp = "^(?=.*[A-Z]).*$", message = "must contain at least one uppercase letter")
     @Pattern(regexp = "^(?=.*\\d).*$", message = "must contain at least one number")
+    @ToString.Exclude
     private String password;
 
 }

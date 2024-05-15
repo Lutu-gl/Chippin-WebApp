@@ -50,16 +50,16 @@ public class RecipeDataGenerator {
             Item item1 = Item.builder().description("Rinderfaschiertes").unit(Unit.Gram).amount(400).build();
             Item item2 = Item.builder().description("Zwiebel").unit(Unit.Piece).amount(1).build();
             Item item3 = Item.builder().description("Knoblauchzehe").unit(Unit.Piece).amount(1).build();
-            Item item4 = Item.builder().description("Öl").unit(Unit.Tablespoon).amount(1).build();
+            Item item4 = Item.builder().description("Öl").unit(Unit.Gram).amount(1).build();
             Item item5 = Item.builder().description("Karotte").unit(Unit.Piece).amount(1).build();
-            Item item6 = Item.builder().description("Tomaten").unit(Unit.Tablespoon).amount(1).build();
-            Item item7 = Item.builder().description("Tomatenmark").unit(Unit.Tablespoon).amount(5).build();
-            Item item8 = Item.builder().description("Ketchup").unit(Unit.Tablespoon).amount(3).build();
-            Item item9 = Item.builder().description("Basilikum").unit(Unit.Teaspoon).amount(1).build();
-            Item item10 = Item.builder().description("Oregano").unit(Unit.Teaspoon).amount(1).build();
-            Item item11 = Item.builder().description("Thymian").unit(Unit.Teaspoon).amount(1).build();
-            Item item12 = Item.builder().description("Salz").unit(Unit.Teaspoon).amount(1).build();
-            Item item13 = Item.builder().description("Pfeffer").unit(Unit.Teaspoon).amount(1).build();
+            Item item6 = Item.builder().description("Tomaten").unit(Unit.Gram).amount(1).build();
+            Item item7 = Item.builder().description("Tomatenmark").unit(Unit.Gram).amount(5).build();
+            Item item8 = Item.builder().description("Ketchup").unit(Unit.Gram).amount(3).build();
+            Item item9 = Item.builder().description("Basilikum").unit(Unit.Gram).amount(1).build();
+            Item item10 = Item.builder().description("Oregano").unit(Unit.Gram).amount(1).build();
+            Item item11 = Item.builder().description("Thymian").unit(Unit.Gram).amount(1).build();
+            Item item12 = Item.builder().description("Salz").unit(Unit.Gram).amount(1).build();
+            Item item13 = Item.builder().description("Pfeffer").unit(Unit.Gram).amount(1).build();
 
             List<Item> ingredientsToAdd1 = Arrays.asList(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10,
                 item11, item12, item13);
@@ -91,12 +91,12 @@ public class RecipeDataGenerator {
 
 
             Item item14 = Item.builder().description("Huhn (im Ganzen, küchenfertig)").unit(Unit.Piece).amount(1).build();
-            Item item15 = Item.builder().description("Salz").unit(Unit.Teaspoon).amount(1).build();
-            Item item16 = Item.builder().description("Pfeffer").unit(Unit.Teaspoon).amount(1).build();
-            Item item17 = Item.builder().description("Öl (für die Pfanne)").unit(Unit.Tablespoon).amount(2).build();
+            Item item15 = Item.builder().description("Salz").unit(Unit.Gram).amount(1).build();
+            Item item16 = Item.builder().description("Pfeffer").unit(Unit.Gram).amount(1).build();
+            Item item17 = Item.builder().description("Öl (für die Pfanne)").unit(Unit.Gram).amount(2).build();
             Item item18 = Item.builder().description("Knoblauchzehe").unit(Unit.Piece).amount(1).build();
             Item item19 = Item.builder().description("Zwiebel (groß)").unit(Unit.Piece).amount(1).build();
-            Item item20 = Item.builder().description("Paprikapulver (edelsüß)").unit(Unit.Tablespoon).amount(1).build();
+            Item item20 = Item.builder().description("Paprikapulver (edelsüß)").unit(Unit.Gram).amount(1).build();
             Item item21 = Item.builder().description("Hühnersuppe (klar)").unit(Unit.Milliliter).amount(250).build();
             Item item22 = Item.builder().description("Paprikaschoten").unit(Unit.Piece).amount(1).build();
             Item item23 = Item.builder().description("Tomaten").unit(Unit.Piece).amount(1).build();
