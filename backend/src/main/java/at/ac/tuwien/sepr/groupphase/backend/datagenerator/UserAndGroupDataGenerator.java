@@ -1,13 +1,20 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -15,11 +22,14 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Profile("generateData")
 @Component
+@RequiredArgsConstructor
 public class UserAndGroupDataGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -28,13 +38,8 @@ public class UserAndGroupDataGenerator {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final FriendshipRepository friendshipRepository;
-
-
-    public UserAndGroupDataGenerator(UserRepository userRepository, GroupRepository groupRepository, FriendshipRepository friendshipRepository) {
-        this.userRepository = userRepository;
-        this.groupRepository = groupRepository;
-        this.friendshipRepository = friendshipRepository;
-    }
+    private final ExpenseRepository expenseRepository;
+    private final ActivityRepository activityRepository;
 
     @PostConstruct
     private void generateData() {
@@ -90,5 +95,28 @@ public class UserAndGroupDataGenerator {
             .build();
 
         friendshipRepository.save(friendship);
+
+        Expense testExpense = Expense.builder()
+            .name("testExpense0")
+            .category(Category.Food)
+            .amount(300.0)
+            .date(LocalDateTime.now().minus(5, ChronoUnit.DAYS))
+            .payer(user1)
+            .group(group1)
+            .participants(Map.of(user1, 0.6, user2, 0.4))
+            .build();
+
+        expenseRepository.save(testExpense);
+
+        Activity testActivity = Activity.builder()
+            .category(ActivityCategory.EXPENSE)
+            .timestamp(LocalDateTime.now().minus(5, ChronoUnit.DAYS))
+            .expense(testExpense)
+            .group(group1)
+            .user(user1)
+            .build();
+
+        activityRepository.save(testActivity);
+
     }
 }

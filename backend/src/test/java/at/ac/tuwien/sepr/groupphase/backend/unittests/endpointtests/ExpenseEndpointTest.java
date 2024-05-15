@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,7 +68,7 @@ public class ExpenseEndpointTest {
             .participants(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))
             .build();
 
-        when(expenseService.createExpense(any())).thenReturn(newTestExpense);
+        when(expenseService.createExpense(any(), anyString())).thenReturn(newTestExpense);
 
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/expense")

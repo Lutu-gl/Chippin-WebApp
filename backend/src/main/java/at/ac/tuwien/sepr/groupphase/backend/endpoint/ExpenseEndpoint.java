@@ -38,7 +38,8 @@ public class ExpenseEndpoint {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         ExpenseCreateDto res = null;
-        res = expenseService.createExpense(expenseCreateDto);
+
+        res = expenseService.createExpense(expenseCreateDto, authentication.getName());
 
         return res;
     }

@@ -37,7 +37,7 @@ public class ExpenseValidator {
         checkPercentagesAddsUpTo1(expense, validationErrors);
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of group for creation failed", validationErrors);
+            throw new ValidationException("Validation of expense for creation failed", validationErrors);
         }
 
 
@@ -50,7 +50,7 @@ public class ExpenseValidator {
         }
 
         if (!confictErrors.isEmpty()) {
-            throw new ConflictException("group creation failed because of conflict", confictErrors);
+            throw new ConflictException("expense creation failed because of conflict", confictErrors);
         }
     }
 

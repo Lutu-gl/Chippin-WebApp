@@ -2,9 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ExpenseMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
 import jakarta.transaction.Transactional;
@@ -20,6 +23,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +36,12 @@ public class ExpenseServiceTest {
     private ExpenseMapper expenseMapper;
     @Mock
     private ExpenseValidator expenseValidator;
+
+    @Mock
+    private ActivityRepository activityRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private ExpenseServiceImpl expenseService;
@@ -47,9 +57,10 @@ public class ExpenseServiceTest {
     public void testCreateExpenseSuccess() throws Exception {
         // Mock-Konfigurationen
         Expense mockExpenseEntity = new Expense();
-        ;
+
         when(expenseMapper.expenseCreateDtoToExpenseEntity(any(ExpenseCreateDto.class))).thenReturn(mockExpenseEntity);
         when(expenseRepository.save(any(Expense.class))).thenReturn(mockExpenseEntity);
+        when(userRepository.findByEmail(anyString())).thenReturn(ApplicationUser.builder().email("test@email.com").build());
         when(expenseMapper.expenseEntityToExpenseCreateDto(any(Expense.class)))
             .thenReturn(ExpenseCreateDto.builder()
                 .name("NewTestExpense")
@@ -70,7 +81,7 @@ public class ExpenseServiceTest {
             .build();
 
         // Execution
-        ExpenseCreateDto result = expenseService.createExpense(expenseCreateDto);
+        ExpenseCreateDto result = expenseService.createExpense(expenseCreateDto, "test@email.com");
 
         // Verification
         assertNotNull(result);
@@ -83,5 +94,6 @@ public class ExpenseServiceTest {
         assertTrue(result.getParticipants().containsKey("test@email.com"));
         assertTrue(result.getParticipants().containsKey("user1@email.com"));
         verify(expenseValidator, times(1)).validateForCreation(expenseCreateDto);
+        verify(activityRepository, times(1)).save(any());
     }
 }
