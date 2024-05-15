@@ -27,6 +27,13 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
+import {
+  GroupInfoCardContentComponent
+} from "./components/group-list/group-info-card-content/group-info-card-content.component";
+import {
+  FriendsInfoCardContentComponent
+} from "./components/friends/friends-info-card-content/friends-info-card-content.component";
 
 @NgModule({
   declarations: [
@@ -53,7 +60,7 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

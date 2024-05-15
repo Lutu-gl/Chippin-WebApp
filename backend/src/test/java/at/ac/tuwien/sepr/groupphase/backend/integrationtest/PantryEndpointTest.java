@@ -4,9 +4,10 @@ import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -45,6 +46,9 @@ public class PantryEndpointTest {
     private PantryRepository pantryRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -63,8 +67,8 @@ public class PantryEndpointTest {
         }
     };
 
-    private Pantry pantry;
-    private Pantry emptyPantry;
+    private GroupEntity group;
+    private GroupEntity groupEmptyPantry;
     private Item item;
 
     @BeforeEach
@@ -78,12 +82,12 @@ public class PantryEndpointTest {
             .unit(Unit.Gram)
             .build();
 
-        pantry = new Pantry();
-        pantry.addItem(item);
-        pantryRepository.save(pantry);
+        group = new GroupEntity("T1");
+        group.getPantry().addItem(item);
+        groupRepository.save(group);
 
-        emptyPantry = new Pantry();
-        pantryRepository.save(emptyPantry);
+        groupEmptyPantry = new GroupEntity("T2");
+        groupRepository.save(groupEmptyPantry);
     }
 
 
@@ -101,7 +105,7 @@ public class PantryEndpointTest {
     @Test
     public void givenEmptyPantry_whenFindAllInPantry_thenEmptyList()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", emptyPantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupEmptyPantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
@@ -110,7 +114,7 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
         assertAll(
             () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
-            () ->assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
             () -> assertEquals(0, detailDto.getItems().size())
         );
     }
@@ -118,7 +122,7 @@ public class PantryEndpointTest {
     @Test
     public void givenPantryWithOneItem_whenFindAllInPantry_thenListWithSizeOneAndCorrectItem()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
@@ -142,7 +146,7 @@ public class PantryEndpointTest {
     public void givenPantryWithOneItemAndMatchingDescription_whenSearchItemsInPantry_thenListWithSizeOneAndCorrectItem()
         throws Exception {
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry/search", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry/search", group.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .queryParam("details", "otat")
                 .accept(MediaType.APPLICATION_JSON))
@@ -170,7 +174,7 @@ public class PantryEndpointTest {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
@@ -197,7 +201,7 @@ public class PantryEndpointTest {
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
@@ -212,7 +216,7 @@ public class PantryEndpointTest {
     @Test
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/pantry/{1}", pantry.getId(), item.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/pantry/{1}", group.getId(), item.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -221,7 +225,7 @@ public class PantryEndpointTest {
 
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
         assertAll(
-            () -> assertFalse(pantryRepository.findById(pantry.getId()).get().getItems().contains(item)),
+            () -> assertFalse(pantryRepository.findById(group.getId()).get().getItems().contains(item)),
             () -> assertFalse(itemRepository.existsById(item.getId()))
         );
     }
@@ -231,7 +235,7 @@ public class PantryEndpointTest {
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body)

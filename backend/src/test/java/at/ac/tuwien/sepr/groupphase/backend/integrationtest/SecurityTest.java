@@ -4,7 +4,9 @@ import at.ac.tuwien.sepr.groupphase.backend.BackendApplication;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -82,6 +84,9 @@ public class SecurityTest implements TestData {
     private PantryRepository pantryRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
     private JwtTokenizer jwtTokenizer;
 
     @Autowired
@@ -90,13 +95,16 @@ public class SecurityTest implements TestData {
     @Autowired
     private List<Object> components;
 
-    private Pantry pantry = Pantry.builder().build();
+    private GroupEntity group = new GroupEntity("TestGroup");
+    private Pantry pantry;
 
     @BeforeEach
     public void beforeEach() {
+        groupRepository.deleteAll();
         pantryRepository.deleteAll();
-        pantry = Pantry.builder().build();
-        pantryRepository.save(pantry);
+        group = new GroupEntity("TestGroup");
+        groupRepository.save(group);
+        pantry = group.getPantry();
     }
 
     /**

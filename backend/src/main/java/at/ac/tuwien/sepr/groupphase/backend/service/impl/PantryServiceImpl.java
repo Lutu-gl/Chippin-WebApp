@@ -82,15 +82,13 @@ public class PantryServiceImpl implements PantryService {
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            Item loadItem = itemRepository.getReferenceById(item.getId());
-            loadItem = Item.builder()
+            Item loadItem = Item.builder()
                 .pantry(pantry)
                 .id(item.getId())
                 .unit(item.getUnit())
                 .amount(item.getAmount())
                 .description(item.getDescription()).build();
-            itemRepository.save(loadItem);
-            return loadItem;
+            return itemRepository.save(loadItem);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }

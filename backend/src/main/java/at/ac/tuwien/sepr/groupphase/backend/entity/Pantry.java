@@ -1,10 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.FetchType;
@@ -25,10 +27,14 @@ import java.util.List;
 @Builder
 @Table(name = "pantry")
 public class Pantry {
-    //TODO change id to PK of group when groups exist and add OneToOne annotation
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "group_id")
+    private GroupEntity group;
 
     @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final List<Item> items = new ArrayList<>();
