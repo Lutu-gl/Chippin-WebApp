@@ -14,7 +14,7 @@
           <div class="col-md-9 col-lg-8">
             <input type="text" id="expenseName" name="expenseName" placeholder="Expense name" class="form-control"
               [class]="dynamicCssClassesForInput(expenseNameModel)" [(ngModel)]="expense.name"
-              #expenseNameModel="ngModel" required>
+              #expenseNameModel="ngModel" required [disabled]="modeIsInfo()">
             <div class="invalid-feedback">
               <!-- This is shown, when the form validation deems the name input to be invalid -->
               Expense name is required
@@ -33,7 +33,7 @@
           <div class="col-md-9 col-lg-8">
             <input type="number" min="0.01" step="0.01" id="expenseAmount" name="expenseAmount" placeholder="Expense amount" class="form-control"
               [class]="dynamicCssClassesForInput(expenseAmountModel)" [(ngModel)]="expense.amount"
-              #expenseAmountModel="ngModel" required>
+              #expenseAmountModel="ngModel" required [disabled]="modeIsInfo()">
             <div class="invalid-feedback">
               <!-- This is shown, when the form validation deems the amount input to be invalid -->
               Expense amount must be a positive number
@@ -52,7 +52,7 @@
           <div class="col-md-9 col-lg-8">
             <app-autocomplete name="categorySelection" textInputClass="form-control"
               [suggestions]="categorySuggestions" [formatModel]="formatCategory" valueNeedsToMatchSuggestion="true"
-              [(ngModel)]="dummyCategorySelectionModel" (ngModelChange)="categorySelected($event)">
+              [(ngModel)]="dummyCategorySelectionModel" (ngModelChange)="categorySelected($event)" [disabled]="modeIsInfo()">
             </app-autocomplete>
           </div>
         </div>
@@ -71,7 +71,7 @@
           <div class="col-md-9 col-lg-8">
             <app-autocomplete name="groupSelection" textInputClass="form-control"
               [suggestions]="groupSuggestions" [formatModel]="formatGroup" valueNeedsToMatchSuggestion="true"
-              [(ngModel)]="dummyGroupSelectionModel" (ngModelChange)="groupSelected($event)">
+              [(ngModel)]="dummyGroupSelectionModel" (ngModelChange)="groupSelected($event)" [disabled]="!modeIsCreate()">
             </app-autocomplete>
             <div class="invalid-feedback">
               <!-- This is shown, when the form validation deems the name input to be invalid -->
@@ -92,7 +92,7 @@
               <div class="col">
                 <app-autocomplete name="payerSelection" textInputClass="form-control"
                   [suggestions]="payerSuggestions" [formatModel]="formatPayer" valueNeedsToMatchSuggestion="true"
-                  [(ngModel)]="dummyPayerSelectionModel" (ngModelChange)="payerSelected($event)">
+                  [(ngModel)]="dummyPayerSelectionModel" (ngModelChange)="payerSelected($event)" [disabled]="modeIsInfo()">
                 </app-autocomplete>
               </div>
               <div class="col">
@@ -111,11 +111,11 @@
             <span>{{ member.name }}</span>
           </div>
           <div class="col-md-3">
-            <input type="checkbox" [(ngModel)]="member.isParticipating" class="form-check-input" name="isParticipating{{i}}">
+            <input type="checkbox" [(ngModel)]="member.isParticipating" class="form-check-input" name="isParticipating{{i}}" [disabled]="modeIsInfo()">
           </div>
           <div class="col-md-4">
             <div class="input-group">
-              <input type="number" [(ngModel)]="member.percentage" class="form-control" placeholder="%" min="0" max="100" name="percentage{{i}}">
+              <input type="number" [(ngModel)]="member.percentage" class="form-control" placeholder="%" min="0" max="100" name="percentage{{i}}" [disabled]="modeIsInfo()">
               <div class="input-group-append">
                 <span class="input-group-text">%</span>
               </div>
@@ -126,7 +126,7 @@
     
     </div>
     
-    <div class="mt-4 d-flex flex-row">
+    <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row">
       <span class="flex-grow-1"></span>
       <button type="submit" class="btn btn-primary"
         [disabled]="(!form.valid || !members || members.length === 0)" type="submit">

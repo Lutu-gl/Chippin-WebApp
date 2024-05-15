@@ -22,9 +22,9 @@ public class ExpenseCreateDto {
 
     private Long id;
 
-    @NotNull(message = "Group name must be given")
-    @NotBlank(message = "Group name must not be empty")
-    @Size(max = 255, message = "Group name is too long")
+    @NotNull(message = "Expense name must be given")
+    @NotBlank(message = "Expense name must not be empty")
+    @Size(max = 255, message = "Expense name is too long")
     @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Invalid letters in the name (no special characters allowed)")
     private String name;
 

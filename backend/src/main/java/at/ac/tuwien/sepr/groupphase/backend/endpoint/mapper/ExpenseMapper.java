@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -23,10 +25,12 @@ public abstract class ExpenseMapper {
     GroupRepository groupRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    GroupMapper groupMapper;
 
-    abstract Set<GroupDetailDto> setOfGroupEntityToSetOfGroupDto(Set<GroupEntity> groupEntitySet);
+    //abstract Set<GroupDetailDto> setOfGroupEntityToSetOfGroupDto(Set<GroupEntity> groupEntitySet);
 
-    abstract GroupDetailDto groupEntityToGroupDto(GroupEntity groupEntity);
+    //abstract GroupDetailDto groupEntityToGroupDto(GroupEntity groupEntity);
 
     @Mapping(target = "payer", source = "payerEmail", qualifiedByName = "emailsToUser")
     @Mapping(target = "group", source = "groupId", qualifiedByName = "groupIdToGroup")
@@ -88,5 +92,18 @@ public abstract class ExpenseMapper {
             return null;
         }
         return participants.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getEmail(), Map.Entry::getValue));
+    }
+
+    @Mapping(target = "payerEmail", source = "payer", qualifiedByName = "usersToEmail")
+    @Mapping(target = "group", source = "group", qualifiedByName = "groupEntityToGroupDetailDto")
+    @Mapping(target = "participants", source = "participants", qualifiedByName = "applicationUserToParticipantsEmail")
+    public abstract ExpenseDetailDto expenseEntityToExpenseDetailDto(Expense expense);
+
+    @Named("groupEntityToGroupDetailDto")
+    GroupCreateDto groupEntityToGroupCreateDto(GroupEntity group) {
+        if (group == null) {
+            return null;
+        }
+        return groupMapper.groupEntityToGroupCreateDto(group);
     }
 }

@@ -40,17 +40,15 @@ public class ExpenseValidator {
             throw new ValidationException("Validation of expense for creation failed", validationErrors);
         }
 
+        List<String> conflictErrors = new ArrayList<>();
 
-        List<String> confictErrors = new ArrayList<>();
-
-
-        checkParticipantsExist(expense, confictErrors);
-        if (checkGroupExists(expense, confictErrors)) {
-            checkPayerAndParticipantsAreInGroup(expense, confictErrors);
+        checkParticipantsExist(expense, conflictErrors);
+        if (checkGroupExists(expense, conflictErrors)) {
+            checkPayerAndParticipantsAreInGroup(expense, conflictErrors);
         }
 
-        if (!confictErrors.isEmpty()) {
-            throw new ConflictException("expense creation failed because of conflict", confictErrors);
+        if (!conflictErrors.isEmpty()) {
+            throw new ConflictException("expense creation failed because of conflict", conflictErrors);
         }
     }
 

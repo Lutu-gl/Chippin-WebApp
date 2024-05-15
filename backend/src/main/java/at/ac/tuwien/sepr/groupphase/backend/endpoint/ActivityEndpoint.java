@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 
 @RestController
 @RequestMapping(value = "/api/v1/activity")
@@ -41,5 +42,16 @@ public class ActivityEndpoint {
         return res;
     }
 
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/group-expenses/{id}")
+    public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId) throws NotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<ActivityDetailDto> result = activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName());
+
+        System.out.println(result);
+
+        return result;
+    }
 
 }

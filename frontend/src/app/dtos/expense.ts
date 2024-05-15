@@ -1,4 +1,5 @@
 import { Category } from "./category"
+import { GroupDto } from "./group"
 
 export interface ExpenseCreateDto {
   name: string,
@@ -6,5 +7,15 @@ export interface ExpenseCreateDto {
   amount: number,
   payerEmail: string,
   groupId: number,
-  participants: {}
+  participants: object
+}
+
+export interface ExpenseDetailDto {
+  id: number,
+  name: string,
+  category: Category,
+  amount: number,
+  payerEmail: string,
+  group: GroupDto,
+  participants: object
 }

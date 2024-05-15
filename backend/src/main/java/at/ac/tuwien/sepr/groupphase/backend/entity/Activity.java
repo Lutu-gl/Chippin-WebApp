@@ -2,6 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -29,6 +31,7 @@ public class Activity {
     @GeneratedValue
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private ActivityCategory category;
 
     private LocalDateTime timestamp;
