@@ -17,6 +17,8 @@ import java.util.List;
 @Builder
 public class RecipeDetailDto {
 
+    private long id;
+
     private List<ItemDto> ingredients;
 
     private String name;

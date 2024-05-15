@@ -100,6 +100,7 @@ public class RecipeEndpointTest {
         recipe = Recipe.builder()
             .name("Test Recipe")
             .description("This is here to Test recipes")
+            .isPublic(true)
             .build();
         recipe.addIngredient(item);
         recipeRepository.save(recipe);
@@ -107,21 +108,22 @@ public class RecipeEndpointTest {
         emptyRecipe = Recipe.builder()
             .name("Empty Recipe")
             .description("This Recipe has no Ingredients")
+            .isPublic(true)
             .build();
         recipeRepository.save(emptyRecipe);
     }
 
     @Test
     public void createRecipeSuccessfully_then201() throws Exception {
-        ItemDto item1 = ItemDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
-        ItemDto item2 = ItemDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
+        ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
 
         RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
             .name("Carrot Banana")
             .description("this is a test")
             .isPublic(false)
             .build();
-        ArrayList<ItemDto> toAdd = new ArrayList<>();
+        ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
         toAdd.add(item1);
         toAdd.add(item2);
         recipeCreateDto.setIngredients(toAdd);
@@ -152,7 +154,7 @@ public class RecipeEndpointTest {
     public void createInvalidRecipe_then400() throws Exception {
 
 
-        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().build();
+        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().isPublic(true).build();
 
         String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders

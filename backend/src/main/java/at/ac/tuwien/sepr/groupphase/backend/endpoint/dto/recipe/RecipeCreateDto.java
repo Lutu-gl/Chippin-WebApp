@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,7 +22,7 @@ public class RecipeCreateDto {
     @Size(min = 1, message = "Recipe must have at least one ingredient")
     @Size(max = 100, message = "Recipe cannot have more than 100 ingredients")
     @NotEmpty(message = "Recipe must have at least one ingredient")
-    private List<ItemDto> ingredients;
+    private List<ItemCreateDto> ingredients;
 
     @NotNull(message = "Recipe must have a name")
     @NotBlank(message = "Recipe must have a name")

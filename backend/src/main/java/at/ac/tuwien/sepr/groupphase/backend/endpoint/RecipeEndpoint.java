@@ -45,11 +45,7 @@ public class RecipeEndpoint {
     @GetMapping("/{recipeId}/recipe")
     public RecipeDetailDto getById(@PathVariable long recipeId) {
         LOGGER.info("GET /api/v1/group/{}/recipe", recipeId);
-        return new RecipeDetailDto(
-            itemMapper.listOfItemsToListOfItemDto(recipeService.findAllIngredients(recipeId)),
-            recipeService.getName(recipeId),
-            recipeService.getDescription(recipeId),
-            recipeService.getIsPublic(recipeId));
+        return recipeService.getById(recipeId);
     }
 
     @Secured("ROLE_USER")
@@ -87,7 +83,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PostMapping("/recipe/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public RecipeDetailDto createRecipe(@RequestBody RecipeCreateDto recipeDto) {
+    public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateDto recipeDto) {
         LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
         return recipeService.createRecipe(recipeDto);
     }

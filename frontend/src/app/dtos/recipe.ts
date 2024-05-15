@@ -6,8 +6,8 @@ export interface RecipeSearch {
 
 export interface RecipeDetailDto {
   id?: number
-  name: String
   ingredients: ItemDetailDto[]
+  name: String
   description: String
   isPublic: boolean
 

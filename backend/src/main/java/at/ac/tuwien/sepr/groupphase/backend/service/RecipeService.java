@@ -84,4 +84,12 @@ public interface RecipeService {
      * @return the created recipe with id
      */
     RecipeDetailDto createRecipe(RecipeCreateDto recipeDto);
+
+    /**
+     * Find a recipe by its id.
+     *
+     * @param id the id of the recipe
+     * @return the recipe with the corresponding id
+     */
+    RecipeDetailDto getById(long id);
 }
