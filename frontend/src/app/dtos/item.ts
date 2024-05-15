@@ -12,10 +12,6 @@ export interface ItemCreateDto {
 }
 export enum Unit {
   Piece = "Piece",
-  Teaspoon = "Teaspoon",
-  Tablespoon = "Tablespoon",
   Gram = "Gram",
-  Kilogram = "Kilogram",
-  Liter = "Liter",
   Milliliter = "Milliliter"
 }
