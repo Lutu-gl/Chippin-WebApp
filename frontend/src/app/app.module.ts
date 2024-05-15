@@ -21,14 +21,19 @@ import {AutocompleteComponent} from "./components/autocomplete/autocomplete.comp
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {RecipeCreateComponent} from "./components/recipe/recipe-create-edit/recipe-create.component";
+import {RecipeCreateEditComponent} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
 import {
   ItemListCreateEditComponent
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
-import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
-import {EditPantryItemDialogComponent} from "./components/edit-pantry-item-dialog/edit-pantry-item-dialog.component";
+import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
+import {
+  GroupInfoCardContentComponent
+} from "./components/group-list/group-info-card-content/group-info-card-content.component";
+import {
+  FriendsInfoCardContentComponent
+} from "./components/friends/friends-info-card-content/friends-info-card-content.component";
 
 @NgModule({
   declarations: [
@@ -46,7 +51,7 @@ import {EditPantryItemDialogComponent} from "./components/edit-pantry-item-dialo
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateComponent
+    RecipeCreateEditComponent
   ],
   imports: [
     BrowserModule,
@@ -55,7 +60,7 @@ import {EditPantryItemDialogComponent} from "./components/edit-pantry-item-dialo
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, ConfirmDeleteDialogComponent, EditPantryItemDialogComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,9 +30,13 @@ public class ItemRepositoryTest {
     @Autowired
     private PantryRepository pantryRepository;
 
+    @Autowired
+    private GroupRepository groupRepository;
+
 
     @BeforeEach
     public void beforeEach() {
+        groupRepository.deleteAll();
         itemRepository.deleteAll();
         pantryRepository.deleteAll();
     }
@@ -49,26 +55,28 @@ public class ItemRepositoryTest {
 
     @Test
     public void givenDescription_whenSaveTwoItemsWhereOneDescriptionMatches_thenFindListWithOneItem() {
-        Pantry pantry = Pantry.builder().build();
+        GroupEntity group = new GroupEntity("test");
+        Pantry pantry = group.getPantry();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
         Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
-        pantryRepository.save(pantry);
+        groupRepository.save(group);
 
         assertEquals(1, itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("oothp", pantry).size());
     }
 
     @Test
     public void givenDescription_whenSaveTwoItemsWhereBothDescriptionMatch_thenFindListWithTwoItemsAndOrderedById() {
-        Pantry pantry = Pantry.builder().build();
+        GroupEntity group = new GroupEntity("test");
+        Pantry pantry = group.getPantry();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
         Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
-        pantryRepository.save(pantry);
+        groupRepository.save(group);
 
         List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("o", pantry);
         assertAll(
@@ -79,13 +87,14 @@ public class ItemRepositoryTest {
 
     @Test
     public void givenNothing_whenSaveTwoItems_thenFindListOrderedById() {
-        Pantry pantry = Pantry.builder().build();
+        GroupEntity group = new GroupEntity("test");
+        Pantry pantry = group.getPantry();
         Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
         Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
-        pantryRepository.save(pantry);
+        groupRepository.save(group);
 
         List<Item> items = itemRepository.findByPantryOrderById(pantry);
         assertAll(

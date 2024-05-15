@@ -2,8 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -39,11 +43,27 @@ public class UserAndGroupDataGenerator {
 
         GroupEntity group1 = new GroupEntity();
         group1.setGroupName("WG-TUW");
-        group1 = groupRepository.save(group1);
+        Item item = Item.builder().description("Milk").unit(Unit.Milliliter).amount(500).build();
+        Item item2 = Item.builder().description("Chocolate").unit(Unit.Gram).amount(200).build();
+        group1.getPantry().addItem(item);
+        group1.getPantry().addItem(item2);
 
         GroupEntity group2 = new GroupEntity();
         group2.setGroupName("WG-EMPTY");
-        group2 = groupRepository.save(group2);
+        Item item3 = Item.builder().description("Banana").unit(Unit.Piece).amount(5).build();
+        Item item4 = Item.builder().description("Chocolate").unit(Unit.Gram).amount(600).build();
+        Item item5 = Item.builder().description("Butter").unit(Unit.Gram).amount(250).build();
+        Item item6 = Item.builder().description("Honey").unit(Unit.Milliliter).amount(200).build();
+        Item item7 = Item.builder().description("Egg").unit(Unit.Piece).amount(9).build();
+        Item item8 = Item.builder().description("Cheese").unit(Unit.Gram).amount(150).build();
+        Item item9 = Item.builder().description("Bread").unit(Unit.Gram).amount(500).build();
+        group2.getPantry().addItem(item3);
+        group2.getPantry().addItem(item4);
+        group2.getPantry().addItem(item5);
+        group2.getPantry().addItem(item6);
+        group2.getPantry().addItem(item7);
+        group2.getPantry().addItem(item8);
+        group2.getPantry().addItem(item9);
 
         Set<GroupEntity> groups = new HashSet<>();
         groups.add(group1);
@@ -62,9 +82,15 @@ public class UserAndGroupDataGenerator {
 
         user1.setGroups(groups);
         user2.setGroups(groups);
-
+        HashSet<ApplicationUser> users = new HashSet<>();
+        users.add(user1);
+        users.add(user2);
+        group1 = groupRepository.save(group1);
         userRepository.save(user1);
         userRepository.save(user2);
+        group1.setUsers(users);
+        group1 = groupRepository.save(group1);
+        group2 = groupRepository.save(group2);
 
         for (int i = 0; i < NUMBER_OF_USERS_TO_GENERATE - 2; i++) {
             ApplicationUser user = ApplicationUser.builder()

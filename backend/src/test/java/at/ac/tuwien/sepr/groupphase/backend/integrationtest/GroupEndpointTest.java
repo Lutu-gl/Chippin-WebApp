@@ -3,11 +3,18 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +32,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -42,6 +48,12 @@ public class GroupEndpointTest implements TestData {
     private UserRepository userRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
+    private PantryRepository pantryRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -50,12 +62,51 @@ public class GroupEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @BeforeEach
+    public void beforeEach() {
+        pantryRepository.deleteAll();
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
+    @Test
+    @Transactional
+    public void whenCreateGroup_withValidData_thenCreatedPantryWithGroupId() throws Exception {
+        userRepository.deleteAll();
+
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setEmail("user1@example.com");
+        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setEmail("user2@example.com");
+        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        GroupCreateDto groupCreateDto =
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+        String body = objectMapper.writeValueAsString(groupCreateDto);
+
+        var res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsByteArray();
+
+        GroupCreateDto createDto = objectMapper.readValue(res, GroupCreateDto.class);
+        GroupEntity group = groupRepository.getReferenceById(createDto.getId());
+
+        assertSame(group.getPantry().getId(), group.getId());
+    }
     @Test
     @Transactional
     @Rollback
     public void whenCreateGroup_withValidData_thenStatus201() throws Exception {
         userRepository.deleteAll();
+        groupRepository.deleteAll();
 
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("user1@example.com");
@@ -80,7 +131,13 @@ public class GroupEndpointTest implements TestData {
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
-        assertEquals(res, "{\"id\":1,\"groupName\":\"NewGroup\",\"members\":[\"user2@example.com\",\"user1@example.com\"]}");
+        GroupCreateDto createDto = objectMapper.readValue(res, GroupCreateDto.class);
+        GroupEntity group = groupRepository.getReferenceById(createDto.getId());
+        assertAll(
+            () -> assertEquals(group.getGroupName(), createDto.getGroupName()),
+            () -> assertTrue(group.getUsers().contains(user1)),
+            () -> assertTrue(group.getUsers().contains(user2))
+        );
     }
 
     @Test

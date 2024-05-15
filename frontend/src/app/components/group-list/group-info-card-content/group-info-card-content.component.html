@@ -1,0 +1,12 @@
+<div>
+  <ul class="group-list" *ngIf="groups.length > 0">
+    <li *ngFor="let group of groups | slice:0:3; let i=index" [routerLink]="['/group/', group.id]">
+      {{ group.groupName }}
+    </li>
+  </ul>
+  <ul class="group-list" *ngIf="groups === null || groups.length === 0">
+    <li>
+      You are in no group
+    </li>
+  </ul>
+</div>

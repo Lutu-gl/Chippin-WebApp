@@ -178,30 +178,18 @@ export class PantryComponent implements OnInit {
     this.error = false;
   }
 
-  getUnitStep(unit: Unit, largeStep: boolean, positive: boolean): number {
-    let value: number = 0;
-    let prefixNum = positive === true ? 1 : -1;
-    switch (unit) {
+  getUnitStep(item: ItemDetailDto, largeStep: boolean, positive: boolean): number {
+    let value: number = item.amount < 1000 ? 1 : 10;
+    let prefixNum = positive ? 1 : -1;
+    switch (item.unit) {
       case Unit.Piece:
-        value = prefixNum * 1;
+        value *= prefixNum;
         break
       case Unit.Gram:
-        value = prefixNum * 10;
-        break;
-      case Unit.Kilogram:
-        value = prefixNum * .1;
-        break;
-      case Unit.Liter:
-        value = prefixNum * .1;
+        value *= prefixNum * 10;
         break;
       case Unit.Milliliter:
-        value = prefixNum * 10;
-        break;
-      case Unit.Tablespoon:
-        value = prefixNum * 1;
-        break;
-      case Unit.Teaspoon:
-        value = prefixNum * 1;
+        value *= prefixNum * 10;
         break;
       default:
         console.error("Undefined unit");
@@ -210,12 +198,32 @@ export class PantryComponent implements OnInit {
     return largeStep ? value * 10 : value;
   }
 
-  getUnitStepString(value: number): string {
-    if (value > 0) return "+" + value;
-    else return value.toString();
-
+  getUnitStepString(value: number, itemAmount: number): string {
+    if (value > 0) {
+      if (itemAmount < 1000) {
+        return "+" + value;
+      } else {
+        return "+" + value / 1000;
+      }
+    } else return itemAmount < 1000 ? value.toString() : (value / 1000).toString();
   }
 
+  getItemAmount(itemAmount: number): number {
+    return itemAmount >= 1000 ? itemAmount / 1000 : itemAmount;
+  }
+
+  getUnit(itemAmount: number, unit: Unit): string {
+    switch (unit) {
+      case Unit.Piece:
+        return itemAmount == 1 ? "Piece" : "Pieces";
+      case Unit.Gram:
+        return itemAmount >= 1000 ? "Kilogram" : "Gram";
+      case Unit.Milliliter:
+        return itemAmount >= 1000 ? "Milliliter" : "Liter";
+      default:
+        console.error("Undefined unit");
+    }
+  }
   protected readonly Unit = Unit;
   protected readonly clone = clone;
 }

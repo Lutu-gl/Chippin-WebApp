@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantrySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
