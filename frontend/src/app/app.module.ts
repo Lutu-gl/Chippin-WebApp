@@ -27,6 +27,7 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateEditComponent
+    RecipeCreateEditComponent,
+    ExpenseCreateComponent
   ],
   imports: [
     BrowserModule,

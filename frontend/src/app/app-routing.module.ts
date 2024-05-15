@@ -26,6 +26,7 @@ import {
 import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
+import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
 
 
 const routes: Routes = [
@@ -57,6 +58,7 @@ const routes: Routes = [
   {path: 'itemList', component: ItemListComponent},
   {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
   {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},
+  {path: 'expenses', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
   {path: '**', redirectTo: ''},
 
 
