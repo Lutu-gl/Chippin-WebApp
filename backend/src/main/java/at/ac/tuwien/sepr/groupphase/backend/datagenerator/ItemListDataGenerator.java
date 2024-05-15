@@ -41,7 +41,7 @@ public class ItemListDataGenerator {
             Item item8 = Item.builder().description("Chicken").unit(Unit.Gram).amount(500).build();
             Item item9 = Item.builder().description("Rice").unit(Unit.Gram).amount(1000).build();
             Item item10 = Item.builder().description("Tomato").unit(Unit.Piece).amount(4).build();
-            Item item11 = Item.builder().description("Potato").unit(Unit.Kilogram).amount(1).build();
+            Item item11 = Item.builder().description("Potato").unit(Unit.Gram).amount(1).build();
             Item item12 = Item.builder().description("Carrot").unit(Unit.Gram).amount(300).build();
             Item item13 = Item.builder().description("Spinach").unit(Unit.Gram).amount(150).build();
             Item item14 = Item.builder().description("Orange").unit(Unit.Piece).amount(2).build();
@@ -54,7 +54,7 @@ public class ItemListDataGenerator {
             Item item21 = Item.builder().description("Cucumber").unit(Unit.Piece).amount(1).build();
             Item item22 = Item.builder().description("Cherry").unit(Unit.Gram).amount(100).build();
             Item item23 = Item.builder().description("Pineapple").unit(Unit.Piece).amount(1).build();
-            Item item24 = Item.builder().description("Watermelon").unit(Unit.Kilogram).amount(2).build();
+            Item item24 = Item.builder().description("Watermelon").unit(Unit.Gram).amount(2).build();
             Item item25 = Item.builder().description("Grapes").unit(Unit.Gram).amount(500).build();
 
 
