@@ -3,9 +3,11 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
@@ -69,14 +71,14 @@ public class PantryEndpointTest {
 
     private GroupEntity group;
     private GroupEntity groupEmptyPantry;
-    private Item item;
+    private PantryItem item;
 
     @BeforeEach
     public void beforeEach() {
         pantryRepository.deleteAll();
         itemRepository.deleteAll();
 
-        item = Item.builder()
+        item = PantryItem.builder()
             .description("Potato")
             .amount(1)
             .unit(Unit.Gram)
@@ -134,7 +136,7 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemDto itemDto = detailDto.getItems().get(0);
+        PantryItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(item.getDescription(), itemDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),
@@ -160,7 +162,7 @@ public class PantryEndpointTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
 
         assertEquals(1, detailDto.getItems().size());
-        ItemDto itemDto = detailDto.getItems().get(0);
+        PantryItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(item.getDescription(), itemDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),

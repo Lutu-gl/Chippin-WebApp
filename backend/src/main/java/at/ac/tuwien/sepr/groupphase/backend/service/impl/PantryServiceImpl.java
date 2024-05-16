@@ -1,10 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +24,13 @@ import java.util.Optional;
 public class PantryServiceImpl implements PantryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ItemRepository itemRepository;
+    private final PantryItemRepository pantryItemRepository;
     private final PantryRepository pantryRepository;
 
     @Override
     @Transactional
-    public List<Item> findAllItems(long pantryId) {
-        LOGGER.debug("Find all items in pantry with id {}", pantryId);
+    public List<PantryItem> findAllItems(long pantryId) {
+        LOGGER.debug("Find all pantryItem in pantry with id {}", pantryId);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
             LOGGER.debug("Found pantry: {}", pantry.get());
@@ -39,12 +42,12 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public List<Item> findItemsByDescription(String description, long pantryId) {
-        LOGGER.debug("Find all items in pantry with id {} matching the description \"{}\"", pantryId, description);
+    public List<PantryItem> findItemsByDescription(String description, long pantryId) {
+        LOGGER.debug("Find all pantryItem in pantry with id {} matching the description \"{}\"", pantryId, description);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
             LOGGER.debug("Found pantry: {}", pantry.get());
-            return itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById(description, pantry.get());
+            return pantryItemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById(description, pantry.get());
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
@@ -53,11 +56,11 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public Item addItemToPantry(Item item, long pantryId) {
-        LOGGER.debug("Add item {} to pantry with ID {}", item, pantryId);
+        LOGGER.debug("Add pantryItem {} to pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            pantry.addItem(item);
+            pantry.addItem((PantryItem) item);
             return itemRepository.save(item);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
@@ -67,28 +70,32 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public void deleteItem(long pantryId, long itemId) {
-        LOGGER.debug("Delete item {} in pantry with ID {}", itemId, pantryId);
+        LOGGER.debug("Delete pantryItem {} in pantry with ID {}", itemId, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            Item item = itemRepository.getReferenceById(itemId);
+            PantryItem item = pantryItemRepository.getReferenceById(itemId);
             pantry.removeItem(item);
+        } else {
+            throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
     }
 
     @Override
-    public Item updateItem(ItemDto item, long pantryId) {
-        LOGGER.debug("Update item {} in pantry with ID {}", item, pantryId);
+    public PantryItem updateItem(PantryItemDto item, long pantryId) {
+        LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            Item loadItem = Item.builder()
+            PantryItem updatedItem = PantryItem.builder()
                 .pantry(pantry)
                 .id(item.getId())
                 .unit(item.getUnit())
                 .amount(item.getAmount())
-                .description(item.getDescription()).build();
-            return itemRepository.save(loadItem);
+                .description(item.getDescription())
+                .lowerLimit(item.getLowerLimit())
+                .build();
+            return itemRepository.save(updatedItem);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
