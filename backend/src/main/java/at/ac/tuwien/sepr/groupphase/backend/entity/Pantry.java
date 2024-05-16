@@ -1,8 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.MapKeyJoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -17,7 +21,9 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -37,14 +43,14 @@ public class Pantry {
     private GroupEntity group;
 
     @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private final List<Item> items = new ArrayList<>();
+    private final List<PantryItem> items = new ArrayList<>();
 
-    public void addItem(Item item) {
+    public void addItem(PantryItem item) {
         items.add(item);
         item.setPantry(this);
     }
 
-    public void removeItem(Item item) {
+    public void removeItem(PantryItem item) {
         items.remove(item);
         item.setPantry(null);
     }
