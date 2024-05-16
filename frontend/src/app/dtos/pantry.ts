@@ -1,9 +1,9 @@
-import {ItemDetailDto} from "./item";
+import {PantryItemDetailDto} from "./item";
 
 export interface PantrySearch {
   details: string;
 }
 
 export interface PantryDetailDto {
-  items: ItemDetailDto[]
+  items: PantryItemDetailDto[]
 }
