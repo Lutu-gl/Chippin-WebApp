@@ -23,6 +23,7 @@ public class ItemServiceImpl implements ItemService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ItemRepository itemRepository;
     private final PantryItemRepository pantryItemRepository;
+
     @Override
     @Transactional
     public Item pantryAutoMerge(PantryItem pantryItem, Pantry pantry) {
@@ -35,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
         }
         //TODO: error if pantryItems.size > 1
         PantryItem baseItem = pantryItems.get(0);
-        baseItem.setAmount(pantryItem.getAmount()+baseItem.getAmount());
+        baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
         LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
         return itemRepository.save(baseItem);
     }
