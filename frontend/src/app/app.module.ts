@@ -29,6 +29,7 @@ import {
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
 import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
 import { ExpenseListComponent } from './components/expense/expense-list.component';
+import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,9 @@ import { ExpenseListComponent } from './components/expense/expense-list.componen
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    ConfirmDeleteDialogComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

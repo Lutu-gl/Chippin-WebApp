@@ -1,4 +1,13 @@
-<h1 class="display-1">{{heading}}</h1>
+<app-confirm-delete-dialog
+  id="confirmDeleteDialog"
+  [deleteWhat]="expense.name"
+  (confirm)="deleteExistingExpense()"
+></app-confirm-delete-dialog>
+
+<div>
+  <h1 class="display-1">{{heading}}</h1>
+  <span *ngIf="expenseIsDeleted()" style="color: red;">This expense is marked as deleted!</span>
+</div>
 <form #form="ngForm" [class.was-validated]="form.submitted" (ngSubmit)="onSubmit(form)">
   <br>
 
@@ -126,6 +135,7 @@
     
     </div>
     
+    <!-- Create/Edit button -->
     <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row">
       <span class="flex-grow-1"></span>
       <button type="submit" class="btn btn-primary"
@@ -133,5 +143,45 @@
         {{submitButtonText}}
       </button>
     </div>
+
+
+    <div *ngIf="modeIsInfo() && !expenseIsDeleted()" class="d-flex flex-row justify-content-start align-items-center mt-4">
+      <!-- Delete expense -->
+      <div class="me-2">
+        <!--
+          TODO: Add this to button
+          data-bs-toggle="modal"
+          data-bs-target="#confirmDeleteDialog" 
+          TODO: Remove (click)="deleteExistingExpense()" from button
+        -->
+        <button 
+          class="btn btn-danger"
+          (click)="deleteExistingExpense()"
+        >
+          <i class="bi bi-trash"></i>
+          Delete expense
+        </button>
+      </div>
+    
+      <!-- Go to edit mode button -->
+      <div>
+        <a [routerLink]="['/expenses', 'edit', expense.groupId]" class="btn btn-warning">
+          <i class="bi bi-pencil"></i>
+          Go to Edit
+        </a>
+      </div>
+    </div>
+
+    <!-- Recover expense -->
+    <div *ngIf="modeIsInfo() && expenseIsDeleted()" class="me-2">
+      <button 
+        class="btn btn-success"
+        (click)="recoverDeletedExpense()"
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+        Recover expense
+      </button>
+    </div>
+    
   </div>
 </form>

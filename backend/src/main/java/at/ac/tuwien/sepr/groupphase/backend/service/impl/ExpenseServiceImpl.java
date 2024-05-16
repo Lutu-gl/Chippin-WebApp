@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
         expense.setDate(LocalDateTime.now());
+        expense.setDeleted(false);
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
@@ -107,5 +110,66 @@ public class ExpenseServiceImpl implements ExpenseService {
         activityRepository.save(activityForExpenseUpdate);
 
         return expenseMapper.expenseEntityToExpenseCreateDto(expenseSaved);
+    }
+
+    @Override
+    @Transactional
+    public void deleteExpense(Long expenseId, String deleterEmail) throws NotFoundException, ConflictException {
+        LOGGER.debug("parameters {} {}", expenseId, deleterEmail);
+        Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
+        ApplicationUser user = userRepository.findByEmail(deleterEmail);
+
+        if (!existingExpense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to delete this expense");
+        }
+
+        if (existingExpense.isDeleted()) {
+            throw new ConflictException("Invalid delete operation", List.of("Expense is already marked as deleted"));
+        }
+
+        expenseRepository.markExpenseAsDeleted(existingExpense);
+
+        Activity activityForExpenseDelete = Activity.builder()
+            .category(ActivityCategory.EXPENSE_DELETE)
+            .timestamp(LocalDateTime.now())
+            .expense(existingExpense)
+            .group(existingExpense.getGroup())
+            .user(user)
+            .build();
+
+        activityRepository.save(activityForExpenseDelete);
+    }
+
+    @Override
+    @Transactional
+    public ExpenseCreateDto recoverExpense(Long expenseId, String recoverEmail) throws NotFoundException, ConflictException {
+        LOGGER.debug("parameters {} {}", expenseId, recoverEmail);
+        Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
+        GroupEntity existingGroup = existingExpense.getGroup();
+        ApplicationUser user = userRepository.findByEmail(recoverEmail);
+
+        if (!existingGroup.getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to recover this expense");
+        }
+
+        if (!existingExpense.isDeleted()) {
+            throw new ConflictException("Invalid recover operation", List.of("Expense is not marked as deleted"));
+        }
+
+        expenseRepository.markExpenseAsRecovered(existingExpense);
+
+        existingExpense.setDeleted(false);
+
+        Activity activityForExpenseRecover = Activity.builder()
+            .category(ActivityCategory.EXPENSE_RECOVER)
+            .timestamp(LocalDateTime.now())
+            .expense(existingExpense)
+            .group(existingGroup)
+            .user(user)
+            .build();
+
+        activityRepository.save(activityForExpenseRecover);
+
+        return expenseMapper.expenseEntityToExpenseCreateDto(existingExpense);
     }
 }

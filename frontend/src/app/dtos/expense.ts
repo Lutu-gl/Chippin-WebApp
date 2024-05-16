@@ -17,5 +17,6 @@ export interface ExpenseDetailDto {
   amount: number,
   payerEmail: string,
   group: GroupDto,
-  participants: object
+  participants: object,
+  deleted: boolean
 }

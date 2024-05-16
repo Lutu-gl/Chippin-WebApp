@@ -35,13 +35,9 @@ public class ActivityServiceImpl implements ActivityService {
     @Transactional
     public ActivityDetailDto getById(Long id) throws NotFoundException {
         LOGGER.debug("parameters {}", id);
-
         Activity activityFound = activityRepository.findById(id).orElseThrow(() -> new NotFoundException("Activity not found"));
-
         ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activityFound);
-
         activityDetailDto.setDescription(giveDescriptionToActivity(activityFound));
-
         return activityDetailDto;
     }
 
@@ -74,6 +70,10 @@ public class ActivityServiceImpl implements ActivityService {
                 String.format("User %s created expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.EXPENSE_UPDATE ->
                 String.format("User %s updated expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+            case ActivityCategory.EXPENSE_DELETE ->
+                String.format("User %s deleted expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+            case ActivityCategory.EXPENSE_RECOVER ->
+                String.format("User %s recovered expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
             default -> "No description available";
         };
     }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
 import { Category } from 'src/app/dtos/category';
@@ -48,11 +48,15 @@ export class ExpenseCreateComponent implements OnInit {
   dummyGroupSelectionModel: unknown; // Just needed for the autocomplete
   dummyPayerSelectionModel: unknown;
 
+  expenseId: number; // only set in info and edit mode
+  expenseDeleted = false; // only set to true if expense is marked as deleted
+
   constructor(
     private userService: UserService,
     private groupService: GroupService,
     private expenseService: ExpenseService,
     private route: ActivatedRoute,
+    private router: Router,
     private notification: ToastrService
   ) {
   }
@@ -63,7 +67,7 @@ export class ExpenseCreateComponent implements OnInit {
       this.mode = data.mode;
       if (this.mode === ExpenseCreateEditMode.create) {
         this.prepareGroupOnCreate();
-      } else if (this.mode === ExpenseCreateEditMode.info) {
+      } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
         this.prepareWholeExpense();
       }
     
@@ -94,9 +98,11 @@ export class ExpenseCreateComponent implements OnInit {
 
   private prepareWholeExpense(): void {
     const expenseId = Number(this.route.snapshot.paramMap.get('id'));
+    this.expenseId = expenseId;
     if (expenseId) {
       this.expenseService.getExpenseById(expenseId).subscribe({
         next: data => {
+          console.log(data);
           this.expense.name = data.name;
           this.expense.category = data.category;
           this.expense.amount = data.amount;
@@ -119,6 +125,8 @@ export class ExpenseCreateComponent implements OnInit {
             }
             return formattedMember;
           });
+
+          this.expenseDeleted = data.deleted;
           
         },
         error: error => {
@@ -159,6 +167,10 @@ export class ExpenseCreateComponent implements OnInit {
 
   public modeIsCreate(): boolean {
     return this.mode === ExpenseCreateEditMode.create;
+  }
+
+  public expenseIsDeleted(): boolean {
+    return this.expenseDeleted === true;
   }
 
   public formatMember(member: UserSelection | null): string {
@@ -230,13 +242,63 @@ export class ExpenseCreateComponent implements OnInit {
       participants: participants
     };
 
-    this.expenseService.createExpense(submitExpense).subscribe({
+    if (this.mode === ExpenseCreateEditMode.create) {
+      this.createNewExpense(submitExpense);
+    } else if (this.mode === ExpenseCreateEditMode.edit) {
+      this.editExistingExpense(this.expenseId, submitExpense);
+    }
+    
+  }
+
+  private createNewExpense(expense: ExpenseCreateDto): void {
+    this.expenseService.createExpense(expense).subscribe({
       next: data => {
         this.notification.success("Created expense successfully!");
+        this.router.navigate(["/group", data.groupId]);
       },
       error: error => {
         console.error(error);
         this.notification.error("Could not create expense!");
+      }
+    });
+  }
+
+  private editExistingExpense(expenseId: number, expense: ExpenseCreateDto): void {
+    this.expenseService.updateExpense(expenseId, expense).subscribe({
+      next: data => {
+        this.notification.success("Edited expense successfully!");
+        this.router.navigate(['/expenses', 'info', expenseId]);
+      },
+      error: error => {
+        console.error(error);
+        this.notification.error("Could not edit expense!");
+      }
+    })
+  }
+
+  public deleteExistingExpense(): void {
+    this.expenseService.deleteExpense(this.expenseId).subscribe({
+      next: data => {
+        this.notification.success("Deleted expense successfully!");
+        this.router.navigate(['/group', this.expense.groupId]);
+      },
+      error: error => {
+        console.error(error);
+        this.notification.error("Could not delete expense!");
+      }
+    })
+  }
+
+  public recoverDeletedExpense(): void {
+    this.expenseService.recoverExpense(this.expenseId).subscribe({
+      next: data => {
+        this.notification.success("Recovered expense successfully!");
+        this.expense = data;
+        this.expenseDeleted = false;
+      },
+      error: error => {
+        console.error(error);
+        this.notification.error("Could not recover expense!");
       }
     })
   }

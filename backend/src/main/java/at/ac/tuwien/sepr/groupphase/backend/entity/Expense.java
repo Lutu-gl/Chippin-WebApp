@@ -57,6 +57,5 @@ public class Expense {
     @Column(name = "amount")
     private Map<ApplicationUser, Double> participants = new HashMap<>();
 
-    //@OneToMany
-    //private Set<ExpenseParticipant> participants;
+    private boolean deleted;
 }

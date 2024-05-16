@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,4 +60,19 @@ public class ExpenseEndpoint {
         return expenseService.updateExpense(expenseId, expenseCreateDto, authentication.getName());
     }
 
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}")
+    public void deleteExpense(@PathVariable(name = "id") Long expenseId) throws ConflictException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        expenseService.deleteExpense(expenseId, authentication.getName());
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/recover/{id}")
+    public ExpenseCreateDto recoverExpense(@PathVariable(name = "id") Long expenseId) throws ConflictException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return expenseService.recoverExpense(expenseId, authentication.getName());
+    }
 }

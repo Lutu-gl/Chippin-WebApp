@@ -19,6 +19,18 @@ export class ExpenseService {
     return this.httpClient.post<ExpenseCreateDto>(this.expenseBaseUri, expense);
   }
 
+  updateExpense(expenseId: number, expense: ExpenseCreateDto): Observable<ExpenseCreateDto> {
+    return this.httpClient.put<ExpenseCreateDto>(this.expenseBaseUri + `/${expenseId}`, expense);
+  }
+
+  deleteExpense(expenseId: number): Observable<void> {
+    return this.httpClient.delete<void>(this.expenseBaseUri + `/${expenseId}`);
+  }
+
+  recoverExpense(expenseId: number): Observable<ExpenseCreateDto> {
+    return this.httpClient.put<ExpenseCreateDto>(this.expenseBaseUri + `/recover/${expenseId}`, {});
+  }
+
   getExpenseById(expenseId: number): Observable<ExpenseDetailDto> {
     return this.httpClient.get<any>(this.expenseBaseUri + `/${expenseId}`)
       .pipe(map(response => {

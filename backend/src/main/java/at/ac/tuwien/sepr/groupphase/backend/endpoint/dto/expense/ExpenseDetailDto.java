@@ -21,4 +21,5 @@ public class ExpenseDetailDto {
     private LocalDateTime date;
     private GroupCreateDto group;
     private Map<String, Double> participants;
+    private Boolean deleted;
 }

@@ -21,6 +21,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
         "SELECT a FROM Activity a"
         + " WHERE "
         + " a.group = :group AND"
-        + " (a.category = 'EXPENSE' OR a.category = 'EXPENSE_UPDATE' OR a.category = 'EXPENSE_DELETE')")
+        + " (a.category = 'EXPENSE' OR a.category = 'EXPENSE_UPDATE' OR a.category = 'EXPENSE_DELETE' OR a.category = 'EXPENSE_RECOVER')"
+        + " ORDER BY a.timestamp DESC"
+    )
     Set<Activity> findExpenseActivitiesByGroup(GroupEntity group);
 }

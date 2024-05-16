@@ -43,4 +43,23 @@ public interface ExpenseService {
      * @throws NotFoundException if the expense does not exist
      */
     ExpenseCreateDto updateExpense(Long expenseId, ExpenseCreateDto expenseCreateDto, String updaterEmail) throws ValidationException, ConflictException, NotFoundException;
+
+    /**
+     * Deletes an existing expense.
+     *
+     * @param expenseId the id of the expense to delete
+     * @param deleterEmail the email of the user deleting the expense
+     * @throws NotFoundException if the expense is not found
+     */
+    void deleteExpense(Long expenseId, String deleterEmail) throws NotFoundException, ConflictException;
+
+    /**
+     * Recovers a deleted expense.
+     *
+     * @param expenseId the idd of expense to recover
+     * @param recoverEmail the email of the user recovering the expense
+     * @return the recovered expense
+     * @throws NotFoundException if the expense is not found
+     */
+    ExpenseCreateDto recoverExpense(Long expenseId, String recoverEmail) throws NotFoundException, ConflictException;
 }
