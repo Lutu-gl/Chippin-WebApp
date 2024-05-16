@@ -1,8 +1,7 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {ItemDetailDto, Unit} from "../../dtos/item";
+import {PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {FormsModule, NgForm} from "@angular/forms";
 import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
-import {clone} from "lodash";
 
 @Component({
   selector: 'app-edit-pantry-item-dialog',
@@ -18,20 +17,32 @@ import {clone} from "lodash";
 })
 
 export class EditPantryItemDialogComponent {
-  @Input() itemToEdit: ItemDetailDto = undefined;
+  @Input() itemToEdit: PantryItemDetailDto = undefined;
   @Input() pantryId: number = undefined;
   @Output() confirm = new EventEmitter<void>();
   @ViewChild('modalClose') modalClose;
   isFormValid: boolean;
+  newLowerLimit: number = 0;
 
-  constructor(
-  ) {
+  constructor() {
   }
 
   onSubmit(form: NgForm) {
+    this.newLowerLimit = 0;
     this.isFormValid = form.valid;
     if (form.valid) {
       this.modalClose.nativeElement.click();
+    }
+  }
+
+  markImportant() {
+    if(this.itemToEdit.lowerLimit !== null) {
+      console.log("set null")
+      this.newLowerLimit = this.itemToEdit.lowerLimit;
+      this.itemToEdit.lowerLimit = null;
+    } else {
+      console.log("set 0")
+      this.itemToEdit.lowerLimit = this.newLowerLimit;
     }
   }
 

@@ -7,10 +7,22 @@
       </div>
       <div class="modal-body" *ngIf="itemToEdit !== undefined">
         <form #form="ngForm" id="form" class="row pt-1" (ngSubmit)="form.valid ? confirm.emit() : null; onSubmit(form)">
+          <div class="col-1">
+            <button id="important" name="button" type="button" class="btn btn-warning m-2" (click)="markImportant()">
+              <i *ngIf="itemToEdit.lowerLimit === null" class="bi bi-star"></i>
+              <i *ngIf="itemToEdit.lowerLimit !== null" class="bi bi-star-fill"></i>
+            </button>
+          </div>
           <div class="col-2">
             <label for="newItemAmount">Amount</label>
             <input name="newItemAmount" type="number" class="form-control" id="newItemAmount" placeholder="0"
                    [(ngModel)]="itemToEdit.amount" required min="0">
+          </div>
+          <div class="col-2" *ngIf="itemToEdit.lowerLimit !== null">
+            <label for="newItemLowerLimit">Min</label>
+            <input *ngIf="itemToEdit.lowerLimit !== null" name="newItemAmount" type="number" class="form-control"
+                   id="newItemLowerLimit" placeholder="0"
+                   [(ngModel)]="newLowerLimit" required min="0">
           </div>
           <div class="col-2">
             <label for="newItemUnit">Unit</label>
