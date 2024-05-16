@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeListDto, RecipeSearch} from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
+import {RecipeDetailComponent} from "../components/recipe/recipe-detail/recipe-detail.component";
 
 @Injectable({
   providedIn: 'root'
@@ -83,5 +84,15 @@ export class RecipeService {
    */
   getRecipesFromUser(): Observable<RecipeListDto[]>{
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/list`);
+  }
+
+  /**
+   * Update recipe with recipeId with new recipe.
+   * @param recipeId  the recipeId of the recipe to update
+   * @param toUpdate the RecipeDetailDto with new information
+   * @return the updated recipeDetailDto
+   */
+  updateRecipe(recipeId:number, toUpdate: RecipeDetailDto): Observable<RecipeDetailDto> {
+    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe/update`, toUpdate);
   }
 }

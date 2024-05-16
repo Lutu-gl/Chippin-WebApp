@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
@@ -102,4 +103,13 @@ public interface RecipeService {
      * @return the recipes from the specified user
      */
     List<RecipeListDto> getRecipesFromUser();
+
+    /**
+     * Update a recipe with the corresponding id.
+     *
+     * @param recipeId the id of the recipe to update
+     * @param toUpdate the detailDto to update
+     * @return the updated recipe
+     */
+    RecipeDetailDto updateRecipe(long recipeId, RecipeDetailDto toUpdate);
 }

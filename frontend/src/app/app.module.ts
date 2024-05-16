@@ -21,7 +21,7 @@ import {AutocompleteComponent} from "./components/autocomplete/autocomplete.comp
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {RecipeCreateComponent} from "./components/recipe/recipe-create-edit/recipe-create.component";
+import {RecipeCreateComponent} from "./components/recipe/recipe-create/recipe-create.component";
 import {
   ItemListCreateEditComponent
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
@@ -35,6 +35,8 @@ import {
   FriendsInfoCardContentComponent
 } from "./components/friends/friends-info-card-content/friends-info-card-content.component";
 import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
+import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
+import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 
 @NgModule({
   declarations: [
@@ -52,7 +54,9 @@ import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/c
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateComponent
+    RecipeCreateComponent,
+    RecipeDetailComponent,
+    RecipeEditComponent
   ],
   imports: [
     BrowserModule,

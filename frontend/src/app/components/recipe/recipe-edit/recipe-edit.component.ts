@@ -4,31 +4,29 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
-import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
+import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
 import {ItemCreateDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
 
-export enum RecipeCreateEditMode {
-  create,
-  edit,
-}
 
 @Component({
-  selector: 'app-recipe-create',
-  templateUrl: './recipe-create.component.html',
-  styleUrl: './recipe-create.component.scss'
+  selector: 'app-recipe-edit',
+  templateUrl: './recipe-edit.component.html',
+  styleUrl: './recipe-edit.component.scss'
 })
 
-export class RecipeCreateComponent implements OnInit {
+export class RecipeEditComponent implements OnInit {
   error = false;
   errorMessage = '';
-  recipe: RecipeCreateWithoutUserDto = {
+  recipe: RecipeDetailDto = {
     name: '',
     ingredients: [],
     description: '',
     isPublic: false,
-    portionSize:1
+    portionSize:1,
+    likes:0,
+    dislikes:0
   };
   newIngredient: ItemCreateDto = {
     amount: 0,
@@ -39,6 +37,7 @@ export class RecipeCreateComponent implements OnInit {
   selectedIndexToDelete: number;
   selectedIndexToEdit:number;
   deleteWhatString: string;
+  recipeId:number;
 
 
   constructor(
@@ -52,6 +51,17 @@ export class RecipeCreateComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const recipeIdparam = this.route.snapshot.paramMap.get('id');
+    this.recipeId = recipeIdparam ? +recipeIdparam : Number(recipeIdparam);
+    this.service.getRecipeById(this.recipeId)
+      .subscribe({
+        next: data => {
+          this.recipe = data;
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
   }
 
 
@@ -65,11 +75,11 @@ export class RecipeCreateComponent implements OnInit {
     if (form.valid) {
       let observable: Observable<RecipeCreateWithoutUserDto>;
 
-          observable = this.service.createRecipe(this.recipe);
+      observable = this.service.updateRecipe(this.recipeId, this.recipe);
 
       observable.subscribe({
         next: data => {
-          this.notification.success(`Recipe ${this.recipe.name} successfully created.`);
+          this.notification.success(`Recipe ${this.recipe.name} successfully changed.`);
           this.router.navigate(['/recipe']);
         },
         error: error => {
@@ -82,16 +92,25 @@ export class RecipeCreateComponent implements OnInit {
   onIngredientSubmit(form: NgForm) {
     console.log('is form valid?', form.valid);
     //if (form.valid) {
-      this.recipe.ingredients.push(this.newIngredient);
-      this.newIngredient= {
-        amount: 0,
-        unit: Unit.Piece,
-        description: ""}
+    this.service.createItem(this.recipeId,this.newIngredient)
+      .subscribe({
+        next: data => {
+          this.recipe.ingredients.push(data);
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
+    this.newIngredient= {
+      amount: 0,
+      unit: Unit.Piece,
+      description: ""}
 
     //}
   }
 
   public removeIngredient(index: number) {
+    this.service.deleteIngredient(this.recipeId,this.recipe.ingredients[index].id);
     this.recipe.ingredients.splice(index, 1);
     this.selectedIndexToDelete=undefined;
   }
@@ -145,7 +164,7 @@ export class RecipeCreateComponent implements OnInit {
   selectIndexToDelete(index:number): void {
     this.selectedIndexToDelete=index;
     this.deleteWhatString=this.recipe.ingredients[index].description.toString();
-}
+  }
 
   selectIndexToEdit(index:number):void {
     this.selectedIndexToEdit=index;

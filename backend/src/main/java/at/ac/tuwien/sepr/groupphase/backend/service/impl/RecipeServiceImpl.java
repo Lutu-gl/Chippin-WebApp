@@ -130,6 +130,7 @@ public class RecipeServiceImpl implements RecipeService {
             Recipe recipe = optionalRecipe.get();
             Item item = itemRepository.getReferenceById(itemId);
             recipe.removeItem(item);
+            recipeRepository.save(recipe);
         }
     }
 
@@ -175,6 +176,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto getById(long id) {
+        LOGGER.debug("Get by Id: {}", id);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
             return recipeMapper.recipeEntityToRecipeDetailDto(optionalRecipe.get());
@@ -184,7 +186,14 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Transactional
     public List<RecipeListDto> getRecipesFromUser() {
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findAll());
+    }
+
+    @Override
+    @Transactional
+    public RecipeDetailDto updateRecipe(long recipeId, RecipeDetailDto toUpdate) {
+        return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
     }
 }
