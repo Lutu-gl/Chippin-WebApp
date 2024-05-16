@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,13 +12,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
-public class RecipeCreateDto {
+public class RecipeCreateWithoutUserDto {
 
 
     @NotNull(message = "Recipe must have at least one ingredient")
@@ -43,5 +43,10 @@ public class RecipeCreateDto {
     @NotNull
     @Min(value = 1, message = "Portion size must be at least 1")
     @Max(value = 1000, message = "Recipe cannot feed more than 1000 people")
-    private int portionSize;
+    int portionSize;
+
+
+    public RecipeCreateDto addUser(ApplicationUser user) {
+        return null;
+    }
 }

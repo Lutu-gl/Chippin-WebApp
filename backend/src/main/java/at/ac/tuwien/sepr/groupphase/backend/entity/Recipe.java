@@ -47,6 +47,15 @@ public class Recipe {
     @Column(nullable = false)
     private boolean isPublic;
 
+    @Column(nullable = false)
+    private int portionSize;
+
+    @Column
+    private int likes = 0;
+
+    @Column
+    private int dislikes = 0;
+
     public void addIngredient(Item item) {
         ingredients.add(item);
         item.setRecipe(this);
@@ -57,5 +66,6 @@ public class Recipe {
         ingredients.remove(item);
         item.setRecipe(null);
     }
+
 
 }

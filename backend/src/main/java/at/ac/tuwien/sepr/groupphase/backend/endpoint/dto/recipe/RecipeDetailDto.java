@@ -27,5 +27,16 @@ public class RecipeDetailDto {
 
     private boolean isPublic;
 
+    private int portionSize;
+
+    private int likes;
+
+    private int dislikes;
+
+
+    public int getScore() {
+        return likes - dislikes;
+    }
+
 
 }

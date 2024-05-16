@@ -43,6 +43,13 @@
             <option [value]="false">No</option>
           </select>
         </div>
+        <label for="newPortionSize" class="col-form-label text-md-end text-muted col-md-1 col-lg-1">
+          Portion Size
+        </label>
+        <div class="col-2">
+          <input name="newPortionSize" type="number" class="form-control" id="newPortionSize" placeholder="1"
+                 [(ngModel)]="recipe.portionSize" required min="1">
+        </div>
 
       </div>
       <br>

@@ -27,7 +27,8 @@ export class RecipeCreateComponent implements OnInit {
     name: '',
     ingredients: [],
     description: '',
-    isPublic: false
+    isPublic: false,
+    portionSize:1
   };
   newIngredient: ItemCreateDto = {
     amount: 0,

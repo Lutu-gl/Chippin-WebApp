@@ -101,7 +101,8 @@ public class RecipeEndpointTest {
             .name("Test Recipe")
             .description("This is here to Test recipes")
             .isPublic(true)
-            .build();
+            .portionSize(1)
+            .likes(0).dislikes(0).build();
         recipe.addIngredient(item);
         recipeRepository.save(recipe);
 
@@ -109,7 +110,8 @@ public class RecipeEndpointTest {
             .name("Empty Recipe")
             .description("This Recipe has no Ingredients")
             .isPublic(true)
-            .build();
+            .portionSize(1)
+            .likes(0).dislikes(0).build();
         recipeRepository.save(emptyRecipe);
     }
 
@@ -122,6 +124,7 @@ public class RecipeEndpointTest {
             .name("Carrot Banana")
             .description("this is a test")
             .isPublic(false)
+            .portionSize(1)
             .build();
         ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
         toAdd.add(item1);
@@ -154,7 +157,7 @@ public class RecipeEndpointTest {
     public void createInvalidRecipe_then400() throws Exception {
 
 
-        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().isPublic(true).build();
+        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().isPublic(true).portionSize(0).build();
 
         String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
