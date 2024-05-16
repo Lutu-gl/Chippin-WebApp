@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.ItemService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class PantryServiceImpl implements PantryService {
     private final ItemRepository itemRepository;
     private final PantryItemRepository pantryItemRepository;
     private final PantryRepository pantryRepository;
+    private final ItemService itemService;
 
     @Override
     @Transactional
@@ -55,13 +57,12 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public Item addItemToPantry(Item item, long pantryId) {
+    public Item addItemToPantry(PantryItem item, long pantryId) {
         LOGGER.debug("Add pantryItem {} to pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            pantry.addItem((PantryItem) item);
-            return itemRepository.save(item);
+            return itemService.pantryAutoMerge(item, pantry);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
