@@ -45,7 +45,7 @@ public class RecipeDataGenerator {
                     + "Ganz zum Schluss mit der Bechamelsauce abschließen und frisch geriebenen Gouda draufgeben. "
                     + "Im vorgeheizten Ofen bei 180° C Heißluft ca. 30 Minuten backen.")
                 .isPublic(true)
-                .build();
+                .portionSize(1).likes(1).dislikes(1).build();
 
             Item item1 = Item.builder().description("Rinderfaschiertes").unit(Unit.Gram).amount(400).build();
             Item item2 = Item.builder().description("Zwiebel").unit(Unit.Piece).amount(1).build();
@@ -87,7 +87,7 @@ public class RecipeDataGenerator {
                     + "mit dem Pürierstab pürieren und mit Salz und Pfeffer nochmals abschmecken. Zum Schluss nochmals"
                     + " das ausgelöste Hühnerfleisch hinzufügen und ganz kurz aufkochen lassen.")
                 .isPublic(false)
-                .build();
+                .portionSize(1).likes(1).dislikes(1).build();
 
 
             Item item14 = Item.builder().description("Huhn (im Ganzen, küchenfertig)").unit(Unit.Piece).amount(1).build();
