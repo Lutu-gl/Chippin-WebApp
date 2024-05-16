@@ -3,9 +3,11 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,9 @@ public class ItemRepositoryTest {
 
     @Autowired
     private PantryRepository pantryRepository;
+
+    @Autowired
+    private PantryItemRepository pantryItemRepository;
 
     @Autowired
     private GroupRepository groupRepository;
@@ -57,28 +62,28 @@ public class ItemRepositoryTest {
     public void givenDescription_whenSaveTwoItemsWhereOneDescriptionMatches_thenFindListWithOneItem() {
         GroupEntity group = new GroupEntity("test");
         Pantry pantry = group.getPantry();
-        Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
-        Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
+        PantryItem descriptionMatch = PantryItem.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
+        PantryItem otherItem = PantryItem.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
         groupRepository.save(group);
 
-        assertEquals(1, itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("oothp", pantry).size());
+        assertEquals(1, pantryItemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("oothp", pantry).size());
     }
 
     @Test
     public void givenDescription_whenSaveTwoItemsWhereBothDescriptionMatch_thenFindListWithTwoItemsAndOrderedById() {
         GroupEntity group = new GroupEntity("test");
         Pantry pantry = group.getPantry();
-        Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
-        Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
+        PantryItem descriptionMatch = PantryItem.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
+        PantryItem otherItem = PantryItem.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
         groupRepository.save(group);
 
-        List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("o", pantry);
+        List<PantryItem> items = pantryItemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById("o", pantry);
         assertAll(
             () -> assertEquals(2, items.size()),
             () -> assertTrue(items.get(0).getId() < items.get(1).getId())
@@ -89,14 +94,14 @@ public class ItemRepositoryTest {
     public void givenNothing_whenSaveTwoItems_thenFindListOrderedById() {
         GroupEntity group = new GroupEntity("test");
         Pantry pantry = group.getPantry();
-        Item descriptionMatch = Item.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
-        Item otherItem = Item.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
+        PantryItem descriptionMatch = PantryItem.builder().description("Toothpaste").unit(Unit.Piece).amount(1).build();
+        PantryItem otherItem = PantryItem.builder().description("Honey").unit(Unit.Milliliter).amount(300).build();
 
         pantry.addItem(descriptionMatch);
         pantry.addItem(otherItem);
         groupRepository.save(group);
 
-        List<Item> items = itemRepository.findByPantryOrderById(pantry);
+        List<PantryItem> items = pantryItemRepository.findByPantryOrderById(pantry);
         assertAll(
             () -> assertEquals(2, items.size()),
             () -> assertTrue(items.get(0).getId() < items.get(1).getId())

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {ItemCreateDto, ItemDetailDto, Unit} from "../../dtos/item";
+import {PantryItemCreateDto, PantryItemDetailDto, Unit} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -31,14 +31,16 @@ export class PantryComponent implements OnInit {
   error = false;
   errorMessage = '';
 
-  items: ItemDetailDto[];
-  newItem: ItemCreateDto = {
+  items: PantryItemDetailDto[];
+  newItem: PantryItemCreateDto = {
     amount: 0,
     unit: Unit.Piece,
-    description: ""
+    description: "",
+    lowerLimit: null
   };
-  selectedItem: ItemDetailDto = undefined;
-  itemToEdit: ItemDetailDto = undefined;
+  newLowerLimit: number = 0;
+  selectedItem: PantryItemDetailDto = undefined;
+  itemToEdit: PantryItemDetailDto = undefined;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -68,6 +70,18 @@ export class PantryComponent implements OnInit {
     console.log('is form valid?', form.valid);
     if (form.valid) {
       this.addItem();
+    }
+  }
+
+  markImportant(){
+    console.log("mark important")
+    if(this.newItem.lowerLimit !== null) {
+      console.log("set null")
+      this.newLowerLimit = this.newItem.lowerLimit;
+      this.newItem.lowerLimit = null;
+    } else {
+      console.log("set 0")
+      this.newItem.lowerLimit = this.newLowerLimit;
     }
   }
 
@@ -111,6 +125,7 @@ export class PantryComponent implements OnInit {
   }
 
   addItem() {
+    this.newLowerLimit = 0;
     this.service.createItem(this.id, this.newItem).subscribe({
       next: res => {
         console.log("Item created: ", res);
@@ -136,7 +151,7 @@ export class PantryComponent implements OnInit {
     });
   }
 
-  changeAmount(item: ItemDetailDto, amountChanged: number) {
+  changeAmount(item: PantryItemDetailDto, amountChanged: number) {
     item.amount = item.amount + amountChanged > 0 ? item.amount + amountChanged : 0;
     this.service.updateItem(item, this.id).subscribe({
       next: dto => {
@@ -163,11 +178,11 @@ export class PantryComponent implements OnInit {
     }
   }
 
-  selectItem(item: ItemDetailDto) {
+  selectItem(item: PantryItemDetailDto) {
     this.selectedItem = item;
   }
 
-  selectEditItem(item: ItemDetailDto) {
+  selectEditItem(item: PantryItemDetailDto) {
     this.itemToEdit = item;
   }
 
@@ -178,7 +193,7 @@ export class PantryComponent implements OnInit {
     this.error = false;
   }
 
-  getUnitStep(item: ItemDetailDto, largeStep: boolean, positive: boolean): number {
+  getUnitStep(item: PantryItemDetailDto, largeStep: boolean, positive: boolean): number {
     let value: number = item.amount < 1000 ? 1 : 10;
     let prefixNum = positive ? 1 : -1;
     switch (item.unit) {
@@ -224,6 +239,7 @@ export class PantryComponent implements OnInit {
         console.error("Undefined unit");
     }
   }
+
   protected readonly Unit = Unit;
   protected readonly clone = clone;
 }

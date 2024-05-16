@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,20 +45,20 @@ public class UserAndGroupDataGenerator {
 
         GroupEntity group1 = new GroupEntity();
         group1.setGroupName("WG-TUW");
-        Item item = Item.builder().description("Milk").unit(Unit.Milliliter).amount(500).build();
-        Item item2 = Item.builder().description("Chocolate").unit(Unit.Gram).amount(200).build();
+        PantryItem item = PantryItem.builder().description("Milk").unit(Unit.Milliliter).amount(500).build();
+        PantryItem item2 = PantryItem.builder().description("Chocolate").unit(Unit.Gram).amount(200).build();
         group1.getPantry().addItem(item);
         group1.getPantry().addItem(item2);
 
         GroupEntity group2 = new GroupEntity();
         group2.setGroupName("WG-EMPTY");
-        Item item3 = Item.builder().description("Banana").unit(Unit.Piece).amount(5).build();
-        Item item4 = Item.builder().description("Chocolate").unit(Unit.Gram).amount(600).build();
-        Item item5 = Item.builder().description("Butter").unit(Unit.Gram).amount(250).build();
-        Item item6 = Item.builder().description("Honey").unit(Unit.Milliliter).amount(200).build();
-        Item item7 = Item.builder().description("Egg").unit(Unit.Piece).amount(9).build();
-        Item item8 = Item.builder().description("Cheese").unit(Unit.Gram).amount(150).build();
-        Item item9 = Item.builder().description("Bread").unit(Unit.Gram).amount(500).build();
+        PantryItem item3 = PantryItem.builder().description("Banana").unit(Unit.Piece).amount(5).build();
+        PantryItem item4 = PantryItem.builder().description("Chocolate").unit(Unit.Gram).amount(600).build();
+        PantryItem item5 = PantryItem.builder().description("Butter").unit(Unit.Gram).amount(250).build();
+        PantryItem item6 = PantryItem.builder().description("Honey").unit(Unit.Milliliter).amount(200).build();
+        PantryItem item7 = PantryItem.builder().description("Egg").unit(Unit.Piece).amount(9).build();
+        PantryItem item8 = PantryItem.builder().description("Cheese").unit(Unit.Gram).amount(150).build();
+        PantryItem item9 = PantryItem.builder().description("Bread").unit(Unit.Gram).amount(500).build();
         group2.getPantry().addItem(item3);
         group2.getPantry().addItem(item4);
         group2.getPantry().addItem(item5);

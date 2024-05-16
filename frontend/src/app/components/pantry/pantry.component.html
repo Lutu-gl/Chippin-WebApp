@@ -20,14 +20,27 @@
              (ngModelChange)="searchChanged()"
       >
       <form #form="ngForm" class="row pt-3" (ngSubmit)="onSubmit(form)">
-        <div class="col-3 align-content-center">
+        <div class="col-1">
+          <button name="button" type="button" class="btn btn-warning m-2" (click)="markImportant()">
+            <i *ngIf="newItem.lowerLimit === null" class="bi bi-star"></i>
+            <i *ngIf="newItem.lowerLimit !== null" class="bi bi-star-fill"></i>
+          </button>
+        </div>
+        <div class="col-1 align-content-center">
           <button name="submit" type="submit" class="btn btn-info m-2">
             <i class="bi bi-plus-lg"></i>
           </button>
         </div>
-        <div class="col-2">
+        <div class="col-2 align-content-center">
+        </div>
+        <div class="col-1">
           <input name="newItemAmount" type="number" class="form-control" id="newItemAmount" placeholder="0"
                  [(ngModel)]="newItem.amount" required min="0">
+        </div>
+        <div class="col-1">
+          <input *ngIf="newItem.lowerLimit !== null" name="newItemAmount" type="number" class="form-control"
+                 id="newItemLowerLimit" placeholder="0"
+                 [(ngModel)]="newItem.lowerLimit" required min="0">
         </div>
         <div class="col-2">
           <select name="newItemUnit" class="form-select" [(ngModel)]="newItem.unit" required>
@@ -43,15 +56,22 @@
       <table class="table table-hover">
         <thead>
         <tr>
-          <th class="col-3"></th>
-          <th class="col-2">Amount</th>
+          <th class="col-1"></th>
+          <th class="col-1"></th>
+          <th class="col-2"></th>
+          <th class="col-1">Amount</th>
+          <th class="col-1">Min</th>
           <th class="col-2">Unit</th>
           <th>Item</th>
         </tr>
         </thead>
         <tbody>
-
         <tr *ngFor="let item of items" class="center-td">
+          <td>
+            <button class="btn btn-danger" *ngIf="item.lowerLimit !== null && item.lowerLimit > item.amount">
+              <i class="bi bi-exclamation-triangle"></i>
+            </button>
+          </td>
           <td class="row">
             <div class="col align-content-center">
               <a class="btn responsive-danger-button m-1"
@@ -69,6 +89,8 @@
                 <i class="bi bi-pencil"></i>
               </a>
             </div>
+          </td>
+          <td>
             <div class="col-8 align-content-center">
               <div class="row">
                 <!--small-->
@@ -93,8 +115,15 @@
             </div>
           </td>
           <td>
-            <input type="number" class="form-control" id="itemAmount" placeholder="{{item.amount}}"
+            <input type="number" class="form-control" id="itemAmount"
                    [(ngModel)]="item.amount" disabled>
+          </td>
+          <td>
+            <input *ngIf="item.lowerLimit !== null" type="number" class="form-control" id="lowerLimit"
+                   [(ngModel)]="item.lowerLimit" disabled>
+            <input *ngIf="item.lowerLimit === null" type="text" class="form-control" id="lowerLimitDisabled"
+                   [value]="'-'"
+                   disabled>
           </td>
           <td>
             <select class="form-select" [(ngModel)]="item.unit" disabled>

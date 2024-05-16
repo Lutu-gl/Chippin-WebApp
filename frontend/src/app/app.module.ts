@@ -34,6 +34,12 @@ import {
 import {
   FriendsInfoCardContentComponent
 } from "./components/friends/friends-info-card-content/friends-info-card-content.component";
+import {
+  ItemListInfoCardContentComponent
+} from "./components/item-list/item-list-info-card-content/item-list-info-card-content.component";
+import {
+  RecipeInfoCardContentComponent
+} from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
 
 @NgModule({
   declarations: [
@@ -60,7 +66,7 @@ import {
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent, ItemListInfoCardContentComponent, RecipeInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
