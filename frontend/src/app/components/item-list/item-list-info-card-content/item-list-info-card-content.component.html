@@ -1,1 +1,13 @@
-<p>item-list-info-card-content works!</p>
+<div>
+  <ul class="group-list" *ngIf="itemLists.length > 0">
+    <li *ngFor="let itemList of itemLists | slice:0:3; let i=index"
+        [routerLink]="['/itemList/', itemList.id]">
+      {{ itemList.itemListName }}
+    </li>
+  </ul>
+  <ul class="group-list" *ngIf="itemLists === null || itemLists.length === 0">
+    <li>
+      You have no item lists
+    </li>
+  </ul>
+</div>
