@@ -2,9 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(uses = ItemMapper.class)
 public interface RecipeMapper {
@@ -15,6 +18,9 @@ public interface RecipeMapper {
     Recipe recipeCreateToRecipeEntity(RecipeCreateDto recipe);
 
     RecipeDetailDto recipeEntityToRecipeDetailDto(Recipe recipe);
+
+    
+    List<RecipeListDto> recipeEntityListToListOfRecipeListDto(List<Recipe> recipes);
 
 }
 

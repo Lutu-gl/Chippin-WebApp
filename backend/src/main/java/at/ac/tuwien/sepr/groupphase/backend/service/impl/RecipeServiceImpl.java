@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -156,6 +157,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public RecipeDetailDto createRecipe(RecipeCreateDto recipe) {
         LOGGER.debug("Create recipe {}", recipe);
+
         List<Item> ingredients = itemMapper.listOfItemCreateDtoToListOfItemEntity(recipe.getIngredients());
         recipe.setIngredients(new ArrayList<>());
 
@@ -179,5 +181,10 @@ public class RecipeServiceImpl implements RecipeService {
         } else {
             throw new NotFoundException(String.format("Could not find recipe with id %s", id));
         }
+    }
+
+    @Override
+    public List<RecipeListDto> getRecipesFromUser() {
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findAll());
     }
 }

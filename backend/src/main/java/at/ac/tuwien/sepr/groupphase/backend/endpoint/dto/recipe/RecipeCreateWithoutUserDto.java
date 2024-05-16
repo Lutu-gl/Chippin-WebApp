@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -46,7 +47,16 @@ public class RecipeCreateWithoutUserDto {
     int portionSize;
 
 
-    public RecipeCreateDto addUser(ApplicationUser user) {
-        return null;
+    public RecipeCreateDto addOwner(ApplicationUser user) {
+        RecipeCreateDto toCreate = RecipeCreateDto.builder()
+            .name(this.name)
+            .description(this.description)
+            .ingredients(this.ingredients != null ? this.ingredients : new ArrayList<>())
+            .isPublic(isPublic)
+            .portionSize(portionSize)
+            .build();
+
+        //toCreate.setOwner(user);
+        return toCreate;
     }
 }

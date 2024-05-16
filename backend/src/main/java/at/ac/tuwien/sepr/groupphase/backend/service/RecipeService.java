@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 
 import java.util.List;
@@ -92,4 +93,13 @@ public interface RecipeService {
      * @return the recipe with the corresponding id
      */
     RecipeDetailDto getById(long id);
+
+
+    /**
+     * Return all recipes from the associated user.
+     * Still needs doing
+     *
+     * @return the recipes from the specified user
+     */
+    List<RecipeListDto> getRecipesFromUser();
 }

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {RecipeCreateDto, RecipeDetailDto, RecipeSearch} from "../dtos/recipe";
+import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeListDto, RecipeSearch} from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
 
 @Injectable({
@@ -21,7 +21,7 @@ export class RecipeService {
    * @param recipe
    */
 
-  createRecipe(recipe: RecipeCreateDto): Observable<RecipeDetailDto> {
+  createRecipe(recipe: RecipeCreateWithoutUserDto): Observable<RecipeDetailDto> {
     return this.httpClient.post<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/create`, recipe);
   }
   /**
@@ -75,5 +75,13 @@ export class RecipeService {
   updateItem(itemToUpdate: ItemDetailDto, recipeId: number) {
     console.log("item: ", itemToUpdate)
     return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, itemToUpdate);
+  }
+
+  /**
+   * Get all recipes associated with the user that sends this request.
+   * @return all recipes associated with the user
+   */
+  getRecipesFromUser(): Observable<RecipeListDto[]>{
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/list`);
   }
 }

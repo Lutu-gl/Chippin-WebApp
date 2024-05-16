@@ -17,10 +17,10 @@ export interface RecipeDetailDto {
 }
 export interface RecipeListDto {
   id: number
-  RecipeName: String
+  name: String
 }
 
-export interface RecipeCreateDto {
+export interface RecipeCreateWithoutUserDto {
   ingredients: ItemCreateDto[]
   name: String
   description: String

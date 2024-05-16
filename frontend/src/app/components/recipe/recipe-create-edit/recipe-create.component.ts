@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
-import {RecipeCreateDto} from "../../../dtos/recipe";
+import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
 import {ItemCreateDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
@@ -23,7 +23,7 @@ export enum RecipeCreateEditMode {
 export class RecipeCreateComponent implements OnInit {
   error = false;
   errorMessage = '';
-  recipe: RecipeCreateDto = {
+  recipe: RecipeCreateWithoutUserDto = {
     name: '',
     ingredients: [],
     description: '',
@@ -63,7 +63,7 @@ export class RecipeCreateComponent implements OnInit {
 
   public onRecipeSubmit(form: NgForm): void {
     if (form.valid) {
-      let observable: Observable<RecipeCreateDto>;
+      let observable: Observable<RecipeCreateWithoutUserDto>;
 
           observable = this.service.createRecipe(this.recipe);
 
