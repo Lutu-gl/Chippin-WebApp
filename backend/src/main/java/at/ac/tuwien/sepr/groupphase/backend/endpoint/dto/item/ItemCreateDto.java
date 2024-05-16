@@ -20,7 +20,7 @@ public class ItemCreateDto {
     @Size(min = 2, max = 60)
     private String description;
     @PositiveOrZero
-    private double amount;
+    private int amount;
     @NotNull
     private Unit unit;
 }

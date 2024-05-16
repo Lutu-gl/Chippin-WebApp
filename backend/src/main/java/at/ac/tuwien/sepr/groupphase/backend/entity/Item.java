@@ -47,7 +47,7 @@ public class Item {
 
     @Column
     @PositiveOrZero
-    private double amount;
+    private int amount;
 
     @Column
     @NotNull
