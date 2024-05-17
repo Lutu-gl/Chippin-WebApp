@@ -115,4 +115,12 @@ public class RecipeEndpoint {
         return recipeService.updateRecipe(toUpdate);
     }
 
+    @Secured("ROLE_USER")
+    @GetMapping("recipe/global")
+    public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
+        LOGGER.info("GET /api/v1/group/recipe/global");
+
+        return recipeService.getPublicRecipeOrderedByLikes();
+    }
+
 }

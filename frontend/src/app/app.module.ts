@@ -37,6 +37,7 @@ import {
 import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.c
     RecipeComponent,
     RecipeCreateComponent,
     RecipeDetailComponent,
-    RecipeEditComponent
+    RecipeEditComponent,
+    RecipeGlobalComponent
   ],
   imports: [
     BrowserModule,

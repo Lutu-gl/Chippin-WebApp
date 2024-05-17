@@ -198,6 +198,14 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate) {
+        LOGGER.debug("Update Recipe with ID {}", toUpdate.getId());
         return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
+    }
+
+    @Override
+    @Transactional
+    public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
+        LOGGER.debug("Get all public recipes");
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findByIsPublicTrueOrderByLikesDesc());
     }
 }

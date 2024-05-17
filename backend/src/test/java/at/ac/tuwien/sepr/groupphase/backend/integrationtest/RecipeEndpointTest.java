@@ -149,7 +149,7 @@ public class RecipeEndpointTest {
         String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/group/recipe/create")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user@example.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isCreated())

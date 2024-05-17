@@ -27,6 +27,7 @@ import {
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 
 
 const routes: Routes = [
@@ -55,6 +56,7 @@ const routes: Routes = [
   {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent},
   {path: 'recipe/:id/detail', canActivate: mapToCanActivate([AuthGuard]), component:RecipeDetailComponent},
   {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeEditComponent},
+  {path: 'recipe/global',canActivate: mapToCanActivate([AuthGuard]), component:RecipeGlobalComponent},
   {path: 'itemList', component: ItemListComponent},
   {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
   {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},

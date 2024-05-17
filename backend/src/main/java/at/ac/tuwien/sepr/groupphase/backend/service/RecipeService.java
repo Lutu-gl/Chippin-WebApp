@@ -111,4 +111,11 @@ public interface RecipeService {
      * @return the updated recipe
      */
     RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate);
+
+    /**
+     * Get a List of all public RecipeListDto ordered in descending order by their like count.
+     *
+     * @return the list of all public recipes
+     */
+    List<RecipeListDto> getPublicRecipeOrderedByLikes();
 }

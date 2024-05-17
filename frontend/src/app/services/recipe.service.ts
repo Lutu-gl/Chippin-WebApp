@@ -94,4 +94,12 @@ export class RecipeService {
   updateRecipe(toUpdate: RecipeDetailDto): Observable<RecipeDetailDto> {
     return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/update`, toUpdate);
   }
+
+  /**
+   * Get the list of all public recipes ordered by their like count (desc.).
+   * @return the list of all public recipes
+   */
+  getPublicRecipeOrderedByLikes(): Observable<RecipeListDto[]> {
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/global`);
+  }
 }
