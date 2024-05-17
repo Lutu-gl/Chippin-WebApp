@@ -13,9 +13,8 @@ import {GroupInfoComponent} from "./components/group-list/group-info/group-info.
 import {RecipeComponent} from "./components/recipe/recipe.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {
-  RecipeCreateEditComponent,
-  RecipeCreateEditMode
-} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+  RecipeCreateComponent
+} from "./components/recipe/recipe-create/recipe-create.component";
 import {
   ItemListCreateEditComponent, ItemListCreateEditMode
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
@@ -26,6 +25,9 @@ import {
 import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
+import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
+import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 
 
 const routes: Routes = [
@@ -50,10 +52,11 @@ const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
-  //May need to change if recipe is dependent on group
   {path: 'recipe', canActivate: mapToCanActivate([AuthGuard]), component: RecipeComponent},
-  {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.create}},
-  {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.edit}},
+  {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent},
+  {path: 'recipe/:id/detail', canActivate: mapToCanActivate([AuthGuard]), component:RecipeDetailComponent},
+  {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeEditComponent},
+  {path: 'recipe/global',canActivate: mapToCanActivate([AuthGuard]), component:RecipeGlobalComponent},
   {path: 'itemList', component: ItemListComponent},
   {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
   {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},

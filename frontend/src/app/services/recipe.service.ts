@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {RecipeCreateDto, RecipeDetailDto, RecipeSearch} from "../dtos/recipe";
+import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeListDto, RecipeSearch} from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
+import {RecipeDetailComponent} from "../components/recipe/recipe-detail/recipe-detail.component";
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +18,12 @@ export class RecipeService {
 
   /**
    * Create a new recipe
-   * @param recipeDetailDto the recipe to create
    * @return the returned recipe
+   * @param recipe
    */
 
-  createRecipe(recipe: RecipeCreateDto): Observable<RecipeDetailDto> {
-
-    return this.httpClient.post<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/create`, {recipe});
+  createRecipe(recipe: RecipeCreateWithoutUserDto): Observable<RecipeDetailDto> {
+    return this.httpClient.post<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/create`, recipe);
   }
   /**
    * Loads a recipe by its id.
@@ -58,12 +58,12 @@ export class RecipeService {
   }
 
   /**
-   * Deletes an item from a recipe
+   * Deletes an ingredient from a recipe
    *
    * @param recipeId the recipe id
    * @param id the item id
    */
-  deleteItem(recipeId: number, id: number): Observable<ItemDetailDto> {
+  deleteIngredient(recipeId: number, id: number): Observable<ItemDetailDto> {
     return this.httpClient.delete<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe/${id}`);
   }
 
@@ -76,5 +76,30 @@ export class RecipeService {
   updateItem(itemToUpdate: ItemDetailDto, recipeId: number) {
     console.log("item: ", itemToUpdate)
     return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, itemToUpdate);
+  }
+
+  /**
+   * Get all recipes associated with the user that sends this request.
+   * @return all recipes associated with the user
+   */
+  getRecipesFromUser(): Observable<RecipeListDto[]>{
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/list`);
+  }
+
+  /**
+   * Update recipe with recipeId with new recipe.
+   * @param toUpdate the RecipeDetailDto with new information
+   * @return the updated recipeDetailDto
+   */
+  updateRecipe(toUpdate: RecipeDetailDto): Observable<RecipeDetailDto> {
+    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/update`, toUpdate);
+  }
+
+  /**
+   * Get the list of all public recipes ordered by their like count (desc.).
+   * @return the list of all public recipes
+   */
+  getPublicRecipeOrderedByLikes(): Observable<RecipeListDto[]> {
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/global`);
   }
 }

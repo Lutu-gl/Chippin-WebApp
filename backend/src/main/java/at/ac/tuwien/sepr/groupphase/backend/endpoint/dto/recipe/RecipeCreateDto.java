@@ -1,13 +1,17 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
 
 import java.util.List;
 
@@ -21,7 +25,7 @@ public class RecipeCreateDto {
     @Size(min = 1, message = "Recipe must have at least one ingredient")
     @Size(max = 100, message = "Recipe cannot have more than 100 ingredients")
     @NotEmpty(message = "Recipe must have at least one ingredient")
-    private List<ItemDto> ingredients;
+    private List<ItemCreateDto> ingredients;
 
     @NotNull(message = "Recipe must have a name")
     @NotBlank(message = "Recipe must have a name")
@@ -35,5 +39,13 @@ public class RecipeCreateDto {
     private String description;
 
     @NotNull
-    private boolean isPublic;
+    private Boolean isPublic;
+
+    @NotNull
+    @Min(value = 1, message = "Portion size must be at least 1")
+    @Max(value = 1000, message = "Recipe cannot feed more than 1000 people")
+    private int portionSize;
+
+    //@NotNull
+    //private ApplicationUser owner;
 }

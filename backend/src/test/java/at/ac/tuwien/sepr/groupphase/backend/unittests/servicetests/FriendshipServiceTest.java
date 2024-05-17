@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class FriendshipServiceTest extends BaseTest {
@@ -30,12 +32,12 @@ public class FriendshipServiceTest extends BaseTest {
 
     @Autowired
     private FriendshipService friendshipService;
-
+    /*
     @BeforeEach
     public void beforeEach() {
         friendshipRepository.deleteAll();
         userRepository.deleteAll();
-    }
+    }*/
 
     @Test
     public void testSendFriendRequestShouldWork() {
@@ -195,7 +197,7 @@ public class FriendshipServiceTest extends BaseTest {
         userRepository.save(testUser1);
         userRepository.save(testUser2);
 
-        return new ApplicationUser[]{ testUser1, testUser2 };
+        return new ApplicationUser[]{testUser1, testUser2};
     }
 
 }

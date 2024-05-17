@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -17,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class ShoppingListEndpointTest {
+public class ShoppingListEndpointTest extends BaseTest {
 
     @Autowired
     private ShoppingListRepository shoppingListRepository;
@@ -72,6 +72,7 @@ public class ShoppingListEndpointTest {
 
         assertThat(shoppingListRepository.findAll()).isNotEmpty();
         assertThat(shoppingListRepository.findAll().getFirst().getName()).isEqualTo("Test Shopping List");
+        shoppingListRepository.deleteAll();
     }
 
 }

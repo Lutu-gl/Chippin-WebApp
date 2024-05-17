@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
@@ -23,18 +23,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class FriendshipEndpointTest implements TestData {
+public class FriendshipEndpointTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,15 +70,15 @@ public class FriendshipEndpointTest implements TestData {
         try {
             userService.register(userRegisterDto1, false);
             userService.register(userRegisterDto2, false);
+        } catch (UserAlreadyExistsException ignored) {
         }
-        catch (UserAlreadyExistsException ignored) {}
     }
 
     private String[] getLoginTokensOfTestUsers() {
         String bearerToken1 = jwtTokenizer.getAuthToken(TEST_EMAIL_1, List.of("ROLE_USER"));
         String bearerToken2 = jwtTokenizer.getAuthToken(TEST_EMAIL_2, List.of("ROLE_USER"));
 
-        return new String[]{ bearerToken1, bearerToken2 };
+        return new String[]{bearerToken1, bearerToken2};
     }
 
     @Test
