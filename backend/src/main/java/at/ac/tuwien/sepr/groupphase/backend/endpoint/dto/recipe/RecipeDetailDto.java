@@ -27,7 +27,7 @@ public class RecipeDetailDto {
 
     private String description;
 
-    private boolean isPublic;
+    private Boolean isPublic;
 
     private int portionSize;
 

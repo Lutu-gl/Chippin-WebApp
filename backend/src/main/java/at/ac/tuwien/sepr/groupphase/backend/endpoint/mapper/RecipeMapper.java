@@ -15,12 +15,15 @@ public interface RecipeMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ingredients", source = "ingredients")
+    @Mapping(target = "isPublic", source = "isPublic")
     Recipe recipeCreateToRecipeEntity(RecipeCreateDto recipe);
 
     @Mapping(target = "ingredients", source = "ingredients")
+    @Mapping(target = "isPublic", source = "isPublic")
     Recipe recipeDetailDtoToRecipeEntity(RecipeDetailDto recipe);
 
     @Mapping(target = "ingredients", source = "ingredients")
+    @Mapping(target = "isPublic", source = "isPublic")
     RecipeDetailDto recipeEntityToRecipeDetailDto(Recipe recipe);
 
 

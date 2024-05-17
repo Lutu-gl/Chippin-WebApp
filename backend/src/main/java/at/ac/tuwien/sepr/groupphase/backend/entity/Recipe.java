@@ -37,6 +37,7 @@ public class Recipe {
     @Column(nullable = false)
     private Long id;
 
+    @Builder.Default
     @OneToMany(mappedBy = "recipe", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Item> ingredients = new ArrayList<>();
 
@@ -49,13 +50,16 @@ public class Recipe {
     private String description;
 
     @Column(nullable = false)
-    private boolean isPublic;
+    private Boolean isPublic;
 
     @Column(nullable = false)
     private int portionSize;
 
+    @Builder.Default
     @Column(nullable = false)
     private int likes = 0;
+
+    @Builder.Default
     @Column(nullable = false)
     private int dislikes = 0;
 

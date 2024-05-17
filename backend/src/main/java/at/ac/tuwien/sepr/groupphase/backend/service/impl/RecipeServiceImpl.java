@@ -88,7 +88,7 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> recipe = recipeRepository.findById(recipeId);
         if (recipe.isPresent()) {
             LOGGER.debug("Found recipe: {}", recipe.get());
-            return recipe.get().isPublic();
+            return recipe.get().getIsPublic();
         } else {
             throw new NotFoundException(String.format("Could not find recipe with ID %s", recipeId));
         }
@@ -128,9 +128,13 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
         if (optionalRecipe.isPresent()) {
             Recipe recipe = optionalRecipe.get();
-            Item item = itemRepository.getReferenceById(itemId);
-            recipe.removeItem(item);
+            Item ingredient = itemRepository.getReferenceById(itemId);
+            recipe.removeItem(ingredient);
+            ingredient.setRecipe(null);
+
             recipeRepository.save(recipe);
+            itemRepository.save(ingredient);
+
         }
     }
 

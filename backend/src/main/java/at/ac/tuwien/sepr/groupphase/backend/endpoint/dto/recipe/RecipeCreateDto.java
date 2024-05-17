@@ -39,7 +39,7 @@ public class RecipeCreateDto {
     private String description;
 
     @NotNull
-    private boolean isPublic;
+    private Boolean isPublic;
 
     @NotNull
     @Min(value = 1, message = "Portion size must be at least 1")
