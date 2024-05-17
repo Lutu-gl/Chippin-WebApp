@@ -28,20 +28,18 @@ export class EditPantryItemDialogComponent {
   }
 
   onSubmit(form: NgForm) {
-    this.newLowerLimit = 0;
     this.isFormValid = form.valid;
     if (form.valid) {
+      this.newLowerLimit = 0;
       this.modalClose.nativeElement.click();
     }
   }
 
   markImportant() {
     if(this.itemToEdit.lowerLimit !== null) {
-      console.log("set null")
       this.newLowerLimit = this.itemToEdit.lowerLimit;
       this.itemToEdit.lowerLimit = null;
     } else {
-      console.log("set 0")
       this.itemToEdit.lowerLimit = this.newLowerLimit;
     }
   }
