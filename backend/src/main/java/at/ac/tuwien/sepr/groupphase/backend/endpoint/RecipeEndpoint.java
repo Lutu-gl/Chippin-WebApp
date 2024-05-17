@@ -108,11 +108,11 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
-    @PutMapping("{id}/recipe/update")
-    public RecipeDetailDto updateRecipe(@PathVariable long recipeId, @Valid @RequestBody RecipeDetailDto toUpdate) {
-        LOGGER.info("PUT /api/v1/group/{}/recipe/update: {}", recipeId, toUpdate);
+    @PutMapping("recipe/update")
+    public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
+        LOGGER.info("PUT /api/v1/group/{}/recipe/update: {}", toUpdate.getId(), toUpdate);
 
-        return recipeService.updateRecipe(recipeId, toUpdate);
+        return recipeService.updateRecipe(toUpdate);
     }
 
 }

@@ -88,11 +88,10 @@ export class RecipeService {
 
   /**
    * Update recipe with recipeId with new recipe.
-   * @param recipeId  the recipeId of the recipe to update
    * @param toUpdate the RecipeDetailDto with new information
    * @return the updated recipeDetailDto
    */
-  updateRecipe(recipeId:number, toUpdate: RecipeDetailDto): Observable<RecipeDetailDto> {
-    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe/update`, toUpdate);
+  updateRecipe(toUpdate: RecipeDetailDto): Observable<RecipeDetailDto> {
+    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/update`, toUpdate);
   }
 }

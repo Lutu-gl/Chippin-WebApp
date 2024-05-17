@@ -17,8 +17,10 @@ public interface RecipeMapper {
     @Mapping(target = "ingredients", source = "ingredients")
     Recipe recipeCreateToRecipeEntity(RecipeCreateDto recipe);
 
+    @Mapping(target = "ingredients", source = "ingredients")
     Recipe recipeDetailDtoToRecipeEntity(RecipeDetailDto recipe);
 
+    @Mapping(target = "ingredients", source = "ingredients")
     RecipeDetailDto recipeEntityToRecipeDetailDto(Recipe recipe);
 
 

@@ -19,6 +19,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -123,6 +124,7 @@ public class RecipeEndpointTest {
             .description("This Recipe has no Ingredients")
             .isPublic(true)
             .portionSize(1)
+            .ingredients(new ArrayList<>())
             .likes(0).dislikes(0).build();
         recipeRepository.save(emptyRecipe);
     }
@@ -131,11 +133,11 @@ public class RecipeEndpointTest {
     public void createRecipeSuccessfully_then201() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
-        UserRegisterDto userRegisterDto = UserRegisterDto.builder()
+        /*UserRegisterDto userRegisterDto = UserRegisterDto.builder()
             .email("test@example.com")
             .password("Test1234")
             .build();
-        userDetailService.register(userRegisterDto, false);
+        userDetailService.register(userRegisterDto, false);*/
         RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
             .name("Carrot Banana")
             .description("this is a test")
@@ -189,7 +191,44 @@ public class RecipeEndpointTest {
     }
 
     @Test
-    public void givenEmptyRecipe_whenFindAllInRecipe_thenEmptyList()
+    public void getByIdOnUnknownId_then404() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", 0))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andReturn();
+    }
+
+    @Test
+    public void updateExistingRecipe_ChangesSuccessfully_Then200() throws Exception {
+        recipe.setId(emptyRecipe.getId());
+        String groupJson = objectMapper.writeValueAsString(recipe);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .put("/api/v1/group/recipe/update")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user@example.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        RecipeDetailDto recipeDetailDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
+        LOGGER.debug("detailDto: " + recipeDetailDto);
+
+        assertEquals(recipeDetailDto.getId(), recipe.getId());
+        assertEquals(recipeDetailDto.getName(), recipe.getName());
+        assertEquals(recipeDetailDto.getPortionSize(), recipe.getPortionSize());
+
+
+    }
+
+    @Test
+    public void givenEmptyRecipe_whenFindById_thenEmptyList()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", emptyRecipe.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
@@ -207,7 +246,7 @@ public class RecipeEndpointTest {
     }
 
     @Test
-    public void givenRecipeWithOneItem_whenFindAllInRecipe_thenListWithSizeOneAndCorrectItem()
+    public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", recipe.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))

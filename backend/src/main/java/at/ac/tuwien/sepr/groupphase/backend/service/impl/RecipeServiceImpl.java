@@ -193,7 +193,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public RecipeDetailDto updateRecipe(long recipeId, RecipeDetailDto toUpdate) {
+    public RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate) {
         return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
     }
 }

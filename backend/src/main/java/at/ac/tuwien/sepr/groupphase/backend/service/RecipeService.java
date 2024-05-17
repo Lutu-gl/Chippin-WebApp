@@ -107,9 +107,8 @@ public interface RecipeService {
     /**
      * Update a recipe with the corresponding id.
      *
-     * @param recipeId the id of the recipe to update
      * @param toUpdate the detailDto to update
      * @return the updated recipe
      */
-    RecipeDetailDto updateRecipe(long recipeId, RecipeDetailDto toUpdate);
+    RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate);
 }

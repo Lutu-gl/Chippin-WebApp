@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,14 +52,17 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pantry_id")
+    @JsonIgnore
     private Pantry pantry;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "item_list_id")
+    @JsonIgnore
     private ItemList itemList;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "recipe_id")
+    @JsonIgnore
     private Recipe recipe;
 
 }

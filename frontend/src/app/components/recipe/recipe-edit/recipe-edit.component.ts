@@ -75,7 +75,7 @@ export class RecipeEditComponent implements OnInit {
     if (form.valid) {
       let observable: Observable<RecipeCreateWithoutUserDto>;
 
-      observable = this.service.updateRecipe(this.recipeId, this.recipe);
+      observable = this.service.updateRecipe(this.recipe);
 
       observable.subscribe({
         next: data => {
