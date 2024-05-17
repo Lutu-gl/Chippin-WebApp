@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
-import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
+import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -42,9 +42,9 @@ export class PantryService {
    * @param id the pantry id
    * @param item to persist
    */
-  createItem(id: number, item: ItemCreateDto): Observable<ItemDetailDto> {
+  createItem(id: number, item: ItemCreateDto): Observable<PantryItemDetailDto> {
     console.log('Create item' + item + ' for pantry with id ' + id);
-    return this.httpClient.post<ItemDetailDto>(`${this.pantryBaseUri}/${id}/pantry`, item);
+    return this.httpClient.post<PantryItemDetailDto>(`${this.pantryBaseUri}/${id}/pantry`, item);
   }
 
   /**
@@ -53,8 +53,8 @@ export class PantryService {
    * @param pantryId the pantry id
    * @param id the item id
    */
-  deleteItem(pantryId: number, id: number): Observable<ItemDetailDto> {
-    return this.httpClient.delete<ItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/${id}`);
+  deleteItem(pantryId: number, id: number): Observable<PantryItemDetailDto> {
+    return this.httpClient.delete<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/${id}`);
   }
 
   /**
@@ -63,8 +63,8 @@ export class PantryService {
    * @param itemToUpdate the item to update
    * @param pantryId the pantry id
    */
-  updateItem(itemToUpdate: ItemDetailDto, pantryId: number) {
+  updateItem(itemToUpdate: PantryItemDetailDto, pantryId: number) {
     console.log("item: ", itemToUpdate)
-    return this.httpClient.put<ItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
+    return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
   }
 }

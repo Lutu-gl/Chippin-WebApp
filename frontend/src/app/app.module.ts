@@ -34,6 +34,12 @@ import {
 import {
   FriendsInfoCardContentComponent
 } from "./components/friends/friends-info-card-content/friends-info-card-content.component";
+import {
+  ItemListInfoCardContentComponent
+} from "./components/item-list/item-list-info-card-content/item-list-info-card-content.component";
+import {
+  RecipeInfoCardContentComponent
+} from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
 import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
@@ -67,6 +73,7 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
     HttpClientModule,
     NgbModule,
     FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent, ItemListInfoCardContentComponent, RecipeInfoCardContentComponent
     BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent, ConfirmDeleteDialogComponent
   ],
   providers: [httpInterceptorProviders],

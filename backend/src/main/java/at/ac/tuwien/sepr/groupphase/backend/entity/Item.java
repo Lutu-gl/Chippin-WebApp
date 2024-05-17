@@ -9,6 +9,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,13 +24,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @ToString
 @Table(name = "item")
 public class Item {
@@ -44,7 +48,7 @@ public class Item {
 
     @Column
     @PositiveOrZero
-    private double amount;
+    private int amount;
 
     @Column
     @NotNull
@@ -64,7 +68,6 @@ public class Item {
     @JoinColumn(name = "recipe_id")
     @JsonIgnore
     private Recipe recipe;
-
 }
 
 
