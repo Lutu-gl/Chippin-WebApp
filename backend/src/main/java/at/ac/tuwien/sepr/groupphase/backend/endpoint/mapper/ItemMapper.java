@@ -16,6 +16,8 @@ public interface ItemMapper {
 
     List<PantryItemDto> listOfPantryItemsToListOfPantryItemDto(List<PantryItem> pantryItems);
 
+    List<Item> listOfItemCreateDtoToListOfItemEntity(List<ItemCreateDto> items);
+
     Item itemCreateDtoToItem(ItemCreateDto itemCreateDto);
 
     PantryItem pantryItemCreateDtoToPantryItem(PantryItemCreateDto pantryItemCreateDto);

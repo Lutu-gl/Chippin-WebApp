@@ -61,8 +61,6 @@ public class GroupServiceTest {
                 .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
                 .build());
 
-        when(groupValidator.validateFriendsWithEveryone(any(GroupEntity.class))).thenReturn(true);
-
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("NewTestGroup")
             .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
@@ -93,7 +91,6 @@ public class GroupServiceTest {
         when(groupMapper.groupCreateDtoToGroupEntity(updateDto)).thenReturn(existingGroupEntity);
         when(groupRepository.save(existingGroupEntity)).thenReturn(existingGroupEntity);
         when(groupMapper.groupEntityToGroupCreateDto(existingGroupEntity)).thenReturn(updateDto);
-        when(groupValidator.validateFriendsWithEveryone(any(GroupEntity.class))).thenReturn(true);
 
         // Act
         GroupCreateDto result = groupService.update(updateDto, "user1@example.com");

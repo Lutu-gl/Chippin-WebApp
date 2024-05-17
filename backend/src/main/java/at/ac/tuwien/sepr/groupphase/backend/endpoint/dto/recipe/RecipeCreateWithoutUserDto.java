@@ -12,13 +12,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
-public class RecipeCreateDto {
+public class RecipeCreateWithoutUserDto {
 
 
     @NotNull(message = "Recipe must have at least one ingredient")
@@ -44,8 +44,19 @@ public class RecipeCreateDto {
     @NotNull
     @Min(value = 1, message = "Portion size must be at least 1")
     @Max(value = 1000, message = "Recipe cannot feed more than 1000 people")
-    private int portionSize;
+    int portionSize;
 
-    //@NotNull
-    //private ApplicationUser owner;
+
+    public RecipeCreateDto addOwner(ApplicationUser user) {
+        RecipeCreateDto toCreate = RecipeCreateDto.builder()
+            .name(this.name)
+            .description(this.description)
+            .ingredients(this.ingredients != null ? this.ingredients : new ArrayList<>())
+            .isPublic(isPublic)
+            .portionSize(portionSize)
+            .build();
+
+        //toCreate.setOwner(user);
+        return toCreate;
+    }
 }

@@ -2,10 +2,6 @@
 
 <div class="d-flex flex-row w-auto">
   <span style="flex: 1"></span>
-  <a class="btn btn-secondary" routerLink="create" aria-label="New recipe">
-    <i class="bi bi-plus-lg"></i>
-    New Recipe
-  </a>
 </div>
 
 <div class="mt-2">
@@ -20,18 +16,12 @@
     <tr *ngFor="let recipe of recipes" class="center-td">
       <td>{{recipe.name}}</td>
       <td>
-        <div class="btn-group">
-          <a class="btn btn-sm responsive-info-button "
-             [routerLink]="[recipe.id, 'edit']"
-             aria-label="Show recipe details">
-            <i class="bi bi-pencil"></i>
-          </a>
-        </div>
+
 
         <div class="btn-group">
           <a class="btn btn-sm responsive-info-button "
-             [routerLink]="[recipe.id, 'detail']"
              aria-label="Show recipe details">
+            <!--TODO Add info card with like -->
             <i class="bi bi-info"></i>
           </a>
         </div>
@@ -40,3 +30,8 @@
     </tbody>
   </table>
 </div>
+
+
+
+
+

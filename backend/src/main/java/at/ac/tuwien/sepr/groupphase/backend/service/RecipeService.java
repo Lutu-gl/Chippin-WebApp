@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 
 import java.util.List;
@@ -84,4 +86,36 @@ public interface RecipeService {
      * @return the created recipe with id
      */
     RecipeDetailDto createRecipe(RecipeCreateDto recipeDto);
+
+    /**
+     * Find a recipe by its id.
+     *
+     * @param id the id of the recipe
+     * @return the recipe with the corresponding id
+     */
+    RecipeDetailDto getById(long id);
+
+
+    /**
+     * Return all recipes from the associated user.
+     * Still needs doing
+     *
+     * @return the recipes from the specified user
+     */
+    List<RecipeListDto> getRecipesFromUser();
+
+    /**
+     * Update a recipe with the corresponding id.
+     *
+     * @param toUpdate the detailDto to update
+     * @return the updated recipe
+     */
+    RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate);
+
+    /**
+     * Get a List of all public RecipeListDto ordered in descending order by their like count.
+     *
+     * @return the list of all public recipes
+     */
+    List<RecipeListDto> getPublicRecipeOrderedByLikes();
 }

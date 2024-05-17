@@ -1,15 +1,16 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeListDto} from "../../dtos/recipe";
+import {RecipeListDto} from "../../../dtos/recipe";
 import {ActivatedRoute} from "@angular/router";
-import {RecipeService} from "../../services/recipe.service";
+import {RecipeService} from "../../../services/recipe.service";
 
 
 @Component({
-  templateUrl: './recipe.component.html',
-  styleUrl: './recipe.component.scss'
+  selector: 'app-recipe-global',
+  templateUrl: './recipe-global.component.html',
+  styleUrl: './recipe-global.component.scss'
 })
 
-export class RecipeComponent implements OnInit {
+export class RecipeGlobalComponent implements OnInit {
   recipes: RecipeListDto[] = [];
   error = false;
   errorMessage = '';
@@ -21,10 +22,12 @@ export class RecipeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.service.getRecipesFromUser()
+
+    this.service.getPublicRecipeOrderedByLikes()
       .subscribe({
         next: data => {
           this.recipes = data;
+
         },
         error: error => {
           this.defaultServiceErrorHandling(error)
