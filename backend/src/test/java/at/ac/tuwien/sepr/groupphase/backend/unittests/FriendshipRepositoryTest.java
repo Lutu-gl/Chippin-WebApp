@@ -19,9 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 // This test slice annotation is used instead of @SpringBootTest to load only repository beans instead of
@@ -227,34 +225,6 @@ public class FriendshipRepositoryTest implements TestData {
 
         // test method
         assertFalse(friendshipRepository.rejectFriendRequest(testUsers[0], testUsers[1]));
-    }
-
-    @Test
-    public void testAreFriends() {
-        // create test users
-        ApplicationUser[] testUsers = createTestUsers();
-        friendshipRepository.save(
-            Friendship.builder()
-                .sender(testUsers[0])
-                .receiver(testUsers[1])
-                .sentAt(LocalDateTime.now())
-                .friendshipStatus(FriendshipStatus.ACCEPTED)
-                .build()
-        );
-
-        // test method
-        assertTrue(friendshipRepository.areFriends(testUsers[0], testUsers[1]));
-        assertTrue(friendshipRepository.areFriends(testUsers[1], testUsers[0]));
-    }
-
-    @Test
-    public void testAreFriendsFailsBecauseArent() {
-        // create test users
-        ApplicationUser[] testUsers = createTestUsers();
-
-        // test method
-        assertFalse(friendshipRepository.areFriends(testUsers[0], testUsers[1]));
-        assertFalse(friendshipRepository.areFriends(testUsers[1], testUsers[0]));
     }
 
     private ApplicationUser[] createTestUsers() {

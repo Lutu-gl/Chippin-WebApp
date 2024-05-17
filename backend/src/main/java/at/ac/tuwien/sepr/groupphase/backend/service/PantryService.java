@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public interface PantryService {
      * @param pantryId the id of the corresponding pantry
      * @return the saved item
      */
-    Item addItemToPantry(Item item, long pantryId);
+    Item addItemToPantry(PantryItem item, long pantryId);
 
     /**
      * Deletes an item in a pantry.

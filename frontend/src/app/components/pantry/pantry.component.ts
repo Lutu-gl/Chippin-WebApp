@@ -7,7 +7,7 @@ import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
-import {EditPantryItemDialogComponent} from "../edit-pantry-item-dialog/edit-pantry-item-dialog.component";
+import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
 
 @Component({
@@ -74,7 +74,6 @@ export class PantryComponent implements OnInit {
   }
 
   markImportant(){
-    console.log("mark important")
     if(this.newItem.lowerLimit !== null) {
       console.log("set null")
       this.newLowerLimit = this.newItem.lowerLimit;

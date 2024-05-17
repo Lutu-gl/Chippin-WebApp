@@ -155,27 +155,4 @@ public class FriendshipRepository {
         entityManager.createQuery(criteriaDelete).executeUpdate();
     }
 
-    public boolean areFriends(ApplicationUser user1, ApplicationUser user2) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Friendship> criteriaQuery = criteriaBuilder.createQuery(Friendship.class);
-        Root<Friendship> root = criteriaQuery.from(Friendship.class);
-
-        Predicate predicate1 = criteriaBuilder.and(
-            criteriaBuilder.equal(root.get("sender"), user1),
-            criteriaBuilder.equal(root.get("receiver"), user2),
-            criteriaBuilder.equal(root.get("friendshipStatus"), FriendshipStatus.ACCEPTED)
-        );
-
-        Predicate predicate2 = criteriaBuilder.and(
-            criteriaBuilder.equal(root.get("sender"), user2),
-            criteriaBuilder.equal(root.get("receiver"), user1),
-            criteriaBuilder.equal(root.get("friendshipStatus"), FriendshipStatus.ACCEPTED)
-        );
-
-        criteriaQuery.where(criteriaBuilder.or(predicate1, predicate2));
-
-
-        return entityManager.createQuery(criteriaQuery).getResultList().size() > 0;
-    }
-
 }

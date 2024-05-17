@@ -11,7 +11,7 @@ import lombok.ToString;
 public class PantryItemDto {
     private Long id;
     private String description;
-    private double amount;
+    private int amount;
     private Unit unit;
     private Long lowerLimit;
 }

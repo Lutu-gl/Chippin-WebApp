@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryI
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class PantryEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItemToPantry(@PathVariable long pantryId, @Valid @RequestBody PantryItemCreateDto itemCreateDto) {
         LOGGER.info("POST /api/v1/group/{}/pantry body: {}", pantryId, itemCreateDto);
-        Item item = itemMapper.pantryItemCreateDtoToPantryItem(itemCreateDto);
+        PantryItem item = itemMapper.pantryItemCreateDtoToPantryItem(itemCreateDto);
         return itemMapper.itemToItemDto(pantryService.addItemToPantry(item, pantryId));
     }
 
