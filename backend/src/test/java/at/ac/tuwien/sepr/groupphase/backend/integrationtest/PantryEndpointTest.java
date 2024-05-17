@@ -225,7 +225,7 @@ public class PantryEndpointTest extends BaseTest {
     @Test
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/pantry/{1}", group.getId(), item.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/pantry/%d", group.getId(), item.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())

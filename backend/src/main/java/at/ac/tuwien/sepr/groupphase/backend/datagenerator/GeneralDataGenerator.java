@@ -19,16 +19,18 @@ public class GeneralDataGenerator implements DataGenerator {
     private final GroupDataGenerator groupDataGenerator;
     private final FriendshipDataGenerator friendshipDataGenerator;
     private final PantryDataGenerator pantryDataGenerator;
-
+    private final ItemDataGenerator itemDataGenerator;
+    private final RecipeDataGenerator recipeDataGenerator;
 
     @PostConstruct
     public void generateData() {
         LOGGER.debug("generating all data");
-
         cleanData();
         userDataGenerator.generateData();
         groupDataGenerator.generateData();
         friendshipDataGenerator.generateData();
+        itemDataGenerator.generateData();
+        recipeDataGenerator.generateData();
         pantryDataGenerator.generateData();
         LOGGER.debug("finished generating all data");
 
@@ -37,6 +39,8 @@ public class GeneralDataGenerator implements DataGenerator {
     public void cleanData() {
         LOGGER.debug("cleaning all data");
         pantryDataGenerator.cleanData();
+        recipeDataGenerator.cleanData();
+        itemDataGenerator.cleanData();
         friendshipDataGenerator.cleanData();
         groupDataGenerator.cleanData();
         userDataGenerator.cleanData();
