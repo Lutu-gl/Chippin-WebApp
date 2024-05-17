@@ -73,8 +73,15 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent, ItemListInfoCardContentComponent, RecipeInfoCardContentComponent
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent, MenuCardComponent, GroupInfoCardContentComponent, FriendsInfoCardContentComponent, ConfirmDeleteDialogComponent
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

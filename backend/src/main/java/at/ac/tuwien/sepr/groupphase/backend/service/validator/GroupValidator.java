@@ -1,12 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validator;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
@@ -32,17 +29,15 @@ public class GroupValidator {
     private Validator validator;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
-    private final FriendshipRepository friendshipRepository;
 
 
     @Autowired
-    public GroupValidator(UserRepository userRepository, GroupRepository groupRepository, FriendshipRepository friendshipRepository) {
+    public GroupValidator(UserRepository userRepository, GroupRepository groupRepository) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
 
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
-        this.friendshipRepository = friendshipRepository;
     }
 
     public void validateForCreation(GroupCreateDto group, String ownerEmail) throws ValidationException, ConflictException {
@@ -143,19 +138,5 @@ public class GroupValidator {
         if (!conflictErrors.isEmpty()) {
             throw new ConflictException("Update of group failed because of conflict", conflictErrors);
         }
-    }
-
-    public boolean validateFriendsWithEveryone(GroupEntity savedGroup) {
-        for (int i = 0; i < savedGroup.getUsers().size(); i++) {
-            for (int j = i + 1; j < savedGroup.getUsers().size(); j++) {
-                ApplicationUser user = (ApplicationUser) savedGroup.getUsers().toArray()[i];
-                ApplicationUser user2 = (ApplicationUser) savedGroup.getUsers().toArray()[j];
-
-                if (!friendshipRepository.areFriends(user, user2)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }

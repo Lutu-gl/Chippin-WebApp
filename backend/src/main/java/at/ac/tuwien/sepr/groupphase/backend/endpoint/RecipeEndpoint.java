@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +40,12 @@ public class RecipeEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final RecipeService recipeService;
     private final ItemMapper itemMapper;
-    private final CustomUserDetailService userService;
+
 
     @Autowired
-    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, CustomUserDetailService userService) {
+    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
-        this.userService = userService;
     }
 
 
@@ -94,8 +94,8 @@ public class RecipeEndpoint {
     public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateWithoutUserDto recipeDto) {
         LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
-        return recipeService.createRecipe(recipeDto.addOwner(owner));
+        //ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.createRecipe(recipeDto.addOwner(null));
     }
 
     //TODO SINCE User isnt added to recipe yet, this function returns all recipes from all users

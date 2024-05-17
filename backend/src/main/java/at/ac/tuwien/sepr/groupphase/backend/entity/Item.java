@@ -53,12 +53,7 @@ public class Item {
     @Column
     @NotNull
     private Unit unit;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pantry_id")
-    @JsonIgnore
-    private Pantry pantry;
-
+    
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "item_list_id")
     @JsonIgnore
