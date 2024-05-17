@@ -38,7 +38,6 @@ public class GroupServiceImpl implements GroupService {
     private final FriendshipRepository friendshipRepository;
     private final GroupMapper groupMapper;
 
-
     @Override
     @Transactional
     public GroupCreateDto create(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException {
@@ -86,7 +85,7 @@ public class GroupServiceImpl implements GroupService {
         if (!validator.validateFriendsWithEveryone(savedGroup)) {
             throw new FatalException("Not all users are friends with each other after group creation");
         }
-        
+
         return groupMapper.groupEntityToGroupCreateDto(savedGroup);
     }
 

@@ -1,10 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ItemList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
@@ -47,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest {
+public class ItemListEndpointTest extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 

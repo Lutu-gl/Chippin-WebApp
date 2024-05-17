@@ -74,4 +74,12 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
         this.groupName = groupName;
         this.users = users != null ? users : new HashSet<>();
     }
+
+    @Builder
+    public GroupEntity(String groupName, Set<ApplicationUser> users) {
+        this.groupName = groupName;
+        this.pantry = new Pantry();
+        this.pantry.setGroup(this);
+        this.users = users;
+    }
 }

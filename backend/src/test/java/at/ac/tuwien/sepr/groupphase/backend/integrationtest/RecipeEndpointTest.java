@@ -2,16 +2,23 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ItemListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +74,21 @@ public class RecipeEndpointTest {
 
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private GroupRepository groupRepository;
+    @Autowired
+    private FriendshipRepository friendshipRepository;
+    @Autowired
+    private PantryRepository pantryRepository;
+    @Autowired
+    private BudgetRepository budgetRepository;
+    @Autowired
+    private ItemListRepository itemListRepository;
+    @Autowired
+    private ShoppingListRepository shoppingListRepository;
+
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -88,8 +110,15 @@ public class RecipeEndpointTest {
 
     @BeforeEach
     public void beforeEach() {
+        shoppingListRepository.deleteAll();
+        itemListRepository.deleteAll();
+        budgetRepository.deleteAll();
         recipeRepository.deleteAll();
         itemRepository.deleteAll();
+        pantryRepository.deleteAll();
+        friendshipRepository.deleteAll();
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
 
         item = Item.builder()
             .description("Potato")
@@ -281,7 +310,7 @@ public class RecipeEndpointTest {
     @Test
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/recipe/{1}", recipe.getId(), item.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
