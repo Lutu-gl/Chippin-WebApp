@@ -2,8 +2,11 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +37,18 @@ public class ItemMappingTest extends BaseTest {
             () -> assertEquals(2, item.getAmount()),
             () -> assertEquals("Potato", item.getDescription()),
             () -> assertEquals(Unit.Piece, item.getUnit())
+        );
+    }
+
+    @Test
+    public void givenNothing_whenMapPantryItem_thenReturnPantryItemDtoWithAllProperties() {
+        PantryItem pantryItem = PantryItem.builder().unit(Unit.Piece).amount(10).description("Pizza").build();
+        PantryItemDto result = itemMapper.pantryItemToPantryItemDto(pantryItem);
+        assertAll(
+            () -> assertEquals(result.getId(), pantryItem.getId()),
+            () -> assertEquals(result.getAmount(), pantryItem.getAmount()),
+            () -> assertEquals(result.getUnit(), pantryItem.getUnit()),
+            () -> assertEquals(result.getDescription(), pantryItem.getDescription())
         );
     }
 }
