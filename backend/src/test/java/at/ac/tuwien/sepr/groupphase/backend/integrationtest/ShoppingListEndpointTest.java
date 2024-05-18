@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
@@ -49,7 +49,7 @@ public class ShoppingListEndpointTest extends BaseTest {
 
     private ShoppingListCreateDto shoppingListCreateDto = ShoppingListCreateDto.builder()
         .name("Test Shopping List")
-        .budget(100.0F)
+        .ownerId(1L)
         .build();
 
     @Test

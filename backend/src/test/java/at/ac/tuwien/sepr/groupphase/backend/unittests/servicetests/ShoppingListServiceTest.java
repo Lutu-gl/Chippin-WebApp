@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;

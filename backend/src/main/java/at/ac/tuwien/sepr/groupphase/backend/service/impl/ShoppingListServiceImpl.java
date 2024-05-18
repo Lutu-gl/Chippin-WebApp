@@ -1,8 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -97,7 +97,6 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
         );
         shoppingListEntity.setName(shoppingList.getName());
-        shoppingListEntity.setBudget(shoppingList.getBudget());
         var savedShoppingList = shoppingListRepository.save(shoppingListEntity);
         log.debug("Shopping list updated: {}", savedShoppingList);
         return savedShoppingList;

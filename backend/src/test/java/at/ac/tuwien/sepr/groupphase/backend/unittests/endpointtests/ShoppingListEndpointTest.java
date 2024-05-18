@@ -1,7 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
@@ -48,12 +49,12 @@ public class ShoppingListEndpointTest extends BaseTest {
     @WithMockUser(username = "test")
     public void givenValidShoppingListCreateDto_whenCreateShoppingListForGroup_thenNoException() throws Exception {
         when(shoppingListService.createShoppingList(any(), any())).thenReturn(
-            ShoppingList.builder().id(1L).name("Test Shopping List").budget(100.0F).items(List.of()).build()
+            ShoppingList.builder().id(1L).name("Test Shopping List").owner(null).items(List.of()).build()
         );
         when(securityService.isGroupMember(any())).thenReturn(true);
-        var shoppingListCreateDto = ShoppingList.builder()
+        var shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
-            .budget(100.0F)
+            .ownerId(1L)
             .build();
 
         mockMvc.perform(post("/api/v1/1/shoppinglist")
@@ -69,7 +70,7 @@ public class ShoppingListEndpointTest extends BaseTest {
     @WithMockUser(username = "test")
     public void givenValidShoppingListId_whenGetShoppingList_thenNoException() throws Exception {
         when(shoppingListService.getShoppingList(-1L)).thenReturn(
-            ShoppingList.builder().id(-1L).name("Test Shopping List").budget(100.0F).items(List.of())
+            ShoppingList.builder().id(-1L).name("Test Shopping List").owner(null).items(List.of())
                 .group(GroupEntity.builder().id(-1L).build())
                 .build()
         );
@@ -78,7 +79,7 @@ public class ShoppingListEndpointTest extends BaseTest {
         mockMvc.perform(get("/api/v1/-1/shoppinglist/-1"))
             .andExpect(status().isOk())
             .andExpect(content().json(objectMapper.writeValueAsString(
-                ShoppingListDetailDto.builder().id(-1L).groupId(-1L).name("Test Shopping List").budget(100.0F).items(List.of()).build()
+                ShoppingListDetailDto.builder().id(-1L).groupId(-1L).name("Test Shopping List").owner(null).items(List.of()).build()
             )));
 
         verify(shoppingListService, times(1)).getShoppingList(-1L);

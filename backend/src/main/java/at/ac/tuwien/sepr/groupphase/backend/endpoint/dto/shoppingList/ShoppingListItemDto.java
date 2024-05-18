@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 
