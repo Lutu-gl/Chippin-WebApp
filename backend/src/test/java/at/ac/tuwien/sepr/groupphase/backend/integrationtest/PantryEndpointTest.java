@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -14,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,10 +35,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -78,7 +77,10 @@ public class PantryEndpointTest extends BaseTest {
 
     private GroupEntity group;
     private GroupEntity groupEmptyPantry;
+    private GroupEntity group3;
     private PantryItem item;
+    private PantryItem item2;
+    private PantryItem item3;
 
     @BeforeEach
     public void beforeEach() {
@@ -87,8 +89,20 @@ public class PantryEndpointTest extends BaseTest {
 
         item = PantryItem.builder()
             .description("Potato")
-            .amount(1)
+            .amount(100)
             .unit(Unit.Gram)
+            .build();
+
+        item2 = PantryItem.builder()
+            .description("Potato")
+            .amount(300)
+            .unit(Unit.Gram)
+            .build();
+
+        item3 = PantryItem.builder()
+            .description("Potato")
+            .amount(2)
+            .unit(Unit.Piece)
             .build();
 
         group = new GroupEntity("T1");
@@ -97,6 +111,12 @@ public class PantryEndpointTest extends BaseTest {
 
         groupEmptyPantry = new GroupEntity("T2");
         groupRepository.save(groupEmptyPantry);
+
+        group3 = new GroupEntity("T3");
+        group3.getPantry().addItem(item2);
+        group3.getPantry().addItem(item3);
+        groupRepository.save(group3);
+
     }
 
 
@@ -240,7 +260,7 @@ public class PantryEndpointTest extends BaseTest {
     }
 
     @Test
-    public void givenNothing_whenPut_thenItemWithAllProperties()
+    public void givenNothing_whenUpdate_thenItemWithAllProperties()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());
 
@@ -264,6 +284,41 @@ public class PantryEndpointTest extends BaseTest {
             () -> assertEquals(fromRepository.getAmount(), returned.getAmount()),
             () -> assertEquals(fromRepository.getDescription(), returned.getDescription()),
             () -> assertEquals(fromRepository.getId(), returned.getId())
+        );
+    }
+
+    @Test
+    public void givenNothing_whenMerge_thenItemWithAllPropertiesAndOtherItemDeleted() throws Exception {
+        PantryItemDto pantryItemDto = PantryItemDto.builder()
+            .description(item2.getDescription())
+            .unit(item2.getUnit())
+            .lowerLimit(item2.getLowerLimit())
+            .id(item2.getId())
+            .amount(item2.getAmount() + 100).build();
+        String body = objectMapper.writeValueAsString(PantryItemMergeDto.builder().result(pantryItemDto).itemToDeleteId(item3.getId()).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry/merged", group3.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        PantryItemDto returned = objectMapper.readValue(response.getContentAsByteArray(), PantryItemDto.class);
+        Item fromRepository = itemRepository.findById(item2.getId()).get();
+
+        assertAll(
+            () -> assertEquals(fromRepository.getUnit(), returned.getUnit()),
+            () -> assertEquals(fromRepository.getAmount(), returned.getAmount()),
+            () -> assertEquals(400, returned.getAmount()),
+            () -> assertEquals(fromRepository.getDescription(), returned.getDescription()),
+            () -> assertEquals(fromRepository.getId(), returned.getId()),
+            () -> assertFalse(itemRepository.existsById(item3.getId()))
         );
     }
 }
