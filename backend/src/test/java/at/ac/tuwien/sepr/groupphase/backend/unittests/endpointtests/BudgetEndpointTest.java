@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetDto;
@@ -37,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BudgetEndpointTest {
+public class BudgetEndpointTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -95,7 +96,7 @@ public class BudgetEndpointTest {
 
         byte[] responseBody = mockMvc.perform(post("/api/v1/group/1/budget")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .content(budgetJson))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsByteArray();
@@ -120,7 +121,7 @@ public class BudgetEndpointTest {
 
         mockMvc.perform(put("/api/v1/group/1/budget/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .content(budgetJson))
             .andExpect(status().isNotFound());
     }

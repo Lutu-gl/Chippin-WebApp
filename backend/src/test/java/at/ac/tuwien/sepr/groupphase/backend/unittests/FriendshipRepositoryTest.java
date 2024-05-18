@@ -243,7 +243,7 @@ public class FriendshipRepositoryTest implements TestData {
         userRepository.save(testUser1);
         userRepository.save(testUser2);
 
-        return new ApplicationUser[]{ testUser1, testUser2 };
+        return new ApplicationUser[]{testUser1, testUser2};
     }
 
 

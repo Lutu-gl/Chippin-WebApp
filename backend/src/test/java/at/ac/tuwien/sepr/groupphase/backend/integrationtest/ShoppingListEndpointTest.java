@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -13,9 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Set;
+import java.util.HashSet;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
@@ -24,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ShoppingListEndpointTest {
+@ActiveProfiles("test")
+public class ShoppingListEndpointTest extends BaseTest {
 
     @Autowired
     private ShoppingListRepository shoppingListRepository;
@@ -53,10 +56,9 @@ public class ShoppingListEndpointTest {
     @WithMockUser(username = "test")
     public void givenValidShoppingListCreateDto_whenCreateShoppingListForGroup_shoppingListForGroupIsPersisted() throws Exception {
         // Get a group id
-        var group = GroupEntity.builder()
-            .id(-1L)
-            .groupName("Test Group")
-            .users(Set.of())
+        GroupEntity group = GroupEntity.builder()
+            .groupName("Test")
+            .users(new HashSet<>())
             .build();
         var savedGroup = groupRepository.save(group);
         Long groupId = savedGroup.getId();
@@ -70,6 +72,7 @@ public class ShoppingListEndpointTest {
 
         assertThat(shoppingListRepository.findAll()).isNotEmpty();
         assertThat(shoppingListRepository.findAll().getFirst().getName()).isEqualTo("Test Shopping List");
+        shoppingListRepository.deleteAll();
     }
 
 }

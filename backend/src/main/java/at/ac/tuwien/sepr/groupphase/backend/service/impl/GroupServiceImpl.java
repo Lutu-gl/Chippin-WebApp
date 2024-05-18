@@ -32,7 +32,6 @@ public class GroupServiceImpl implements GroupService {
     private final UserRepository userRepository;
     private final GroupMapper groupMapper;
 
-
     @Override
     @Transactional
     public GroupCreateDto create(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException {

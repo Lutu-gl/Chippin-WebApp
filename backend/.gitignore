@@ -52,4 +52,5 @@ buildNumber.properties
 ### VS Code ###
 .vscode/
 
-/htmlReport
+### htmlReports ###
+htmlReport/

@@ -1,0 +1,120 @@
+
+<div *ngIf= "recipe">
+  <div class="row">
+    <div class="mb-3 col-lg-10">
+      <h1 class="display-1">{{ recipe.name }}</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="mb-2 col-lg-2">
+      Name
+    </div>
+
+    <div class="mb-2 col-lg-5" *ngIf="recipe.name">
+      {{recipe.name}}
+    </div>
+
+  </div>
+
+
+  <div class="row">
+    <div class="mb-2 col-lg-2">
+      Portion Size
+    </div>
+    <div class="mb-2 col-lg-2" *ngIf="recipe.portionSize">
+      {{recipe.portionSize}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="mb-2 col-lg-2">
+      Public
+    </div>
+    <div class="mb-2 col-lg-2">
+      {{recipe.isPublic === true ? 'Yes' : 'No' }}
+    </div>
+  </div><div class="row">
+  <div class="mb-2 col-lg-2">
+    Likes
+  </div>
+  <div class="mb-2 col-lg-2">
+    {{recipe.likes}}
+  </div>
+  <div class="row">
+    <div class="mb-2 col-lg-2">
+      Dislikes
+    </div>
+    <div class="mb-2 col-lg-2">
+      {{recipe.dislikes}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="mb-2 col-lg-2">
+      Description:
+    </div>
+    <div class="mb-12 col-lg-12" *ngIf="recipe.description">
+      {{recipe.description}}
+    </div>
+  </div>
+</div>
+  <div class="row">
+    <div class="mt-4 d-flex flex-row">
+      <button type="button"
+              class="btn btn-danger"
+              data-bs-toggle="modal"
+              data-bs-target="#confirm-delete-dialog-title"
+      >
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+
+      <app-confirm-delete-dialog
+        id="confirm-delete-dialog-title"
+        aria-labelledby="confirm-delete-dialog-title"
+        tabindex="-1"
+        [deleteWhat]="recipe.name"
+        (confirm)="deleteRecipe()"
+      >
+      </app-confirm-delete-dialog>
+
+
+      <span class="flex-grow-1"></span>
+      <button type="button"
+              class="btn btn-primary"
+              routerLink="/recipe/{{recipeId}}/edit">
+        Edit
+      </button>
+    </div>
+<p></p>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th class="col-3">Ingredient</th>
+        <th class="col-2">Amount</th>
+        <th class="col-2">Unit</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr *ngFor="let ingredient of recipe.ingredients" class="center-td">
+        <td>
+          {{ ingredient.description}}
+        </td>
+        <td>
+          {{ingredient.amount}}
+        </td>
+        <td>
+          {{ingredient.unit }}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+
+
+
+
+

@@ -18,7 +18,7 @@
     </thead>
     <tbody>
     <tr *ngFor="let recipe of recipes" class="center-td">
-      <td>{{recipe.recipeName}}</td>
+      <td>{{recipe.name}}</td>
       <td>
         <div class="btn-group">
           <a class="btn btn-sm responsive-info-button "
@@ -30,7 +30,7 @@
 
         <div class="btn-group">
           <a class="btn btn-sm responsive-info-button "
-             [routerLink]="[recipe.id]"
+             [routerLink]="[recipe.id, 'detail']"
              aria-label="Show recipe details">
             <i class="bi bi-info"></i>
           </a>

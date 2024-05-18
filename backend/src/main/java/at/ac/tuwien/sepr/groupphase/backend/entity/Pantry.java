@@ -1,10 +1,16 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.MapKeyJoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.FetchType;
@@ -15,7 +21,9 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -25,20 +33,24 @@ import java.util.List;
 @Builder
 @Table(name = "pantry")
 public class Pantry {
-    //TODO change id to PK of group when groups exist and add OneToOne annotation
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
     private Long id;
 
-    @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private final List<Item> items = new ArrayList<>();
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "group_id")
+    private GroupEntity group;
 
-    public void addItem(Item item) {
+    @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private final List<PantryItem> items = new ArrayList<>();
+
+    public void addItem(PantryItem item) {
         items.add(item);
         item.setPantry(this);
     }
 
-    public void removeItem(Item item) {
+    public void removeItem(PantryItem item) {
         items.remove(item);
         item.setPantry(null);
     }
