@@ -3,6 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +28,9 @@ public class SecurityServiceTest extends BaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ShoppingListRepository shoppingListRepository;
 
     @InjectMocks
     private SecurityService securityService;
@@ -86,4 +91,52 @@ public class SecurityServiceTest extends BaseTest {
         assertThat(isGroupMember).isFalse();
 
     }
+
+    // Tests for canAccessShoppingList
+
+    @Test
+    public void givenValidShoppingListIdWithPrincipalIsOwner_whenCanAccessShoppingList_thenReturnTrue() {
+        when(userRepository.findByEmail("test@email.com"))
+            .thenReturn(ApplicationUser.builder()
+                .id(1L)
+                .groups(Set.of())
+                .build());
+        when(shoppingListRepository.findById(1L))
+            .thenReturn(Optional.of(ShoppingList.builder().id(1L).owner(ApplicationUser.builder().id(1L).build()).build()));
+
+        Long shoppingListId = 1L;
+        boolean canAccessShoppingList = securityService.canAccessShoppingList(shoppingListId);
+        assertThat(canAccessShoppingList).isTrue();
+    }
+
+    @Test
+    public void givenValidShoppingListIdWithPrincipalIsNotOwnerButInGroup_whenCanAccessShoppingList_thenReturnTrue() {
+        when(userRepository.findByEmail("test@email.com"))
+            .thenReturn(ApplicationUser.builder()
+                .id(1L)
+                .groups(Set.of(GroupEntity.builder().id(5L).build()))
+                .build());
+        when(shoppingListRepository.findById(1L))
+            .thenReturn(
+                Optional.of(ShoppingList.builder().id(1L).owner(ApplicationUser.builder().id(2L).build()).group(GroupEntity.builder().id(5L).build()).build()));
+        Long shoppingListId = 1L;
+        boolean canAccessShoppingList = securityService.canAccessShoppingList(shoppingListId);
+        assertThat(canAccessShoppingList).isTrue();
+    }
+
+    @Test
+    public void givenValidShoppingListIdWithPrincipalIsNotOwnerAndNotInGroup_whenCanAccessShoppingList_thenReturnFalse() {
+        when(userRepository.findByEmail("test@email.com"))
+            .thenReturn(ApplicationUser.builder()
+                .id(1L)
+                .groups(Set.of())
+                .build());
+        when(shoppingListRepository.findById(1L))
+            .thenReturn(
+                Optional.of(ShoppingList.builder().id(1L).owner(ApplicationUser.builder().id(2L).build()).group(GroupEntity.builder().id(5L).build()).build()));
+        Long shoppingListId = 1L;
+        boolean canAccessShoppingList = securityService.canAccessShoppingList(shoppingListId);
+        assertThat(canAccessShoppingList).isFalse();
+    }
+
 }

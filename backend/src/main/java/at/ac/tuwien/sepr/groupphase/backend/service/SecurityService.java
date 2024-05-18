@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,21 +17,22 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
 
     private final UserRepository userRepository;
+    private final ShoppingListRepository shoppingListRepository;
 
     /**
      * Checks if the given id corresponds to the currently authenticated user.
      *
-     * @param id the id to check
+     * @param userId the id to check
      * @return true if the id corresponds to the currently authenticated user, false otherwise
      */
-    public boolean hasCorrectId(Long id) {
-        log.debug("Checking if the given id {} corresponds to the currently authenticated user", id);
+    public boolean hasCorrectId(Long userId) {
+        log.debug("Checking if the given id {} corresponds to the currently authenticated user", userId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        if (id == null) {
+        if (userId == null) {
             log.debug("Id is null");
             return false;
         }
-        var user = userRepository.findById(id).orElse(null);
+        var user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return false;
         }
@@ -62,4 +64,35 @@ public class SecurityService {
         }
         return isMember;
     }
+
+    @Transactional
+    public boolean canAccessShoppingList(Long shoppingListId) {
+        log.debug("Checking if the currently authenticated user can edit the shopping list with id {}", shoppingListId);
+        log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (shoppingListId == null) {
+            log.debug("Shopping list id is null");
+            return false;
+        }
+        var user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (user == null) {
+            log.debug("Could not find current user");
+            return false;
+        }
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElse(null);
+        if (shoppingList == null) {
+            log.debug("Could not find shopping list with id {}", shoppingListId);
+            return false;
+        }
+        boolean isOwner = shoppingList.getOwner().getId().equals(user.getId());
+        log.debug("User is owner: {}", isOwner);
+        boolean isGroupMember =
+            shoppingList.getGroup() != null && user.getGroups().stream().anyMatch(group -> group.getId().equals(shoppingList.getGroup().getId()));
+        log.debug("User is a member of the group that the shopping list belongs to: {}", isGroupMember);
+        boolean canEdit = isOwner || isGroupMember;
+        if (!canEdit) {
+            log.warn("User is not allowed to edit shopping list with id {}", shoppingListId);
+        }
+        return canEdit;
+    }
+
 }
