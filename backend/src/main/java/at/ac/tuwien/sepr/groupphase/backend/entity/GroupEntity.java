@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +25,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@Builder
 public class GroupEntity {    // Do not call it group! It is a reserved word and causes errors when used
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,17 +47,28 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
     @Builder.Default
     private Set<ApplicationUser> users = new HashSet<>();
 
+    @Builder
     public GroupEntity() {
         this.pantry = new Pantry();
         this.pantry.setGroup(this);
     }
 
+    @Builder
     public GroupEntity(String groupName) {
         this.groupName = groupName;
         this.pantry = new Pantry();
         this.pantry.setGroup(this);
     }
 
+    @Builder
+    public GroupEntity(String groupName, Set<ApplicationUser> users) {
+        this.groupName = groupName;
+        this.pantry = new Pantry();
+        this.pantry.setGroup(this);
+        this.users = users;
+    }
+
+    @Builder
     public GroupEntity(Long id, String groupName, Set<ApplicationUser> users) {
         this.id = id;
         this.groupName = groupName;
@@ -75,11 +88,13 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
         this.users = users != null ? users : new HashSet<>();
     }
 
-    @Builder
-    public GroupEntity(String groupName, Set<ApplicationUser> users) {
-        this.groupName = groupName;
-        this.pantry = new Pantry();
-        this.pantry.setGroup(this);
-        this.users = users;
+    @PostConstruct
+    private void init() {
+        if (this.pantry != null) {
+            this.pantry.setGroup(this);
+        } else {
+            pantry = new Pantry();
+            this.pantry.setGroup(this);
+        }
     }
 }

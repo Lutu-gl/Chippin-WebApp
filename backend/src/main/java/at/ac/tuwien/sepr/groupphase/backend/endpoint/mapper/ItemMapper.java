@@ -22,5 +22,7 @@ public interface ItemMapper {
 
     PantryItem pantryItemCreateDtoToPantryItem(PantryItemCreateDto pantryItemCreateDto);
 
+    PantryItemDto pantryItemToPantryItemDto(PantryItem pantryItem);
+
     ItemDto itemToItemDto(Item item);
 }

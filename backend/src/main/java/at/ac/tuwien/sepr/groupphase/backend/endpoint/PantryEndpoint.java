@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantrySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemCreateDto;
@@ -78,5 +79,12 @@ public class PantryEndpoint {
     public ItemDto updateItem(@PathVariable long pantryId, @Valid @RequestBody PantryItemDto itemDto) {
         LOGGER.info("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
         return itemMapper.itemToItemDto(pantryService.updateItem(itemDto, pantryId));
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("/{pantryId}/pantry/merged")
+    public PantryItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) {
+        LOGGER.info("PUT /api/v1/group/{}/pantry/merged body: {}", pantryId, itemMergeDto);
+        return itemMapper.pantryItemToPantryItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
     }
 }

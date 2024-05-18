@@ -1,7 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemMergeDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -40,5 +38,7 @@ public class ItemServiceImpl implements ItemService {
         LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
         return itemRepository.save(baseItem);
     }
+
+
 
 }

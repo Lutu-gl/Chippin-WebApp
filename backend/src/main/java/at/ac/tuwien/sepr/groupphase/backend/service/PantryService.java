@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +39,10 @@ public interface PantryService {
     /**
      * Deletes an item in a pantry.
      *
-     * @param itemId   the id of the item to delete
      * @param pantryId the pantry id
+     * @param itemId   the id of the item to delete
      */
-    void deleteItem(long itemId, long pantryId);
+    void deleteItem(long pantryId, long itemId);
 
     /**
      * Updates an item in a pantry.
@@ -51,4 +52,13 @@ public interface PantryService {
      * @return the updated item
      */
     PantryItem updateItem(PantryItemDto item, long pantryId);
+
+    /**
+     * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
+     *
+     * @param itemMergeDto contains the item to update and the id of the item to delete
+     * @param pantryId     the id of the pantry
+     * @return the updated item
+     */
+    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
 }

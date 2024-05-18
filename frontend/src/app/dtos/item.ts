@@ -13,6 +13,11 @@ export interface PantryItemDetailDto {
   lowerLimit: number;
 }
 
+export interface PantryItemMergeDto {
+  result: PantryItemDetailDto;
+  itemToDeleteId: number;
+}
+
 export interface ItemCreateDto {
   description: String;
   amount: number;
