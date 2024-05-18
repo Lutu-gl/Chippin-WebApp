@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -83,6 +84,7 @@ public class PantryServiceImpl implements PantryService {
     }
 
     @Override
+    @Transactional
     public PantryItem updateItem(PantryItemDto item, long pantryId) {
         LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
@@ -101,4 +103,12 @@ public class PantryServiceImpl implements PantryService {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
     }
+
+    @Override
+    @Transactional
+    public PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) {
+        deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
+        return updateItem(itemMergeDto.getResult(), pantryId);
+    }
+
 }

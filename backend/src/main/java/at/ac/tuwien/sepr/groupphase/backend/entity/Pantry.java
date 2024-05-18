@@ -34,7 +34,7 @@ import java.util.Map;
 @Table(name = "pantry")
 public class Pantry {
     @Id
-    @Column(name = "user_id")
+    @Column(name = "group_id")
     private Long id;
 
     @OneToOne
