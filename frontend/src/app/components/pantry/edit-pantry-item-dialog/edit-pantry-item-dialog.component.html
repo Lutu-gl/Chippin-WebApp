@@ -1,18 +1,26 @@
-<div id="edit-pantry-item-dialog-title" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+<div id="edit-pantry-item-dialog-title" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false"
+     role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Item</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <ul class="nav nav-underline">
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{active: edit}" (click)="openEdit()">Edit Item</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{active: merge}" (click)="openMerge()">Merge</a>
+          </li>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="reset()"></button>
       </div>
-      <div class="modal-body" *ngIf="itemToEdit !== undefined">
-        <form #form="ngForm" id="form" class="row pt-1" (ngSubmit)="form.valid ? confirm.emit() : null; onSubmit(form)">
-          <div class="col-1">
-            <button id="important" name="button" type="button" class="btn btn-warning m-2" (click)="markImportant()">
-              <i *ngIf="itemToEdit.lowerLimit === null" class="bi bi-star"></i>
-              <i *ngIf="itemToEdit.lowerLimit !== null" class="bi bi-star-fill"></i>
-            </button>
-          </div>
+      <div class="modal-body" *ngIf="itemToEdit !== undefined && edit">
+        <form #form="ngForm" id="form" class="row pt-1"
+              (ngSubmit)="form.valid ? confirmEdit.emit() : null; onSubmit(form)">
+          <button id="important" name="button" type="button" class="btn btn-warning m-2 col-1"
+                  (click)="markImportant()">
+            <i *ngIf="itemToEdit.lowerLimit === null" class="bi bi-star"></i>
+            <i *ngIf="itemToEdit.lowerLimit !== null" class="bi bi-star-fill"></i>
+          </button>
           <div class="col-2">
             <label for="newItemAmount">Amount</label>
             <input name="newItemAmount" type="number" class="form-control" id="newItemAmount"
@@ -28,7 +36,7 @@
           <div class="col-2">
             <label for="newItemUnit">Unit</label>
             <select name="newItemUnit" id="newItemUnit" class="form-select" [(ngModel)]="itemToEdit.unit" required>
-              <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
+              <option *ngFor="let unit of Unit | keyvalue"
                       [selected]="itemToEdit.unit===unit.key">{{ unit.value }}</option>
             </select>
           </div>
@@ -39,14 +47,76 @@
           </div>
         </form>
       </div>
+      <div class="modal-body" *ngIf="merge">
+        <div class="row">
+          <div class="col-2">
+            Merge
+          </div>
+        </div>
+        <div class="row pt-3">
+          <div class="col-2">
+            <input type="text" class="form-control" [value]="itemToMerge.amount" disabled>
+          </div>
+          <div class="col-2">
+            <input type="text" class="form-control" [value]="itemToMerge.unit" disabled>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" [value]="itemToMerge.description" disabled>
+          </div>
+        </div>
+        <div class="row pt-3">
+          <div class="col-2">
+            with
+          </div>
+        </div>
+        <div class="row pt-3">
+          <div class="col">
+            <select class="form-select" [(ngModel)]="itemToMergeWith" (change)="prepareItemToMerge()">
+              <option [ngValue]="null" selected></option>
+              <option [ngValue]="item"
+                      *ngFor="let item of filterItems(itemToMerge)">{{item.amount}} {{item.unit}} {{item.description}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row pt-4" *ngIf="itemToMergeWith !== null && itemMergeDto.result !== null">
+          <form #form="ngForm" id="form-merge" class="row pt-1"
+                (ngSubmit)="form.valid ? confirmMerge.emit() : null; onSubmit(form)">
+            <!--same unit-->
+            <div class="col-2">
+              <label for="mergedItemAmount">Amount</label>
+              <input name="mergedItemAmount" type="number" class="form-control" id="mergedItemAmount"
+                     [(ngModel)]="itemMergeDto.result.amount"
+                     required min="0" [disabled]="itemToMergeWith.unit === itemToEdit.unit">
+            </div>
+            <div class="col-2">
+              <label for="mergedItemUnit">Unit</label>
+              <select name="mergedItemUnit" id="mergedItemUnit" class="form-select" [(ngModel)]="itemMergeDto.result.unit"
+                      required [disabled]="itemToMergeWith.unit === itemToEdit.unit">
+                <option *ngFor="let unit of Unit | keyvalue"
+                        [selected]="itemMergeDto.result.unit===unit.key">{{ unit.value }}</option>
+              </select>
+            </div>
+            <div class="col">
+              <label for="mergedItemDescription">Name</label>
+              <input name="mergedItemDescription" id="mergedItemDescription" class="form-control"
+                     placeholder="Add a new item"
+                     [(ngModel)]="itemMergeDto.result.description" required minlength="2" [disabled]="itemToMergeWith.description === itemToEdit.description">
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="modal-footer">
         <button type="button" #modalClose class="btn btn-danger"
                 data-bs-dismiss="modal"
+                (click)="reset()"
         >
           Discard changes
         </button>
-        <button type="submit" form="form" class="btn btn-warning">
+        <button *ngIf="edit" type="submit" form="form" class="btn btn-warning">
           Edit
+        </button>
+        <button *ngIf="merge" type="submit" form="form-merge" class="btn btn-warning">
+          Merge
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {PantryItemCreateDto, PantryItemDetailDto, Unit} from "../../dtos/item";
+import {PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -41,6 +41,7 @@ export class PantryComponent implements OnInit {
   newLowerLimit: number = 0;
   selectedItem: PantryItemDetailDto = undefined;
   itemToEdit: PantryItemDetailDto = undefined;
+  mergeItem: PantryItemMergeDto = undefined;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -67,19 +68,16 @@ export class PantryComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    console.log('is form valid?', form.valid);
     if (form.valid) {
       this.addItem();
     }
   }
 
-  markImportant(){
-    if(this.newItem.lowerLimit !== null) {
-      console.log("set null")
+  markImportant() {
+    if (this.newItem.lowerLimit !== null) {
       this.newLowerLimit = this.newItem.lowerLimit;
       this.newItem.lowerLimit = null;
     } else {
-      console.log("set 0")
       this.newItem.lowerLimit = this.newLowerLimit;
     }
   }
@@ -150,6 +148,17 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  mergeItems() {
+    this.service.mergeItems(this.mergeItem, this.id).subscribe({
+      next: dto => {
+        this.selectedItem = dto;
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    });
+  }
+
   changeAmount(item: PantryItemDetailDto, amountChanged: number) {
     item.amount = item.amount + amountChanged > 0 ? item.amount + amountChanged : 0;
     this.service.updateItem(item, this.id).subscribe({
@@ -183,6 +192,7 @@ export class PantryComponent implements OnInit {
 
   selectEditItem(item: PantryItemDetailDto) {
     this.itemToEdit = item;
+    this.mergeItem = {itemToDeleteId: null, result: clone(item)};
   }
 
   /**

@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
-import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto} from "../dtos/item";
+import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,6 @@ export class PantryService {
    * @param item to persist
    */
   createItem(id: number, item: ItemCreateDto): Observable<PantryItemDetailDto> {
-    console.log('Create item' + item + ' for pantry with id ' + id);
     return this.httpClient.post<PantryItemDetailDto>(`${this.pantryBaseUri}/${id}/pantry`, item);
   }
 
@@ -64,7 +63,16 @@ export class PantryService {
    * @param pantryId the pantry id
    */
   updateItem(itemToUpdate: PantryItemDetailDto, pantryId: number) {
-    console.log("item: ", itemToUpdate)
     return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
+  }
+
+  /**
+   * Updates itemMergeDto.result in the pantry and removes the item with id itemMergeDto.itemToDeleteId
+   *
+   * @param itemMergeDto contains the new item and the id of the item to delete
+   * @param pantryId the pantry id
+   */
+  mergeItems(itemMergeDto: PantryItemMergeDto, pantryId: number): Observable<PantryItemDetailDto> {
+    return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/merged`, itemMergeDto)
   }
 }
