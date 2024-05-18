@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -6,9 +6,9 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class ItemMergeDto {
+public class PantryItemMergeDto {
     @NotNull
-    ItemDto baseItem;
+    PantryItemDto result;
     @NotNull
     Long itemToDeleteId;
 }
