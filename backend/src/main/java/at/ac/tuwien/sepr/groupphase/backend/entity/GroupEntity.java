@@ -15,6 +15,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@ToString
 public class GroupEntity {    // Do not call it group! It is a reserved word and causes errors when used
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +47,7 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
         inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     @Builder.Default
+    @ToString.Exclude
     private Set<ApplicationUser> users = new HashSet<>();
 
     @Builder

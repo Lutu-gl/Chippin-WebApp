@@ -3,11 +3,13 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -36,15 +38,19 @@ public class ShoppingListServiceTest extends BaseTest {
     private ShoppingListMapperImpl shoppingListMapper;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private GroupRepository groupRepository;
 
     @InjectMocks
     private ShoppingListServiceImpl shoppingListService;
 
     @Test
-    public void givenValidShoppingListCreateDto_whenCreateShoppingList_thenNoException() {
+    public void givenValidShoppingListCreateDtoWithoutGroupId_whenCreateShoppingList_thenNoException() {
         when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
         when(groupRepository.findById(any())).thenReturn(Optional.of(GroupEntity.builder().id(-1L).build()));
+        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
         var shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
             .build();
@@ -55,10 +61,27 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
-    public void givenValidShoppingListCreateDtoWithInvalidGroupId_whenCreateShoppingList_thenNotFoundException() {
-        when(groupRepository.findById(any())).thenReturn(Optional.empty());
+    public void givenValidShoppingListCreateDtoWithValidGroupId_whenCreateShoppingList_thenNoException() {
+        when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
+        when(groupRepository.findById(any())).thenReturn(Optional.of(GroupEntity.builder().id(-1L).build()));
+        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
         var shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
+            .groupId(-1L)
+            .build();
+
+        shoppingListService.createShoppingList(shoppingListCreateDto, -1L);
+
+        verify(shoppingListRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void givenValidShoppingListCreateDtoWithInvalidGroupId_whenCreateShoppingList_thenNotFoundException() {
+        when(groupRepository.findById(any())).thenReturn(Optional.empty());
+        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
+        var shoppingListCreateDto = ShoppingListCreateDto.builder()
+            .name("Test Shopping List")
+            .groupId(-1L)
             .build();
         assertThrows(NotFoundException.class, () -> shoppingListService.createShoppingList(shoppingListCreateDto, -1L));
 
@@ -90,4 +113,12 @@ public class ShoppingListServiceTest extends BaseTest {
         verify(shoppingListRepository, times(1)).findAllByGroupId(any());
     }
 
+    @Test
+    public void givenValidUserId_whenGetShoppingListsForUser_thenNoException() {
+        when(shoppingListRepository.findAllByOwnerId(any())).thenReturn(List.of());
+
+        shoppingListService.getShoppingListsForUser(-1L);
+
+        verify(shoppingListRepository, times(1)).findAllByOwnerId(any());
+    }
 }

@@ -34,6 +34,7 @@ public class SecurityService {
         }
         var user = userRepository.findById(userId).orElse(null);
         if (user == null) {
+            log.debug("Could not find user with id {}", userId);
             return false;
         }
         return user.getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -67,7 +68,7 @@ public class SecurityService {
 
     @Transactional
     public boolean canAccessShoppingList(Long shoppingListId) {
-        log.debug("Checking if the currently authenticated user can edit the shopping list with id {}", shoppingListId);
+        log.debug("Checking if the currently authenticated user can access the shopping list with id {}", shoppingListId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (shoppingListId == null) {
             log.debug("Shopping list id is null");

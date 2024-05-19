@@ -16,7 +16,7 @@ public class ShoppingListCreateDto {
     @NotNull
     private String name;
 
-    private Long ownerId;
+    private Long groupId;
 
     // TODO add categories
 }

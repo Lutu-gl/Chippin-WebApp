@@ -14,9 +14,10 @@ public interface ShoppingListService {
      * Create a new shopping list.
      *
      * @param shoppingListCreateDto the shopping list to create
+     * @param ownerId               the id of the owner of the shopping list
      * @return the created shopping list
      */
-    ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long groupId);
+    ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long ownerId);
 
     /**
      * Get a shopping list by id.
@@ -87,4 +88,11 @@ public interface ShoppingListService {
     ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList);
 
 
+    /**
+     * Get all shopping lists for a user.
+     *
+     * @param userId the id of the user
+     * @return the shopping lists
+     */
+    List<ShoppingList> getShoppingListsForUser(Long userId);
 }
