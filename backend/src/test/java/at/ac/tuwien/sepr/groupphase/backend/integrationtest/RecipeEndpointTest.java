@@ -1,8 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.RegistrationEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
@@ -21,6 +24,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
+import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class RecipeEndpointTest {
+public class RecipeEndpointTest extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -71,7 +76,7 @@ public class RecipeEndpointTest {
     RecipeService recipeService;
 
     @Autowired
-    CustomUserDetailService userDetailService;
+    UserService userDetailService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -155,17 +160,14 @@ public class RecipeEndpointTest {
     public void createRecipeSuccessfully_then201() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
-        /*UserRegisterDto userRegisterDto = UserRegisterDto.builder()
-            .email("test@example.com")
-            .password("Test1234")
-            .build();
-        userDetailService.register(userRegisterDto, false);*/
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder().email("test@test.at").password("Hilfe1234").build();
+        userDetailService.register(userRegisterDto, false);
         RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
             .name("Carrot Banana")
             .description("this is a test")
             .isPublic(false)
             .portionSize(1)
-            //.owner(userDetailService.findApplicationUserByEmail("test@example.com"))
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
             .build();
         ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
         toAdd.add(item1);
@@ -176,7 +178,7 @@ public class RecipeEndpointTest {
         String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/group/recipe/create")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isCreated())

@@ -16,6 +16,8 @@ public interface RecipeMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ingredients", source = "ingredients")
     @Mapping(target = "isPublic", source = "isPublic")
+    @Mapping(target = "likes", constant = "0")
+    @Mapping(target = "dislikes", constant = "0")
     Recipe recipeCreateToRecipeEntity(RecipeCreateDto recipe);
 
     @Mapping(target = "ingredients", source = "ingredients")

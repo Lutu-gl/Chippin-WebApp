@@ -8,9 +8,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
+import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +42,16 @@ public class RecipeEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final RecipeService recipeService;
     private final ItemMapper itemMapper;
+    private final RecipeMapper recipeMapper;
+    private final UserService userService;
 
 
     @Autowired
-    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper) {
+    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService, RecipeMapper recipeMapper) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
+        this.recipeMapper = recipeMapper;
+        this.userService = userService;
     }
 
 
@@ -94,8 +100,8 @@ public class RecipeEndpoint {
     public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateWithoutUserDto recipeDto) {
         LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
-        return recipeService.createRecipe(recipeDto.addOwner(null));
+        ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.createRecipe(recipeDto.addOwner(owner));
     }
 
     //TODO SINCE User isnt added to recipe yet, this function returns all recipes from all users
@@ -103,8 +109,9 @@ public class RecipeEndpoint {
     @GetMapping("recipe/list")
     public List<RecipeListDto> getRecipesFromUser() {
         LOGGER.info("GET /api/v1/group/recipe/list");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return recipeService.getRecipesFromUser();
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(userService.getRecipesByUserEmail(authentication.getName()));
     }
 
     @Secured("ROLE_USER")

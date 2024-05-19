@@ -63,9 +63,10 @@ public class Recipe {
     @Column(nullable = false)
     private int dislikes = 0;
 
-    /*@ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
-    private ApplicationUser owner;*/
+    private ApplicationUser owner;
+
 
     public void addIngredient(Item item) {
         if (this.ingredients == null) {

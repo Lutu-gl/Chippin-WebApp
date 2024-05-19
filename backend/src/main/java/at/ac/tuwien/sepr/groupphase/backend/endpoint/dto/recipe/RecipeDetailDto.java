@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class RecipeDetailDto {
 
     private long id;
@@ -35,12 +37,7 @@ public class RecipeDetailDto {
 
     private int dislikes = 0;
 
-    //private ApplicationUser owner;
-
-
-    public int getScore() {
-        return likes - dislikes;
-    }
+    private ApplicationUser owner;
 
 
 }

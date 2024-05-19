@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -112,6 +114,12 @@ public class CustomUserDetailService implements UserService {
     public Set<GroupEntity> getGroupsByUserEmail(String email) {
         LOGGER.trace("getGroupsByUserEmail({})", email);
         return userRepository.findGroupsByUserEmail(email);
+    }
+
+    @Override
+    public List<Recipe> getRecipesByUserEmail(String email) {
+        LOGGER.trace("getRecipesByUserEmail({})", email);
+        return userRepository.findRecipesByUserEmail(email);
     }
 
 

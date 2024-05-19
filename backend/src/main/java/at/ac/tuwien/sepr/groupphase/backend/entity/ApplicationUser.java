@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.Email;
@@ -46,23 +47,25 @@ public class ApplicationUser {
     @Column
     private Boolean admin;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     @Builder.Default
     private Set<GroupEntity> groups = new HashSet<>();
 
     //This will be needed later
-    /*@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
-    public void addRecipe(Recipe recipe) {
+    public ApplicationUser addRecipe(Recipe recipe) {
         recipes.add(recipe);
         recipe.setOwner(this);
+
+        return this;
     }
 
     public void removeRecipe(Recipe recipe) {
         recipes.remove(recipe);
         recipe.setOwner(null);
-    }*/
+    }
 
 }

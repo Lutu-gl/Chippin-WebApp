@@ -5,16 +5,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class RecipeListDto {
 
     private long id;
 
     private String name;
+
+    private int likes;
+
+    private int dislikes;
 
 }

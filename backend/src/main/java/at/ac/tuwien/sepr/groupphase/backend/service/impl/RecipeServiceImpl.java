@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,13 +34,15 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeRepository recipeRepository;
     private final RecipeMapper recipeMapper;
     private final ItemMapper itemMapper;
+    private final UserRepository userRepository;
 
     @Autowired
-    public RecipeServiceImpl(RecipeRepository recipeRepository, ItemRepository itemRepository, RecipeMapper recipeMapper, ItemMapper itemMapper) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, ItemRepository itemRepository, RecipeMapper recipeMapper, ItemMapper itemMapper, UserRepository userRepository) {
         this.recipeRepository = recipeRepository;
         this.itemRepository = itemRepository;
         this.recipeMapper = recipeMapper;
         this.itemMapper = itemMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -133,7 +136,7 @@ public class RecipeServiceImpl implements RecipeService {
             ingredient.setRecipe(null);
 
             recipeRepository.save(recipe);
-            itemRepository.save(ingredient);
+            itemRepository.delete(ingredient);
 
         }
     }
@@ -173,6 +176,8 @@ public class RecipeServiceImpl implements RecipeService {
                 addItemToRecipe(ingredient, finishedRecipe.getId());
             }
         }
+
+        userRepository.save(finishedRecipe.getOwner().addRecipe(finishedRecipe));
 
         return recipeMapper.recipeEntityToRecipeDetailDto(finishedRecipe);
     }
