@@ -1,9 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
 import org.mapstruct.Mapper;

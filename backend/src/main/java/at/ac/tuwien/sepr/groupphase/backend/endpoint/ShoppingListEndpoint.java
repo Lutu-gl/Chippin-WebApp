@@ -1,9 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList.ShoppingListUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +39,8 @@ public class ShoppingListEndpoint {
 
     // POST /users/{userId}/shopping-lists (with an optional groupId in the request body)
     @Secured("ROLE_USER")
-    @PreAuthorize("@securityService.hasCorrectId(#userId) " +
-        "&& (#shoppingListCreateDto.groupId == null " +
-        "|| @securityService.isGroupMember(#shoppingListCreateDto.groupId))")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && (#shoppingListCreateDto.groupId == null "
+        + "|| @securityService.isGroupMember(#shoppingListCreateDto.groupId))")
     @PostMapping("/users/{userId}/shopping-lists")
     public ShoppingListDetailDto createShoppingList(@PathVariable Long userId, @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
         log.debug("request body: {}", shoppingListCreateDto);

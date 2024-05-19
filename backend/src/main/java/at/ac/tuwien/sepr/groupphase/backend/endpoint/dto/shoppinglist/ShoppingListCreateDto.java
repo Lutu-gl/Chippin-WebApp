@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppingList;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
