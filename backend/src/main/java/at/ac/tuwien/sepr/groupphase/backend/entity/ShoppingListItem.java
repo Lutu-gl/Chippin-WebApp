@@ -2,9 +2,11 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,10 +26,15 @@ public class ShoppingListItem {
     private Long id;
 
     @JoinColumn
-    @ManyToOne
+    @OneToOne
     private Item item;
 
-    @Column
-    private boolean bought;
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private ApplicationUser addedBy;
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ApplicationUser checkedBy;
 
 }
