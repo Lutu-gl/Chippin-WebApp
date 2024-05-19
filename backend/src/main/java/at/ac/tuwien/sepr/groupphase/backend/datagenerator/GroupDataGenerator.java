@@ -29,13 +29,11 @@ public class GroupDataGenerator implements DataGenerator {
 
         for (int i = 0; i < 20; i++) {
             Set<ApplicationUser> groupUsers = new HashSet<>(applicationUsers.subList(i % applicationUsers.size(), (i % applicationUsers.size()) + 6));
-            /*
+
             GroupEntity group = GroupEntity.builder()
                 .groupName("groupExample" + i)
                 .users(groupUsers)
-                .build();*/
-
-            GroupEntity group = new GroupEntity("groupExample" + i, groupUsers);
+                .build();
 
             groupRepository.save(group);
         }
