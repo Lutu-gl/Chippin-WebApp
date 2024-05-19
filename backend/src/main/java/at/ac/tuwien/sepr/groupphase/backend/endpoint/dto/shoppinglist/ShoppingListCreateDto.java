@@ -1,8 +1,7 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,8 @@ public class ShoppingListCreateDto {
     @NotBlank
     @NotNull
     private String name;
-    @NotNull
-    @PositiveOrZero
-    private Float budget;
+
+    private Long groupId;
+
+    // TODO add categories
 }
