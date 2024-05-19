@@ -9,13 +9,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryI
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -105,14 +108,26 @@ public class PantryEndpointTest extends BaseTest {
             .unit(Unit.Piece)
             .build();
 
-        group = new GroupEntity("T1");
+        group = GroupEntity.builder().groupName("T1").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+
         group.getPantry().addItem(item);
         groupRepository.save(group);
 
-        groupEmptyPantry = new GroupEntity("T2");
+        groupEmptyPantry = GroupEntity.builder().groupName("T2").build();
+        Pantry pantry2 = Pantry.builder().build();
+        pantry2.setGroup(groupEmptyPantry);
+        groupEmptyPantry.setPantry(pantry2);
+
         groupRepository.save(groupEmptyPantry);
 
-        group3 = new GroupEntity("T3");
+        group3 = GroupEntity.builder().groupName("T3").build();
+        Pantry pantry3 = Pantry.builder().build();
+        pantry3.setGroup(group3);
+        group3.setPantry(pantry3);
+
         group3.getPantry().addItem(item2);
         group3.getPantry().addItem(item3);
         groupRepository.save(group3);

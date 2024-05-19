@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -42,6 +43,13 @@ public class PantryDataGenerator implements DataGenerator {
         Random random = new Random();
 
         for (GroupEntity group : groups) {
+            Pantry pantry = Pantry.builder()
+                .group(group)
+                .build();
+            pantry.setGroup(group);
+
+            group.setPantry(pantry);
+
             for (int i = 0; i < 5; i++) {
                 String description = descriptions[random.nextInt(descriptions.length)];
                 Unit unit = units[random.nextInt(units.length)];
