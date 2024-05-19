@@ -88,7 +88,7 @@ public class ShoppingListEndpoint {
     // PATCH /shopping-lists/{shoppingListId}
     @Secured("ROLE_USER")
     @PatchMapping("/shopping-lists/{shoppingListId}")
-    //@PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
+    @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
     public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
         log.debug("request body: {}", shoppingListUpdateDto);
         var shoppingList = shoppingListService.updateShoppingList(shoppingListId, shoppingListUpdateDto);
