@@ -43,4 +43,6 @@ public class RecipeDetailDto {
 
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
+    private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
+
 }

@@ -6,8 +6,10 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
@@ -216,9 +218,49 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public void deleteRecipe(RecipeDetailDto recipe) {
-        LOGGER.debug("Delete recipe {}", recipe);
+    public void deleteRecipe(long id) {
+        LOGGER.debug("Delete recipe with id {}", id);
 
-        recipeRepository.deleteById(recipe.getId());
+        recipeRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public RecipeDetailDto likeRecipe(RecipeDetailDto recipeDto, ApplicationUser user) throws AlreadyRatedException {
+        Recipe recipe = recipeMapper.recipeDetailDtoToRecipeEntity(recipeDto);
+
+        if (user.getLikedRecipes().contains(recipe)) {
+            throw new AlreadyRatedException("User already liked the recipe");
+        }
+        if (user.getDislikedRecipes().contains(recipe)) {
+            user.getDislikedRecipes().remove(recipe);
+            recipe.getDislikedByUsers().remove(user);
+            recipe.setDislikes(recipe.getDislikes() - 1);
+        }
+        user.likeRecipe(recipe);
+        recipe.addLiker(user);
+        recipe.setLikes(recipe.getLikes() + 1);
+        userRepository.save(user);
+        return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
+    }
+
+    @Override
+    @Transactional
+    public RecipeDetailDto dislikeRecipe(RecipeDetailDto recipeDto, ApplicationUser user) throws AlreadyRatedException {
+        Recipe recipe = recipeMapper.recipeDetailDtoToRecipeEntity(recipeDto);
+
+        if (user.getDislikedRecipes().contains(recipe)) {
+            throw new AlreadyRatedException("User already disliked the recipe");
+        }
+        if (user.getLikedRecipes().contains(recipe)) {
+            user.getLikedRecipes().remove(recipe);
+            recipe.getLikedByUsers().remove(user);
+            recipe.setLikes(recipe.getLikes() - 1);
+        }
+        user.dislikeRecipe(recipe);
+        recipe.addDisliker(user);
+        recipe.setDislikes(recipe.getDislikes() + 1);
+        userRepository.save(user);
+        return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
     }
 }

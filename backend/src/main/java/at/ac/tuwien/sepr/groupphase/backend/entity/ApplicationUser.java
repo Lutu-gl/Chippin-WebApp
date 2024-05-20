@@ -56,7 +56,7 @@ public class ApplicationUser {
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Builder.Default
     @JsonIgnore
     @JoinTable(
@@ -65,6 +65,16 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
     private Set<Recipe> likedRecipes = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Builder.Default
+    @JsonIgnore
+    @JoinTable(
+        name = "user_recipe_dislikes",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
+    )
+    private Set<Recipe> dislikedRecipes = new HashSet<>();
 
     public ApplicationUser addRecipe(Recipe recipe) {
         recipes.add(recipe);
@@ -77,5 +87,16 @@ public class ApplicationUser {
         recipes.remove(recipe);
         recipe.setOwner(null);
     }
+
+    public ApplicationUser likeRecipe(Recipe recipe) {
+        likedRecipes.add(recipe);
+        return this;
+    }
+
+    public ApplicationUser dislikeRecipe(Recipe recipe) {
+        dislikedRecipes.add(recipe);
+        return this;
+    }
+
 
 }

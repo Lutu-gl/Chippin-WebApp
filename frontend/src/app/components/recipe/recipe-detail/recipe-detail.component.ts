@@ -60,7 +60,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   deleteRecipe() {
-      this.service.deleteRecipe(this.recipe);
+      this.service.deleteRecipe(this.recipe.id);
       this.notification.success("Recipe successfully deleted");
       this.router.navigate(['/recipe']);
   }

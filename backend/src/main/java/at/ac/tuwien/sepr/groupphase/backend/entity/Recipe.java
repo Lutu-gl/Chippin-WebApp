@@ -72,10 +72,15 @@ public class Recipe {
     @JsonIgnore
     private ApplicationUser owner;
 
-    @ManyToMany(mappedBy = "likedRecipes")
+    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "dislikedRecipes", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
+    @Builder.Default
+    @JsonIgnore
+    private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
 
     public void addIngredient(Item item) {
         if (this.ingredients == null) {
@@ -89,6 +94,16 @@ public class Recipe {
     public void removeItem(Item item) {
         ingredients.remove(item);
         item.setRecipe(null);
+    }
+
+    public Recipe addLiker(ApplicationUser user) {
+        likedByUsers.add(user);
+        return this;
+    }
+
+    public Recipe addDisliker(ApplicationUser user) {
+        dislikedByUsers.add(user);
+        return this;
     }
 
 

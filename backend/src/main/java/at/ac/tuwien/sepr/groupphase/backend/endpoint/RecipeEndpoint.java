@@ -11,6 +11,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
@@ -116,9 +118,27 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PutMapping("recipe/update")
     public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
-        LOGGER.info("PUT /api/v1/group/{}/recipe/update: {}", toUpdate.getId(), toUpdate);
+        LOGGER.info("PUT /api/v1/group/recipe/update: {}", toUpdate);
 
         return recipeService.updateRecipe(toUpdate);
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("recipe/like")
+    public RecipeDetailDto likeRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) throws AlreadyRatedException {
+        LOGGER.info("PUT /api/v1/group/recipe/like: {}", toUpdate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return recipeService.likeRecipe(toUpdate, userService.findApplicationUserByEmail(authentication.getName()));
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("recipe/dislike")
+    public RecipeDetailDto dislikeRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) throws AlreadyRatedException {
+        LOGGER.info("PUT /api/v1/group/recipe/dislike: {}", toUpdate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return recipeService.dislikeRecipe(toUpdate, userService.findApplicationUserByEmail(authentication.getName()));
     }
 
     @Secured("ROLE_USER")
@@ -130,11 +150,12 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
-    @DeleteMapping("recipe/delete")
-    public void deleteRecipe(@Valid @RequestBody RecipeDetailDto recipe) {
-        LOGGER.info("DELETE /api/v1/group/recipe/delete: {}", recipe);
+    @DeleteMapping("recipe/{id}/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRecipe(@PathVariable long id) {
+        LOGGER.info("DELETE /api/v1/group/recipe/{}/delete", id);
 
-        recipeService.deleteRecipe(recipe);
+        recipeService.deleteRecipe(id);
     }
 
 }

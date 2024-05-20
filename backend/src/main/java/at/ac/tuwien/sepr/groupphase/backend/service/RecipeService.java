@@ -5,7 +5,9 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 
 import java.util.List;
 
@@ -122,7 +124,25 @@ public interface RecipeService {
     /**
      * Delete a recipe from the database.
      *
-     * @param recipe the recipe to delete
+     * @param id the id of the recipe to delete
      */
-    void deleteRecipe(RecipeDetailDto recipe);
+    void deleteRecipe(long id);
+
+    /**
+     * Like a recipe.
+     * If a recipe is already disliked, remove the dislike
+     *
+     * @param recipe Update the recipe to increase the like count
+     * @param user   the user who sent the like
+     */
+    RecipeDetailDto likeRecipe(RecipeDetailDto recipe, ApplicationUser user) throws AlreadyRatedException;
+
+    /**
+     * Dislike a recipe.
+     * If a recipe is already liked, remove the like
+     *
+     * @param recipe Update the recipe to increase the dislike count
+     * @param user   the user who sent the dislike
+     */
+    RecipeDetailDto dislikeRecipe(RecipeDetailDto recipe, ApplicationUser user) throws AlreadyRatedException;
 }

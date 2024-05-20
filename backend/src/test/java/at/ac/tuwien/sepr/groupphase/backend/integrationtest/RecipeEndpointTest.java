@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.RegistrationEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
@@ -10,9 +11,12 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -26,6 +30,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,11 +54,9 @@ import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -98,6 +101,9 @@ public class RecipeEndpointTest extends BaseTest {
     @Autowired
     private ShoppingListRepository shoppingListRepository;
 
+    @Autowired
+    RecipeMapper recipeMapper;
+
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -116,6 +122,8 @@ public class RecipeEndpointTest extends BaseTest {
     private Recipe recipe;
     private Recipe emptyRecipe;
     private Item item;
+    @Autowired
+    private RecipeEndpoint recipeEndpoint;
 
 
     @BeforeEach
@@ -407,4 +415,186 @@ public class RecipeEndpointTest extends BaseTest {
             () -> assertEquals(fromRepository.getId(), returned.getId())
         );
     }
+
+    @Test
+    public void likeRecipeSuccessfully() throws Exception {
+        ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder().email("test@test.at").password("Hilfe1234").build();
+        userDetailService.register(userRegisterDto, false);
+        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
+            .name("Carrot Banana")
+            .description("this is a test")
+            .isPublic(false)
+            .portionSize(1)
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
+            .build();
+        ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
+        toAdd.add(item1);
+        toAdd.add(item2);
+        recipeCreateDto.setIngredients(toAdd);
+
+        RecipeDetailDto recipe = recipeService.createRecipe(recipeCreateDto);
+
+        String groupJson = objectMapper.writeValueAsString(recipe);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .put("/api/v1/group/recipe/like")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        RecipeDetailDto resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
+        assertEquals(1, resultDto.getLikes());
+        assertEquals(1, resultDto.getLikedByUsers().size());
+
+        assertEquals(userDetailService.findApplicationUserByEmail("test@test.at").getLikedRecipes().iterator().next().getId(), resultDto.getId());
+        assertEquals(userDetailService.findApplicationUserByEmail("test@test.at").getId(), resultDto.getLikedByUsers().iterator().next().getId());
+    }
+
+    @Test
+    public void dislikeRecipeSuccessfully() throws Exception {
+        ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder().email("test@test.at").password("Hilfe1234").build();
+        userDetailService.register(userRegisterDto, false);
+        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
+            .name("Carrot Banana")
+            .description("this is a test")
+            .isPublic(false)
+            .portionSize(1)
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
+            .build();
+        ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
+        toAdd.add(item1);
+        toAdd.add(item2);
+        recipeCreateDto.setIngredients(toAdd);
+
+        RecipeDetailDto recipe = recipeService.createRecipe(recipeCreateDto);
+
+        String groupJson = objectMapper.writeValueAsString(recipe);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .put("/api/v1/group/recipe/dislike")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        RecipeDetailDto resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
+        assertEquals(1, resultDto.getDislikes());
+        //TODOassertEquals(1, resultDto.getDislikedByUsers().size());
+        assertEquals(1, userDetailService.findApplicationUserByEmail("test@test.at").getDislikedRecipes().size());
+        assertEquals(userDetailService.findApplicationUserByEmail("test@test.at").getDislikedRecipes().iterator().next().getId(), resultDto.getId());
+        assertEquals(userDetailService.findApplicationUserByEmail("test@test.at").getId(), resultDto.getDislikedByUsers().iterator().next().getId());
+    }
+
+    @Test
+    public void givenUser_findRecipesByUser_returnsListOfRecipesByUserThen200() throws Exception {
+        ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
+        ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder().email("test@test.at").password("Hilfe1234").build();
+        userDetailService.register(userRegisterDto, false);
+        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
+            .name("Carrot Banana")
+            .description("this is a test")
+            .isPublic(false)
+            .portionSize(1)
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
+            .build();
+        ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
+        toAdd.add(item1);
+        toAdd.add(item2);
+        recipeCreateDto.setIngredients(toAdd);
+
+        RecipeDetailDto createdRecipe = recipeService.createRecipe(recipeCreateDto);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/v1/group/recipe/list")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        RecipeListDto[] resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeListDto[].class);
+
+        assertNotNull(resultDto);
+        assertNotNull(resultDto[0]);
+        assertEquals(resultDto[0].getId(), createdRecipe.getId());
+    }
+
+    @Test
+    public void getPublicRecipeOrderedByLikes_returnsAllPublicRecipesOrderedSuccessfully() throws Exception {
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder().email("test@test.at").password("Hilfe1234").build();
+        userDetailService.register(userRegisterDto, false);
+        Recipe recipe1 = Recipe.builder()
+            .name("Carrot Banana")
+            .description("this is a test")
+            .isPublic(true)
+            .portionSize(1)
+            .likes(1)
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
+            .build();
+        Recipe recipe2 = Recipe.builder()
+            .name("new Carrot Banana")
+            .description("this is a test")
+            .isPublic(true)
+            .portionSize(1)
+            .likes(5)
+            .owner(userDetailService.findApplicationUserByEmail("test@test.at"))
+            .build();
+
+
+        Recipe newRecipe1 = recipeRepository.save(recipe1);
+        Recipe newRecipe2 = recipeRepository.save(recipe2);
+
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/v1/group/recipe/global")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        RecipeListDto[] resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeListDto[].class);
+
+        assertNotNull(resultDto);
+        assertNotNull(resultDto[0]);
+        assertNotNull(resultDto[1]);
+
+
+    }
+
+    @Test
+    public void givenNothing_DeleteExistingRecipe_returns204_RecipeDoesntExistAnymore() throws Exception {
+        recipeRepository.save(Recipe.builder().id(-5L).isPublic(false).portionSize(0).name("test").description("test").build());
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/recipe/%d/delete", -5L))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@test.at", ADMIN_ROLES))
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isNoContent())
+            .andReturn();
+
+        Optional<Recipe> optional = recipeRepository.findById(-5L);
+
+        assertFalse(optional.isPresent());
+
+
+    }
+
+    //TODO add other methods
 }

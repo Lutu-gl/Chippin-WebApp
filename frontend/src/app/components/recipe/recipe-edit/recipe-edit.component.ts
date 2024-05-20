@@ -110,9 +110,9 @@ export class RecipeEditComponent implements OnInit {
   }
 
   public removeIngredient(index: number) {
-    this.service.deleteIngredient(this.recipeId,this.recipe.ingredients[index].id);
     this.recipe.ingredients.splice(index, 1);
     this.selectedIndexToDelete=undefined;
+    this.service.deleteIngredient(this.recipeId,this.recipe.ingredients[index].id);
   }
 
 
@@ -178,7 +178,7 @@ export class RecipeEditComponent implements OnInit {
   }
 
   deleteRecipe() {
-    this.service.deleteRecipe(this.recipe);
+    this.service.deleteRecipe(this.recipe.id);
     this.notification.success("Recipe successfully deleted");
     this.router.navigate(['/recipe']);
   }

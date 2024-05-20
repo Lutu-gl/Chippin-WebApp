@@ -103,7 +103,7 @@ export class RecipeService {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/global`);
   }
 
-  deleteRecipe(toDelete: RecipeDetailDto): void {
-    this.httpClient.delete<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/delete`)
+  deleteRecipe(id: number): void {
+    this.httpClient.delete<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/{id}/delete`);
   }
 }
