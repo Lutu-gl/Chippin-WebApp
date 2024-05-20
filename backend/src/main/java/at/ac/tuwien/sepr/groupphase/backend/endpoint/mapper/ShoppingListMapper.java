@@ -53,7 +53,7 @@ public interface ShoppingListMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkedBy", ignore = true)
-    @Mapping(target = "item", source = "itemCreateDto", qualifiedByName = "itemCreateDtoToItem")
+    @Mapping(target = "item", source = "itemCreateDto")
     @Mapping(target = "addedBy", source = "user")
     ShoppingListItem itemCreateDtoAndUserToShoppingListItem(ItemCreateDto itemCreateDto, ApplicationUser user);
 
