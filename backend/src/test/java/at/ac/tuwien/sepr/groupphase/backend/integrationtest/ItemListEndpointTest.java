@@ -82,7 +82,6 @@ public class ItemListEndpointTest extends BaseTest {
     @BeforeEach
     public void beforeEach() {
         itemListRepository.deleteAll();
-        itemRepository.deleteAll();
 
         item = Item.builder()
             .description("Potato")
