@@ -60,56 +60,27 @@ public class GroupEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public GroupCreateDto createGroup(@RequestBody GroupCreateDto groupCreateDto) {
+    public GroupCreateDto createGroup(@RequestBody GroupCreateDto groupCreateDto) throws ValidationException, ConflictException {
         LOGGER.info("POST " + BASE_PATH);
         LOGGER.debug("request parameters: {}", groupCreateDto);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        GroupCreateDto res = null;
-        try {
-            res = groupService.create(groupCreateDto, authentication.getName());
-        } catch (ValidationException e) {
-            HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
-            logClientError(status, "Group creation failed because of wrong parameters", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        } catch (ConflictException e) {
-            HttpStatus status = HttpStatus.CONFLICT;
-            logClientError(status, "Group creation failed because of wrong parameters", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        }
-        return res;
+        return groupService.create(groupCreateDto, authentication.getName());
     }
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("{id}")
-    public GroupCreateDto updateGroup(@PathVariable("id") long id, @RequestBody GroupCreateDto groupCreateDto) {
+    public GroupCreateDto updateGroup(@PathVariable("id") long id, @RequestBody GroupCreateDto groupCreateDto) throws ValidationException, ConflictException {
         LOGGER.info("PUT " + BASE_PATH + "/{}", id);
         LOGGER.debug("request parameters: {}, {}", groupCreateDto, id);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        GroupCreateDto res = null;
         groupCreateDto.setId(id);   // set the id of the group to update
 
-        try {
-            res = groupService.update(groupCreateDto, authentication.getName());
-        } catch (ValidationException e) {
-            HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
-            logClientError(status, "Group update failed because of wrong parameters", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        } catch (ConflictException e) {
-            HttpStatus status = HttpStatus.CONFLICT;
-            logClientError(status, "Group update failed because of wrong parameters", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        } catch (NotFoundException e) {
-            HttpStatus status = HttpStatus.NOT_FOUND;
-            logClientError(status, "Group to update not found", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        }
-
-        return res;
+        return groupService.update(groupCreateDto, authentication.getName());
     }
 
     private void logClientError(HttpStatus status, String message, Exception e) {

@@ -31,11 +31,13 @@ public class ItemServiceTest {
 
     @Test
     public void givenNewItem_thenNewItemSavedInPantry() {
-        GroupEntity group = new GroupEntity("Test");
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
 
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
         groupRepository.save(group);
 
-        Pantry pantry = group.getPantry();
         PantryItem pantryItem = PantryItem.builder().description("TestItem").unit(Unit.Piece).amount(10).lowerLimit(12L).build();
 
         Item result = itemService.pantryAutoMerge(pantryItem, pantry);
@@ -45,9 +47,11 @@ public class ItemServiceTest {
 
     @Test
     public void givenItemWithSameDescriptionAndUnit_thenItemsMerged() {
-        GroupEntity group = new GroupEntity("Test");
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
 
-        Pantry pantry = group.getPantry();
         PantryItem existingItem = PantryItem.builder().description("TestItem").unit(Unit.Piece).amount(4).lowerLimit(12L).build();
         pantry.addItem(existingItem);
         groupRepository.save(group);

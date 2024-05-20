@@ -1,5 +1,5 @@
 <h1 class="display-1">{{heading}}</h1>
-<form #form="ngForm" [class.was-validated]="form.submitted" (ngSubmit)="onSubmit(form)">
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
   <br>
 
   <div class="row">
@@ -40,11 +40,11 @@
           <table class="table align-baseline">
             <tbody>
               <tr *ngFor="let member of members; index as i">
-                <td>{{i}}:</td>
+                <td>{{i+1}}:</td>
                 <td>{{formatMember(member)}}</td>
                 <td class="min-width">
                   <!-- Make button just hidden, when no participant is present, to keep layout correct -->
-                  <button type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
+                  <button *ngIf="member.email !== userService.getUserEmail()" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
                     [style.visibility]="member ? 'visible' : 'hidden'">
                     <i class="bi-trash"></i>
                   </button>
@@ -83,7 +83,7 @@
     <div class="mt-4 d-flex flex-row">
       <span class="flex-grow-1"></span>
       <button type="submit" class="btn btn-primary"
-        [disabled]="(!form.valid || members.length === 0) && mode !== GroupCreateEditMode.info" type="submit">
+        [disabled]="(!form.valid || members.length === 0 || group === undefined) && mode !== GroupCreateEditMode.info" type="submit">
         {{submitButtonText}}
       </button>
     </div>

@@ -5,13 +5,13 @@ import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -59,11 +62,49 @@ public class GroupEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
-    @BeforeEach
-    public void beforeEach() {
-        pantryRepository.deleteAll();
-        groupRepository.deleteAll();
+    @Test
+    @Transactional
+    @Rollback
+    public void whenUpdateGroup_withValidData_thenStatus200() throws Exception {
         userRepository.deleteAll();
+        groupRepository.deleteAll();
+
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setEmail("user1GE@example.com");
+        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setEmail("user2GE@example.com");
+        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        GroupEntity group = GroupEntity.builder().groupName("NewGroup").users(new HashSet<>(Arrays.asList(user1, user2))).build();
+        Pantry pantry = Pantry.builder().group(group).build();
+        group.setPantry(pantry);
+        GroupEntity savedGroup = groupRepository.save(group);
+
+        GroupCreateDto groupUpdateDto =
+            GroupCreateDto.builder().groupName("NewGroupChangedName").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
+
+        String body = objectMapper.writeValueAsString(groupUpdateDto);
+
+        String res = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/group/%d", savedGroup.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        GroupCreateDto updateDto = objectMapper.readValue(res, GroupCreateDto.class);
+        GroupEntity groupSaved = groupRepository.getReferenceById(updateDto.getId());
+
+        assertAll(
+            () -> assertEquals(groupSaved.getGroupName(), updateDto.getGroupName()),
+            () -> assertTrue(groupSaved.getUsers().contains(user1)),
+            () -> assertTrue(groupSaved.getUsers().contains(user2))
+        );
     }
 
     @Test
@@ -72,24 +113,24 @@ public class GroupEndpointTest implements TestData {
         userRepository.deleteAll();
 
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("user1GE@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("user2GE@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroupGE").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
         var res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsByteArray();
 
@@ -98,6 +139,8 @@ public class GroupEndpointTest implements TestData {
 
         assertSame(group.getPantry().getId(), group.getId());
     }
+
+
     @Test
     @Transactional
     @Rollback
@@ -106,25 +149,25 @@ public class GroupEndpointTest implements TestData {
         groupRepository.deleteAll();
 
         ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("user1@example.com");
+        user1.setEmail("user1GE@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("user2@example.com");
+        user2.setEmail("user2GE@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
 
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
         String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
@@ -142,20 +185,20 @@ public class GroupEndpointTest implements TestData {
     @Rollback
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict())
             .andExpect(new ResultMatcher() {
                 @Override
                 public void match(MvcResult result) throws Exception {
                     String content = result.getResponse().getContentAsString();
-                    assertTrue(content.contains("No user found with email: user1@example.com"));
+                    assertTrue(content.contains("No user found with email: user1GE@example.com"));
                 }
             });
 
@@ -166,7 +209,7 @@ public class GroupEndpointTest implements TestData {
     @Rollback
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
         GroupCreateDto groupCreateDto =
-            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2@example.com"))).build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
 
@@ -190,7 +233,7 @@ public class GroupEndpointTest implements TestData {
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("     ")
-            .members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com")))
+            .members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com")))
             .build();
 
         String body = objectMapper.writeValueAsString(groupCreateDto);
@@ -198,7 +241,7 @@ public class GroupEndpointTest implements TestData {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(new ResultMatcher() {
                 @Override

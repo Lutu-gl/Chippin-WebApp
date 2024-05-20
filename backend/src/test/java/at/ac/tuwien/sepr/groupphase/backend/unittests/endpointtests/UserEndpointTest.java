@@ -59,8 +59,9 @@ public class UserEndpointTest extends BaseTest {
     @Test
     public void givenUserHasGroups_whenGetUserGroups_then200OK() throws Exception {
         Set<GroupEntity> groupEntities = new HashSet<>();
-        groupEntities.add(new GroupEntity(1L, "Group 1", null));
-        groupEntities.add(new GroupEntity(2L, "Group 2", null));
+        groupEntities.add(GroupEntity.builder().id(1L).groupName("Group 1").build());
+        groupEntities.add(GroupEntity.builder().id(2L).groupName("Group 2").build());
+
 
         Set<GroupDetailDto> groupDetailDtos = new HashSet<>();
         groupDetailDtos.add(new GroupDetailDto(1L, "Group 1"));
