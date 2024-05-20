@@ -36,12 +36,12 @@ export class GroupCreateComponent implements OnInit {
      name: '', amount: 0 };
 
   constructor(
-    private service: GroupService,
-    private userService: UserService,
-    private friendshipService: FriendshipService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private notification: ToastrService,
+      private service: GroupService,
+      protected userService: UserService,
+      private friendshipService: FriendshipService,
+      private router: Router,
+      private route: ActivatedRoute,
+      private notification: ToastrService,
   ) {
   }
 
@@ -114,20 +114,53 @@ export class GroupCreateComponent implements OnInit {
   }
   getGroup(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
+
     this.service.getById(id)
-      .subscribe(pGroup => {
-        this.group = pGroup;
-        this.members = pGroup.members;
-      });
+      .subscribe( {
+        next: data => {
+          this.group = data;
+          this.members = data.members;
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.notification.error(`${error.error.errors[i]}`);
+            }
+          } else if (error && error.error && error.error.message) {
+            this.notification.error(`${error.error.message}`);
+          } else if (error && error.error && error.error.detail) {
+            this.notification.error(`${error.error.detail}`);
+          } else {
+            console.error('Error getting group', error);
+            this.notification.error(`Getting group did not work!`);
+          }
+        }
+      })
   }
 
-  
+
   getGroupBudgets(): void{
     const id = Number(this.route.snapshot.paramMap.get('id'));
+
     this.service.getGroupBudgets(id)
-      .subscribe(budgets =>{
-        this.budgets = budgets;
-        console.log(budgets[0].id)
+      .subscribe( {
+        next: budgets => {
+          this.budgets = budgets;
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.notification.error(`${error.error.errors[i]}`);
+            }
+          } else if (error && error.error && error.error.message) {
+            this.notification.error(`${error.error.message}`);
+          } else if (error && error.error && error.error.detail) {
+            this.notification.error(`${error.error.detail}`);
+          } else {
+            console.error('Error getting group', error);
+            this.notification.error(`Getting group did not work!`);
+          }
+        }
       })
   }
 
@@ -187,8 +220,8 @@ export class GroupCreateComponent implements OnInit {
               this.service.createBudget(groupId, budget).subscribe();
             }
           });
-          
-          
+
+
           this.router.navigate(['/groups']);
         },
         error: error => {

@@ -36,25 +36,19 @@ public class FriendshipDataGenerator implements DataGenerator {
         for (GroupEntity group : groups) {
             Set<ApplicationUser> users = group.getUsers();
             for (int i = 0; i < users.size(); i++) {
-                ApplicationUser user = (ApplicationUser) users.toArray()[i];
-                ApplicationUser user2 = (ApplicationUser) users.toArray()[(i + 1) % users.size()];
+                for (int j = i + 1; j < users.size(); j++) {
+                    ApplicationUser user = (ApplicationUser) users.toArray()[i];
+                    ApplicationUser user2 = (ApplicationUser) users.toArray()[j];
 
-                Friendship friendship = Friendship.builder()
-                    .sender(user)
-                    .receiver(user2)
-                    .sentAt(LocalDateTime.now())
-                    .friendshipStatus(FriendshipStatus.ACCEPTED)
-                    .build();
+                    Friendship friendship = Friendship.builder()
+                        .sender(user)
+                        .receiver(user2)
+                        .sentAt(LocalDateTime.now())
+                        .friendshipStatus(FriendshipStatus.ACCEPTED)
+                        .build();
 
-                Friendship friendship2 = Friendship.builder()
-                    .sender(user2)
-                    .receiver(user)
-                    .sentAt(LocalDateTime.now())
-                    .friendshipStatus(FriendshipStatus.ACCEPTED)
-                    .build();
-
-                friendshipRepository.save(friendship);
-                friendshipRepository.save(friendship2);
+                    friendshipRepository.save(friendship);
+                }
             }
         }
     }

@@ -1,13 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShoppingListUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,19 +26,25 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private final ShoppingListMapper shoppingListMapper;
     private final ShoppingListRepository shoppingListRepository;
     private final GroupRepository groupRepository;
+    private final UserRepository userRepository;
 
 
     @Override
     @Transactional
-    public ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long groupId) {
-        log.debug("Creating shopping list for group {}", groupId);
+    public ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long ownerId) {
+        log.debug("Creating shopping list {} for user {}", shoppingListCreateDto, ownerId);
         ShoppingList shoppingList = shoppingListMapper.shoppingListCreateDtoToShoppingList(shoppingListCreateDto);
+        // Add owner to shopping list
+        shoppingList.setOwner(userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found")));
+
         // Add group to shopping list
-        var group = groupRepository.findById(groupId).orElseThrow(
-            () -> new NotFoundException("Group with id " + groupId + " not found")
-        );
-        log.debug("Setting group of shopping list to: {}", group);
-        shoppingList.setGroup(group);
+        if (shoppingListCreateDto.getGroupId() != null) {
+            var group = groupRepository.findById(shoppingListCreateDto.getGroupId())
+                .orElseThrow(() -> new NotFoundException("Group with id " + shoppingListCreateDto.getGroupId() + " not found"));
+            log.debug("Setting group of shopping list to: {}", group);
+            shoppingList.setGroup(group);
+        }
+
         shoppingList.setItems(List.of());
         ShoppingList savedList = shoppingListRepository.save(shoppingList);
         log.debug("Shopping list created with id {}", savedList.getId());
@@ -47,9 +54,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     public ShoppingList getShoppingList(Long id) {
         log.debug("Getting shopping list with id {}", id);
-        var shoppingList = shoppingListRepository.findById(id).orElseThrow(
-            () -> new NotFoundException("Shopping list with id " + id + " not found")
-        );
+        var shoppingList = shoppingListRepository.findById(id).orElseThrow(() -> new NotFoundException("Shopping list with id " + id + " not found"));
         log.debug("Found shopping list: {}", shoppingList);
         return shoppingList;
     }
@@ -81,6 +86,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         return null;
     }
 
+
     @Override
     public List<ShoppingList> getShoppingListsForGroup(Long groupId) {
         log.debug("Getting shopping lists for group {}", groupId);
@@ -93,13 +99,19 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Transactional
     public ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) {
         log.debug("Updating shopping list with id {}", shoppingListId);
-        var shoppingListEntity = shoppingListRepository.findById(shoppingListId).orElseThrow(
-            () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
-        );
+        var shoppingListEntity =
+            shoppingListRepository.findById(shoppingListId).orElseThrow(() -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
         shoppingListEntity.setName(shoppingList.getName());
-        shoppingListEntity.setBudget(shoppingList.getBudget());
         var savedShoppingList = shoppingListRepository.save(shoppingListEntity);
         log.debug("Shopping list updated: {}", savedShoppingList);
         return savedShoppingList;
+    }
+
+    @Override
+    public List<ShoppingList> getShoppingListsForUser(Long userId) {
+        log.debug("Getting shopping lists for user {}", userId);
+        var shoppingLists = shoppingListRepository.findAllByOwnerId(userId);
+        log.debug("Found {} shopping lists for user {}", shoppingLists.size(), userId);
+        return shoppingLists;
     }
 }

@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,9 +11,12 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,11 +28,15 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class GroupEntity {    // Do not call it group! It is a reserved word and causes errors when used
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // When creating a group, don't forget to create a pantry for it
     @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private Pantry pantry;
@@ -45,56 +51,6 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
         inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     @Builder.Default
+    @ToString.Exclude
     private Set<ApplicationUser> users = new HashSet<>();
-
-    @Builder
-    public GroupEntity() {
-        this.pantry = new Pantry();
-        this.pantry.setGroup(this);
-    }
-
-    @Builder
-    public GroupEntity(String groupName) {
-        this.groupName = groupName;
-        this.pantry = new Pantry();
-        this.pantry.setGroup(this);
-    }
-
-    @Builder
-    public GroupEntity(String groupName, Set<ApplicationUser> users) {
-        this.groupName = groupName;
-        this.pantry = new Pantry();
-        this.pantry.setGroup(this);
-        this.users = users;
-    }
-
-    @Builder
-    public GroupEntity(Long id, String groupName, Set<ApplicationUser> users) {
-        this.id = id;
-        this.groupName = groupName;
-        this.pantry = new Pantry();
-        this.pantry.setGroup(this);
-        this.users = users;
-    }
-
-    @Builder
-    public GroupEntity(Long id, Pantry pantry, String groupName, Set<ApplicationUser> users) {
-        this.id = id;
-        this.pantry = pantry;
-        if (this.pantry != null) {
-            this.pantry.setGroup(this);
-        }
-        this.groupName = groupName;
-        this.users = users != null ? users : new HashSet<>();
-    }
-
-    @PostConstruct
-    private void init() {
-        if (this.pantry != null) {
-            this.pantry.setGroup(this);
-        } else {
-            pantry = new Pantry();
-            this.pantry.setGroup(this);
-        }
-    }
 }

@@ -93,7 +93,7 @@ public class SecurityTest extends BaseTest {
     @Autowired
     private List<Object> components;
 
-    private GroupEntity group = new GroupEntity("TestGroup");
+    private GroupEntity group = GroupEntity.builder().groupName("TestGroup").build();
 
 
     /**
@@ -121,10 +121,12 @@ public class SecurityTest extends BaseTest {
 
     @Test
     public void givenUserLoggedIn_whenFindAllInPantry_then200() throws Exception {
-        Pantry pantry;
-        group = new GroupEntity("TestGroup");
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
         groupRepository.save(group);
-        pantry = group.getPantry();
+
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
@@ -140,10 +142,11 @@ public class SecurityTest extends BaseTest {
 
     @Test
     public void givenNoOneLoggedIn_whenFindAll_then401() throws Exception {
-        Pantry pantry;
-        group = new GroupEntity("TestGroup");
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
         groupRepository.save(group);
-        pantry = group.getPantry();
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId())))
             .andDo(print())
