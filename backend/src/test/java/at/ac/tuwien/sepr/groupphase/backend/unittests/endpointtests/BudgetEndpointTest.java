@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetDto;
@@ -9,7 +10,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BudgetEndpointTest {
+public class BudgetEndpointTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -73,8 +72,6 @@ public class BudgetEndpointTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testCreateBudgetValid() throws Exception {
         BudgetCreateDto budgetDto = BudgetCreateDto.builder()
             .name("Rent")
@@ -99,7 +96,7 @@ public class BudgetEndpointTest {
 
         byte[] responseBody = mockMvc.perform(post("/api/v1/group/1/budget")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .content(budgetJson))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsByteArray();
@@ -112,8 +109,6 @@ public class BudgetEndpointTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testUpdateNotExistingBudget() throws Exception {
         BudgetDto budgetDto = BudgetDto.builder()
             .name("Rent Updated")
@@ -126,7 +121,7 @@ public class BudgetEndpointTest {
 
         mockMvc.perform(put("/api/v1/group/1/budget/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .content(budgetJson))
             .andExpect(status().isNotFound());
     }

@@ -9,17 +9,17 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class FriendshipServiceTest extends BaseTest {
@@ -32,40 +32,32 @@ public class FriendshipServiceTest extends BaseTest {
 
     @Autowired
     private FriendshipService friendshipService;
-
+    /*
     @BeforeEach
     public void beforeEach() {
         friendshipRepository.deleteAll();
         userRepository.deleteAll();
-    }
+    }*/
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestShouldWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         assertDoesNotThrow(() -> friendshipService.sendFriendRequest(applicationUsers[0].getEmail(), applicationUsers[1].getEmail()));
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestToUnknownEmailShouldNotWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         assertThrows(NotFoundException.class, () -> friendshipService.sendFriendRequest(applicationUsers[0].getEmail(), "unkown@email.com"));
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestToMyselfShouldNotWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         assertThrows(InvalidFriendRequest.class, () -> friendshipService.sendFriendRequest(applicationUsers[0].getEmail(), applicationUsers[0].getEmail()));
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestToFriendWithAlreadyPendingRequestShouldNotWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -81,8 +73,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestToFriendWithAlreadyAcceptedRequestShouldNotWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -98,8 +88,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestToFriendWhoAlsoSendARequestShouldWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -115,8 +103,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testAcceptFriendRequestShouldWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -132,8 +118,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testAcceptFriendRequestShouldNotWorkIfThereIsNoRequest() {
         ApplicationUser[] applicationUsers = createTestUsers();
 
@@ -141,8 +125,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testRejectFriendRequestShouldWork() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -158,8 +140,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testRejectFriendRequestShouldNotWorkIfThereIsNoRequest() {
         ApplicationUser[] applicationUsers = createTestUsers();
 
@@ -167,8 +147,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testGetIncomingFriendRequestShouldReturnOneEmail() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()
@@ -186,8 +164,6 @@ public class FriendshipServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testGetFriendsShouldReturnOneEmail() {
         ApplicationUser[] applicationUsers = createTestUsers();
         Friendship friendship = Friendship.builder()

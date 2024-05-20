@@ -5,14 +5,12 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.times;
@@ -34,8 +32,6 @@ public class RegistrationEndpointTest extends BaseTest {
 
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidUser_whenRegister_then201Created() throws Exception {
         UserRegisterDto userRegisterDto = UserRegisterDto.builder()
             .email("test@example.com").password("Test1234").build();
@@ -50,8 +46,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenExistingUser_whenRegister_then409Conflict() throws Exception {
         UserRegisterDto userRegisterDto = UserRegisterDto.builder()
             .email("text@example.com").password("Test1234").build();
@@ -66,8 +60,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenInvalidUser_whenRegister_then400BadRequest() throws Exception {
         UserRegisterDto userRegisterDto = UserRegisterDto.builder()
             .email("invalid-Email").password("weak").build();

@@ -21,7 +21,7 @@ import {AutocompleteComponent} from "./components/autocomplete/autocomplete.comp
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {RecipeCreateEditComponent} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+import {RecipeCreateComponent} from "./components/recipe/recipe-create/recipe-create.component";
 import {
   ItemListCreateEditComponent
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
@@ -30,6 +30,22 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
 import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
 import { ExpenseListComponent } from './components/expense/expense-list.component';
 import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
+import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
+import {
+  GroupInfoCardContentComponent
+} from "./components/group-list/group-info-card-content/group-info-card-content.component";
+import {
+  FriendsInfoCardContentComponent
+} from "./components/friends/friends-info-card-content/friends-info-card-content.component";
+import {
+  ItemListInfoCardContentComponent
+} from "./components/item-list/item-list-info-card-content/item-list-info-card-content.component";
+import {
+  RecipeInfoCardContentComponent
+} from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
+import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
+import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 
 @NgModule({
   declarations: [
@@ -47,9 +63,12 @@ import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateEditComponent,
     ExpenseCreateComponent,
-    ExpenseListComponent
+    ExpenseListComponent,
+    RecipeCreateComponent,
+    RecipeDetailComponent,
+    RecipeEditComponent,
+    RecipeGlobalComponent
   ],
   imports: [
     BrowserModule,
@@ -60,6 +79,14 @@ import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog
     FormsModule,
     BrowserAnimationsModule, ToastrModule.forRoot(),
     ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
     ConfirmDeleteDialogComponent
   ],
   providers: [httpInterceptorProviders],

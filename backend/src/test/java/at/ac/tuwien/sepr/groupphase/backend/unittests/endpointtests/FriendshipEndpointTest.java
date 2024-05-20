@@ -1,18 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +22,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class FriendshipEndpointTest implements TestData {
+public class FriendshipEndpointTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,6 +53,7 @@ public class FriendshipEndpointTest implements TestData {
     private static String TEST_EMAIL_1 = "friendshipTestUser1@test.com";
     private static String TEST_EMAIL_2 = "friendshipTestUser2@test.com";
 
+    /*
     @BeforeEach
     public void registerTestUser() {
         friendshipRepository.deleteAll();
@@ -74,7 +72,7 @@ public class FriendshipEndpointTest implements TestData {
             userService.register(userRegisterDto2, false);
         } catch (UserAlreadyExistsException ignored) {
         }
-    }
+    }*/
 
     private String[] getLoginTokensOfTestUsers() {
         String bearerToken1 = jwtTokenizer.getAuthToken(TEST_EMAIL_1, List.of("ROLE_USER"));
@@ -84,8 +82,6 @@ public class FriendshipEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testSendFriendRequestShouldReturn202() throws Exception {
 
         String[] tokens = getLoginTokensOfTestUsers();
@@ -123,8 +119,6 @@ public class FriendshipEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testRejectFriendRequestShouldReturn200() throws Exception {
         String[] tokens = getLoginTokensOfTestUsers();
 

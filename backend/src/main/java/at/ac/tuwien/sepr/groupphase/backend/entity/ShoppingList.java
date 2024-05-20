@@ -33,18 +33,18 @@ public class ShoppingList {
     @Column
     private Long id;
 
-    @Column
-    private String name;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ApplicationUser owner;
 
     @Column
-    private Float budget;
+    private String name;
 
     @JoinTable(name = "shopping_list_shopping_list_item")
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ShoppingListItem> items = List.of();
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = true)
     private GroupEntity group;
 
 }

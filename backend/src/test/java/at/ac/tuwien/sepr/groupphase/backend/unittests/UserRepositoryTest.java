@@ -5,7 +5,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "generateData"})
 public class UserRepositoryTest {
 
     @Autowired
@@ -34,12 +33,6 @@ public class UserRepositoryTest {
 
     @Autowired
     private GroupRepository groupRepository;
-
-    @BeforeEach
-    public void beforeEach() {
-        userRepository.deleteAll();
-        groupRepository.deleteAll();
-    }
 
     @Test
     @Transactional

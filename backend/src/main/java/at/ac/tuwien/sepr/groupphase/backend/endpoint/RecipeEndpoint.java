@@ -1,20 +1,26 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateWithoutUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/group")
@@ -33,6 +40,7 @@ public class RecipeEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final RecipeService recipeService;
     private final ItemMapper itemMapper;
+
 
     @Autowired
     public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper) {
@@ -45,11 +53,7 @@ public class RecipeEndpoint {
     @GetMapping("/{recipeId}/recipe")
     public RecipeDetailDto getById(@PathVariable long recipeId) {
         LOGGER.info("GET /api/v1/group/{}/recipe", recipeId);
-        return new RecipeDetailDto(
-            itemMapper.listOfItemsToListOfItemDto(recipeService.findAllIngredients(recipeId)),
-            recipeService.getName(recipeId),
-            recipeService.getDescription(recipeId),
-            recipeService.getIsPublic(recipeId));
+        return recipeService.getById(recipeId);
     }
 
     @Secured("ROLE_USER")
@@ -87,9 +91,36 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PostMapping("/recipe/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateDto recipeDto) {
+    public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateWithoutUserDto recipeDto) {
         LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
-        return recipeService.createRecipe(recipeDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.createRecipe(recipeDto.addOwner(null));
     }
-    //TODO CHANGE DESCRIPTION AND NAME
+
+    //TODO SINCE User isnt added to recipe yet, this function returns all recipes from all users
+    @Secured("ROLE_USER")
+    @GetMapping("recipe/list")
+    public List<RecipeListDto> getRecipesFromUser() {
+        LOGGER.info("GET /api/v1/group/recipe/list");
+
+        return recipeService.getRecipesFromUser();
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("recipe/update")
+    public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
+        LOGGER.info("PUT /api/v1/group/{}/recipe/update: {}", toUpdate.getId(), toUpdate);
+
+        return recipeService.updateRecipe(toUpdate);
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("recipe/global")
+    public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
+        LOGGER.info("GET /api/v1/group/recipe/global");
+
+        return recipeService.getPublicRecipeOrderedByLikes();
+    }
+
 }

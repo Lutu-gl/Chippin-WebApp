@@ -11,19 +11,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    /**
-     * Find all items in a pantry ordered by the item id.
-     *
-     * @return ordered list of all items in the pantry
-     */
-    List<Item> findByPantryOrderById(Pantry pantry);
-
-    /**
-     * Find all items in a pantry where {@code description} is a substring of the item description ordered by the item id.
-     *
-     * @return ordered list of all items in the pantry where {@code description} is a substring of the item description
-     */
-    List<Item> findByDescriptionContainingIgnoreCaseAndPantryIsOrderById(String description, Pantry pantry);
 
     /**
      * Find all items in a itemList where {@code description} is a substring of the item description ordered by the item id.

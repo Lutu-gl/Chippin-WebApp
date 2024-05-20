@@ -1,10 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ItemList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
@@ -12,7 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ItemListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest {
+public class ItemListEndpointTest extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -88,7 +87,7 @@ public class ItemListEndpointTest {
         item = Item.builder()
             .description("Potato")
             .amount(1)
-            .unit(Unit.Kilogram)
+            .unit(Unit.Gram)
             .build();
 
         itemList = ItemList.builder()
@@ -104,8 +103,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenEmptyItemList_whenFindAllInItemList_thenEmptyList()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/itemlist", emptyItemList.getId()))
@@ -125,8 +122,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenItemListWithOneItem_whenFindAllInItemList_thenListWithSizeOneAndCorrectItem()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/itemlist", itemList.getId()))
@@ -150,8 +145,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenItemListWithOneItemAndMatchingDescription_whenSearchItemsInItemList_thenListWithSizeOneAndCorrectItem()
         throws Exception {
 
@@ -178,8 +171,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenNothing_whenAddItemToItemList_thenItemWithAllPropertiesPlusId()
         throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -208,8 +199,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenNothing_whenAddInvalidItemToItemList_then400()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
@@ -227,8 +216,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/itemlist/{1}", itemList.getId(), item.getId()))
@@ -246,8 +233,6 @@ public class ItemListEndpointTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenNothing_whenPut_thenItemWithAllProperties()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());

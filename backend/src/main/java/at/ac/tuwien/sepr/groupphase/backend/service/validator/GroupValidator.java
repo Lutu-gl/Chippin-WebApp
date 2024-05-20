@@ -37,12 +37,12 @@ public class GroupValidator {
 
     @Autowired
     public GroupValidator(UserRepository userRepository, GroupRepository groupRepository, FriendshipRepository friendshipRepository) {
+        this.friendshipRepository = friendshipRepository;
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
 
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
-        this.friendshipRepository = friendshipRepository;
     }
 
     public void validateForCreation(GroupCreateDto group, String ownerEmail) throws ValidationException, ConflictException {
@@ -158,4 +158,5 @@ public class GroupValidator {
         }
         return true;
     }
+
 }

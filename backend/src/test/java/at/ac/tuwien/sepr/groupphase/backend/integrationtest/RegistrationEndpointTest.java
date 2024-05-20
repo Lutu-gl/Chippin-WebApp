@@ -52,8 +52,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidUser_whenRegister_then201AndUserExistsInDatabase() throws Exception {
         String body = objectMapper.writeValueAsString(userRegisterDto);
 
@@ -66,8 +64,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenDuplicateEmail_whenRegister_then409() throws Exception {
         String body = objectMapper.writeValueAsString(userRegisterDto);
 
@@ -115,8 +111,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenPasswordWithoutNumber_whenRegister_then400() throws Exception {
         // Set a password without a number
         userRegisterDto.setPassword("Invalidpass");
@@ -145,8 +139,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenPasswordWithoutLowercase_whenRegister_then400() throws Exception {
         // Set a password without a lowercase letter
         userRegisterDto.setPassword("INVALID1");
@@ -160,8 +152,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenPasswordLessThanEightCharacters_whenRegister_then400() throws Exception {
         // Set a password with less than eight characters
         userRegisterDto.setPassword("Inv1");
@@ -175,8 +165,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenMissingEmail_whenRegister_then400() throws Exception {
         // Set email to null
         userRegisterDto.setEmail(null);
@@ -190,8 +178,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenMissingPassword_whenRegister_then400() throws Exception {
         // Set password to null
         userRegisterDto.setPassword(null);

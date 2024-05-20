@@ -1,0 +1,191 @@
+<h1 class="display-1">Create new Recipe</h1>
+<form #form="ngForm" [class.was-validated]="form.submitted" (ngSubmit)="onRecipeSubmit(form)">
+  <br>
+
+  <div class="row">
+    <!-- Start name -->
+    <div class="mb-4 12">
+      <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
+      <div class="row">
+        <label for="recipeName" class="col-form-label text-md-end text-muted col-md-1 col-lg-0">
+          Name
+        </label>
+        <div class="col-md-4 col-lg-3">
+          <input type="text"
+                 id="recipeName"
+                 name="recipeName"
+                 placeholder="Recipe name"
+                 class="form-control"
+                 [class]="dynamicCssClassesForInput(recipeNameModel)"
+                 [(ngModel)]="recipe.name"
+                 #recipeNameModel="ngModel"
+                 required minlength="2"
+
+          >
+          <div class="invalid-feedback">
+            <!-- This is shown, when the form validation deems the name input to be invalid -->
+            Name is required
+          </div>
+        </div>
+
+        <label for="isPublic" class="col-form-label text-md-end text-muted col-md-1 col-lg-1">
+          Public
+        </label>
+        <div class="col-md-4 col-lg-3">
+          <select id="isPublic"
+                  name="isPublic"
+                  class="form-select"
+                  [(ngModel)]="recipe.isPublic"
+                  #isPublicModel="ngModel"
+                  required
+          >
+            <option [value]="true">Yes</option>
+            <option [value]="false">No</option>
+          </select>
+        </div>
+        <label for="newPortionSize" class="col-form-label text-md-end text-muted col-md-1 col-lg-1">
+          Portion Size
+        </label>
+        <div class="col-2">
+          <input name="newPortionSize" type="number" class="form-control" id="newPortionSize" placeholder="1"
+                 [(ngModel)]="recipe.portionSize" required min="1">
+        </div>
+
+      </div>
+      <br>
+      <div class="row">
+        <label for="recipeDescription" class="col-form-label text-md-end text-muted col-md-1 col-lg-0">
+          Description
+        </label>
+        <div class="col-md-11 col-lg-10">
+          <textarea
+            id="recipeDescription"
+            name="recipeName"
+            placeholder="Recipe description"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(recipeDescriptionModel)"
+            [(ngModel)]="recipe.description"
+            #recipeDescriptionModel="ngModel"
+            required minlength="2"
+            rows="4"
+          > </textarea>
+          <div class="invalid-feedback">
+            <!-- This is shown, when the form validation deems the description input to be invalid -->
+            Description is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+
+<div class="mt-4 d-flex flex-row">
+<span class="flex-grow-1"></span>
+<button type="submit"
+    class="btn btn-primary"
+    [disabled]="(!form.valid || recipe.ingredients.length === 0)"
+    type="submit"
+>
+Create
+</button>
+</div>
+</div>
+</form>
+<h2>Ingredients</h2>
+<!-- Begin Ingredient selection block -->
+<div class="mt-3">
+  <form #form="ngForm" class="row pt-3" (ngSubmit)="onIngredientSubmit(form)">
+    <div class="col-3 align-content-center">
+      <button name="submit" type="submit" class="btn btn-info m-2">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+    </div>
+    <div class="col-2">
+      <input name="newItemAmount" type="number" class="form-control" id="newItemAmount" placeholder="0"
+             [(ngModel)]="newIngredient.amount" required min="0">
+    </div>
+    <div class="col-2">
+      <select name="newItemUnit" class="form-select" [(ngModel)]="newIngredient.unit" required>
+        <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
+                [selected]="newIngredient.unit===unit.key">{{ unit.value }}</option>
+      </select>
+    </div>
+    <div class="col">
+      <input name="newItemDescription" class="form-control" placeholder="Add a new ingredient"
+             [(ngModel)]="newIngredient.description" required minlength="2">
+    </div>
+  </form>
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th class="col-3"></th>
+      <th class="col-2">Amount</th>
+      <th class="col-2">Unit</th>
+      <th>Item</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr *ngFor="let ingredient of recipe.ingredients; let i=index" class="center-td">
+      <td class="row">
+        <div class="col align-content-center">
+          <a class="btn responsive-danger-button m-1"
+             (click)="selectIndexToDelete(i)"
+             data-bs-toggle="modal"
+             data-bs-target="#confirm-delete-dialog-title"
+             aria-label="Delete item">
+            <i class="bi bi-trash"></i>
+
+
+          </a>
+          <a class="btn responsive-warning-button m-1"
+             (click)="selectIndexToEdit(i); selectEditItem(clone(ingredient))"
+             data-bs-toggle="modal"
+             data-bs-target="#edit-pantry-item-dialog-title"
+             aria-label="Edit item">
+            <i class="bi bi-pencil"></i>
+          </a>
+        </div>
+        <div class="col-8 align-content-center">
+          <div class="row">
+            <!--small-->
+            <a class="btn btn-sm responsive-success-button col m-1"
+               [text]="getUnitStepString(getUnitStep(ingredient.unit, false, true))"
+               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, true))"></a>
+            <!--large-->
+            <a class="btn btn-sm responsive-success-button col m-1"
+               [text]="getUnitStepString(getUnitStep(ingredient.unit, true, true))"
+               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, true))"></a>
+          </div>
+          <div class="row">
+            <!--small-->
+            <a class="btn btn-sm responsive-danger-button col m-1"
+               [text]="getUnitStepString(getUnitStep(ingredient.unit, false, false))"
+               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, false))"></a>
+            <!--large-->
+            <a class="btn btn-sm responsive-danger-button col m-1"
+               [text]="getUnitStepString(getUnitStep(ingredient.unit, true, false))"
+               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, false))"></a>
+          </div>
+        </div>
+      </td>
+      <td>
+        {{formatAmount(ingredient.amount)}}
+      </td>
+      <td>
+        {{ingredient.unit.valueOf()}}
+      </td>
+      <td>
+        {{ingredient.description}}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<!-- End Ingredient selection block -->
+<app-confirm-delete-dialog [deleteWhat]="deleteWhatString"
+                           (confirm)="removeIngredient(selectedIndexToDelete)"></app-confirm-delete-dialog>
+<!-- <app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [pantryId]=""
+                             (confirm)="editItem(); searchChanged()"></app-edit-pantry-item-dialog>-->

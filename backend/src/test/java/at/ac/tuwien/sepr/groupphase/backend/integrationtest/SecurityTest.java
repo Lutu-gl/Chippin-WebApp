@@ -1,19 +1,19 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.BackendApplication;
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.aop.support.AopUtils;
@@ -25,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -56,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class SecurityTest implements TestData {
+public class SecurityTest extends BaseTest {
 
     private static final List<Class<?>> mappingAnnotations = Lists.list(
         RequestMapping.class,
@@ -83,6 +82,9 @@ public class SecurityTest implements TestData {
     private PantryRepository pantryRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
     private JwtTokenizer jwtTokenizer;
 
     @Autowired
@@ -91,14 +93,8 @@ public class SecurityTest implements TestData {
     @Autowired
     private List<Object> components;
 
-    private Pantry pantry = Pantry.builder().build();
+    private GroupEntity group = GroupEntity.builder().groupName("TestGroup").build();
 
-    @BeforeEach
-    public void beforeEach() {
-        pantryRepository.deleteAll();
-        pantry = Pantry.builder().build();
-        pantryRepository.save(pantry);
-    }
 
     /**
      * This ensures every Rest Method is secured with Method Security.
@@ -106,8 +102,6 @@ public class SecurityTest implements TestData {
      * Feel free to remove / disable / adapt if you do not use Method Security (e.g. if you prefer Web Security to define who may perform which actions) or want to use Method Security on the service layer.
      */
     @Test
-    @Transactional
-    @Rollback
     public void ensureSecurityAnnotationPresentForEveryEndpoint() {
         List<ImmutablePair<Class<?>, Method>> notSecured = components.stream()
             .map(AopUtils::getTargetClass) // beans may be proxies, get the target class instead
@@ -126,9 +120,14 @@ public class SecurityTest implements TestData {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenUserLoggedIn_whenFindAllInPantry_then200() throws Exception {
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+        groupRepository.save(group);
+
+
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
             .andDo(print())
@@ -142,9 +141,13 @@ public class SecurityTest implements TestData {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenNoOneLoggedIn_whenFindAll_then401() throws Exception {
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+        groupRepository.save(group);
+
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId())))
             .andDo(print())
             .andReturn();

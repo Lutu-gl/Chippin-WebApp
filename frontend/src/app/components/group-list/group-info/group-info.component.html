@@ -13,10 +13,9 @@
       {{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}
     </div>
   </div>
-
 </div>
-<div>
 
+<div>
   <div class="mt-4 d-flex flex-row">
     <button type="button"
             class="btn btn-secondary"
@@ -31,6 +30,22 @@
     <app-expense-list [groupId]="group.id"></app-expense-list>
   </div>
   <div class="">
+    <button type="button"
+            class="btn btn-secondary"
+            [routerLink]="['pantry']"
+    >
+      Pantry
+    </button>
+  </div>
+  <div class="">
     <app-shopping-list [groupId]="group.id"></app-shopping-list>
+  </div>
+</div>
+
+<div class="pt-5">
+  <div class="row">
+    <div class="col">
+
+    </div>
   </div>
 </div>

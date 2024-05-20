@@ -147,14 +147,6 @@ public class FriendshipRepository {
         return deletedCount > 0;
     }
 
-    @Transactional
-    public void deleteAll() {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaDelete<Friendship> criteriaDelete = criteriaBuilder.createCriteriaDelete(Friendship.class);
-        Root<Friendship> root = criteriaDelete.from(Friendship.class);
-        entityManager.createQuery(criteriaDelete).executeUpdate();
-    }
-
     public boolean areFriends(ApplicationUser user1, ApplicationUser user2) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Friendship> criteriaQuery = criteriaBuilder.createQuery(Friendship.class);
@@ -176,6 +168,14 @@ public class FriendshipRepository {
 
 
         return entityManager.createQuery(criteriaQuery).getResultList().size() > 0;
+    }
+
+    @Transactional
+    public void deleteAll() {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaDelete<Friendship> criteriaDelete = criteriaBuilder.createCriteriaDelete(Friendship.class);
+        Root<Friendship> root = criteriaDelete.from(Friendship.class);
+        entityManager.createQuery(criteriaDelete).executeUpdate();
     }
 
 }

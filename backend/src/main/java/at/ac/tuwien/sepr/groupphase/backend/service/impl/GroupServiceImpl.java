@@ -7,11 +7,13 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.GroupValidator;
@@ -34,15 +36,15 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupValidator validator;
     private final GroupRepository groupRepository;
-    private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final UserRepository userRepository;
+    private final PantryRepository pantryRepository;
     private final GroupMapper groupMapper;
-
 
     @Override
     @Transactional
     public GroupCreateDto create(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException {
-        LOGGER.debug("({}, {})", groupCreateDto, ownerEmail);
+        LOGGER.debug("params: {}, {}", groupCreateDto, ownerEmail);
 
         validator.validateForCreation(groupCreateDto, ownerEmail);
 
@@ -55,7 +57,14 @@ public class GroupServiceImpl implements GroupService {
             groupEntity.setUsers(users);
         }
 
+        Pantry pantry = Pantry.builder()
+            .group(groupEntity)
+            .build();
+        groupEntity.setPantry(pantry);
+
+        pantryRepository.save(pantry);
         GroupEntity savedGroup = groupRepository.save(groupEntity);
+
         makeFriendsWithEveryMember(savedGroup);
         boolean friendsEveryone = validator.validateFriendsWithEveryone(savedGroup);
 
@@ -69,7 +78,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto update(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException, NotFoundException {
-        LOGGER.trace("update({}, {})", groupCreateDto, ownerEmail);
+        LOGGER.debug("params: {}, {}", groupCreateDto, ownerEmail);
 
         validator.validateForUpdate(groupCreateDto, ownerEmail);
 
@@ -83,6 +92,7 @@ public class GroupServiceImpl implements GroupService {
         }
 
         GroupEntity savedGroup = groupRepository.save(groupEntity);
+
         makeFriendsWithEveryMember(savedGroup);
 
         if (!validator.validateFriendsWithEveryone(savedGroup)) {
@@ -95,7 +105,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto getById(long id) throws NotFoundException {
-        LOGGER.trace("getById({})", id);
+        LOGGER.debug("params: {}", id);
 
         GroupEntity groupEntity = groupRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("No group found with this id"));
@@ -122,4 +132,5 @@ public class GroupServiceImpl implements GroupService {
             }
         }
     }
+
 }

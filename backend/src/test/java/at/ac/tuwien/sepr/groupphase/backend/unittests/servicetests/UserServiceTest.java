@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -8,7 +7,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,10 +15,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Rollback;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class UserServiceTest extends BaseTest {
+public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -51,7 +47,7 @@ public class UserServiceTest extends BaseTest {
         MockitoAnnotations.openMocks(this);
 
         userRegisterDto = UserRegisterDto.builder()
-            .email("test@example.com")
+            .email("testUserService@example.com")
             .password("Test1234")
             .build();
 
@@ -59,8 +55,6 @@ public class UserServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidUser_whenRegister_thenNoException() throws UserAlreadyExistsException {
         var createdUser = ApplicationUser.builder().email("test@example.com").password("encodedPassword").id(4L).admin(false).build();
         when(userRepository.findByEmail(userRegisterDto.getEmail())).thenReturn(null).thenReturn(createdUser);
@@ -73,8 +67,6 @@ public class UserServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenDuplicateEmail_whenRegister_thenUserAlreadyExistsException() {
         when(userRepository.findByEmail(userRegisterDto.getEmail())).thenReturn(new ApplicationUser());
 
@@ -84,13 +76,11 @@ public class UserServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void testGetGroupsByUserEmail() {
         String userEmail = "test@example.com";
         Set<GroupEntity> expectedGroups = new HashSet<>();
-        expectedGroups.add(new GroupEntity(1L, "Group 1", null));
-        expectedGroups.add(new GroupEntity(2L, "Group 2", null));
+        expectedGroups.add(GroupEntity.builder().groupName("Group 1").build());
+        expectedGroups.add(GroupEntity.builder().groupName("Group 2").build());
 
         when(userRepository.findGroupsByUserEmail(userEmail)).thenReturn(expectedGroups);
 
