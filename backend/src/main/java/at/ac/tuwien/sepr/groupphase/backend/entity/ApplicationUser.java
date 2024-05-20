@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -51,10 +52,19 @@ public class ApplicationUser {
     @Builder.Default
     private Set<GroupEntity> groups = new HashSet<>();
 
-    //This will be needed later
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
+
+    @ManyToMany
+    @Builder.Default
+    @JsonIgnore
+    @JoinTable(
+        name = "user_recipe_likes",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
+    )
+    private Set<Recipe> likedRecipes = new HashSet<>();
 
     public ApplicationUser addRecipe(Recipe recipe) {
         recipes.add(recipe);

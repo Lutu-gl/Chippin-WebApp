@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest extends BaseTest {
+public class ItemListEndpointTest {
     @Autowired
     private MockMvc mockMvc;
 

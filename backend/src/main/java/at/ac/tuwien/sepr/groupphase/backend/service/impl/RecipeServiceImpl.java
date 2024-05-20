@@ -133,10 +133,10 @@ public class RecipeServiceImpl implements RecipeService {
             Recipe recipe = optionalRecipe.get();
             Item ingredient = itemRepository.getReferenceById(itemId);
             recipe.removeItem(ingredient);
-            ingredient.setRecipe(null);
+            //ingredient.setRecipe(null);
 
             recipeRepository.save(recipe);
-            itemRepository.delete(ingredient);
+            //itemRepository.delete(ingredient);
 
         }
     }
@@ -212,5 +212,13 @@ public class RecipeServiceImpl implements RecipeService {
     public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
         LOGGER.debug("Get all public recipes");
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findByIsPublicTrueOrderByLikesDesc());
+    }
+
+    @Override
+    @Transactional
+    public void deleteRecipe(RecipeDetailDto recipe) {
+        LOGGER.debug("Delete recipe {}", recipe);
+
+        recipeRepository.deleteById(recipe.getId());
     }
 }

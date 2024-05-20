@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
@@ -49,5 +50,6 @@ public class RecipeCreateDto {
     private int portionSize;
 
     @NotNull
+    @JsonIgnore
     private ApplicationUser owner;
 }

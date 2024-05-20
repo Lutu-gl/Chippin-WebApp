@@ -83,6 +83,20 @@
     <br>
 
     <div class="mt-4 d-flex flex-row">
+     <!-- <button type="button"
+              class="btn btn-danger"
+              data-bs-toggle="modal"
+              data-bs-target="#confirm-delete-recipe-dialog"
+      >
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+      <app-confirm-delete-dialog
+        id="confirm-delete-recipe-dialog"
+        [deleteWhat]="recipe.name"
+        (confirm)="deleteRecipe()"
+      >
+      </app-confirm-delete-dialog>-->
       <span class="flex-grow-1"></span>
       <button type="submit"
               class="btn btn-primary"
@@ -186,7 +200,9 @@
   </table>
 </div>
 <!-- End Ingredient selection block -->
-<app-confirm-delete-dialog [deleteWhat]="deleteWhatString"
+
+<app-confirm-delete-dialog
+                           [deleteWhat]="deleteWhatString"
                            (confirm)="removeIngredient(selectedIndexToDelete)"></app-confirm-delete-dialog>
 <!-- <app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [pantryId]=""
                              (confirm)="editItem(); searchChanged()"></app-edit-pantry-item-dialog>-->

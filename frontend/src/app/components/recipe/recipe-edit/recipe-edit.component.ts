@@ -177,6 +177,12 @@ export class RecipeEditComponent implements OnInit {
     return parseFloat(fNumber.toFixed(1));
   }
 
+  deleteRecipe() {
+    this.service.deleteRecipe(this.recipe);
+    this.notification.success("Recipe successfully deleted");
+    this.router.navigate(['/recipe']);
+  }
+
 
 
 

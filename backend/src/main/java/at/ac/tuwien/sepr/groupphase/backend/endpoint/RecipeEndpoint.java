@@ -104,7 +104,6 @@ public class RecipeEndpoint {
         return recipeService.createRecipe(recipeDto.addOwner(owner));
     }
 
-    //TODO SINCE User isnt added to recipe yet, this function returns all recipes from all users
     @Secured("ROLE_USER")
     @GetMapping("recipe/list")
     public List<RecipeListDto> getRecipesFromUser() {
@@ -128,6 +127,14 @@ public class RecipeEndpoint {
         LOGGER.info("GET /api/v1/group/recipe/global");
 
         return recipeService.getPublicRecipeOrderedByLikes();
+    }
+
+    @Secured("ROLE_USER")
+    @DeleteMapping("recipe/delete")
+    public void deleteRecipe(@Valid @RequestBody RecipeDetailDto recipe) {
+        LOGGER.info("DELETE /api/v1/group/recipe/delete: {}", recipe);
+
+        recipeService.deleteRecipe(recipe);
     }
 
 }

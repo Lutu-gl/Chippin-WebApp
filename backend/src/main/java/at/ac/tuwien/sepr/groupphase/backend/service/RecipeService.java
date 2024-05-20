@@ -118,4 +118,11 @@ public interface RecipeService {
      * @return the list of all public recipes
      */
     List<RecipeListDto> getPublicRecipeOrderedByLikes();
+
+    /**
+     * Delete a recipe from the database.
+     *
+     * @param recipe the recipe to delete
+     */
+    void deleteRecipe(RecipeDetailDto recipe);
 }

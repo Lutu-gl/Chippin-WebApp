@@ -102,4 +102,8 @@ export class RecipeService {
   getPublicRecipeOrderedByLikes(): Observable<RecipeListDto[]> {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/global`);
   }
+
+  deleteRecipe(toDelete: RecipeDetailDto): void {
+    this.httpClient.delete<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/delete`)
+  }
 }

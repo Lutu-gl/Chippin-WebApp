@@ -11,7 +11,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.context.ApplicationContext;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,5 +41,6 @@ public class RecipeDetailDto {
 
     private ApplicationUser owner;
 
+    private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
 }

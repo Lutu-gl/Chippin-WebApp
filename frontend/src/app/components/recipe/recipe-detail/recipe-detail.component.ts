@@ -1,9 +1,10 @@
 import {Component, OnInit} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
 import {Unit} from "../../../dtos/item";
 import {clone} from "lodash";
+import {ToastrService} from "ngx-toastr";
 
 
 @Component({
@@ -28,7 +29,9 @@ export class RecipeDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: RecipeService
+    private service: RecipeService,
+    private router: Router,
+    private notification: ToastrService
   ) {
   }
 
@@ -55,9 +58,11 @@ export class RecipeDetailComponent implements OnInit {
       this.errorMessage = error.error;
     }
   }
-  //TODO
-  deleteRecipe() {
 
+  deleteRecipe() {
+      this.service.deleteRecipe(this.recipe);
+      this.notification.success("Recipe successfully deleted");
+      this.router.navigate(['/recipe']);
   }
 
   protected readonly Unit = Unit;

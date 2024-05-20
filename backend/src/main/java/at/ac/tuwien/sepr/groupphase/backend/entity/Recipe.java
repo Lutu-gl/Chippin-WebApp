@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -22,7 +23,9 @@ import lombok.Builder;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -69,6 +72,10 @@ public class Recipe {
     @JsonIgnore
     private ApplicationUser owner;
 
+    @ManyToMany(mappedBy = "likedRecipes")
+    @Builder.Default
+    @JsonIgnore
+    private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
     public void addIngredient(Item item) {
         if (this.ingredients == null) {
