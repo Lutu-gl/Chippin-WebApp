@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemUpdateDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,9 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 @ToString
-public class ShoppingListItemDto {
-    private Long id;
-    private ItemDto item;
-    private Long addedById;
-    private Long checkedById;
+public class ShoppingListItemUpdateDto {
+    private ItemUpdateDto item;
+    private boolean checked;
 }
