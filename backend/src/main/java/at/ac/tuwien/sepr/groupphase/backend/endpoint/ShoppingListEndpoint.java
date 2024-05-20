@@ -94,11 +94,6 @@ public class ShoppingListEndpoint {
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
     }
 
-    //TODO refactor this to support the following endpoints:
-    // POST users/{userId}/shopping-lists/{shoppingListId}/items
-    // PATCH users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
-    // DELETE users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
-
     // --- Item endpoints ---
 
     // POST users/{userId}/shopping-lists/{shoppingListId}/items
