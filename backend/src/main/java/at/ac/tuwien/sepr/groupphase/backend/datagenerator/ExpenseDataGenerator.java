@@ -9,8 +9,11 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -28,11 +31,12 @@ public class ExpenseDataGenerator implements DataGenerator {
     ExpenseRepository expenseRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
     @Transactional
     public void generateData() {
+        LOGGER.debug("generating data for expense");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
 
@@ -159,6 +163,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
+        LOGGER.debug("cleaning data for expense");
         expenseRepository.deleteAll();
     }
 

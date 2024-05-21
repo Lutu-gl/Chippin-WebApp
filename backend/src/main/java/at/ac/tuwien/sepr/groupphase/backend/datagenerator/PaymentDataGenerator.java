@@ -9,8 +9,11 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +23,8 @@ import java.util.Random;
 @Component
 @AllArgsConstructor
 public class PaymentDataGenerator implements DataGenerator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     ExpenseRepository expenseRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
@@ -29,6 +34,7 @@ public class PaymentDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
+        LOGGER.debug("generating data for payment");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
 
@@ -73,6 +79,7 @@ public class PaymentDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
+        LOGGER.debug("cleaning data for payment");
         paymentRepository.deleteAll();
     }
 

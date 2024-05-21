@@ -12,14 +12,20 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Random;
 
 @Component
 @AllArgsConstructor
 public class ActivityDataGenerator implements DataGenerator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+
     ActivityRepository activityRepository;
     ExpenseRepository expenseRepository;
     PaymentRepository paymentRepository;
@@ -29,6 +35,7 @@ public class ActivityDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
+        LOGGER.debug("generating data for activity");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
@@ -91,6 +98,7 @@ public class ActivityDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
+        LOGGER.debug("cleaning data for activity");
         activityRepository.deleteAll();
     }
 
