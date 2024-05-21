@@ -18,7 +18,7 @@
 
   <h3 class="debt">Debts</h3>
   <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
-    <div *ngIf="debt.membersDebts[userEmail] != 0"
+    <div *ngIf="debt.membersDebts[userEmail] !== 0"
          class="debt-list-item"
          [ngClass]="{'positive-debt': debt.membersDebts[userEmail] > 0, 'negative-debt': debt.membersDebts[userEmail] < 0}">
       You own {{ userEmail }} {{ debt.membersDebts[userEmail] }} €
