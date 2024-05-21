@@ -39,17 +39,17 @@
         <div class="col-lg-6">
           <table class="table align-baseline">
             <tbody>
-              <tr *ngFor="let member of members; index as i">
-                <td>{{i+1}}:</td>
-                <td>{{formatMember(member)}}</td>
-                <td class="min-width">
-                  <!-- Make button just hidden, when no participant is present, to keep layout correct -->
-                  <button *ngIf="member.email !== userService.getUserEmail()" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
-                    [style.visibility]="member ? 'visible' : 'hidden'">
-                    <i class="bi-trash"></i>
-                  </button>
-                </td>
-              </tr>
+            <tr *ngFor="let member of getSortedMembers(); index as i">
+              <td>{{i+1}}:</td>
+              <td>{{formatMember(member)}}</td>
+              <td class="min-width">
+                <!-- Make button just hidden, when no participant is present, to keep layout correct -->
+                <button *ngIf="member.email !== userService.getUserEmail()" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
+                        [style.visibility]="member ? 'visible' : 'hidden'">
+                  <i class="bi-trash"></i>
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>

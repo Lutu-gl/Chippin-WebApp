@@ -290,5 +290,11 @@ export class GroupCreateComponent implements OnInit {
     this.members.splice(index, 1);
   }
 
+
+  getSortedMembers(): UserSelection[] {
+    return this.members.sort((a, b) => a.email.localeCompare(b.email));
+  }
+
+
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
 }
