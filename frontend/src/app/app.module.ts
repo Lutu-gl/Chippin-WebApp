@@ -27,6 +27,9 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
+import { ExpenseListComponent } from './components/expense/expense-list.component';
+import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
 import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
 import {
   GroupInfoCardContentComponent
@@ -40,7 +43,6 @@ import {
 import {
   RecipeInfoCardContentComponent
 } from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
-import {ConfirmDeleteDialogComponent} from "./components/confirm-delete-dialog/confirm-delete-dialog.component";
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
@@ -61,6 +63,8 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
+    ExpenseCreateComponent,
+    ExpenseListComponent,
     RecipeCreateComponent,
     RecipeDetailComponent,
     RecipeEditComponent,
@@ -73,6 +77,8 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
     HttpClientModule,
     NgbModule,
     FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
     ShoppingListComponent,

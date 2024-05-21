@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ItemService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,13 +26,6 @@ public class ItemServiceTest {
     private GroupRepository groupRepository;
     @Autowired
     private ItemService itemService;
-
-    @BeforeEach
-    public void beforeEach() {
-        itemRepository.deleteAll();
-        pantryRepository.deleteAll();
-        groupRepository.deleteAll();
-    }
 
     @Test
     public void givenNewItem_thenNewItemSavedInPantry() {

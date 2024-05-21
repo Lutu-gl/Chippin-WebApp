@@ -4,14 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +53,7 @@ public class FriendshipEndpointTest extends BaseTest {
     private static String TEST_EMAIL_1 = "friendshipTestUser1@test.com";
     private static String TEST_EMAIL_2 = "friendshipTestUser2@test.com";
 
+    /*
     @BeforeEach
     public void registerTestUser() {
         friendshipRepository.deleteAll();
@@ -72,7 +72,7 @@ public class FriendshipEndpointTest extends BaseTest {
             userService.register(userRegisterDto2, false);
         } catch (UserAlreadyExistsException ignored) {
         }
-    }
+    }*/
 
     private String[] getLoginTokensOfTestUsers() {
         String bearerToken1 = jwtTokenizer.getAuthToken(TEST_EMAIL_1, List.of("ROLE_USER"));
@@ -98,6 +98,8 @@ public class FriendshipEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testAcceptFriendRequestShouldReturn200() throws Exception {
 
         String[] tokens = getLoginTokensOfTestUsers();
