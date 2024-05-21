@@ -1,11 +1,33 @@
 <h1 class="display-1">{{ group?.groupName }}</h1>
 <div *ngIf="group">
-  <h3 class="members">Members</h3>
+  <div class="d-flex justify-content-between">
+    <h3 class="members">Members</h3>
+    <button type="button"
+            class="btn btn-secondary"
+            [routerLink]="['edit']">
+      <i class="bi bi-pencil"></i>
+      Edit
+    </button>
+  </div>
   <div class="member-list">
-    <div *ngFor="let member of group.members" class="member-list-item">
+    <div *ngFor="let member of getSortedMembers()" class="member-list-item">
       {{ member.email }}
     </div>
   </div>
+  <br>
+  <div class="h-52 overflow-y-auto overflow-x-hidden">
+    <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
+      <div *ngIf="debt.membersDebts[userEmail] > 0"
+           class="debt-list-item positive-debt">
+        {{ userEmail }} owes you {{ debt.membersDebts[userEmail] | number:'1.2-2' }} €
+      </div>
+      <div *ngIf="debt.membersDebts[userEmail] < 0"
+           class="debt-list-item negative-debt">
+        You owe {{ userEmail }} {{ -debt.membersDebts[userEmail] | number:'1.2-2' }} €
+      </div>
+    </ng-container>
+  </div>
+  <br>
 
   <h3 class="budgets">Budgets</h3>
   <div class="budget-list">
@@ -13,19 +35,8 @@
       {{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}
     </div>
   </div>
-</div>
 
 <div>
-  <div class="mt-4 d-flex flex-row">
-    <button type="button"
-            class="btn btn-secondary"
-            [routerLink]="['edit']"
-    >
-      <i class="bi bi-pencil"></i>
-      Edit
-    </button>
-  </div>
-  <h1>Test</h1>
   <div class="">
     <app-expense-list [groupId]="group.id"></app-expense-list>
   </div>
