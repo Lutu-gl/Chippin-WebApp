@@ -40,6 +40,9 @@ public class Activity {
     private Expense expense;
 
     @ManyToOne
+    private Payment payment;
+
+    @ManyToOne
     private GroupEntity group;
 
     @ManyToOne

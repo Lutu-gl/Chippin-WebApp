@@ -25,4 +25,14 @@ public interface ActivityService {
      * @throws NotFoundException if the group is not found
      */
     Collection<ActivityDetailDto> getExpenseActivitiesByGroupId(Long groupId, String requesterEmail) throws NotFoundException;
+
+    /**
+     * Get all payment activities of a specific group.
+     *
+     * @param groupId        the id of the group
+     * @param requesterEmail the email of the user who requests the activities
+     * @return a collection of the payment activities
+     * @throws NotFoundException if the group is not found
+     */
+    Collection<ActivityDetailDto> getPaymentActivitiesByGroupId(long groupId, String requesterEmail) throws NotFoundException;
 }

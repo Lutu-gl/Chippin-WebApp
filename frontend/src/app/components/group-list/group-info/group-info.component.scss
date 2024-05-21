@@ -23,18 +23,30 @@
 }
 
 .debt-list-item {
-  background: #f0f0f0;
-  padding: 7px;
-  border-radius: 3px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.invisible-button {
+  visibility: hidden;
 }
 
 .positive-debt {
-  border: 2px solid rgba(0, 128, 0, 0.2);
+  background-color: #e0f7e0;
+  border-color: #c8e6c9;
 }
 
 .negative-debt {
-  border: 2px solid rgba(255, 0, 0, 0.2);
+  background-color: #f7e0e0;
+  border-color: #e6c9c9;
+}
+.small-button {
+  white-space: nowrap;
 }
 
 .budgets {

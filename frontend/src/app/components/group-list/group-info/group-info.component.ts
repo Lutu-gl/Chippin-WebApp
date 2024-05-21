@@ -6,6 +6,7 @@ import { BudgetDto } from '../../../dtos/budget';
 import {ActivatedRoute, Router} from "@angular/router";
 import {DebtGroupDetailDto} from "../../../dtos/debt";
 import {DebtService} from "../../../services/debt.service";
+import {ActivityType} from "../../expense/expense-list.component";
 
 @Component({
   selector: 'app-group-info',
@@ -74,4 +75,6 @@ export class GroupInfoComponent implements OnInit {
   getBorderColor(value: number): string {
     return value > 0 ? 'green' : 'red';
   }
+
+    protected readonly ActivityType = ActivityType;
 }

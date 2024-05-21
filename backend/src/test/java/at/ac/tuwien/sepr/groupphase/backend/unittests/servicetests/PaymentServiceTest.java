@@ -1,42 +1,38 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ExpenseMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.PaymentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
-import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.PaymentServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.PaymentValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.test.annotation.Rollback;
-
-import java.util.Map;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ExpenseServiceTest {
-    @Mock
-    private ExpenseRepository expenseRepository;
-    @Mock
-    private ExpenseMapper expenseMapper;
-    @Mock
-    private ExpenseValidator expenseValidator;
 
+@SpringBootTest
+@AutoConfigureMockMvc
+public class PaymentServiceTest {
+    @Mock
+    private PaymentRepository paymentRepository;
+    @Mock
+    private PaymentMapper paymentMapper;
+    @Mock
+    private PaymentValidator paymentValidator;
     @Mock
     private ActivityRepository activityRepository;
 
@@ -44,56 +40,41 @@ public class ExpenseServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private ExpenseServiceImpl expenseService;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private PaymentServiceImpl paymentService;
 
     @Test
-    @Transactional
-    @Rollback
     public void testCreateExpenseSuccess() throws Exception {
         // Mock-Konfigurationen
-        Expense mockExpenseEntity = new Expense();
-
-        when(expenseMapper.expenseCreateDtoToExpenseEntity(any(ExpenseCreateDto.class))).thenReturn(mockExpenseEntity);
-        when(expenseRepository.save(any(Expense.class))).thenReturn(mockExpenseEntity);
-        when(userRepository.findByEmail(anyString())).thenReturn(ApplicationUser.builder().email("test@email.com").build());
-        when(expenseMapper.expenseEntityToExpenseCreateDto(any(Expense.class)))
-            .thenReturn(ExpenseCreateDto.builder()
-                .name("NewTestExpense")
-                .category(Category.Other)
-                .amount(10.0)
-                .payerEmail("test@email.com")
-                .groupId(1L)
-                .participants(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))
-                .build());
-
-        ExpenseCreateDto expenseCreateDto = ExpenseCreateDto.builder()
-            .name("NewTestExpense")
-            .category(Category.Other)
+        PaymentDto paymentDto = PaymentDto.builder()
             .amount(10.0)
-            .payerEmail("test@email.com")
+            .payerEmail("user1@example.com")
+            .receiverEmail("user2@example.com")
             .groupId(1L)
-            .participants(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))
             .build();
 
+        Payment mockPaymentEntity = Payment.builder().build();
+
+        when(paymentMapper.paymentDtoToPaymentEntity(paymentDto)).thenReturn(mockPaymentEntity);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(mockPaymentEntity);
+        when(userRepository.findByEmail(anyString())).thenReturn(ApplicationUser.builder().email("test@email.com").build());
+        when(paymentMapper.paymentEntityToPaymentDto(any(Payment.class)))
+            .thenReturn(PaymentDto.builder()
+                .amount(10.0)
+                .payerEmail("user1@example.com")
+                .receiverEmail("user2@example.com")
+                .groupId(1L)
+                .build());
+
         // Execution
-        ExpenseCreateDto result = expenseService.createExpense(expenseCreateDto, "test@email.com");
+        PaymentDto result = paymentService.createPayment(paymentDto, "test@email.com");
 
         // Verification
         assertNotNull(result);
-        assertEquals("NewTestExpense", result.getName());
-        assertEquals(Category.Other, result.getCategory());
         assertEquals(10.0, result.getAmount());
-        assertEquals("test@email.com", result.getPayerEmail());
+        assertEquals("user1@example.com", result.getPayerEmail());
+        assertEquals("user2@example.com", result.getReceiverEmail());
         assertEquals(1L, result.getGroupId());
-        assertEquals(2, result.getParticipants().size());
-        assertTrue(result.getParticipants().containsKey("test@email.com"));
-        assertTrue(result.getParticipants().containsKey("user1@email.com"));
-        verify(expenseValidator, times(1)).validateForCreation(expenseCreateDto);
+        verify(paymentValidator, times(1)).validateForCreation(paymentDto, "test@email.com");
         verify(activityRepository, times(1)).save(any());
     }
 }

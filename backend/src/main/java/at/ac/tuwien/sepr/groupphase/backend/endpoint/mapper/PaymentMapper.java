@@ -1,12 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import org.mapstruct.Mapper;
@@ -14,12 +11,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Mapper(componentModel = "spring")
-public abstract class ExpenseMapper {
+public abstract class PaymentMapper {
 
     @Autowired
     GroupRepository groupRepository;
@@ -28,14 +21,11 @@ public abstract class ExpenseMapper {
     @Autowired
     GroupMapper groupMapper;
 
-    //abstract Set<GroupDetailDto> setOfGroupEntityToSetOfGroupDto(Set<GroupEntity> groupEntitySet);
-
-    //abstract GroupDetailDto groupEntityToGroupDto(GroupEntity groupEntity);
 
     @Mapping(target = "payer", source = "payerEmail", qualifiedByName = "emailsToUser")
+    @Mapping(target = "receiver", source = "receiverEmail", qualifiedByName = "emailsToUser")
     @Mapping(target = "group", source = "groupId", qualifiedByName = "groupIdToGroup")
-    @Mapping(target = "participants", source = "participants", qualifiedByName = "participantsEmailToApplicationUser")
-    public abstract Expense expenseCreateDtoToExpenseEntity(ExpenseCreateDto dto);
+    public abstract Payment paymentDtoToPaymentEntity(PaymentDto dto);
 
 
     @Named("emailsToUser")
@@ -56,19 +46,10 @@ public abstract class ExpenseMapper {
         return groupRepository.findById(groupId).orElse(null);
     }
 
-    @Named("participantsEmailToApplicationUser")
-    Map<ApplicationUser, Double> participantsEmailToApplicationUser(Map<String, Double> participants) {
-        if (participants == null) {
-            return null;
-        }
-
-        return participants.entrySet().stream().collect(Collectors.toMap(entry -> userRepository.findByEmail(entry.getKey()), Map.Entry::getValue));
-    }
-
     @Mapping(target = "payerEmail", source = "payer", qualifiedByName = "usersToEmail")
+    @Mapping(target = "receiverEmail", source = "receiver", qualifiedByName = "usersToEmail")
     @Mapping(target = "groupId", source = "group", qualifiedByName = "groupToGroupId")
-    @Mapping(target = "participants", source = "participants", qualifiedByName = "applicationUserToParticipantsEmail")
-    public abstract ExpenseCreateDto expenseEntityToExpenseCreateDto(Expense expenseSaved);
+    public abstract PaymentDto paymentEntityToPaymentDto(Payment payment);
 
     @Named("usersToEmail")
     String usersToEmail(ApplicationUser payer) {
@@ -84,26 +65,5 @@ public abstract class ExpenseMapper {
             return null;
         }
         return group.getId();
-    }
-
-    @Named("applicationUserToParticipantsEmail")
-    Map<String, Double> applicationUserToParticipantsEmail(Map<ApplicationUser, Double> participants) {
-        if (participants == null) {
-            return null;
-        }
-        return participants.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getEmail(), Map.Entry::getValue));
-    }
-
-    @Mapping(target = "payerEmail", source = "payer", qualifiedByName = "usersToEmail")
-    @Mapping(target = "group", source = "group", qualifiedByName = "groupEntityToGroupDetailDto")
-    @Mapping(target = "participants", source = "participants", qualifiedByName = "applicationUserToParticipantsEmail")
-    public abstract ExpenseDetailDto expenseEntityToExpenseDetailDto(Expense expense);
-
-    @Named("groupEntityToGroupDetailDto")
-    GroupCreateDto groupEntityToGroupCreateDto(GroupEntity group) {
-        if (group == null) {
-            return null;
-        }
-        return groupMapper.groupEntityToGroupCreateDto(group);
     }
 }

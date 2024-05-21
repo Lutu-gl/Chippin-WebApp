@@ -46,6 +46,7 @@ import {
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
+import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
     RecipeCreateComponent,
     RecipeDetailComponent,
     RecipeEditComponent,
-    RecipeGlobalComponent
+    RecipeGlobalComponent,
+    PaymentCreateComponent,
   ],
   imports: [
     BrowserModule,

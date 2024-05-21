@@ -5,9 +5,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import java.util.Random;
 public class ActivityDataGenerator implements DataGenerator {
     ActivityRepository activityRepository;
     ExpenseRepository expenseRepository;
+    PaymentRepository paymentRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
 
@@ -29,6 +32,7 @@ public class ActivityDataGenerator implements DataGenerator {
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
+        List<Payment> payments = paymentRepository.findAll();
 
         ActivityCategory[] activityCategories = {ActivityCategory.EXPENSE_UPDATE};
 
@@ -67,6 +71,19 @@ public class ActivityDataGenerator implements DataGenerator {
                     .build();
                 activityRepository.save(activity2);
             }
+            activityRepository.save(activity);
+        }
+
+        for (Payment payment : payments) {
+            Activity activity = Activity.builder()
+                .category(ActivityCategory.PAYMENT)
+                .timestamp(payment.getDate())
+                .payment(payment)
+                .group(payment.getGroup())
+                .user(payment.getPayer())
+                .build();
+
+
             activityRepository.save(activity);
         }
     }

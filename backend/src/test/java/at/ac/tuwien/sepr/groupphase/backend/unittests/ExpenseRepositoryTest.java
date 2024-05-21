@@ -95,7 +95,7 @@ public class ExpenseRepositoryTest implements TestData {
             .build();
 
         expenseRepository.save(expense);
-        List<Object[]> objects = expenseRepository.calculateBalancesForUser(testUsers[0].getEmail(), group.getId());
+        List<Object[]> objects = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(testUsers[0].getEmail(), group.getId());
         String participantEmail = (String) objects.get(0)[0];
         BigDecimal amount = (BigDecimal) objects.get(0)[1];
         assertEquals(testUsers[1].getEmail(), participantEmail);

@@ -30,7 +30,7 @@ public class DebtServiceImpl implements DebtService {
         LOGGER.debug("parameters {} {}", userEmail, groupId);
 
 
-        List<Object[]> rawResults = expenseRepository.calculateBalancesForUser(userEmail, groupId);
+        List<Object[]> rawResults = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(userEmail, groupId);
         if (rawResults.isEmpty()) {
             throw new NotFoundException("No debts found for user in group");
         }

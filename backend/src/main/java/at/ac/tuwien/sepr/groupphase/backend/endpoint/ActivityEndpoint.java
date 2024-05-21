@@ -33,7 +33,7 @@ public class ActivityEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("{id}")
-    public ActivityDetailDto getById(@PathVariable("id") long id) throws NotFoundException { // TODO check if this correct
+    public ActivityDetailDto getById(@PathVariable("id") long id) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         ActivityDetailDto res = null;
@@ -48,6 +48,14 @@ public class ActivityEndpoint {
     public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName());
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/group-payments/{id}")
+    public Collection<ActivityDetailDto> getGroupPayments(@PathVariable("id") long groupId) throws NotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return activityService.getPaymentActivitiesByGroupId(groupId, authentication.getName());
     }
 
 }
