@@ -143,7 +143,7 @@ public class PaymentEndpointTest extends BaseTest {
     @Test
     public void createPaymentOfNonExistingGroupShouldReturnConflict() throws Exception {
         PaymentDto paymentDto = PaymentDto.builder()
-            .groupId(1L)
+            .groupId(-666L)
             .payerEmail("user1@example.com")
             .receiverEmail("user2@example.com")
             .amount(50.0d)
