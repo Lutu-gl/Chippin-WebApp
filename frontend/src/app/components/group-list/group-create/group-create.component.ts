@@ -297,4 +297,8 @@ export class GroupCreateComponent implements OnInit {
 
 
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
+
+  goBack() {
+      this.router.navigate(['/group']);
+  }
 }

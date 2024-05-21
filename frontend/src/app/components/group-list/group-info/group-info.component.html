@@ -15,15 +15,19 @@
     </div>
   </div>
   <br>
-
-  <h3 class="debt">Debts</h3>
-  <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
-    <div *ngIf="debt.membersDebts[userEmail] !== 0"
-         class="debt-list-item"
-         [ngClass]="{'positive-debt': debt.membersDebts[userEmail] > 0, 'negative-debt': debt.membersDebts[userEmail] < 0}">
-      You own {{ userEmail }} {{ debt.membersDebts[userEmail] }} €
-    </div>
-  </ng-container>
+  <div class="h-52 overflow-y-auto overflow-x-hidden">
+    <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
+      <div *ngIf="debt.membersDebts[userEmail] > 0"
+           class="debt-list-item positive-debt">
+        {{ userEmail }} owes you {{ debt.membersDebts[userEmail] | number:'1.2-2' }} €
+      </div>
+      <div *ngIf="debt.membersDebts[userEmail] < 0"
+           class="debt-list-item negative-debt">
+        You owe {{ userEmail }} {{ -debt.membersDebts[userEmail] | number:'1.2-2' }} €
+      </div>
+    </ng-container>
+  </div>
+  <br>
 
   <h3 class="budgets">Budgets</h3>
   <div class="budget-list">
@@ -31,10 +35,8 @@
       {{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}
     </div>
   </div>
-</div>
 
 <div>
-  <h1>Test</h1>
   <div class="">
     <app-expense-list [groupId]="group.id"></app-expense-list>
   </div>
