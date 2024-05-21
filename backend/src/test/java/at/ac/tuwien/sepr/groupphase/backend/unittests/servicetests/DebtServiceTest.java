@@ -1,38 +1,36 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.DebtServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ShoppingListServiceTest extends BaseTest {
-
+public class DebtServiceTest extends BaseTest {
     @Mock
-    private ShoppingListRepository shoppingListRepository;
+    private ExpenseRepository expenseRepository;
 
     @Spy
     private ShoppingListMapperImpl shoppingListMapper;
@@ -40,85 +38,65 @@ public class ShoppingListServiceTest extends BaseTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
+    @Autowired
     private GroupRepository groupRepository;
 
     @InjectMocks
-    private ShoppingListServiceImpl shoppingListService;
+    private DebtServiceImpl debtService;
 
     @Test
-    public void givenValidShoppingListCreateDtoWithoutGroupId_whenCreateShoppingList_thenNoException() {
-        when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
-        when(groupRepository.findById(any())).thenReturn(Optional.of(GroupEntity.builder().id(-1L).build()));
-        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
-        var shoppingListCreateDto = ShoppingListCreateDto.builder()
-            .name("Test Shopping List")
-            .build();
+    public void calculatingDebtOnGroupThatDoesntExistAndReturnsNothingNotFoundException() {
+        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(new ArrayList<Object[]>());
+        ;
 
-        shoppingListService.createShoppingList(shoppingListCreateDto, -1L);
-
-        verify(shoppingListRepository, times(1)).save(any());
+        assertThrows(NotFoundException.class, () -> debtService.getById("user1@notfound.com", -666L));
     }
 
     @Test
-    public void givenValidShoppingListCreateDtoWithValidGroupId_whenCreateShoppingList_thenNoException() {
-        when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
-        when(groupRepository.findById(any())).thenReturn(Optional.of(GroupEntity.builder().id(-1L).build()));
-        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
-        var shoppingListCreateDto = ShoppingListCreateDto.builder()
-            .name("Test Shopping List")
-            .groupId(-1L)
-            .build();
+    public void calculatingDebtOnGroupThatExistsReturnsCorrectForUser1Example_3ExpensesPos() {
+        ArrayList<Object[]> objects = new ArrayList<>();
+        objects.add(new Object[]{"user2@example.com", new BigDecimal(50)});
+        objects.add(new Object[]{"user3@example.com", new BigDecimal(30)});
 
-        shoppingListService.createShoppingList(shoppingListCreateDto, -1L);
+        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
 
-        verify(shoppingListRepository, times(1)).save(any());
+        DebtGroupDetailDto dto = debtService.getById("user1@example.com", groupExample0.getId());
+
+        assertEquals(groupExample0.getId(), dto.getGroupId());
+        assertEquals(50.0d, dto.getMembersDebts().get("user2@example.com"));
+        assertEquals(30.0d, dto.getMembersDebts().get("user3@example.com"));
     }
 
     @Test
-    public void givenValidShoppingListCreateDtoWithInvalidGroupId_whenCreateShoppingList_thenNotFoundException() {
-        when(groupRepository.findById(any())).thenReturn(Optional.empty());
-        when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
-        var shoppingListCreateDto = ShoppingListCreateDto.builder()
-            .name("Test Shopping List")
-            .groupId(-1L)
-            .build();
-        assertThrows(NotFoundException.class, () -> shoppingListService.createShoppingList(shoppingListCreateDto, -1L));
+    public void calculatingDebtOnGroupThatExistsReturnsCorrectForUser2Example_3ExpensesNeg() {
+        ArrayList<Object[]> objects = new ArrayList<>();
+        objects.add(new Object[]{"user1@example.com", new BigDecimal(-50)});
+        objects.add(new Object[]{"user3@example.com", new BigDecimal(80)});
 
-        verify(shoppingListRepository, times(0)).save(any());
+        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
+
+        DebtGroupDetailDto dto = debtService.getById("user2@example.com", groupExample0.getId());
+
+        assertEquals(groupExample0.getId(), dto.getGroupId());
+        assertEquals(-50.0d, dto.getMembersDebts().get("user1@example.com"));
+        assertEquals(80.0d, dto.getMembersDebts().get("user3@example.com"));
     }
 
     @Test
-    public void givenValidShoppingListId_whenGetShoppingList_thenNoException() {
-        when(shoppingListRepository.findById(any())).thenReturn(Optional.of(new ShoppingList()));
+    public void calculatingDebtOnGroupThatExistsReturnsCorrectForUser3Example_2ExpensesNeg() {
+        ArrayList<Object[]> objects = new ArrayList<>();
+        objects.add(new Object[]{"user1@example.com", new BigDecimal(-30)});
+        objects.add(new Object[]{"user2@example.com", new BigDecimal(-80)});
 
-        shoppingListService.getShoppingList(-1L);
+        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
 
-        verify(shoppingListRepository, times(1)).findById(any());
-    }
+        DebtGroupDetailDto dto = debtService.getById("user3@example.com", groupExample0.getId());
 
-    @Test
-    public void givenValidShoppingListId_whenDeleteShoppingList_thenNoException() {
-        shoppingListService.deleteShoppingList(-1L);
-
-        verify(shoppingListRepository, times(1)).deleteById(any());
-    }
-
-    @Test
-    public void givenValidGroupId_whenGetShoppingListsForGroup_thenNoException() {
-        when(shoppingListRepository.findAllByGroupId(any())).thenReturn(List.of());
-
-        shoppingListService.getShoppingListsForGroup(-1L);
-
-        verify(shoppingListRepository, times(1)).findAllByGroupId(any());
-    }
-
-    @Test
-    public void givenValidUserId_whenGetShoppingListsForUser_thenNoException() {
-        when(shoppingListRepository.findAllByOwnerId(any())).thenReturn(List.of());
-
-        shoppingListService.getShoppingListsForUser(-1L);
-
-        verify(shoppingListRepository, times(1)).findAllByOwnerId(any());
+        assertEquals(groupExample0.getId(), dto.getGroupId());
+        assertEquals(-30.0d, dto.getMembersDebts().get("user1@example.com"));
+        assertEquals(-80.0d, dto.getMembersDebts().get("user2@example.com"));
     }
 }

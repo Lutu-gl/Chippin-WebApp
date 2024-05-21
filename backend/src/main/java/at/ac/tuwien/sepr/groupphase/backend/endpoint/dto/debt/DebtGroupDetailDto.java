@@ -1,33 +1,18 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
 @Builder
-public class ActivityDetailDto {
-    private Long id;
+public class DebtGroupDetailDto {
+    private String userEmail;
 
-    @NotBlank
-    private String description;
-
-    private ActivityCategory category;
-
-    private LocalDateTime timestamp;
-
-    @ManyToOne
-    private Long expenseId;
-
-    @ManyToOne
     private Long groupId;
 
-    @ManyToOne
-    private Long userId;
+    private Map<String, Double> membersDebts;
 }

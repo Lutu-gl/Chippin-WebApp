@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ActivityDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ public interface ActivityService {
     /**
      * Get all expense activities of a specific group.
      *
-     * @param groupId the id of the group
+     * @param groupId        the id of the group
      * @param requesterEmail the email of the user who requests the activities
      * @return a collection of the expense activities
      * @throws NotFoundException if the group is not found

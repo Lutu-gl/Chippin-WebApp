@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ActivityDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ActivityMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;

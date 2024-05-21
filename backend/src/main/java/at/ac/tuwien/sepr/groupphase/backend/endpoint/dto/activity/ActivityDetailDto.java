@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import jakarta.persistence.ManyToOne;

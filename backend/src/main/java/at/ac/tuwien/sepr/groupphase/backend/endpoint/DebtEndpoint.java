@@ -1,8 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ActivityDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.service.ActivityService;
+import at.ac.tuwien.sepr.groupphase.backend.service.DebtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,38 +16,27 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
 
 @RestController
-@RequestMapping(value = "/api/v1/activity")
-public class DeptEndpoint {
+@RequestMapping(value = "/api/v1/debt")
+public class DebtEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    ActivityService activityService;
+    DebtService debtService;
 
-    public DeptEndpoint(ActivityService activityService) {
-        this.activityService = activityService;
+    public DebtEndpoint(DebtService debtService) {
+        this.debtService = debtService;
     }
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("{id}")
-    public ActivityDetailDto getById(@PathVariable("id") long id) throws NotFoundException { // TODO check if this correct
+    public DebtGroupDetailDto getByGroupId(@PathVariable("id") long groupId) throws NotFoundException {
+        LOGGER.trace("getByGroupId({})", groupId);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        ActivityDetailDto res = null;
-        res = activityService.getById(id);
-
-        return res;
+        return debtService.getById(authentication.getName(), groupId);
     }
-
-    @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/group-expenses/{id}")
-    public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId) throws NotFoundException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName());
-    }
-
 }

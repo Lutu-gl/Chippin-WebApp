@@ -4,8 +4,10 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +21,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,10 +45,13 @@ public class ExpenseRepositoryTest implements TestData {
     private FriendshipRepository friendshipRepository;
     @Autowired
     private ExpenseRepository expenseRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     @BeforeEach
     public void beforeEach() {
         friendshipRepository.deleteAll();
+        groupRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -67,6 +76,32 @@ public class ExpenseRepositoryTest implements TestData {
         assertEquals(expense, savedExpense);
     }
 
+    @Test
+    @Rollback
+    @Transactional
+    public void testRetieveDebtSuccess() {
+        // create test users
+        ApplicationUser[] testUsers = createTestUsers();
+        GroupEntity group = groupRepository.findAll().get(0);
+
+        Expense expense = Expense.builder()
+            .name("Test Expense")
+            .category(Category.Food)
+            .amount(10.0)
+            .payer(testUsers[0])
+            .group(group)
+            .date(LocalDateTime.now())
+            .participants(Map.of(testUsers[0], 0.1, testUsers[1], 0.9))
+            .build();
+
+        expenseRepository.save(expense);
+        List<Object[]> objects = expenseRepository.calculateBalancesForUser(testUsers[0].getEmail(), group.getId());
+        String participantEmail = (String) objects.get(0)[0];
+        BigDecimal amount = (BigDecimal) objects.get(0)[1];
+        assertEquals(testUsers[1].getEmail(), participantEmail);
+        assertEquals(9.0, amount.doubleValue());
+    }
+
 
     private ApplicationUser[] createTestUsers() {
         ApplicationUser testUser1 = ApplicationUser.builder()
@@ -83,6 +118,15 @@ public class ExpenseRepositoryTest implements TestData {
 
         userRepository.save(testUser1);
         userRepository.save(testUser2);
+
+        Set<ApplicationUser> users = new HashSet<>();
+        users.add(testUser1);
+        users.add(testUser2);
+        GroupEntity group = GroupEntity.builder()
+            .groupName("testGroupDebt")
+            .users(users)
+            .build();
+        groupRepository.save(group);
 
         return new ApplicationUser[]{testUser1, testUser2};
     }
