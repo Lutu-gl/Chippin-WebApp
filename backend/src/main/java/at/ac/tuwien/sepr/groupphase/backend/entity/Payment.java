@@ -1,13 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,29 +22,29 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @EqualsAndHashCode
+@ToString
 @Builder
-public class Activity {
+public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private ActivityCategory category;
+    @Positive
+    private double amount;
 
-    private LocalDateTime timestamp;
-
-    @ManyToOne
-    private Expense expense;
+    @NotNull
+    private LocalDateTime date;
 
     @ManyToOne
-    private Payment payment;
+    private ApplicationUser payer;
 
     @ManyToOne
     private GroupEntity group;
 
     @ManyToOne
-    private ApplicationUser user;
+    private ApplicationUser receiver;
+
+    private boolean deleted;
 }

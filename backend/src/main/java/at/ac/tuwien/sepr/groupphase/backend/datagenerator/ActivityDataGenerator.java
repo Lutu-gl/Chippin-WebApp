@@ -5,30 +5,41 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Random;
 
 @Component
 @AllArgsConstructor
 public class ActivityDataGenerator implements DataGenerator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+
     ActivityRepository activityRepository;
     ExpenseRepository expenseRepository;
+    PaymentRepository paymentRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
 
 
     @Override
     public void generateData() {
+        LOGGER.debug("generating data for activity");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
+        List<Payment> payments = paymentRepository.findAll();
 
         ActivityCategory[] activityCategories = {ActivityCategory.EXPENSE_UPDATE};
 
@@ -69,11 +80,25 @@ public class ActivityDataGenerator implements DataGenerator {
             }
             activityRepository.save(activity);
         }
+
+        for (Payment payment : payments) {
+            Activity activity = Activity.builder()
+                .category(ActivityCategory.PAYMENT)
+                .timestamp(payment.getDate())
+                .payment(payment)
+                .group(payment.getGroup())
+                .user(payment.getPayer())
+                .build();
+
+
+            activityRepository.save(activity);
+        }
     }
 
 
     @Override
     public void cleanData() {
+        LOGGER.debug("cleaning data for activity");
         activityRepository.deleteAll();
     }
 

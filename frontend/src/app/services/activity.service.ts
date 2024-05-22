@@ -17,4 +17,8 @@ export class ActivityService {
     return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-expenses/${groupId}`);
   }
 
+  getPaymentActivitiesFromGroup(groupId: number): Observable<ActivityDetailDto[]> {
+    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-payments/${groupId}`);
+  }
+
 }

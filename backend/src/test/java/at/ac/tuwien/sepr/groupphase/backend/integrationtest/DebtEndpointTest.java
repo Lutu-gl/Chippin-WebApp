@@ -7,7 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class DebtEndpointTest extends BaseTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -84,8 +84,10 @@ public class DebtEndpointTest extends BaseTest {
 
         DebtGroupDetailDto debtGroupDetailDto = objectMapper.readValue(res, DebtGroupDetailDto.class);
 
+
+        // Look in the datagen for the values. Pay also attention to the payment entries.
         assertEquals(groupExample0.getId(), debtGroupDetailDto.getGroupId());
-        assertEquals(50.0d, debtGroupDetailDto.getMembersDebts().get("user2@example.com"));
+        assertEquals(30.0d, debtGroupDetailDto.getMembersDebts().get("user2@example.com"));
         assertEquals(30.0d, debtGroupDetailDto.getMembersDebts().get("user3@example.com"));
 
     }
@@ -103,8 +105,9 @@ public class DebtEndpointTest extends BaseTest {
 
         DebtGroupDetailDto debtGroupDetailDto = objectMapper.readValue(res, DebtGroupDetailDto.class);
 
+        // Look in the datagen for the values. Pay also attention to the payment entries.
         assertEquals(groupExample0.getId(), debtGroupDetailDto.getGroupId());
-        assertEquals(-50.0d, debtGroupDetailDto.getMembersDebts().get("user1@example.com"));
+        assertEquals(-30.0d, debtGroupDetailDto.getMembersDebts().get("user1@example.com"));
         assertEquals(80.0d, debtGroupDetailDto.getMembersDebts().get("user3@example.com"));
 
     }
@@ -112,7 +115,7 @@ public class DebtEndpointTest extends BaseTest {
     @Test
     public void retreiveDebtOfGroupCorrectValuesUser3Example_2ExpensesNeg() throws Exception {
         GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
-        
+
         String res = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/api/v1/debt/%d", groupExample0.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user3@example.com", ADMIN_ROLES)))
@@ -121,6 +124,7 @@ public class DebtEndpointTest extends BaseTest {
 
         DebtGroupDetailDto debtGroupDetailDto = objectMapper.readValue(res, DebtGroupDetailDto.class);
 
+        // Look in the datagen for the values. Pay also attention to the payment entries.
         assertEquals(groupExample0.getId(), debtGroupDetailDto.getGroupId());
         assertEquals(-30.0d, debtGroupDetailDto.getMembersDebts().get("user1@example.com"));
         assertEquals(-80.0d, debtGroupDetailDto.getMembersDebts().get("user2@example.com"));

@@ -34,7 +34,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     @Transactional
     public ActivityDetailDto getById(Long id) throws NotFoundException {
-        LOGGER.debug("parameters {}", id);
+        LOGGER.trace("getById({})", id);
         Activity activityFound = activityRepository.findById(id).orElseThrow(() -> new NotFoundException("Activity not found"));
         ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activityFound);
         activityDetailDto.setDescription(giveDescriptionToActivity(activityFound));
@@ -44,7 +44,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     @Transactional
     public Collection<ActivityDetailDto> getExpenseActivitiesByGroupId(Long groupId, String requesterEmail) throws NotFoundException {
-        LOGGER.debug("parameters {} {}", groupId, requesterEmail);
+        LOGGER.trace("getExpenseActivitiesByGroupId({}, {})", groupId, requesterEmail);
 
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
         GroupEntity group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
@@ -52,6 +52,28 @@ public class ActivityServiceImpl implements ActivityService {
             throw new AccessDeniedException("Authenticated user is not allowed to access this group!");
         }
         Collection<Activity> activitiesFound = activityRepository.findExpenseActivitiesByGroup(group);
+
+        Collection<ActivityDetailDto> activityDetailDtos = new LinkedList<>();
+        for (Activity activity : activitiesFound) {
+            ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
+            activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDtos.add(activityDetailDto);
+        }
+
+        return activityDetailDtos;
+    }
+
+    @Override
+    @Transactional
+    public Collection<ActivityDetailDto> getPaymentActivitiesByGroupId(long groupId, String requesterEmail) throws NotFoundException {
+        LOGGER.trace("getPaymentActivitiesByGroupId({}, {})", groupId, requesterEmail);
+
+        ApplicationUser user = userRepository.findByEmail(requesterEmail);
+        GroupEntity group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
+        if (!group.getUsers().contains(user)) {
+            throw new AccessDeniedException("Authenticated user is not allowed to access this group!");
+        }
+        Collection<Activity> activitiesFound = activityRepository.findPaymentActivitiesByGroup(group);
 
         Collection<ActivityDetailDto> activityDetailDtos = new LinkedList<>();
         for (Activity activity : activitiesFound) {
@@ -74,6 +96,8 @@ public class ActivityServiceImpl implements ActivityService {
                 String.format("User %s deleted expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.EXPENSE_RECOVER ->
                 String.format("User %s recovered expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+            case ActivityCategory.PAYMENT ->
+                String.format("%s payed %s in group %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail(), activity.getGroup().getGroupName());
             default -> "No description available";
         };
     }

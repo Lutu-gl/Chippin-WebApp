@@ -73,7 +73,7 @@ public class GroupValidator {
     }
 
     private boolean checkAtLeastTwoMembers(GroupCreateDto group, List<String> errors) {
-        if (group.getMembers().size() < 2) {
+        if (group.getMembers() == null || group.getMembers().size() < 2) {
             errors.add("Group must have at least two members.");
             return false;
         }

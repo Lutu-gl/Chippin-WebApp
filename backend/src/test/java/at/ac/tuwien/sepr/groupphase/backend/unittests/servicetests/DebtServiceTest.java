@@ -46,8 +46,8 @@ public class DebtServiceTest extends BaseTest {
 
     @Test
     public void calculatingDebtOnGroupThatDoesntExistAndReturnsNothingNotFoundException() {
-        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(new ArrayList<Object[]>());
-        ;
+        when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(new ArrayList<Object[]>());
+
 
         assertThrows(NotFoundException.class, () -> debtService.getById("user1@notfound.com", -666L));
     }
@@ -58,7 +58,7 @@ public class DebtServiceTest extends BaseTest {
         objects.add(new Object[]{"user2@example.com", new BigDecimal(50)});
         objects.add(new Object[]{"user3@example.com", new BigDecimal(30)});
 
-        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
         GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
 
         DebtGroupDetailDto dto = debtService.getById("user1@example.com", groupExample0.getId());
@@ -74,7 +74,7 @@ public class DebtServiceTest extends BaseTest {
         objects.add(new Object[]{"user1@example.com", new BigDecimal(-50)});
         objects.add(new Object[]{"user3@example.com", new BigDecimal(80)});
 
-        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
         GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
 
         DebtGroupDetailDto dto = debtService.getById("user2@example.com", groupExample0.getId());
@@ -90,7 +90,7 @@ public class DebtServiceTest extends BaseTest {
         objects.add(new Object[]{"user1@example.com", new BigDecimal(-30)});
         objects.add(new Object[]{"user2@example.com", new BigDecimal(-80)});
 
-        when(expenseRepository.calculateBalancesForUser(anyString(), anyLong())).thenReturn(objects);
+        when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
         GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
 
         DebtGroupDetailDto dto = debtService.getById("user3@example.com", groupExample0.getId());
