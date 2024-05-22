@@ -2,7 +2,10 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -17,7 +20,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -38,6 +43,10 @@ public class ShoppingList {
 
     @Column
     private String name;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Category> categories = new LinkedHashSet<>();
 
     @JoinTable(name = "shopping_list_shopping_list_item")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
