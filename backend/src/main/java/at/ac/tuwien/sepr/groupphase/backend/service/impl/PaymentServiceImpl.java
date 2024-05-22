@@ -39,12 +39,18 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     @Override
+    @Transactional
     public PaymentDto createPayment(PaymentDto paymentDto, String creatorEmail) throws ValidationException, ConflictException {
         LOGGER.trace("createPayment({}, {})", paymentDto, creatorEmail);
 
         paymentValidator.validateForCreation(paymentDto, creatorEmail);
 
         Payment payment = paymentMapper.paymentDtoToPaymentEntity(paymentDto);
+        ApplicationUser user = userRepository.findByEmail(creatorEmail);
+        if (!payment.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to create this expense");
+        }
+
         payment.setDate(LocalDateTime.now());
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -84,12 +90,17 @@ public class PaymentServiceImpl implements PaymentService {
         paymentValidator.validateForUpdate(paymentDto, creatorEmail, existingPayment);
 
         Payment payment = paymentMapper.paymentDtoToPaymentEntity(paymentDto);
+        ApplicationUser user = userRepository.findByEmail(creatorEmail);
+        if (!existingPayment.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to update this expense");
+        }
+
         payment.setId(paymentId);
         payment.setDate(existingPayment.getDate());
 
         Payment paymentSaved = paymentRepository.save(payment);
 
-        ApplicationUser user = userRepository.findByEmail(creatorEmail);
+
         Activity activityForPayment = Activity.builder()
             .category(ActivityCategory.PAYMENT)
             .payment(paymentSaved)
@@ -111,7 +122,7 @@ public class PaymentServiceImpl implements PaymentService {
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
         if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to recover this payment");
+            throw new AccessDeniedException("You do not have permission to delete this payment");
         }
 
         if (existingPayment.isDeleted()) {
