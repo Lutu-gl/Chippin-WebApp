@@ -57,15 +57,16 @@ public class ExpenseServiceImpl implements ExpenseService {
     public ExpenseCreateDto createExpense(ExpenseCreateDto expenseCreateDto, String creatorEmail) throws ValidationException, ConflictException, NotFoundException {
         LOGGER.debug("parameters {}, {}", expenseCreateDto, creatorEmail);
         expenseValidator.validateForCreation(expenseCreateDto);
-
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
+        ApplicationUser user = userRepository.findByEmail(creatorEmail);
+        if (!expense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to create an expense in this group");
+        }
         expense.setDate(LocalDateTime.now());
         expense.setDeleted(false);
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
-
-        ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder()
@@ -90,6 +91,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         expenseValidator.validateForCreation(expenseCreateDto);
 
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
+        ApplicationUser user = userRepository.findByEmail(updaterEmail);
+        if (!existingExpense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to update this expense");
+        }
+
         expense.setId(expenseId);
         expense.setDate(existingExpense.getDate());
         if (expense.getCategory() == null) {
@@ -98,7 +104,6 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         Expense expenseSaved = expenseRepository.save(expense);
 
-        ApplicationUser user = userRepository.findByEmail(updaterEmail);
         Activity activityForExpenseUpdate = Activity.builder()
             .category(ActivityCategory.EXPENSE_UPDATE)
             .expense(expenseSaved)

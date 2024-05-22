@@ -5,8 +5,10 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ExpenseMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
@@ -19,6 +21,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,11 +60,18 @@ public class ExpenseServiceTest {
     @Rollback
     public void testCreateExpenseSuccess() throws Exception {
         // Mock-Konfigurationen
-        Expense mockExpenseEntity = new Expense();
+        ApplicationUser mockUserEntity = ApplicationUser.builder().id(1L).email("test@email.com").build();
+
+        GroupEntity mockGroupEntity = GroupEntity.builder()
+            .id(1L)
+            .users(Set.of(mockUserEntity))
+            .build();
+
+        Expense mockExpenseEntity = Expense.builder().group(mockGroupEntity).build();
 
         when(expenseMapper.expenseCreateDtoToExpenseEntity(any(ExpenseCreateDto.class))).thenReturn(mockExpenseEntity);
         when(expenseRepository.save(any(Expense.class))).thenReturn(mockExpenseEntity);
-        when(userRepository.findByEmail(anyString())).thenReturn(ApplicationUser.builder().email("test@email.com").build());
+        when(userRepository.findByEmail(anyString())).thenReturn(mockUserEntity);
         when(expenseMapper.expenseEntityToExpenseCreateDto(any(Expense.class)))
             .thenReturn(ExpenseCreateDto.builder()
                 .name("NewTestExpense")
