@@ -4,6 +4,9 @@ import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
 import { BudgetDto } from '../../../dtos/budget';
 import {ActivatedRoute, Router} from "@angular/router";
+import {DebtGroupDetailDto} from "../../../dtos/debt";
+import {DebtService} from "../../../services/debt.service";
+import {ActivityType} from "../../expense/expense-list.component";
 
 @Component({
   selector: 'app-group-info',
@@ -18,9 +21,11 @@ export class GroupInfoComponent implements OnInit {
   };
 
   budgets: BudgetDto[] = []
+  debt: DebtGroupDetailDto
 
   constructor(
     private service: GroupService,
+    private debtService: DebtService,
     private router: Router,
     private route: ActivatedRoute,
     private groupService: GroupService,
@@ -31,6 +36,7 @@ export class GroupInfoComponent implements OnInit {
   ngOnInit(): void {
     this.getGroup();
     this.getGroupBudgets();
+    this.getDebt();
   }
 
   getGroup(): void {
@@ -49,5 +55,26 @@ export class GroupInfoComponent implements OnInit {
       })
   }
 
+  getDebt(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.debtService.getDebtById(id)
+      .subscribe(debt => {
+        this.debt = debt;
+        console.log(debt);
+      });
+  }
 
+  objectKeys(obj: any): string[] {
+    return Object.keys(obj).sort();
+  }
+
+  getSortedMembers(): any[] {
+    return this.group.members.sort((a, b) => a.email.localeCompare(b.email));
+  }
+
+  getBorderColor(value: number): string {
+    return value > 0 ? 'green' : 'red';
+  }
+
+    protected readonly ActivityType = ActivityType;
 }

@@ -21,6 +21,9 @@ public class GeneralDataGenerator implements DataGenerator {
     private final PantryDataGenerator pantryDataGenerator;
     private final ItemDataGenerator itemDataGenerator;
     private final RecipeDataGenerator recipeDataGenerator;
+    private final ExpenseDataGenerator expenseDataGenerator;
+    private final ActivityDataGenerator activityDataGenerator;
+    private final PaymentDataGenerator paymentDataGenerator;
     private final ShoppingListDataGenerator shoppingListDataGenerator;
 
     @PostConstruct
@@ -33,12 +36,19 @@ public class GeneralDataGenerator implements DataGenerator {
         itemDataGenerator.generateData();
         recipeDataGenerator.generateData();
         pantryDataGenerator.generateData();
+        expenseDataGenerator.generateData();
+        paymentDataGenerator.generateData();
+        activityDataGenerator.generateData();
+
         shoppingListDataGenerator.generateData();
         LOGGER.debug("finished generating all data");
     }
 
     public void cleanData() {
         LOGGER.debug("cleaning all data");
+        activityDataGenerator.cleanData();
+        paymentDataGenerator.cleanData();
+        expenseDataGenerator.cleanData();
         pantryDataGenerator.cleanData();
         recipeDataGenerator.cleanData();
         shoppingListDataGenerator.cleanData();
@@ -47,7 +57,6 @@ public class GeneralDataGenerator implements DataGenerator {
         groupDataGenerator.cleanData();
         userDataGenerator.cleanData();
         LOGGER.debug("finished cleaning all data");
-
     }
 
 }

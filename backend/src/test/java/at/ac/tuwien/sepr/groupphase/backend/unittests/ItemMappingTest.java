@@ -8,10 +8,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -29,6 +31,8 @@ public class ItemMappingTest extends BaseTest {
     private ItemMapper itemMapper;
 
     @Test
+    @Transactional
+    @Rollback
     public void givenNothing_whenMapListWithOneItem_thenReturnListWithOneElementAndAllProperties() {
         List<ItemDto> dtoList = itemMapper.listOfItemsToListOfItemDto(items);
         assertEquals(1, dtoList.size());

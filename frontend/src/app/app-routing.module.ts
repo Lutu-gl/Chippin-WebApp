@@ -25,9 +25,11 @@ import {
 import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
+import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
+import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
 
 
 const routes: Routes = [
@@ -40,6 +42,9 @@ const routes: Routes = [
           {path: '', component: GroupInfoComponent},
           {path: 'pantry', component: PantryComponent},
           {path: 'edit', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
+          {path: 'payment', children: [
+              {path: 'create/:email/:amount', component: PaymentCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+            ]},
           {path: 'shoppingList', children: [
               {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
               {path: ':shoppingListId', children: [
@@ -60,6 +65,11 @@ const routes: Routes = [
   {path: 'itemList', component: ItemListComponent},
   {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
   {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},
+  {path: 'expenses', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+  {path: 'expenses/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+  {path: 'expenses/info/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.info}},
+  {path: 'expenses/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.edit}},
+  {path: 'payments', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
   {path: '**', redirectTo: ''},
 
 

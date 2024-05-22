@@ -12,6 +12,8 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +64,19 @@ public class GroupEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @AfterEach
+    public void afterEach() {
+        userRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        userRepository.deleteAll();
+    }
+
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenUpdateGroup_withValidData_thenStatus200() throws Exception {
         userRepository.deleteAll();
         groupRepository.deleteAll();
@@ -181,8 +193,8 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
         GroupCreateDto groupCreateDto =
             GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
@@ -205,8 +217,8 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
         GroupCreateDto groupCreateDto =
             GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2@example.com"))).build();
@@ -228,8 +240,8 @@ public class GroupEndpointTest implements TestData {
     }
 
     @Test
-    @Transactional
     @Rollback
+    @Transactional
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("     ")

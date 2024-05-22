@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validator;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
@@ -29,10 +32,12 @@ public class GroupValidator {
     private Validator validator;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final FriendshipRepository friendshipRepository;
 
 
     @Autowired
-    public GroupValidator(UserRepository userRepository, GroupRepository groupRepository) {
+    public GroupValidator(UserRepository userRepository, GroupRepository groupRepository, FriendshipRepository friendshipRepository) {
+        this.friendshipRepository = friendshipRepository;
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
 
@@ -68,7 +73,7 @@ public class GroupValidator {
     }
 
     private boolean checkAtLeastTwoMembers(GroupCreateDto group, List<String> errors) {
-        if (group.getMembers().size() < 2) {
+        if (group.getMembers() == null || group.getMembers().size() < 2) {
             errors.add("Group must have at least two members.");
             return false;
         }
@@ -139,4 +144,19 @@ public class GroupValidator {
             throw new ConflictException("Update of group failed because of conflict", conflictErrors);
         }
     }
+
+    public boolean validateFriendsWithEveryone(GroupEntity savedGroup) {
+        for (int i = 0; i < savedGroup.getUsers().size(); i++) {
+            for (int j = i + 1; j < savedGroup.getUsers().size(); j++) {
+                ApplicationUser user = (ApplicationUser) savedGroup.getUsers().toArray()[i];
+                ApplicationUser user2 = (ApplicationUser) savedGroup.getUsers().toArray()[j];
+
+                if (!friendshipRepository.areFriends(user, user2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

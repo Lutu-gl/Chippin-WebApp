@@ -23,53 +23,53 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class RegistrationEndpointTest extends BaseTest {
 
-  @Autowired
-  private MockMvc mockMvc;
-  @MockBean
-  private UserService userService;
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private MockMvc mockMvc;
+    @MockBean
+    private UserService userService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
-  @Test
-  public void givenValidUser_whenRegister_then201Created() throws Exception {
-    UserRegisterDto userRegisterDto = UserRegisterDto.builder()
-        .email("test@example.com").password("Test1234").build();
-    when(userService.register(userRegisterDto, false)).thenReturn("jwtToken");
+    @Test
+    public void givenValidUser_whenRegister_then201Created() throws Exception {
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder()
+            .email("test@example.com").password("Test1234").build();
+        when(userService.register(userRegisterDto, false)).thenReturn("jwtToken");
 
-    mockMvc.perform(post("/api/v1/authentication/registration")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(userRegisterDto)))
-        .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/v1/authentication/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRegisterDto)))
+            .andExpect(status().isCreated());
 
-    verify(userService, times(1)).register(userRegisterDto, false);
-  }
+        verify(userService, times(1)).register(userRegisterDto, false);
+    }
 
-  @Test
-  public void givenExistingUser_whenRegister_then409Conflict() throws Exception {
-    UserRegisterDto userRegisterDto = UserRegisterDto.builder()
-        .email("text@example.com").password("Test1234").build();
-    when(userService.register(userRegisterDto, false)).thenThrow(new UserAlreadyExistsException("User already exists"));
+    @Test
+    public void givenExistingUser_whenRegister_then409Conflict() throws Exception {
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder()
+            .email("text@example.com").password("Test1234").build();
+        when(userService.register(userRegisterDto, false)).thenThrow(new UserAlreadyExistsException("User already exists"));
 
-    mockMvc.perform(post("/api/v1/authentication/registration")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(userRegisterDto)))
-        .andExpect(status().isConflict());
+        mockMvc.perform(post("/api/v1/authentication/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRegisterDto)))
+            .andExpect(status().isConflict());
 
-    verify(userService, times(1)).register(userRegisterDto, false);
-  }
+        verify(userService, times(1)).register(userRegisterDto, false);
+    }
 
-  @Test
-  public void givenInvalidUser_whenRegister_then400BadRequest() throws Exception {
-    UserRegisterDto userRegisterDto = UserRegisterDto.builder()
-        .email("invalid-Email").password("weak").build();
+    @Test
+    public void givenInvalidUser_whenRegister_then400BadRequest() throws Exception {
+        UserRegisterDto userRegisterDto = UserRegisterDto.builder()
+            .email("invalid-Email").password("weak").build();
 
-    mockMvc.perform(post("/api/v1/authentication/registration")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(userRegisterDto)))
-        .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/v1/authentication/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRegisterDto)))
+            .andExpect(status().isBadRequest());
 
-    verify(userService, times(0)).register(userRegisterDto, false);
-  }
+        verify(userService, times(0)).register(userRegisterDto, false);
+    }
 
 }
