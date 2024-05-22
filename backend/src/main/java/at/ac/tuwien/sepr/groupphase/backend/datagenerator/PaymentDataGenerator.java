@@ -62,8 +62,10 @@ public class PaymentDataGenerator implements DataGenerator {
             while (user1.equals(user2)) {
                 user2 = usersInGroup.get(random.nextInt(usersInGroup.size()));
             }
-
-            double amount = (double) Math.round(random.nextDouble() * 100 * 100) / 100;
+            double amount = 0;
+            while (amount <= 0) {
+                amount = Math.round((random.nextDouble() * 100 + 1) * 100) / 100.0;
+            }
 
             Payment payment = Payment.builder()
                 .payer(user1)
