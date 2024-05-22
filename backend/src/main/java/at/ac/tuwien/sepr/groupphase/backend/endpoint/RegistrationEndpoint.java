@@ -26,7 +26,7 @@ public class RegistrationEndpoint {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public String register(@Valid @RequestBody UserRegisterDto userRegisterDto) throws UserAlreadyExistsException {
-        log.info("Registering user");
+        log.info("Registering user {}", userRegisterDto); // password is not logged here
         return userService.register(userRegisterDto, false);
     }
 

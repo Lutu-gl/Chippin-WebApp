@@ -8,8 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,11 +40,11 @@ public class ShoppingList {
     private String name;
 
     @JoinTable(name = "shopping_list_shopping_list_item")
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ShoppingListItem> items = List.of();
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE}, optional = true)
     private GroupEntity group;
 
 }

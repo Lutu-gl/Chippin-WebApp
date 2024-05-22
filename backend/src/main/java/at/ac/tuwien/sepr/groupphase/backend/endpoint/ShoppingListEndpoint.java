@@ -1,7 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
@@ -27,11 +30,6 @@ import java.util.List;
 @Slf4j
 public class ShoppingListEndpoint {
 
-
-    //TODO refactor this to support the following endpoints:
-    // POST /shopping-lists/{shoppingListId}/items
-    // PATCH /shopping-lists/{shoppingListId}/items/{itemId}
-    // DELETE /shopping-lists/{shoppingListId}/items/{itemId}
 
     private final ShoppingListMapper shoppingListMapper;
     private final ShoppingListService shoppingListService;
@@ -59,6 +57,7 @@ public class ShoppingListEndpoint {
     }
 
     // GET /users/{userId}/shopping-lists
+    // Gets all shopping lists that the user either owns or is a member of a group that the shopping list belongs to
     @Secured("ROLE_USER")
     @GetMapping("/users/{userId}/shopping-lists")
     @PreAuthorize("@securityService.hasCorrectId(#userId)")
@@ -88,12 +87,45 @@ public class ShoppingListEndpoint {
     // PATCH /shopping-lists/{shoppingListId}
     @Secured("ROLE_USER")
     @PatchMapping("/shopping-lists/{shoppingListId}")
-    //@PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
+    @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
     public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
         log.debug("request body: {}", shoppingListUpdateDto);
         var shoppingList = shoppingListService.updateShoppingList(shoppingListId, shoppingListUpdateDto);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
     }
+
+    // --- Item endpoints ---
+
+    // POST users/{userId}/shopping-lists/{shoppingListId}/items
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items")
+    public ShoppingListItemDto addItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @RequestBody ItemCreateDto itemCreateDto) {
+        log.debug("request body: {}", itemCreateDto);
+        var item = shoppingListService.addItemForUser(shoppingListId, itemCreateDto, userId);
+        return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
+    }
+
+    // PATCH users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PatchMapping("users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}")
+    public ShoppingListItemDto updateItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId,
+                                          @RequestBody ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
+        log.debug("request body: {}", shoppingListItemUpdateDto);
+        var item = shoppingListService.updateItemForUser(shoppingListId, itemId, shoppingListItemUpdateDto, userId);
+        return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
+    }
+
+    // DELETE users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @DeleteMapping("users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}")
+    public Long deleteItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId) {
+        return shoppingListService.deleteItem(shoppingListId, itemId);
+    }
+
+
 }
 
 

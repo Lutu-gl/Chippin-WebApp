@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,14 +43,10 @@ public class ShoppingListEndpointTest extends BaseTest {
     @Autowired
     private GroupRepository groupRepository;
 
-    @MockBean
+    @Autowired
     private CustomUserDetailService customUserDetailService;
 
-    private ShoppingListCreateDto shoppingListCreateDto = ShoppingListCreateDto.builder()
-        .name("Test Shopping List")
-        .groupId(1L)
-        .build();
-    @SpyBean
+    @Autowired
     private UserRepository userRepository;
 
     @Test
@@ -73,12 +68,11 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         assertAll(
             () -> assertThat(shoppingListRepository.findAll()).isNotEmpty(),
-            () -> assertThat(shoppingListRepository.findAll().getFirst().getName()).isEqualTo("Test Shopping List")
+            () -> assertThat(shoppingListRepository.findAll().stream().anyMatch(sl -> sl.getName().equals("Test Shopping List"))).isTrue()
         );
         assertThat(shoppingListRepository.findAllByOwnerId(id)).isNotEmpty();
         assertThat(shoppingListRepository.findAllByOwnerId(id).stream()
             .anyMatch(shoppingList -> shoppingList.getName().equals("Test Shopping List"))).isTrue();
-        shoppingListRepository.deleteAll();
 
     }
 
@@ -104,7 +98,7 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         assertAll(
             () -> assertThat(shoppingListRepository.findAll()).isNotEmpty(),
-            () -> assertThat(shoppingListRepository.findAll().getFirst().getName()).isEqualTo("Test Shopping List"),
+            () -> assertThat(shoppingListRepository.findAll().stream().anyMatch(sl -> sl.getName().equals("Test Shopping List"))).isTrue(),
             () -> assertThat(shoppingListRepository.findAllByOwnerId(userId)).isNotEmpty(),
             () -> assertThat(shoppingListRepository.findAllByOwnerId(userId).stream()
                 .anyMatch(shoppingList -> shoppingList.getName().equals("Test Shopping List"))).isTrue(),
@@ -112,7 +106,6 @@ public class ShoppingListEndpointTest extends BaseTest {
             () -> assertThat(shoppingListRepository.findAllByGroupId(groupId).stream()
                 .anyMatch(shoppingList -> shoppingList.getName().equals("Test Shopping List"))).isTrue()
         );
-        shoppingListRepository.deleteAll();
 
     }
 

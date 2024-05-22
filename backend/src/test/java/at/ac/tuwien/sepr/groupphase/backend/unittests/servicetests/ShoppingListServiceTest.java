@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,7 +116,8 @@ public class ShoppingListServiceTest extends BaseTest {
 
     @Test
     public void givenValidUserId_whenGetShoppingListsForUser_thenNoException() {
-        when(shoppingListRepository.findAllByOwnerId(any())).thenReturn(List.of());
+        when(shoppingListRepository.findAllByOwnerId(any())).thenReturn(new ArrayList<>());
+        when(shoppingListRepository.findByGroup_Users_Id(any())).thenReturn(new ArrayList<>());
 
         shoppingListService.getShoppingListsForUser(-1L);
 

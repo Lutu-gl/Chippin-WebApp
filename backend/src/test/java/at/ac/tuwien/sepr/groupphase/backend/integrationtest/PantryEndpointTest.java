@@ -90,7 +90,6 @@ public class PantryEndpointTest extends BaseTest {
     @BeforeEach
     public void beforeEach() {
         pantryRepository.deleteAll();
-        itemRepository.deleteAll();
 
         item = PantryItem.builder()
             .description("Potato")
