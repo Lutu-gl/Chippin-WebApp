@@ -9,6 +9,7 @@ import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
+import {displayQuantity} from "../../util/unit-helper";
 
 @Component({
   selector: 'app-pantry',
@@ -251,4 +252,5 @@ export class PantryComponent implements OnInit {
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly displayQuantity = displayQuantity;
 }

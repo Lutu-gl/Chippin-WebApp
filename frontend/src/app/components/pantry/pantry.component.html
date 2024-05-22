@@ -116,19 +116,20 @@
           </td>
           <td>
             <input type="number" class="form-control" id="itemAmount"
-                   [(ngModel)]="item.amount" disabled>
+                   [value]="displayQuantity(item.unit, item.amount)[1]"
+                   disabled>
           </td>
           <td>
             <input *ngIf="item.lowerLimit !== null" type="number" class="form-control" id="lowerLimit"
-                   [(ngModel)]="item.lowerLimit" disabled>
+                   [value]="displayQuantity(item.unit, item.lowerLimit)[1]" disabled>
             <input *ngIf="item.lowerLimit === null" type="text" class="form-control" id="lowerLimitDisabled"
                    [value]="'-'"
                    disabled>
           </td>
           <td>
-            <select class="form-select" [(ngModel)]="item.unit" disabled>
-              <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
-                      [selected]="item.unit===unit.key">{{ unit.value }}</option>
+            <select class="form-select" disabled>
+              <option *ngFor="let unit of Unit | keyvalue"
+                      [selected]="item.unit===unit.key">{{ displayQuantity(unit.value, item.amount)[0] }}</option>
             </select>
           </td>
           <td>
@@ -143,5 +144,7 @@
 
 <app-confirm-delete-dialog [deleteWhat]="selectedItem?.description"
                            (confirm)="deleteItem(selectedItem.id)"></app-confirm-delete-dialog>
-<app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [items]="items" [itemMergeDto]="mergeItem" [itemToMerge]="clone(itemToEdit)"
-                             (confirmEdit)="editItem(); searchChanged()" (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>
+<app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [items]="items" [itemMergeDto]="mergeItem"
+                             [itemToMerge]="clone(itemToEdit)"
+                             (confirmEdit)="editItem(); searchChanged()"
+                             (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>

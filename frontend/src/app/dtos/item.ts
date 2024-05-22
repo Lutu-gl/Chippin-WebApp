@@ -36,3 +36,12 @@ export enum Unit {
   Gram = "Gram",
   Milliliter = "Milliliter"
 }
+
+export enum DisplayedUnit {
+  Piece = "Piece",
+  Pieces = "Pieces",
+  Gram = "Gram",
+  Kilogram = "Kilogram",
+  Milliliter = "Milliliter",
+  Liter = "Liter"
+}
