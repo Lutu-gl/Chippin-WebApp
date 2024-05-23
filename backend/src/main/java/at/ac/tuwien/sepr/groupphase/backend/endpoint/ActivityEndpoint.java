@@ -47,9 +47,6 @@ public class ActivityEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/group-expenses/{id}")
     public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId, ActivitySearchDto activitySearchDto) throws NotFoundException {
-
-        System.out.println(activitySearchDto);
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName(), activitySearchDto);
     }
