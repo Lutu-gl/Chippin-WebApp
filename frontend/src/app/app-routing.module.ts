@@ -35,6 +35,13 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
+  {path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
+      {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
+      {path: ':shoppingListId', children: [
+          {path: '', component: ShoppingListDetailComponent},
+          {path: 'edit', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.edit}},
+        ]}
+    ]},
   {path: 'group', canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
       {path: '', component: GroupListComponent},

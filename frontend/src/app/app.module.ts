@@ -47,6 +47,9 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import {
+  ShoppingListCreateComponent
+} from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
 
 @NgModule({
   declarations: [
@@ -71,6 +74,7 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     RecipeEditComponent,
     RecipeGlobalComponent,
     PaymentCreateComponent,
+    ShoppingListCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -92,6 +96,9 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     ConfirmDeleteDialogComponent
   ],
   providers: [httpInterceptorProviders],
+  exports: [
+    AutocompleteComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -41,7 +41,7 @@ export class ShoppingListDetailComponent implements OnInit{
   }
 
   loadShoppingListDetailDto(): void {
-    this.shoppingListService.getShoppingListById(this.groupId, this.shoppingListId).subscribe({
+    this.shoppingListService.getShoppingListById(this.shoppingListId).subscribe({
       next: shoppingList => {
         this.shoppingListDetailDto = shoppingList;
       },

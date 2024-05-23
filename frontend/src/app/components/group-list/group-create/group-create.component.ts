@@ -261,8 +261,7 @@ export class GroupCreateComponent implements OnInit {
   }
 
   public addMember(member: UserSelection | null) {
-    if (!member)
-      return;
+    if (!member) return;
     setTimeout(() => {
       const members = this.members;
       if (members.some(m => m?.email === member.email)) {

@@ -1,20 +1,24 @@
 import {ItemDetailDto} from "./item";
+import {Category} from "./category";
+import {GroupDto} from "./group";
 
 
 export interface ShoppingListCreateDto {
   name: string;
-  budget: number;
+  categories: Category[];
+  group: number | null;
 }
 
 export interface ShoppingListEditDto {
   name: string;
-  budget: number;
+  categories: Category[];
+  group: number | null;
 }
 
 export interface ShoppingListDetailDto {
   id: number;
   name: string;
-  budget: number;
+  categories: Category[];
   groupId: number;
   items: ItemDetailDto[];
 }

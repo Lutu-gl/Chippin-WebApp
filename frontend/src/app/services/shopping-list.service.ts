@@ -33,11 +33,10 @@ export class ShoppingListService {
   /**
    * Gets a shopping list by its id.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    */
-  getShoppingListById(groupId: number, shoppingListId: number): Observable<ShoppingListDetailDto> {
-    return this.httpClient.get<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`);
+  getShoppingListById(shoppingListId: number): Observable<ShoppingListDetailDto> {
+    return this.httpClient.get<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`);
   }
 
   /**
