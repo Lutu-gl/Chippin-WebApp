@@ -30,6 +30,7 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent, PaymentCreateEditMode} from "./components/payment-create/payment-create.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 
 
 const routes: Routes = [
@@ -59,6 +60,7 @@ const routes: Routes = [
     ]},
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
+  {path: 'friends/:email', canActivate: mapToCanActivate([AuthGuard]), component: FriendInfoComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
   {path: 'recipe', canActivate: mapToCanActivate([AuthGuard]), component: RecipeComponent},
   {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent},

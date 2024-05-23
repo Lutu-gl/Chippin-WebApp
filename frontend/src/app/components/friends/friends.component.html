@@ -17,8 +17,15 @@
     <div>
         <h2 style="margin-bottom: 15px;">Friends</h2>
         <div>
-            <div *ngFor="let email of friends" style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
-                <span>{{ email }}</span>
+            <div 
+                *ngFor="let friend of friends"
+                style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;"
+                [routerLink]="['/friends', friend.email]"
+            >
+                <span>{{ friend.email }}</span>
+                <span class="ms-6" [ngClass]="{'text-danger': friend.debt < 0, 'text-success': friend.debt > 0, 'badge bg-secondary rounded-pill': friend.debt === 0}">
+                    {{ friend.debt === 0 ? 'quitt' : friend.debt + '€' }}
+                </span>
             </div>
         </div>
     </div>

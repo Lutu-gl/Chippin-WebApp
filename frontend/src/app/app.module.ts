@@ -47,6 +47,7 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     AutocompleteComponent,
     LoginComponent,
     FriendsComponent,
+    FriendInfoComponent,
     AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
