@@ -22,8 +22,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,7 +61,7 @@ public class ActivityEndpointTest {
             .category(ActivityCategory.PAYMENT)
             .timestamp(LocalDateTime.now())
             .build();
-        when(activityService.getById(any())).thenReturn(mockActivity);
+        when(activityService.getById(any(), anyString())).thenReturn(mockActivity);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/1")
             .header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
             .andExpect(status().isOk())

@@ -36,11 +36,7 @@ public class ActivityEndpoint {
     @GetMapping("{id}")
     public ActivityDetailDto getById(@PathVariable("id") long id) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        ActivityDetailDto res = null;
-        res = activityService.getById(id);
-
-        return res;
+        return activityService.getById(id, authentication.getName());
     }
 
     @Secured("ROLE_USER")

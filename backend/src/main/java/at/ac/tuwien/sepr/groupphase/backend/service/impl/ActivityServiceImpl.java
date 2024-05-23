@@ -34,9 +34,13 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @Transactional
-    public ActivityDetailDto getById(Long id) throws NotFoundException {
+    public ActivityDetailDto getById(Long id, String requesterEmail) throws NotFoundException {
         LOGGER.trace("getById({})", id);
+        ApplicationUser user = userRepository.findByEmail(requesterEmail);
         Activity activityFound = activityRepository.findById(id).orElseThrow(() -> new NotFoundException("Activity not found"));
+        if (!activityFound.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("Authenticated user is not allowed to access this activity!");
+        }
         ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activityFound);
         activityDetailDto.setDescription(giveDescriptionToActivity(activityFound));
         return activityDetailDto;

@@ -88,10 +88,11 @@ public class ActivityServiceTest {
             .userId(1L)
             .build();
 
+        when(userRepository.findByEmail(anyString())).thenReturn(mockUserEntity);
         when(activityRepository.findById(1L)).thenReturn(Optional.ofNullable(mockActivity1));
         when(activityMapper.activityEntityToActivityDetailDto(mockActivity1)).thenReturn(dtoMockActivity1);
 
-        ActivityDetailDto activityDetailDto = activityService.getById(1L);
+        ActivityDetailDto activityDetailDto = activityService.getById(1L, "test@email.com");
         assertNotNull(activityDetailDto);
         assertEquals("User test@email.com created expense TestExpense in group TestGroup", activityDetailDto.getDescription());
     }

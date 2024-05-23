@@ -12,10 +12,11 @@ public interface ActivityService {
      * Get a specific activity by id.
      *
      * @param id the id of the activity
+     * @param requesterEmail the email of the user who requests the activity
      * @return the activity
      * @throws NotFoundException if the activity is not found
      */
-    ActivityDetailDto getById(Long id) throws NotFoundException;
+    ActivityDetailDto getById(Long id, String requesterEmail) throws NotFoundException;
 
     /**
      * Get all expense activities of a specific group.
