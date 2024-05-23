@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
@@ -15,6 +16,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -36,6 +38,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,6 +63,9 @@ public class PantryEndpointTest extends BaseTest {
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -88,8 +94,17 @@ public class PantryEndpointTest extends BaseTest {
     private PantryItem item3;
 
     @BeforeEach
+    @Transactional
     public void beforeEach() {
-        pantryRepository.deleteAll();
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setEmail("user1GE@example.com");
+        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+        userRepository.save(user1);
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setEmail("user2GE@example.com");
+        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+        userRepository.save(user2);
 
         item = PantryItem.builder()
             .description("Potato")
@@ -109,7 +124,7 @@ public class PantryEndpointTest extends BaseTest {
             .unit(Unit.Piece)
             .build();
 
-        group = GroupEntity.builder().groupName("T1").build();
+        group = GroupEntity.builder().groupName("T1").users(Set.of(user1)).build();
         Pantry pantry = Pantry.builder().build();
         pantry.setGroup(group);
         group.setPantry(pantry);
@@ -117,14 +132,14 @@ public class PantryEndpointTest extends BaseTest {
         group.getPantry().addItem(item);
         groupRepository.save(group);
 
-        groupEmptyPantry = GroupEntity.builder().groupName("T2").build();
+        groupEmptyPantry = GroupEntity.builder().groupName("T2").users(Set.of(user1)).build();
         Pantry pantry2 = Pantry.builder().build();
         pantry2.setGroup(groupEmptyPantry);
         groupEmptyPantry.setPantry(pantry2);
 
         groupRepository.save(groupEmptyPantry);
 
-        group3 = GroupEntity.builder().groupName("T3").build();
+        group3 = GroupEntity.builder().groupName("T3").users(Set.of(user1)).build();
         Pantry pantry3 = Pantry.builder().build();
         pantry3.setGroup(group3);
         group3.setPantry(pantry3);
@@ -137,23 +152,21 @@ public class PantryEndpointTest extends BaseTest {
 
 
     @Test
-    @Rollback
-    @Transactional
-    public void givenInvalidPantryId_whenFindAllInPantry_then404()
+    public void givenInvalidPantryId_whenFindAllInPantry_then403()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", -1))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
     }
 
     @Test
     public void givenEmptyPantry_whenFindAllInPantry_thenEmptyList()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupEmptyPantry.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -170,7 +183,7 @@ public class PantryEndpointTest extends BaseTest {
     public void givenPantryWithOneItem_whenFindAllInPantry_thenListWithSizeOneAndCorrectItem()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -194,7 +207,7 @@ public class PantryEndpointTest extends BaseTest {
         throws Exception {
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry/search", group.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .queryParam("details", "otat")
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -222,7 +235,7 @@ public class PantryEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
         MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -249,7 +262,7 @@ public class PantryEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
         MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -264,7 +277,7 @@ public class PantryEndpointTest extends BaseTest {
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/pantry/%d", group.getId(), item.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andReturn();
@@ -283,7 +296,7 @@ public class PantryEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());
 
         MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -316,7 +329,7 @@ public class PantryEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(PantryItemMergeDto.builder().result(pantryItemDto).itemToDeleteId(item3.getId()).build());
 
         MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry/merged", group3.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
