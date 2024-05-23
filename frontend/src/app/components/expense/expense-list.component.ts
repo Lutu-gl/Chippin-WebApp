@@ -24,6 +24,7 @@ export class ExpenseListComponent implements OnChanges {
 
   onSearchChange(): void {
     this.fetchExpenses();
+    this.fetchPayments();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -66,6 +67,7 @@ export class ExpenseListComponent implements OnChanges {
     this.activityService.getPaymentActivitiesFromGroup(this.groupId, null).subscribe({
       next: data => {
         this.expenseList = data;
+        console.log(data)
       },
       error: error => {
         console.log(error);

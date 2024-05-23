@@ -5,6 +5,7 @@ export interface ActivityDetailDto {
   timestamp: Date,
   expenseId: number,
   groupId: number,
+  paymentId: number,
   userId: number
 }
 

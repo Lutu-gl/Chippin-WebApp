@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
-import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -13,9 +10,19 @@ import org.mapstruct.Named;
 public abstract class ActivityMapper {
 
     @Mapping(target = "expenseId", source = "expense", qualifiedByName = "expenseToExpenseId")
+    @Mapping(target = "paymentId", source = "payment", qualifiedByName = "paymentToPaymentId")
     @Mapping(target = "groupId", source = "group", qualifiedByName = "groupToGroupId")
     @Mapping(target = "userId", source = "user", qualifiedByName = "userToUserId")
     public abstract ActivityDetailDto activityEntityToActivityDetailDto(Activity activity);
+
+    @Named("paymentToPaymentId")
+    Long expenseToExpenseId(Payment payment) {
+        if (payment == null) {
+            return null;
+        }
+
+        return payment.getId();
+    }
 
     @Named("expenseToExpenseId")
     Long expenseToExpenseId(Expense expense) {

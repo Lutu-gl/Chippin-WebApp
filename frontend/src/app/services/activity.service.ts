@@ -16,7 +16,7 @@ export class ActivityService {
 
   private formatIsoDate(date: Date): string {
     return formatDate(date, 'YYYY-MM-ddThh:mm:ss', 'en-DK');
-  }  
+  }
 
   getExpenseActivitiesFromGroup(groupId: number, searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
     let params = new HttpParams();
@@ -35,13 +35,13 @@ export class ActivityService {
 
   getPaymentActivitiesFromGroup(groupId: number, searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
     let params = new HttpParams();
-    if (searchCriteria.search) {
+    if (searchCriteria?.search) {
       params = params.append('search', searchCriteria.search);
     }
-    if (searchCriteria.from) {
+    if (searchCriteria?.from) {
       params = params.append('from', this.formatIsoDate(searchCriteria.from));
     }
-    if (searchCriteria.to) {
+    if (searchCriteria?.to) {
       params = params.append('to', this.formatIsoDate(searchCriteria.to));
     }
 
