@@ -1,7 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../dtos/item";
+import {
+  DisplayedUnit,
+  PantryItemCreateDisplayDto,
+  PantryItemCreateDto,
+  PantryItemDetailDto,
+  PantryItemMergeDto,
+  Unit
+} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -33,9 +40,9 @@ export class PantryComponent implements OnInit {
   errorMessage = '';
 
   items: PantryItemDetailDto[];
-  newItem: PantryItemCreateDto = {
+  newItem: PantryItemCreateDisplayDto = {
     amount: 0,
-    unit: Unit.Piece,
+    unit: DisplayedUnit.Piece,
     description: "",
     lowerLimit: null
   };
@@ -122,13 +129,47 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  convertItemDto(item: PantryItemCreateDisplayDto): PantryItemCreateDto {
+    let updatedUnit: Unit;
+    let factor: number = 1;
+    switch (item.unit) {
+      case DisplayedUnit.Gram:
+        updatedUnit = Unit.Gram;
+        break;
+      case DisplayedUnit.Kilogram:
+        updatedUnit = Unit.Gram;
+        factor = 1000;
+        break;
+      case DisplayedUnit.Milliliter:
+        updatedUnit = Unit.Milliliter;
+        break;
+      case DisplayedUnit.Liter:
+        updatedUnit = Unit.Milliliter;
+        factor = 1000;
+        break;
+      case DisplayedUnit.Piece:
+        updatedUnit = Unit.Piece;
+        break;
+      case DisplayedUnit.Pieces:
+        updatedUnit = Unit.Piece;
+        break;
+    }
+
+    return {
+      description: item.description,
+      lowerLimit: item.lowerLimit,
+      amount: item.amount * factor,
+      unit: updatedUnit,
+    }
+  }
+
   addItem() {
     this.newLowerLimit = 0;
-    this.service.createItem(this.id, this.newItem).subscribe({
+    this.service.createItem(this.id, this.convertItemDto(this.newItem)).subscribe({
       next: res => {
         console.log("Item created: ", res);
         this.newItem.amount = 0;
-        this.newItem.unit = Unit.Piece;
+        this.newItem.unit = DisplayedUnit.Piece;
         this.newItem.description = '';
         this.getPantry(this.id);
       },
@@ -204,53 +245,44 @@ export class PantryComponent implements OnInit {
   }
 
   getUnitStep(item: PantryItemDetailDto, largeStep: boolean, positive: boolean): number {
-    let value: number = item.amount < 1000 ? 1 : 10;
+    let value: number = 1; //item.amount < 1000 ? 1 : 10;
     let prefixNum = positive ? 1 : -1;
     switch (item.unit) {
       case Unit.Piece:
-        value *= prefixNum;
+        value = item.amount < 100 ? value : value * 5;
         break
       case Unit.Gram:
-        value *= prefixNum * 10;
+        value = item.amount < 1000 ? value * 10 : value * 100;
         break;
       case Unit.Milliliter:
-        value *= prefixNum * 10;
+        value = item.amount < 1000 ? value * 10 : value * 100;
         break;
       default:
         console.error("Undefined unit");
     }
-
+    value *= prefixNum;
     return largeStep ? value * 10 : value;
   }
 
-  getUnitStepString(value: number, itemAmount: number): string {
+  getUnitStepString(value: number, item: PantryItemDetailDto): string {
+    if (item.unit === Unit.Piece) {
+      if (value > 0) {
+        return "+" + value;
+      } else {
+        return value.toString();
+      }
+    }
     if (value > 0) {
-      if (itemAmount < 1000) {
+      if (item.amount < 1000) {
         return "+" + value;
       } else {
         return "+" + value / 1000;
       }
-    } else return itemAmount < 1000 ? value.toString() : (value / 1000).toString();
-  }
-
-  getItemAmount(itemAmount: number): number {
-    return itemAmount >= 1000 ? itemAmount / 1000 : itemAmount;
-  }
-
-  getUnit(itemAmount: number, unit: Unit): string {
-    switch (unit) {
-      case Unit.Piece:
-        return itemAmount == 1 ? "Piece" : "Pieces";
-      case Unit.Gram:
-        return itemAmount >= 1000 ? "Kilogram" : "Gram";
-      case Unit.Milliliter:
-        return itemAmount >= 1000 ? "Milliliter" : "Liter";
-      default:
-        console.error("Undefined unit");
-    }
+    } else return item.amount < 1000 ? value.toString() : (value / 1000).toString();
   }
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
   protected readonly displayQuantity = displayQuantity;
+  protected readonly DisplayedUnit = DisplayedUnit;
 }

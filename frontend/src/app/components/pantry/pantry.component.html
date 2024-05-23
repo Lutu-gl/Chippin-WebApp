@@ -44,7 +44,7 @@
         </div>
         <div class="col-2">
           <select name="newItemUnit" class="form-select" [(ngModel)]="newItem.unit" required>
-            <option *ngFor="let unit of Unit | keyvalue"
+            <option *ngFor="let unit of DisplayedUnit | keyvalue"
                     [selected]="newItem.unit===unit.key">{{ unit.value }}</option>
           </select>
         </div>
@@ -95,21 +95,21 @@
               <div class="row">
                 <!--small-->
                 <a class="btn btn-sm responsive-success-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, false, true), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, false, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, true))"></a>
                 <!--large-->
                 <a class="btn btn-sm responsive-success-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, true, true), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, true, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, true))"></a>
               </div>
               <div class="row">
                 <!--small-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, false, false), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, false, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, false))"></a>
                 <!--large-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, true, false), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, true, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, false))"></a>
               </div>
             </div>

@@ -31,6 +31,13 @@ export interface PantryItemCreateDto {
   lowerLimit: number;
 }
 
+export interface PantryItemCreateDisplayDto {
+  description: String;
+  amount: number;
+  unit: DisplayedUnit;
+  lowerLimit: number;
+}
+
 export enum Unit {
   Piece = "Piece",
   Gram = "Gram",

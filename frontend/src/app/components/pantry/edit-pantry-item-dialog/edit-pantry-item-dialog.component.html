@@ -36,7 +36,7 @@
           <div class="col-2">
             <label for="newItemUnit">Unit</label>
             <select name="newItemUnit" id="newItemUnit" class="form-select" [(ngModel)]="itemToEdit.unit" required>
-              <option *ngFor="let unit of Unit | keyvalue"
+              <option *ngFor="let unit of DisplayedUnit | keyvalue"
                       [selected]="itemToEdit.unit===unit.key">{{ unit.value }}</option>
             </select>
           </div>
