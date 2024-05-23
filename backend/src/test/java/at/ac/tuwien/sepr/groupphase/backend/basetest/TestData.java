@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -102,6 +103,28 @@ public interface TestData {
                 .groupName("testGroup3")
                 .users(new HashSet<>(Arrays.asList(USERS.get(0), USERS.get(8), USERS.get(1), USERS.get(4), USERS.get(7))))
                 .build());
+        }
+    };
+
+    List<Pantry> PANTRIES = new ArrayList<>() {
+        {
+            Pantry p0 = Pantry.builder().build();
+            GroupEntity g0 = GROUPS.get(0);
+            p0.setGroup(g0);
+            g0.setPantry(p0);
+            add(p0);
+
+            Pantry p1 = Pantry.builder().build();
+            GroupEntity g1 = GROUPS.get(1);
+            p1.setGroup(g1);
+            g1.setPantry(p1);
+            add(p1);
+
+            Pantry p2 = Pantry.builder().build();
+            GroupEntity g2 = GROUPS.get(2);
+            p2.setGroup(g2);
+            g2.setPantry(p2);
+            add(p2);
         }
     };
 
