@@ -92,7 +92,7 @@
               <label for="mergedItemUnit">Unit</label>
               <select name="mergedItemUnit" id="mergedItemUnit" class="form-select" [(ngModel)]="itemMergeDto.result.unit"
                       required [disabled]="itemToMergeWith.unit === itemToEdit.unit">
-                <option *ngFor="let unit of Unit | keyvalue"
+                <option *ngFor="let unit of DisplayedUnit | keyvalue"
                         [selected]="itemMergeDto.result.unit===unit.key">{{ unit.value }}</option>
               </select>
             </div>
