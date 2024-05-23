@@ -54,6 +54,7 @@ export class ShoppingListCreateComponent implements OnInit {
   }
 
   groupSuggestions = (input: string): Observable<any[]> => {
+    console.log(this.groupService.getGroups());
     if (!input) return this.groupService.getGroups();
     return this.groupService.getGroups().pipe(
       map(groups => groups.filter(group => group.groupName.toLowerCase().includes(input.toLowerCase())))
@@ -95,10 +96,14 @@ export class ShoppingListCreateComponent implements OnInit {
     this.shoppingListService.getShoppingListById(this.shoppingListId).subscribe({
       next: shoppingList => {
         this.shoppingListDto = {
+          owner: shoppingList.owner,
           name: shoppingList.name,
           categories: shoppingList.categories,
-          group: shoppingList.groupId
+          group: shoppingList.group
         };
+        this.dummyGroupSelectionModel = shoppingList.group;
+        console.log(this.shoppingListDto)
+        console.log(this.currentUserId)
       },
       error: err => {
         console.error(err);
@@ -120,12 +125,11 @@ export class ShoppingListCreateComponent implements OnInit {
 
   setGroup(group: GroupDto ): void {
     if (!group) {
-      this.dummyGroupSelectionModel = null;
       this.shoppingListDto.group = null;
       return;
     }
     setTimeout(() => {
-      this.shoppingListDto.group = group.id;
+      this.shoppingListDto.group = group;
     })
 
 
@@ -145,11 +149,11 @@ export class ShoppingListCreateComponent implements OnInit {
     }
 
     if (this.mode === ShoppingListCreateEditMode.edit) {
-      this.shoppingListService.updateShoppingList(this.groupId, this.shoppingListId, this.shoppingListDto).subscribe({
+      this.shoppingListService.updateShoppingList(this.shoppingListId, this.shoppingListDto).subscribe({
         next: response => {
           this.notification.success(`Shopping list ${this.shoppingListDto.name} updated successfully`);
           console.log("Edit mode")
-          this.router.navigate([`/group/${this.groupId}/shoppingList/${this.shoppingListId}`]);
+          this.router.navigate([`/shopping-list/${this.shoppingListId}`]);
         },
         error: err => {
           this.notification.error(`Failed to update shopping list ${this.shoppingListDto.name}`);
@@ -163,7 +167,7 @@ export class ShoppingListCreateComponent implements OnInit {
         next: response => {
           this.notification.success(`Shopping list ${this.shoppingListDto.name} created successfully`);
           console.log("Create mode")
-          this.router.navigate([`/group/${this.groupId}/shoppingList/${response.id}`]);
+          this.router.navigate([`/shopping-list/${response.id}`]);
         },
         error: err => {
           this.notification.error(`Failed to create shopping list ${this.shoppingListDto.name}`);

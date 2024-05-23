@@ -60,15 +60,19 @@ export class ShoppingListService {
   /**
    * Updates a shopping list.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    * @param shoppingList the shopping list to update
    * @returns the updated shopping list
    */
-  updateShoppingList(groupId: number, shoppingListId: number, shoppingList: ShoppingListEditDto): Observable<ShoppingListDetailDto> {
-    return this.httpClient.put<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`, shoppingList);
+  updateShoppingList(shoppingListId: number, shoppingList: ShoppingListCreateEditDto): Observable<ShoppingListDetailDto> {
+    return this.httpClient.patch<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`, shoppingList);
   }
 
+  /**
+   * Gets all shopping lists for a user.
+   *
+   * @param currentUserId the id of the user
+   */
   getShoppingListsForUser(currentUserId: number) {
     return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/users/${currentUserId}/shopping-lists`);
   }

@@ -44,7 +44,7 @@
       <div>
         <app-autocomplete name="groupSelection" textInputClass="form-control"
                           [suggestions]="groupSuggestions" [formatModel]="formatGroup"
-                          valueNeedsToMatchSuggestion="true"
+                          valueNeedsToMatchSuggestion="true" [disabled]="shoppingListDto.owner && currentUserId !== shoppingListDto.owner?.id"
                           [(ngModel)]="dummyGroupSelectionModel" (ngModelChange)="setGroup($event)">
         </app-autocomplete>
       </div>

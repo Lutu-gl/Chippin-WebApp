@@ -1,14 +1,17 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ShoppingListDetailDto, ShoppingListEditDto} from "../../../dtos/shoppingList";
+import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-shopping-list-detail',
   standalone: true,
   imports: [
     RouterLink,
+    NgForOf,
+    NgIf,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
