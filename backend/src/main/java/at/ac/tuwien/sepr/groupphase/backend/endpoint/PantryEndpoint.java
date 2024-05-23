@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,6 +44,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @GetMapping("/{pantryId}/pantry")
     public PantryDetailDto findAllInPantry(@PathVariable long pantryId) {
         LOGGER.info("GET /api/v1/group/{}/pantry", pantryId);
@@ -50,6 +52,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @GetMapping("/{pantryId}/pantry/search")
     public PantryDetailDto searchItemsInPantry(@PathVariable long pantryId, PantrySearchDto searchParams) {
         LOGGER.info("GET /api/v1/group/{}/pantry/search", pantryId);
@@ -58,6 +61,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PostMapping("/{pantryId}/pantry")
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItemToPantry(@PathVariable long pantryId, @Valid @RequestBody PantryItemCreateDto itemCreateDto) {
@@ -67,6 +71,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @DeleteMapping("/{pantryId}/pantry/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteItem(@PathVariable long pantryId, @PathVariable long itemId) {
@@ -75,6 +80,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry")
     public ItemDto updateItem(@PathVariable long pantryId, @Valid @RequestBody PantryItemDto itemDto) {
         LOGGER.info("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
@@ -82,6 +88,7 @@ public class PantryEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry/merged")
     public PantryItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) {
         LOGGER.info("PUT /api/v1/group/{}/pantry/merged body: {}", pantryId, itemMergeDto);
