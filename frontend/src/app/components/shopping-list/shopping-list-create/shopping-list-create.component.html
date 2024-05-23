@@ -10,24 +10,26 @@
            #shoppingListTitleModel="ngModel" required minlength="1">
     <div class="invalid-feedback">Name is required</div>
   </div>
-    Categories, Group
-  <div class="col-md-11 col-lg-10">
+  <div class="tw-flex tw-gap-4 col-md-11 col-lg-10">
     <div>
-      <app-autocomplete name="categorySelection" textInputClass="form-control"
-                        [suggestions]="categorySuggestions" [formatModel]="formatCategory"
-                        valueNeedsToMatchSuggestion="true"
-                        [(ngModel)]="dummyCategorySelectionModel" (ngModelChange)="addCategory($event)">
-      </app-autocomplete>
+      <label>Categories</label>
+      <div>
+        <app-autocomplete name="categorySelection" textInputClass="form-control"
+                          [suggestions]="categorySuggestions" [formatModel]="formatCategory"
+                          valueNeedsToMatchSuggestion="true"
+                          [(ngModel)]="dummyCategorySelectionModel" (ngModelChange)="addCategory($event)">
+        </app-autocomplete>
+      </div>
     </div>
-    <div>
+    <div class="tw-w-full">
       <table class="table align-baseline">
         <tbody>
         <tr *ngFor="let category of shoppingListDto.categories; index as i">
-          <td>{{i+1}}:</td>
-          <td>{{formatCategory(category)}}</td>
+          <td>{{ i + 1 }}:</td>
+          <td>{{ formatCategory(category) }}</td>
           <td class="min-width">
             <button type="button" class="btn btn-light ms-2" (click)="removeCategory(category)"
-                    [style.visibility]="category ? 'visible' : 'hidden'" >
+                    [style.visibility]="category ? 'visible' : 'hidden'">
               <i class="bi-trash"></i>
             </button>
           </td>
@@ -36,23 +38,35 @@
       </table>
     </div>
   </div>
-<!--  <div class="col-md-11 col-lg-10">-->
-<!--    <app-autocomplete name="groupSelection" textInputClass="form-control"-->
-<!--                      [suggestions]="groupSuggestions" [formatModel]="formatModel"-->
-<!--                      valueNeedsToMatchSuggestion="true"-->
-<!--                      [(ngModel)]="dummyGroupSlectionModel" (ngModelChange)="setGroup($event)">-->
-<!--    </app-autocomplete>-->
+  <div class="tw-flex tw-gap-4 col-md-11 col-lg-10">
+    <div>
+      <label>Group</label>
+      <div>
+        <app-autocomplete name="groupSelection" textInputClass="form-control"
+                          [suggestions]="groupSuggestions" [formatModel]="formatGroup"
+                          valueNeedsToMatchSuggestion="true"
+                          [(ngModel)]="dummyGroupSelectionModel" (ngModelChange)="setGroup($event)">
+        </app-autocomplete>
+      </div>
+    </div>
+  </div>
+  <!--  <div class="col-md-11 col-lg-10">-->
+  <!--    <app-autocomplete name="groupSelection" textInputClass="form-control"-->
+  <!--                      [suggestions]="groupSuggestions" [formatModel]="formatModel"-->
+  <!--                      valueNeedsToMatchSuggestion="true"-->
+  <!--                      [(ngModel)]="dummyGroupSlectionModel" (ngModelChange)="setGroup($event)">-->
+  <!--    </app-autocomplete>-->
 
-<!--  </div>-->
-<!--  <div class="col-md-11 col-lg-10">-->
-<!--    <label for="shoppingListBudget">Budget</label>-->
-<!--    <input name="shoppingListBudget" type="number" class="form-control" id="shoppingListBudget" placeholder="89.99"-->
-<!--           [(ngModel)]="shoppingListDto.budget"-->
-<!--           [class]="dynamicCssClassesForInput(shoppingListBudgetModel)"-->
-<!--           #shoppingListBudgetModel="ngModel"-->
-<!--           required min="1">-->
-<!--    <div class="invalid-feedback">Budget is required</div>-->
-<!--  </div>-->
+  <!--  </div>-->
+  <!--  <div class="col-md-11 col-lg-10">-->
+  <!--    <label for="shoppingListBudget">Budget</label>-->
+  <!--    <input name="shoppingListBudget" type="number" class="form-control" id="shoppingListBudget" placeholder="89.99"-->
+  <!--           [(ngModel)]="shoppingListDto.budget"-->
+  <!--           [class]="dynamicCssClassesForInput(shoppingListBudgetModel)"-->
+  <!--           #shoppingListBudgetModel="ngModel"-->
+  <!--           required min="1">-->
+  <!--    <div class="invalid-feedback">Budget is required</div>-->
+  <!--  </div>-->
   <!-- Submit button -->
   <div class="col-md-11 col-lg-10">
     <button name="submit" type="submit" class="btn btn-info m-2">

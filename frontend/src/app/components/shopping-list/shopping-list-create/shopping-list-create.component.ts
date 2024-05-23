@@ -1,13 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {ShoppingListCreateDto} from "../../../dtos/shoppingList";
+import {ShoppingListCreateEditDto} from "../../../dtos/shoppingList";
 import {FormsModule, NgForm, NgModel} from "@angular/forms";
 import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ToastrService} from "ngx-toastr";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppModule} from "../../../app.module";
-import {Observable, of} from "rxjs";
+import {map, Observable, of} from "rxjs";
 import {Category} from "../../../dtos/category";
+import {GroupService} from "../../../services/group.service";
+import {GroupDto} from "../../../dtos/group";
+import {AuthService} from "../../../services/auth.service";
 
 
 export enum ShoppingListCreateEditMode {
@@ -24,24 +27,48 @@ export enum ShoppingListCreateEditMode {
 export class ShoppingListCreateComponent implements OnInit {
   mode: ShoppingListCreateEditMode = ShoppingListCreateEditMode.create;
   protected readonly ShoppingListCreateEditMode = ShoppingListCreateEditMode;
-
+  currentUserId: number;
   groupId: number;
   shoppingListId: number;
-  shoppingListDto: ShoppingListCreateDto = {
+  shoppingListDto: ShoppingListCreateEditDto = {
     name: "",
     categories: [],
     group: null,
   }
 
-
-  // let categorysuggestions be all categories from the Category-enum that include the input string
-  categorySuggestions = (text: string): Observable<Category[]> => {
-    return of(Object.values(Category).filter(c => c.includes(text)));
+  constructor(private shoppingListService: ShoppingListService,
+              private groupService: GroupService,
+              private notification: ToastrService,
+              private route: ActivatedRoute,
+              private router: Router,
+              private authService: AuthService) {
   }
 
   dummyCategorySelectionModel: unknown;
+  dummyGroupSelectionModel: unknown;
+
+  // let categorysuggestions be all categories from the Category-enum that include the input string
+  categorySuggestions = (text: string): Observable<Category[]> => {
+    if (!text) return of(Object.values(Category));
+    return of(Object.values(Category).filter(c => c.toLowerCase().includes(text.toLowerCase())));
+  }
+
+  groupSuggestions = (input: string): Observable<any[]> => {
+    if (!input) return this.groupService.getGroups();
+    return this.groupService.getGroups().pipe(
+      map(groups => groups.filter(group => group.groupName.toLowerCase().includes(input.toLowerCase())))
+    );
+  }
+
+  formatGroup = (model: GroupDto) => {
+    if (!model) return "";
+    return model.groupName;
+  };
 
   ngOnInit(): void {
+    // Set current userId
+    this.currentUserId = this.authService.getUserId();
+
     this.route.data.subscribe({
       next: data => {
         this.mode = data['mode'];
@@ -79,11 +106,6 @@ export class ShoppingListCreateComponent implements OnInit {
     });
   }
 
-  constructor(private shoppingListService: ShoppingListService,
-              private notification: ToastrService,
-              private route: ActivatedRoute,
-              private router: Router) {
-  }
 
   addCategory(category: Category): void {
     if (!category || this.shoppingListDto.categories.includes(category)) {
@@ -94,6 +116,19 @@ export class ShoppingListCreateComponent implements OnInit {
       this.dummyCategorySelectionModel = null;
       this.shoppingListDto.categories.push(category);
     })
+  }
+
+  setGroup(group: GroupDto ): void {
+    if (!group) {
+      this.dummyGroupSelectionModel = null;
+      this.shoppingListDto.group = null;
+      return;
+    }
+    setTimeout(() => {
+      this.shoppingListDto.group = group.id;
+    })
+
+
   }
 
 
@@ -124,7 +159,7 @@ export class ShoppingListCreateComponent implements OnInit {
       return;
     }
 
-    this.shoppingListService.createShoppingList(this.groupId, this.shoppingListDto).subscribe({
+    this.shoppingListService.createShoppingList(this.currentUserId, this.shoppingListDto).subscribe({
         next: response => {
           this.notification.success(`Shopping list ${this.shoppingListDto.name} created successfully`);
           console.log("Create mode")
@@ -145,4 +180,5 @@ export class ShoppingListCreateComponent implements OnInit {
   removeCategory(category: Category) {
     this.shoppingListDto.categories = this.shoppingListDto.categories.filter(c => c !== category);
   }
+
 }

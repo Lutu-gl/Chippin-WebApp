@@ -11,7 +11,9 @@
 
           <app-menu-card>
             <div title>Shopping lists</div>
-            <div content>shopping lists here</div>
+            <div content>
+              <app-shopping-list-info-card-content></app-shopping-list-info-card-content>
+            </div>
             <div cardButton1><a class="btn btn-secondary" [routerLink]="['shopping-list', 'create']">Add shopping list</a></div>
           </app-menu-card>
 

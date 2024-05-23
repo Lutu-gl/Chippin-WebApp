@@ -50,6 +50,9 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
 import {
   ShoppingListCreateComponent
 } from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
+import {
+  ShoppingListInfoCardContentComponent
+} from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
 
 @NgModule({
   declarations: [
@@ -93,7 +96,7 @@ import {
     FriendsInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   exports: [

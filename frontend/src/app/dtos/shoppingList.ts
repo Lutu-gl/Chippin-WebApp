@@ -3,13 +3,7 @@ import {Category} from "./category";
 import {GroupDto} from "./group";
 
 
-export interface ShoppingListCreateDto {
-  name: string;
-  categories: Category[];
-  group: number | null;
-}
-
-export interface ShoppingListEditDto {
+export interface ShoppingListCreateEditDto {
   name: string;
   categories: Category[];
   group: number | null;

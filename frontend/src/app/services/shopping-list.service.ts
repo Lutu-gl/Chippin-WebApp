@@ -3,9 +3,8 @@ import {Globals} from '../global/globals';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
-  ShoppingListCreateDto,
+  ShoppingListCreateEditDto,
   ShoppingListDetailDto,
-  ShoppingListEditDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
 
@@ -23,11 +22,11 @@ export class ShoppingListService {
   /**
    * Creates a new shopping list for a group.
    *
-   * @param groupId the id of the group
+   * @param userId the id of the user creating the shopping list
    * @param shoppingList the shopping list to create
    */
-  createShoppingList(groupId: number, shoppingList: ShoppingListCreateDto): Observable<ShoppingListDetailDto> {
-    return this.httpClient.post<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist`, shoppingList);
+  createShoppingList(userId: number, shoppingList: ShoppingListCreateEditDto): Observable<ShoppingListDetailDto> {
+    return this.httpClient.post<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists`, shoppingList);
   }
 
   /**
@@ -68,5 +67,9 @@ export class ShoppingListService {
    */
   updateShoppingList(groupId: number, shoppingListId: number, shoppingList: ShoppingListEditDto): Observable<ShoppingListDetailDto> {
     return this.httpClient.put<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`, shoppingList);
+  }
+
+  getShoppingListsForUser(currentUserId: number) {
+    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/users/${currentUserId}/shopping-lists`);
   }
 }
