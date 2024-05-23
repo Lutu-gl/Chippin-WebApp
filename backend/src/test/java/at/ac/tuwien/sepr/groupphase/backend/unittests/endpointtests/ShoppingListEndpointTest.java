@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
@@ -109,7 +110,8 @@ public class ShoppingListEndpointTest extends BaseTest {
         mockMvc.perform(get("/api/v1/shopping-lists/-1"))
             .andExpect(status().isOk())
             .andExpect(content().json(objectMapper.writeValueAsString(
-                ShoppingListDetailDto.builder().id(-1L).groupId(-1L).name("Test Shopping List").owner(null).items(List.of()).build()
+                ShoppingListDetailDto.builder().id(-1L).group(GroupDetailDto.builder().id(-1L).build()).name("Test Shopping List").owner(null).items(List.of())
+                    .build()
             )));
 
         verify(shoppingListService, times(1)).getShoppingList(-1L);
