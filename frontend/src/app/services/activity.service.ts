@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Globals } from '../global/globals';
 import { Observable } from 'rxjs';
-import { ActivityDetailDto } from '../dtos/activity';
+import { ActivityDetailDto, ActivitySerachDto } from '../dtos/activity';
+import { formatDate } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,38 @@ export class ActivityService {
 
   constructor(private httpClient: HttpClient, private globals: Globals) { }
 
-  getExpenseActivitiesFromGroup(groupId: number): Observable<ActivityDetailDto[]> {
-    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-expenses/${groupId}`);
+  private formatIsoDate(date: Date): string {
+    return formatDate(date, 'YYYY-MM-ddThh:mm:ss', 'en-DK');
+  }  
+
+  getExpenseActivitiesFromGroup(groupId: number, searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
+    let params = new HttpParams();
+    if (searchCriteria.search) {
+      params = params.append('search', searchCriteria.search);
+    }
+    if (searchCriteria.from) {
+      params = params.append('from', this.formatIsoDate(searchCriteria.from));
+    }
+    if (searchCriteria.to) {
+      params = params.append('to', this.formatIsoDate(searchCriteria.to));
+    }
+
+    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-expenses/${groupId}`, { params: params });
   }
 
-  getPaymentActivitiesFromGroup(groupId: number): Observable<ActivityDetailDto[]> {
-    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-payments/${groupId}`);
+  getPaymentActivitiesFromGroup(groupId: number, searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
+    let params = new HttpParams();
+    if (searchCriteria.search) {
+      params = params.append('search', searchCriteria.search);
+    }
+    if (searchCriteria.from) {
+      params = params.append('from', this.formatIsoDate(searchCriteria.from));
+    }
+    if (searchCriteria.to) {
+      params = params.append('to', this.formatIsoDate(searchCriteria.to));
+    }
+
+    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/group-payments/${groupId}`, { params: params });
   }
 
 }

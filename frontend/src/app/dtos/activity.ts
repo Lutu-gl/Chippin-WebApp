@@ -7,3 +7,9 @@ export interface ActivityDetailDto {
   groupId: number,
   userId: number
 }
+
+export interface ActivitySerachDto {
+  search: string,
+  from: Date,
+  to: Date
+}

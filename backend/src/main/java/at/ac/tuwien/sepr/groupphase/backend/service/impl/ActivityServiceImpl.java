@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivitySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ActivityMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
@@ -43,7 +44,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @Transactional
-    public Collection<ActivityDetailDto> getExpenseActivitiesByGroupId(Long groupId, String requesterEmail) throws NotFoundException {
+    public Collection<ActivityDetailDto> getExpenseActivitiesByGroupId(Long groupId, String requesterEmail, ActivitySearchDto activitySearchDto) throws NotFoundException {
         LOGGER.trace("getExpenseActivitiesByGroupId({}, {})", groupId, requesterEmail);
 
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
@@ -51,12 +52,15 @@ public class ActivityServiceImpl implements ActivityService {
         if (!group.getUsers().contains(user)) {
             throw new AccessDeniedException("Authenticated user is not allowed to access this group!");
         }
-        Collection<Activity> activitiesFound = activityRepository.findExpenseActivitiesByGroup(group);
+        Collection<Activity> activitiesFound = activityRepository.findExpenseActivitiesByGroup(group, activitySearchDto.getFrom(), activitySearchDto.getTo());
 
         Collection<ActivityDetailDto> activityDetailDtos = new LinkedList<>();
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
+                continue;
+            }
             activityDetailDtos.add(activityDetailDto);
         }
 
@@ -65,7 +69,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     @Transactional
-    public Collection<ActivityDetailDto> getPaymentActivitiesByGroupId(long groupId, String requesterEmail) throws NotFoundException {
+    public Collection<ActivityDetailDto> getPaymentActivitiesByGroupId(long groupId, String requesterEmail, ActivitySearchDto activitySearchDto) throws NotFoundException {
         LOGGER.trace("getPaymentActivitiesByGroupId({}, {})", groupId, requesterEmail);
 
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
@@ -73,12 +77,15 @@ public class ActivityServiceImpl implements ActivityService {
         if (!group.getUsers().contains(user)) {
             throw new AccessDeniedException("Authenticated user is not allowed to access this group!");
         }
-        Collection<Activity> activitiesFound = activityRepository.findPaymentActivitiesByGroup(group);
+        Collection<Activity> activitiesFound = activityRepository.findPaymentActivitiesByGroup(group, activitySearchDto.getFrom(), activitySearchDto.getTo());
 
         Collection<ActivityDetailDto> activityDetailDtos = new LinkedList<>();
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
+                continue;
+            }
             activityDetailDtos.add(activityDetailDto);
         }
 

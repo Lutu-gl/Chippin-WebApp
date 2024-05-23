@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivitySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ActivityService;
 import org.slf4j.Logger;
@@ -45,17 +46,20 @@ public class ActivityEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/group-expenses/{id}")
-    public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId) throws NotFoundException {
+    public Collection<ActivityDetailDto> getGroupExpenses(@PathVariable("id") long groupId, ActivitySearchDto activitySearchDto) throws NotFoundException {
+
+        System.out.println(activitySearchDto);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName());
+        return activityService.getExpenseActivitiesByGroupId(groupId, authentication.getName(), activitySearchDto);
     }
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/group-payments/{id}")
-    public Collection<ActivityDetailDto> getGroupPayments(@PathVariable("id") long groupId) throws NotFoundException {
+    public Collection<ActivityDetailDto> getGroupPayments(@PathVariable("id") long groupId, ActivitySearchDto activitySearchDto) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return activityService.getPaymentActivitiesByGroupId(groupId, authentication.getName());
+        return activityService.getPaymentActivitiesByGroupId(groupId, authentication.getName(), activitySearchDto);
     }
 
 }
