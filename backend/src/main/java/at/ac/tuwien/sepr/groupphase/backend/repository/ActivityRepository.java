@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
      *
      * @param user the user id
      * @param from the from
-     * @param to the to
+     * @param to   the to
      * @return Set of expense activities
      */
     @Query(
@@ -57,7 +56,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
         "SELECT a FROM Activity a"
             + " WHERE "
             + " a.group = :group AND"
-            + " (a.category = 'PAYMENT') AND"
+            + " (a.category = 'PAYMENT' OR a.category = 'PAYMENT_UPDATE' OR a.category = 'PAYMENT_DELETE' OR a.category = 'PAYMENT_RECOVER') AND"
             + " (:from IS NULL OR a.timestamp >= :from) AND"
             + " (:to IS NULL OR a.timestamp <= :to)"
             + " ORDER BY a.timestamp DESC"
