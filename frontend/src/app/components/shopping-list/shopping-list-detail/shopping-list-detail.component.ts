@@ -4,9 +4,6 @@ import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
-import {
-  ShoppingListItemListItemComponent
-} from "../shopping-list-item-list-item/shopping-list-item-list-item.component";
 import {AuthService} from "../../../services/auth.service";
 import {FormsModule} from "@angular/forms";
 
@@ -17,7 +14,6 @@ import {FormsModule} from "@angular/forms";
     RouterLink,
     NgForOf,
     NgIf,
-    ShoppingListItemListItemComponent,
     FormsModule,
     NgClass,
   ],
