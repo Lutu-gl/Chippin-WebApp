@@ -2,6 +2,9 @@
   padding: 0;
   list-style: none; // Entfernt die Bullet-Points
   margin: 20px 0;
+  max-height: 150px; /* Du kannst die Höhe anpassen */
+  overflow-y: auto;
+  padding-right: 15px; /* Optional: Platz für die Scrollbar */
 
   li {
     background-color: #f8f9fa; // Hintergrundfarbe für jedes Listenelement
