@@ -1,6 +1,6 @@
 <div>
   <h1 class="display-1">{{heading}}</h1>
-  <span *ngIf="paymentIsDeleted()" style="color: red;">This expense is marked as deleted!</span>
+  <span *ngIf="paymentIsDeleted()" style="color: red;">This payment is marked as deleted!</span>
 </div>
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
   <br>
@@ -46,7 +46,7 @@
 
     <!-- Delete buttons -->
     <div *ngIf="modeIsInfo() && !paymentIsDeleted() && isUserInvolvedInPayment()" class="d-flex flex-row justify-content-between align-items-center mt-4">
-      <!-- Delete expense -->
+      <!-- Delete payment -->
       <div class="me-2">
         <!--
           TODO: Add this to button
@@ -58,7 +58,7 @@
           (click)="deleteExistingPayment()"
         >
           <i class="bi bi-trash"></i>
-          Delete expense
+          Delete payment
         </button>
       </div>
 
@@ -71,7 +71,7 @@
         </a>
       </div>
     </div>
-    <!-- Recover expense -->
+    <!-- Recover payment -->
     <div class="d-flex justify-content-between align-items-center mt-4">
       <div *ngIf="modeIsInfo()">
         <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
@@ -82,7 +82,7 @@
           (click)="recoverDeletedPayment()"
         >
           <i class="bi bi-arrow-clockwise"></i>
-          Recover expense
+          Recover payment
         </button>
       </div>
     </div>
