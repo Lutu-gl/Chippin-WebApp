@@ -65,5 +65,6 @@ public interface ShoppingListMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "items", ignore = true)
+    @Mapping(target = "group", ignore = true)
     ShoppingList updateShoppingList(@MappingTarget ShoppingList shoppingListEntity, ShoppingListUpdateDto shoppingList);
 }

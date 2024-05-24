@@ -54,7 +54,7 @@ public class ShoppingList {
     private List<ShoppingListItem> items = List.of();
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE}, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private GroupEntity group;
 
 }

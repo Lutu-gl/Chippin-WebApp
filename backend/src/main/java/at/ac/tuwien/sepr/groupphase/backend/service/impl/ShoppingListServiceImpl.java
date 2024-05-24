@@ -121,6 +121,13 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         var shoppingListEntity =
             shoppingListRepository.findById(shoppingListId).orElseThrow(() -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
         shoppingListMapper.updateShoppingList(shoppingListEntity, shoppingList);
+        // Add group to shopping list
+        if (shoppingList.getGroup() != null) {
+            var group = groupRepository.findById(shoppingList.getGroup().getId())
+                .orElseThrow(() -> new NotFoundException("Group with id " + shoppingList.getGroup().getId() + " not found"));
+            log.debug("Setting group of shopping list to: {}", group);
+            shoppingListEntity.setGroup(group);
+        }
         var savedShoppingList = shoppingListRepository.save(shoppingListEntity);
         log.debug("Shopping list updated: {}", savedShoppingList);
         return savedShoppingList;
