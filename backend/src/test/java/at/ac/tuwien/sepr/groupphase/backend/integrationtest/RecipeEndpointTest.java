@@ -55,7 +55,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
@@ -148,8 +147,6 @@ public class RecipeEndpointTest extends BaseTest {
         groupRepository.deleteAll();
         userRepository.deleteAll();
 
-        userDetailService.register(UserRegisterDto.builder().password("Test1").email("help@at").build(), false);
-        user = userDetailService.findApplicationUserByEmail("help@at");
 
         item = Item.builder()
             .description("Potato")
