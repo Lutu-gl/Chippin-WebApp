@@ -2,7 +2,13 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeListDto, RecipeSearch} from "../dtos/recipe";
+import {
+  RecipeCreateWithoutUserDto,
+  RecipeDetailDto,
+  RecipeGlobalListDto,
+  RecipeListDto,
+  RecipeSearch
+} from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
 import {RecipeDetailComponent} from "../components/recipe/recipe-detail/recipe-detail.component";
 
@@ -99,11 +105,19 @@ export class RecipeService {
    * Get the list of all public recipes ordered by their like count (desc.).
    * @return the list of all public recipes
    */
-  getPublicRecipeOrderedByLikes(): Observable<RecipeListDto[]> {
-    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/global`);
+  getPublicRecipeOrderedByLikes(): Observable<RecipeGlobalListDto[]> {
+    return this.httpClient.get<RecipeGlobalListDto[]>(`${this.recipeBaseUri}/recipe/global`);
   }
 
-  deleteRecipe(id: number): void {
-    this.httpClient.delete<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/{id}/delete`);
+  deleteRecipe(id: number) : Observable<void>{
+     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}/delete`);
+  }
+
+  likeRecipe(id:number): Observable<RecipeDetailDto> {
+    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/like`, {});
+  }
+
+  dislikeRecipe(id:number): Observable<RecipeDetailDto> {
+    return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/dislike`, {});
   }
 }

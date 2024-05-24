@@ -18,6 +18,17 @@ export interface RecipeDetailDto {
 export interface RecipeListDto {
   id: number
   name: String
+  likes:number
+  dislikes:number
+}
+
+export interface RecipeGlobalListDto {
+  id: number
+  name: String
+  likes:number
+  dislikes:number
+  likedByUser:boolean
+  dislikedByUser:boolean
 }
 
 export interface RecipeCreateWithoutUserDto {

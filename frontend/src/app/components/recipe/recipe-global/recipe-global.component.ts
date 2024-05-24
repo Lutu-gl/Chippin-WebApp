@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeListDto} from "../../../dtos/recipe";
+import {RecipeGlobalListDto, RecipeListDto} from "../../../dtos/recipe";
 import {ActivatedRoute} from "@angular/router";
 import {RecipeService} from "../../../services/recipe.service";
 
@@ -11,7 +11,7 @@ import {RecipeService} from "../../../services/recipe.service";
 })
 
 export class RecipeGlobalComponent implements OnInit {
-  recipes: RecipeListDto[] = [];
+  recipes: RecipeGlobalListDto[] = [];
   error = false;
   errorMessage = '';
 
@@ -33,6 +33,36 @@ export class RecipeGlobalComponent implements OnInit {
           this.defaultServiceErrorHandling(error)
         }
       });
+  }
+
+  public like(id: number) {
+    this.service.likeRecipe(id)
+      .subscribe({
+        next: data => {
+
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
+
+  }
+
+  public dislike(id:number) {
+    window.alert("test");
+    this.service.dislikeRecipe(id)
+      .subscribe({
+        next: data => {
+
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
+  }
+
+  public getScore(recipe: RecipeGlobalListDto): number {
+    return recipe.likes-recipe.dislikes;
   }
 
   private defaultServiceErrorHandling(error: any) {

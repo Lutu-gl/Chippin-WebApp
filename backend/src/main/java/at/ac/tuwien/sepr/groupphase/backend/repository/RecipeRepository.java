@@ -19,4 +19,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     @Modifying
     @Query("delete from Recipe r where r.id=:recipeId")
     void deleteRecipe(@Param("recipeId") long recipeId);
+
+    //r.description LIKE %:searchParam% if description should also amtch
+    @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    List<Recipe> findPublicRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam);
 }

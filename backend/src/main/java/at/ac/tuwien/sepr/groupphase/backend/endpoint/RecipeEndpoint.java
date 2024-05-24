@@ -6,18 +6,16 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateWithoutUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +71,24 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @GetMapping("/recipe/search/own")
+    public List<RecipeListDto> searchOwnRecipe(RecipeSearchDto searchParams) {
+        LOGGER.info("GET /api/v1/recipe/recipe/search/own: {}", searchParams);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.searchOwnRecipe(owner, searchParams.getDetails());
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/recipe/search/global")
+    public List<RecipeListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
+        LOGGER.info("GET /api/v1/recipe/recipe/search/global: {}", searchParams);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.searchOwnRecipe(user, searchParams.getDetails());
+    }
+
+    @Secured("ROLE_USER")
     @PostMapping("/{recipeId}/recipe")
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItemToRecipe(@PathVariable long recipeId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
@@ -124,29 +140,29 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
-    @PutMapping("recipe/like")
-    public RecipeDetailDto likeRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) throws AlreadyRatedException {
-        LOGGER.info("PUT /api/v1/group/recipe/like: {}", toUpdate);
+    @PutMapping("recipe/{recipeId}/like")
+    public RecipeDetailDto likeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
+        LOGGER.info("PUT /api/v1/group/recipe/{}/like", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return recipeService.likeRecipe(toUpdate, userService.findApplicationUserByEmail(authentication.getName()));
+        return recipeService.likeRecipe(recipeId, userService.findApplicationUserByEmail(authentication.getName()));
     }
 
     @Secured("ROLE_USER")
-    @PutMapping("recipe/dislike")
-    public RecipeDetailDto dislikeRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) throws AlreadyRatedException {
-        LOGGER.info("PUT /api/v1/group/recipe/dislike: {}", toUpdate);
+    @PutMapping("recipe/{recipeId}/dislike")
+    public RecipeDetailDto dislikeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
+        LOGGER.info("PUT /api/v1/group/recipe/{}/dislike", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return recipeService.dislikeRecipe(toUpdate, userService.findApplicationUserByEmail(authentication.getName()));
+        return recipeService.dislikeRecipe(recipeId, userService.findApplicationUserByEmail(authentication.getName()));
     }
 
     @Secured("ROLE_USER")
     @GetMapping("recipe/global")
-    public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
+    public List<RecipeGlobalListDto> getPublicRecipeOrderedByLikes() {
         LOGGER.info("GET /api/v1/group/recipe/global");
-
-        return recipeService.getPublicRecipeOrderedByLikes();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return recipeService.getPublicRecipeOrderedByLikes(userService.findApplicationUserByEmail(authentication.getName()));
     }
 
     @Secured("ROLE_USER")

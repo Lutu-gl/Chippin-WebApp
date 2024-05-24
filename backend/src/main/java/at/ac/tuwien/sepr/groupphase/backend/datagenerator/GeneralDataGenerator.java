@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
@@ -30,8 +31,8 @@ public class GeneralDataGenerator implements DataGenerator {
         groupDataGenerator.generateData();
         friendshipDataGenerator.generateData();
         itemDataGenerator.generateData();
-        recipeDataGenerator.generateData();
         pantryDataGenerator.generateData();
+        //recipeDataGenerator.generateData();
         LOGGER.debug("finished generating all data");
 
     }

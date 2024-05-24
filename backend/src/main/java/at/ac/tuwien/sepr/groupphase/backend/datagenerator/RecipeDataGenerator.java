@@ -1,10 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -20,6 +23,7 @@ public class RecipeDataGenerator implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     UserRepository userRepository;
+    UserService userService;
     ItemRepository itemRepository;
     RecipeRepository recipeRepository;
 
@@ -27,6 +31,7 @@ public class RecipeDataGenerator implements DataGenerator {
     @Transactional
     public void generateData() {
         LOGGER.debug("generating data for recipes");
+        ApplicationUser owner = userService.findApplicationUserByEmail("user1@example.com");
 
         Recipe recipe1 = Recipe.builder()
             .name("Lasagne Bolognese")
@@ -44,6 +49,7 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "Ganz zum Schluss mit der Bechamelsauce abschließen und frisch geriebenen Gouda draufgeben. "
                 + "Im vorgeheizten Ofen bei 180° C Heißluft ca. 30 Minuten backen.")
             .isPublic(true)
+            .owner(owner)
             .portionSize(1).likes(1).dislikes(1).build();
 
 
@@ -52,7 +58,7 @@ public class RecipeDataGenerator implements DataGenerator {
         for (Item item : items.subList(0, 13)) {
             recipe1.addIngredient(item);
         }
-        recipeRepository.save(recipe1);
+        recipeRepository.saveAndFlush(recipe1);
 
         Recipe recipe2 = Recipe.builder()
             .name("PaprikaHuhn")
@@ -70,13 +76,24 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "mit dem Pürierstab pürieren und mit Salz und Pfeffer nochmals abschmecken. Zum Schluss nochmals"
                 + " das ausgelöste Hühnerfleisch hinzufügen und ganz kurz aufkochen lassen.")
             .isPublic(false)
+            .owner(owner)
             .portionSize(1).likes(1).dislikes(1).build();
 
         List<Item> ingredientsToAdd2 = items.subList(13, 25);
         for (Item item : ingredientsToAdd2) {
             recipe2.addIngredient(item);
         }
-        recipeRepository.save(recipe2);
+        recipeRepository.saveAndFlush(recipe2);
+
+
+        recipeRepository.saveAndFlush(Recipe.builder()
+            .name("Empty Recipe")
+            .description("This Recipe has no Ingredients")
+            .isPublic(true)
+            .portionSize(1)
+            .owner(owner)
+            .ingredients(new ArrayList<>())
+            .likes(0).dislikes(0).build());
     }
 
     @Override

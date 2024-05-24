@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class UserServiceTest {
+public class UserServiceTest extends BaseTest {
     @Mock
     private UserRepository userRepository;
 
@@ -47,7 +49,7 @@ public class UserServiceTest {
         MockitoAnnotations.openMocks(this);
 
         userRegisterDto = UserRegisterDto.builder()
-            .email("testUserService@example.com")
+            .email("test@example.com")
             .password("Test1234")
             .build();
 
@@ -79,8 +81,8 @@ public class UserServiceTest {
     void testGetGroupsByUserEmail() {
         String userEmail = "test@example.com";
         Set<GroupEntity> expectedGroups = new HashSet<>();
-        expectedGroups.add(GroupEntity.builder().groupName("Group 1").build());
-        expectedGroups.add(GroupEntity.builder().groupName("Group 2").build());
+        expectedGroups.add(new GroupEntity(1L, "Group 1", null));
+        expectedGroups.add(new GroupEntity(2L, "Group 2", null));
 
         when(userRepository.findGroupsByUserEmail(userEmail)).thenReturn(expectedGroups);
 

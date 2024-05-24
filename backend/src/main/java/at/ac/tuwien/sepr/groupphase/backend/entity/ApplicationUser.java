@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -54,6 +56,7 @@ public class ApplicationUser {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
+    @JsonManagedReference
     private List<Recipe> recipes = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -96,6 +99,14 @@ public class ApplicationUser {
     public ApplicationUser dislikeRecipe(Recipe recipe) {
         dislikedRecipes.add(recipe);
         return this;
+    }
+
+    public void removeRecipeLike(Recipe recipe) {
+        recipe.removeLiker(this);
+    }
+
+    public void removeRecipeDislike(Recipe recipe) {
+        recipe.removeDisliker(this);
     }
 
 
