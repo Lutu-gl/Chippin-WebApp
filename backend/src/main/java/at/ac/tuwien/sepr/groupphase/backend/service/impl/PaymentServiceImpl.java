@@ -75,7 +75,7 @@ public class PaymentServiceImpl implements PaymentService {
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
         Payment payment = paymentRepository.findById(id).orElseThrow(() -> new NotFoundException("Payment not found"));
         if (!payment.getGroup().getUsers().contains(user)) {
-            throw new AccessDeniedException("You do not have permission to access this expense");
+            throw new AccessDeniedException("You do not have permission to access this payment");
         }
 
         return paymentMapper.paymentEntityToPaymentDto(payment);
@@ -91,8 +91,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = paymentMapper.paymentDtoToPaymentEntity(paymentDto);
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
-        if (!existingPayment.getGroup().getUsers().contains(user)) {
-            throw new AccessDeniedException("You do not have permission to update this expense");
+        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
+            throw new AccessDeniedException("You do not have permission to update this payment");
         }
 
         payment.setId(paymentId);
@@ -102,7 +102,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 
         Activity activityForPayment = Activity.builder()
-            .category(ActivityCategory.PAYMENT)
+            .category(ActivityCategory.PAYMENT_UPDATE)
             .payment(paymentSaved)
             .timestamp(LocalDateTime.now())
             .group(paymentSaved.getGroup())

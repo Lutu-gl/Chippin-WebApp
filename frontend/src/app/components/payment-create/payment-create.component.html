@@ -33,14 +33,19 @@
       <div>
         <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
       </div>
-      <button type="submit" class="btn btn-primary"
+      <button *ngIf="this.modeIsEdit() && this.isUserInvolvedInPayment()" type="submit" class="btn btn-primary"
+        [disabled]="(!form.valid || payment === undefined)" type="submit">
+        {{submitButtonText}}
+      </button>
+
+      <button *ngIf="this.modeIsCreate()" type="submit" class="btn btn-primary"
               [disabled]="(!form.valid || payment === undefined)" type="submit">
         {{submitButtonText}}
       </button>
     </div>
 
     <!-- Delete buttons -->
-    <div *ngIf="modeIsInfo() && !paymentIsDeleted()" class="d-flex flex-row justify-content-between align-items-center mt-4">
+    <div *ngIf="modeIsInfo() && !paymentIsDeleted() && isUserInvolvedInPayment()" class="d-flex flex-row justify-content-between align-items-center mt-4">
       <!-- Delete expense -->
       <div class="me-2">
         <!--
@@ -71,7 +76,7 @@
       <div *ngIf="modeIsInfo()">
         <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
       </div>
-      <div *ngIf="modeIsInfo() && paymentIsDeleted()" class="me-2">
+      <div *ngIf="modeIsInfo() && paymentIsDeleted() && isUserInvolvedInPayment()" class="me-2">
         <button
           class="btn btn-success"
           (click)="recoverDeletedPayment()"

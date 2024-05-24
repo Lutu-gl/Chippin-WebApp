@@ -219,8 +219,12 @@ export class PaymentCreateComponent implements OnInit {
     return this.mode === PaymentCreateEditMode.info;
   }
 
-  public modeIsCreate(): boolean {
+  modeIsCreate(): boolean {
     return this.mode === PaymentCreateEditMode.create;
+  }
+
+  modeIsEdit(): boolean {
+    return this.mode === PaymentCreateEditMode.edit;
   }
 
   public editExistingPayment(paymentId: number, payment: PaymentDto) {
@@ -296,5 +300,10 @@ export class PaymentCreateComponent implements OnInit {
         }
       }
     })
+  }
+
+  isUserInvolvedInPayment(): boolean {
+    const user = this.userService.getUserEmail();
+    return this.payment && (this.payment.payerEmail === user || this.payment.receiverEmail === user);
   }
 }
