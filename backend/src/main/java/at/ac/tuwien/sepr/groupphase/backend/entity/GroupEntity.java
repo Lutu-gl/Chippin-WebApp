@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,7 +45,7 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
     @Column(name = "group_name", nullable = false)
     private String groupName;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_group",
         joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "id"),

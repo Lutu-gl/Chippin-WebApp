@@ -31,8 +31,24 @@ export interface PantryItemCreateDto {
   lowerLimit: number;
 }
 
+export interface PantryItemCreateDisplayDto {
+  description: String;
+  amount: number;
+  unit: DisplayedUnit;
+  lowerLimit: number;
+}
+
 export enum Unit {
   Piece = "Piece",
   Gram = "Gram",
   Milliliter = "Milliliter"
+}
+
+export enum DisplayedUnit {
+  Piece = "Piece",
+  Pieces = "Pieces",
+  Gram = "Gram",
+  Kilogram = "Kilogram",
+  Milliliter = "Milliliter",
+  Liter = "Liter"
 }

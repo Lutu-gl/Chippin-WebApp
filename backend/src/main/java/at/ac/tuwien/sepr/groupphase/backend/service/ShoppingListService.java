@@ -3,8 +3,10 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
 
 import java.util.List;
 
@@ -39,36 +41,19 @@ public interface ShoppingListService {
      *
      * @param shoppingListId the id of the shopping list
      * @param itemCreateDto  the item to add
-     * @return the updated shopping list
+     * @param userId         the id of the user adding the item
+     * @return the added item
      */
-    ShoppingList addItem(Long shoppingListId, ItemCreateDto itemCreateDto);
-
-    /**
-     * Mark an item as bought in a shopping list.
-     *
-     * @param shoppingListId the id of the shopping list
-     * @param itemid         the id of the item
-     * @return the updated shopping list
-     */
-    ShoppingList buyItem(Long shoppingListId, Long itemid);
-
-    /**
-     * Mark an item as not bought in a shopping list.
-     *
-     * @param shoppingListId the id of the shopping list
-     * @param itemId         the id of the item
-     * @return the updated shopping list
-     */
-    ShoppingList unbuyItem(Long shoppingListId, Long itemId);
+    ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId);
 
     /**
      * Delete an item from a shopping list.
      *
      * @param shoppingListId the id of the shopping list
      * @param itemId         the id of the item
-     * @return the updated shopping list
+     * @return the id of the deleted item
      */
-    ShoppingList deleteItem(Long shoppingListId, Long itemId);
+    Long deleteItem(Long shoppingListId, Long itemId);
 
     /**
      * Get all shopping lists for a group.
@@ -90,9 +75,21 @@ public interface ShoppingListService {
 
     /**
      * Get all shopping lists for a user.
+     * The user must either own the shopping list or be a member of a group that the shopping list belongs to.
      *
      * @param userId the id of the user
      * @return the shopping lists
      */
     List<ShoppingList> getShoppingListsForUser(Long userId);
+
+    /**
+     * Update an item in a shopping list.
+     *
+     * @param shoppingListId            the id of the shopping list the item is in
+     * @param itemId                    the id of the item
+     * @param shoppingListItemUpdateDto the updated item
+     * @param userId                    the id of the user updating the item
+     * @return the updated item
+     */
+    ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId);
 }
