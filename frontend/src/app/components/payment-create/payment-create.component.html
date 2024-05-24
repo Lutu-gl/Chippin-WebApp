@@ -1,0 +1,36 @@
+<h1 class="display-1">{{heading}}</h1>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <br>
+  <div class="row justify-content-center">
+    <div class="mb-2 col-lg-10 text-center justify-content-center">
+      <div class="row justify-content-center">
+        <div class="col-md-12 col-lg-10 d-flex align-items-center justify-content-center text-large">
+          Payment from {{payment.payerEmail}} to {{payment.receiverEmail}}
+        </div>
+      </div>
+      <div class="row mt-2 justify-content-center">
+        <div class="col-md-12 col-lg-10">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">€</span>
+            </div>
+            <input type="number" id="amount" name="amount" placeholder="Amount" class="form-control"
+                   [class]="dynamicCssClassesForInput(paymentNameModel)" [(ngModel)]="payment.amount"
+                   [disabled]="this.mode === PaymentCreateEditMode.info" #paymentNameModel="ngModel" required>
+            <div class="invalid-feedback">
+              Amount is required
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 d-flex flex-row w-100 justify-content-between">
+      <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group List</button>
+      <button *ngIf="mode !== PaymentCreateEditMode.info" type="submit" class="btn btn-primary"
+              [disabled]="!form.valid || payment === undefined">
+        Submit
+      </button>
+    </div>
+
+  </div>
+</form>

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
+    
     /**
      * Use the @ExceptionHandler annotation to write handler for custom exceptions.
      */

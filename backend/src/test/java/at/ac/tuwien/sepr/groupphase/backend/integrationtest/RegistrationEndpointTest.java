@@ -4,12 +4,14 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,6 +40,8 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenValidUser_whenRegister_then201() throws Exception {
         String body = objectMapper.writeValueAsString(userRegisterDto);
 
@@ -77,6 +81,8 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenInvalidEmail_whenRegister_then400() throws Exception {
         // Set an invalid email
         userRegisterDto.setEmail("invalidEmail");
@@ -90,6 +96,8 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenInvalidPassword_whenRegister_then400() throws Exception {
         // Set an invalid password
         userRegisterDto.setPassword("invalid");
@@ -116,6 +124,8 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void givenPasswordWithoutUppercase_whenRegister_then400() throws Exception {
         // Set a password without an uppercase letter
         userRegisterDto.setPassword("invalid1");

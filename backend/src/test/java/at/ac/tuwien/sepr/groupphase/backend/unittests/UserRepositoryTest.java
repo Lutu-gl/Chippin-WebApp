@@ -4,10 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -33,6 +35,8 @@ public class UserRepositoryTest {
     private GroupRepository groupRepository;
 
     @Test
+    @Transactional
+    @Rollback
     public void testFindUserById() {
         ApplicationUser user = createUserWithGroups();
 
@@ -41,6 +45,8 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testFindGroupsByUserEmail() {
         ApplicationUser user = createUserWithGroups();
 

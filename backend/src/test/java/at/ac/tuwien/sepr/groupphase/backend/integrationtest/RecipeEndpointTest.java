@@ -35,6 +35,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +49,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -177,6 +179,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void createRecipeSuccessfully_then201() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
@@ -215,8 +219,9 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    public void createInvalidRecipe_then400() throws Exception {
-
+    @Rollback
+    @Transactional
+    public void createRecipeWithInvalidRecipeGets400() throws Exception {
 
         RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder().isPublic(true).portionSize(0).build();
 
@@ -233,6 +238,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void getByIdOnUnknownId_then404() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", 0))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
@@ -289,6 +296,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", recipe.getId()))
@@ -311,7 +320,10 @@ public class RecipeEndpointTest extends BaseTest {
         );
     }
 
+
     @Test
+    @Rollback
+    @Transactional
     public void givenRecipeWithOneItemAndMatchingDescription_whenSearchItemsInRecipe_thenListWithSizeOneAndCorrectItem()
         throws Exception {
 
@@ -338,6 +350,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void givenNothing_whenAddItemToRecipe_thenItemWithAllPropertiesPlusId()
         throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -366,6 +380,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void givenNothing_whenAddInvalidItemToRecipe_then400()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
@@ -383,6 +399,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
@@ -400,6 +418,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     public void givenNothing_whenPut_thenItemWithAllProperties()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());

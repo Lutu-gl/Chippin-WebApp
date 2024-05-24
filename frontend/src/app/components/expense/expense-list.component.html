@@ -1,0 +1,54 @@
+<div class="flex justify-between items-center">
+  <h3 class="heading">{{ heading() }}</h3>
+  <div class="d-flex flex-row w-auto align-items-center" *ngIf="activityType === ActivityType.expense">
+    <!-- Suchkriterien -->
+    <div class="d-flex flex-row align-items-center mr-3">
+      <div class="form-group mr-2 mb-0">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchText" class="form-control" [(ngModel)]="searchCriteria.search" placeholder="Search text" (change)="onSearchChange()">
+        </div>
+      </div>
+      <div class="form-group mr-2 mb-0">
+        <input type="date" id="dateFrom" class="form-control" [(ngModel)]="searchCriteria.from" (change)="onSearchChange()">
+      </div>
+      <div class="form-group mr-2 mb-0">
+        <input type="date" id="dateTo" class="form-control" [(ngModel)]="searchCriteria.to" (change)="onSearchChange()">
+      </div>
+    </div>
+    <!-- Button "New Expense" -->
+    <span style="flex: 1"></span>
+    <a class="btn btn-secondary" [routerLink]="['/expenses', groupId]" aria-label="New Expense">
+      <i class="bi bi-plus-lg"></i>
+      New Expense
+    </a>
+  </div>
+</div>
+
+<div class="d-flex flex-column h-full">
+  <div class="flex-grow-1 overflow-container">
+    <div *ngFor="let activity of expenseList" class="">
+      <div *ngIf="activityType === ActivityType.expense">
+        <a [routerLink]="['/expenses', 'info', activity.expenseId]" class="no-underline text-black">
+          <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
+        flex justify-between items-center
+        hover:bg-slate-100 hover:cursor-pointer">
+            <div>{{activity.description}}</div>
+          </div>
+        </a>
+      </div>
+
+      <div *ngIf="activityType === ActivityType.payment">
+        <a [routerLink]="['payment', activity.paymentId, 'info']" class="no-underline text-black">
+          <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
+        flex justify-between items-center
+        hover:bg-slate-100 hover:cursor-pointer">
+            <div>{{activity.description}}</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+

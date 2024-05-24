@@ -15,7 +15,6 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -96,7 +94,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String register(UserRegisterDto userRegisterDto, boolean admin) throws UserAlreadyExistsException {
-        LOGGER.trace("register({}, {})", userRegisterDto, admin);
+        LOGGER.trace("register({}, {})", userRegisterDto, admin); // password is not logged here
 
         ApplicationUser existingUser = userRepository.findByEmail(userRegisterDto.getEmail());
         if (existingUser != null) {

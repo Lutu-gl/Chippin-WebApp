@@ -35,26 +35,26 @@
             [(ngModel)]="dummyMemberSelectionModel" (ngModelChange)="addMember($event)">
           </app-autocomplete>
         </div>
-
-        <div class="col-lg-6">
-          <table class="table align-baseline">
-            <tbody>
-              <tr *ngFor="let member of members; index as i">
+        <div class="col-lg-10" class="h-72 overflow-y-auto overflow-x-hidden">
+          <div class="col-lg-10">
+            <table class="table align-baseline">
+              <tbody>
+              <tr *ngFor="let member of getSortedMembers(); index as i">
                 <td>{{i+1}}:</td>
                 <td>{{formatMember(member)}}</td>
                 <td class="min-width">
                   <!-- Make button just hidden, when no participant is present, to keep layout correct -->
                   <button *ngIf="member.email !== userService.getUserEmail()" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
-                    [style.visibility]="member ? 'visible' : 'hidden'">
+                          [style.visibility]="member ? 'visible' : 'hidden'">
                     <i class="bi-trash"></i>
                   </button>
                 </td>
               </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
       <h2>Budgets</h2>
       <div class="row">
         <div class="col-md-6 mb-2">
@@ -81,9 +81,10 @@
     </div>
 
     <div class="mt-4 d-flex flex-row">
+      <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group List</button>
       <span class="flex-grow-1"></span>
       <button type="submit" class="btn btn-primary"
-        [disabled]="(!form.valid || members.length === 0 || group === undefined) && mode !== GroupCreateEditMode.info" type="submit">
+              [disabled]="(!form.valid || members.length === 0 || group === undefined) && mode !== GroupCreateEditMode.info" type="submit">
         {{submitButtonText}}
       </button>
     </div>
