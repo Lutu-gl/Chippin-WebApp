@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,26 @@ public class ActivityServiceImpl implements ActivityService {
         ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activityFound);
         activityDetailDto.setDescription(giveDescriptionToActivity(activityFound));
         return activityDetailDto;
+    }
+
+    @Override
+    @Transactional
+    public Collection<ActivityDetailDto> getExpenseActivitiesByUser(String requesterEmail, ActivitySearchDto activitySearchDto) throws NotFoundException {
+        LOGGER.trace("getExpenseActivitiesByUser({}, {})", requesterEmail, activitySearchDto);
+        ApplicationUser user = userRepository.findByEmail(requesterEmail);
+        Collection<Activity> activitiesFound = activityRepository.findExpenseActivitiesByUser(user, activitySearchDto.getFrom(), activitySearchDto.getTo());
+
+        List<ActivityDetailDto> activityDetailDtos = new LinkedList<>();
+        for (Activity activity : activitiesFound) {
+            ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
+            activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
+                continue;
+            }
+            activityDetailDtos.add(activityDetailDto);
+        }
+
+        return activityDetailDtos;
     }
 
     @Override

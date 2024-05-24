@@ -19,6 +19,16 @@ public interface ActivityService {
     ActivityDetailDto getById(Long id, String requesterEmail) throws NotFoundException;
 
     /**
+     * Get all expense activities of a specific user.
+     *
+     * @param requesterEmail the email of the user who requests the activities
+     * @param activitySearchDto the search criteria
+     * @return a collection of the expense activities
+     * @throws NotFoundException if the user is not found
+     */
+    Collection<ActivityDetailDto> getExpenseActivitiesByUser(String requesterEmail, ActivitySearchDto activitySearchDto) throws NotFoundException;
+
+    /**
      * Get all expense activities of a specific group.
      *
      * @param groupId        the id of the group

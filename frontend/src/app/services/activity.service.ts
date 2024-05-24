@@ -18,6 +18,21 @@ export class ActivityService {
     return formatDate(date, 'YYYY-MM-ddThh:mm:ss', 'en-DK');
   }
 
+  getExpenseActivitiesByUser(searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
+    let params = new HttpParams();
+    if (searchCriteria.search) {
+      params = params.append('search', searchCriteria.search);
+    }
+    if (searchCriteria.from) {
+      params = params.append('from', this.formatIsoDate(searchCriteria.from));
+    }
+    if (searchCriteria.to) {
+      params = params.append('to', this.formatIsoDate(searchCriteria.to));
+    }
+
+    return this.httpClient.get<ActivityDetailDto[]>(this.activityBaseUri + `/user-expenses`, { params: params });
+  }
+
   getExpenseActivitiesFromGroup(groupId: number, searchCriteria: ActivitySerachDto): Observable<ActivityDetailDto[]> {
     let params = new HttpParams();
     if (searchCriteria.search) {

@@ -49,6 +49,14 @@ public class ActivityEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/user-expenses")
+    public Collection<ActivityDetailDto> getUserExpenses(ActivitySearchDto activitySearchDto) throws NotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return activityService.getExpenseActivitiesByUser(authentication.getName(), activitySearchDto);
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/group-payments/{id}")
     public Collection<ActivityDetailDto> getGroupPayments(@PathVariable("id") long groupId, ActivitySearchDto activitySearchDto) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
