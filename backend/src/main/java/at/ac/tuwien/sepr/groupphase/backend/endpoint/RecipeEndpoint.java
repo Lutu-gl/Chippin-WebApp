@@ -132,6 +132,16 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @GetMapping("recipe/likedlist")
+    public List<RecipeListDto> getLikedRecipesFromUser() {
+        LOGGER.info("GET /api/v1/group/recipe/likedlist");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(
+            recipeService.getLikedRecipesByUserEmail(userService.findApplicationUserByEmail(authentication.getName())));
+    }
+
+    @Secured("ROLE_USER")
     @PutMapping("recipe/update")
     public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
         LOGGER.info("PUT /api/v1/group/recipe/update: {}", toUpdate);
@@ -168,8 +178,8 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @DeleteMapping("recipe/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRecipe(@PathVariable long id) {
-        LOGGER.info("DELETE /api/v1/group/recipe/{}/delete", id);
+    public void deleteRecipe(@PathVariable(name = "id") long id) {
+        LOGGER.info("DELETE /api/v1/group/recipe/{}", id);
 
         recipeService.deleteRecipe(id);
     }

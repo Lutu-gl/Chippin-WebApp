@@ -1,18 +1,23 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute, Router} from "@angular/router";
-import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
+import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeGlobalListDto} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
 import {Unit} from "../../../dtos/item";
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
+import {data} from "autoprefixer";
 
+export enum RecipeDetailMode {
+  owner,
+  viewer
+}
 
 @Component({
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss'
 })
-
 export class RecipeDetailComponent implements OnInit {
+  mode: RecipeDetailMode = RecipeDetailMode.owner;
   recipe: RecipeDetailDto = {
     name: '',
     ingredients: [],
@@ -36,6 +41,9 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      this.mode = data.mode;
+    });
     const recipeIdparam = this.route.snapshot.paramMap.get('id');
     this.recipeId = recipeIdparam ? +recipeIdparam : Number(recipeIdparam);
     this.service.getRecipeById(this.recipeId)
@@ -65,6 +73,38 @@ export class RecipeDetailComponent implements OnInit {
       this.router.navigate(['/recipe']);
   }
 
+
+  public like(id: number) {
+    this.service.likeRecipe(id)
+      .subscribe({
+        next: data => {
+
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
+
+  }
+
+  public dislike(id:number) {
+    window.alert("test");
+    this.service.dislikeRecipe(id)
+      .subscribe({
+        next: data => {
+
+        },
+        error: error => {
+          this.defaultServiceErrorHandling(error)
+        }
+      });
+  }
+
+  public getScore(recipe: RecipeGlobalListDto): number {
+    return recipe.likes-recipe.dislikes;
+  }
+
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly RecipeDetailMode = RecipeDetailMode;
 }

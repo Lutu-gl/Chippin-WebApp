@@ -33,7 +33,7 @@ public class RecipeDataGenerator implements DataGenerator {
     @Transactional
     public void generateData() {
         LOGGER.debug("generating data for recipes");
-        ApplicationUser owner = userRepository.save(ApplicationUser.builder().email("RecipeGenerator@test.at").password("RezeptTest1").admin(false).build());
+        List<ApplicationUser> users = userRepository.findAll();
 
 
         Recipe recipe1 = Recipe.builder()
@@ -52,9 +52,9 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "Ganz zum Schluss mit der Bechamelsauce abschließen und frisch geriebenen Gouda draufgeben. "
                 + "Im vorgeheizten Ofen bei 180° C Heißluft ca. 30 Minuten backen.")
             .isPublic(true)
-            .owner(owner)
+            .owner(users.getFirst())
             .portionSize(1).likes(1).dislikes(1).build();
-        owner.addRecipe(recipe1);
+        users.getFirst().addRecipe(recipe1);
 
         List<Item> items = itemRepository.findAll();
 
@@ -79,15 +79,15 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "mit dem Pürierstab pürieren und mit Salz und Pfeffer nochmals abschmecken. Zum Schluss nochmals"
                 + " das ausgelöste Hühnerfleisch hinzufügen und ganz kurz aufkochen lassen.")
             .isPublic(false)
-            .owner(owner)
+            .owner(users.getFirst())
             .portionSize(1).likes(1).dislikes(1).build();
-        owner.addRecipe(recipe2);
+        users.getFirst().addRecipe(recipe2);
         List<Item> ingredientsToAdd2 = items.subList(13, 25);
         for (Item item : ingredientsToAdd2) {
             recipe2.addIngredient(item);
         }
         recipeRepository.saveAndFlush(recipe2);
-        userRepository.saveAndFlush(owner);
+        userRepository.saveAndFlush(users.getFirst());
 
 
         recipeRepository.saveAndFlush(Recipe.builder()
@@ -95,7 +95,7 @@ public class RecipeDataGenerator implements DataGenerator {
             .description("This Recipe has no Ingredients")
             .isPublic(true)
             .portionSize(1)
-            .owner(owner)
+            .owner(users.getFirst())
             .ingredients(new ArrayList<>())
             .likes(0).dislikes(0).build());
     }

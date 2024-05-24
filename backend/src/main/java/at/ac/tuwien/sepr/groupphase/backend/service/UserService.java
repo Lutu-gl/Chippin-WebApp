@@ -71,4 +71,6 @@ public interface UserService extends UserDetailsService {
      * @return List of recipes from the user
      */
     List<Recipe> getRecipesByUserEmail(String email);
+
+
 }

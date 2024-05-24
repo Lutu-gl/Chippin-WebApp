@@ -58,7 +58,9 @@
 </div>
   <div class="row">
     <div class="mt-4 d-flex flex-row">
-      <button type="button"
+
+      <button *ngIf="mode === RecipeDetailMode.owner"
+              type="button"
               class="btn btn-danger"
               data-bs-toggle="modal"
               data-bs-target="#confirm-delete-dialog-title"
@@ -73,12 +75,17 @@
       </app-confirm-delete-dialog>
 
 
+
+
       <span class="flex-grow-1"></span>
-      <button type="button"
+      <button *ngIf="mode === RecipeDetailMode.owner"
+              type="button"
               class="btn btn-primary"
               routerLink="/recipe/{{recipeId}}/edit">
         Edit
       </button>
+
+
     </div>
 <p></p>
     <table class="table table-hover">

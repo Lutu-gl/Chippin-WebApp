@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,13 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     //r.description LIKE %:searchParam% if description should also amtch
     @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findPublicRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam);
+
+    /**
+     * Query to get find the recipes the user has liked.
+     *
+     * @param user the user to get the recipes from.
+     * @return List of recipes from the user .
+     */
+    @Query("SELECT r FROM Recipe r JOIN r.likedByUsers u WHERE u = :user")
+    List<Recipe> findAllByLikedByUsersContains(ApplicationUser user);
 }

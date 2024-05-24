@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalList
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 
 import java.util.List;
@@ -132,5 +133,13 @@ public interface RecipeService {
      * @return a list of all matching recipes
      */
     List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams);
+
+    /**
+     * Getting the recipes the user has liked.
+     *
+     * @param user the user
+     * @return List of recipes from the user
+     */
+    List<Recipe> getLikedRecipesByUserEmail(ApplicationUser user);
 
 }

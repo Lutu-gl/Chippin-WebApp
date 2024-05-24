@@ -93,6 +93,14 @@ export class RecipeService {
   }
 
   /**
+   * Get all recipes liked by the user that sends this request.
+   * @return all recipes liked by the user
+   */
+  getLikedRecipesFromUser(): Observable<RecipeListDto[]>{
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/likedlist`);
+  }
+
+  /**
    * Update recipe with recipeId with new recipe.
    * @param toUpdate the RecipeDetailDto with new information
    * @return the updated recipeDetailDto
@@ -110,7 +118,7 @@ export class RecipeService {
   }
 
   deleteRecipe(id: number) : Observable<void>{
-     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}/delete`);
+     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}`);
   }
 
   likeRecipe(id:number): Observable<RecipeDetailDto> {

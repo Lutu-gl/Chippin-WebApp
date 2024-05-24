@@ -288,4 +288,10 @@ public class RecipeServiceImpl implements RecipeService {
         }
         return resultLists;
     }
+
+    @Override
+    public List<Recipe> getLikedRecipesByUserEmail(ApplicationUser user) {
+        LOGGER.trace("getRecipesByUserEmail({})", user);
+        return recipeRepository.findAllByLikedByUsersContains(user);
+    }
 }

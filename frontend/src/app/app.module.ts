@@ -49,6 +49,7 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
+import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { ExpenseInfoCardContentComponent } from './components/expense/expense-in
     RecipeDetailComponent,
     RecipeEditComponent,
     RecipeGlobalComponent,
+    RecipeLikedComponent,
     PaymentCreateComponent,
   ],
   imports: [
