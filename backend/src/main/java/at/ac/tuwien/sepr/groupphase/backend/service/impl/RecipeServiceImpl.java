@@ -220,7 +220,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
             user.likeRecipe(recipe);
             recipe.addLiker(user);
-            recipe.setLikes(recipe.getLikes() + 1);
+            recipe.setLikes(recipe.getLikedByUsers().size() + 1);
             userRepository.save(user);
             return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
         } else {
@@ -246,7 +246,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
             user.dislikeRecipe(recipe);
             recipe.addDisliker(user);
-            recipe.setDislikes(recipe.getDislikes() + 1);
+            recipe.setDislikes(recipe.getDislikedByUsers().size() + 1);
             userRepository.save(user);
             return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
         } else {

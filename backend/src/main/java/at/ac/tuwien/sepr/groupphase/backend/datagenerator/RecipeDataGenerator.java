@@ -1,9 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Component
 @AllArgsConstructor
@@ -28,6 +31,8 @@ public class RecipeDataGenerator implements DataGenerator {
     UserService userService;
     ItemRepository itemRepository;
     RecipeRepository recipeRepository;
+
+    private final Random random = new Random();
 
     @Override
     @Transactional
@@ -98,6 +103,36 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(users.getFirst())
             .ingredients(new ArrayList<>())
             .likes(0).dislikes(0).build());
+
+        String[] descriptions =
+            {"Milk", "Chocolate", "Banana", "Butter", "Honey", "Egg", "Cheese", "Bread", "Apple", "Orange", "Pear", "Grapes", "Strawberries", "Blueberries",
+                "Raspberries", "Tomato", "Cucumber", "Lettuce", "Carrot", "Potato", "Onion", "Garlic", "Pepper", "Chicken", "Beef", "Pork", "Fish", "Shrimp",
+                "Tofu", "Beans", "Rice", "Pasta", "Bread", "Bagel", "Muffin", "Donut", "Cake", "Pie", "Ice Cream", "Yogurt", "Coffee", "Tea", "Juice", "Water",
+                "Soda", "Beer", "Wine", "Whiskey"};
+        Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
+
+        for (int i = 0; i < 30; i++) {
+            Recipe recipe = Recipe.builder()
+                .name("Recipe " + (i + 2))
+                .description("This is a random recipe description.")
+                .isPublic(random.nextBoolean())
+                .portionSize(random.nextInt(10) + 1)
+                .owner(users.getFirst())
+                .build();
+
+            // Adding random ingredients
+            List<Item> recipeIngredients = new ArrayList<>();
+
+
+            for (int j = 0; j < 5; j++) {
+                String description = descriptions[random.nextInt(descriptions.length)];
+                Unit unit = units[new Random().nextInt(units.length)];
+                int amount = new Random().nextInt(500) + 1;
+                var item = Item.builder().description(description).unit(unit).amount(amount).build();
+                recipe.addIngredient(item);
+            }
+            recipeRepository.saveAndFlush(recipe);
+        }
     }
 
     @Override

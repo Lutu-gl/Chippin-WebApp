@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {RecipeGlobalListDto, RecipeListDto} from "../../../dtos/recipe";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {RecipeService} from "../../../services/recipe.service";
 
 
@@ -17,6 +17,7 @@ export class RecipeGlobalComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private service: RecipeService
   ) {
   }
@@ -46,10 +47,11 @@ export class RecipeGlobalComponent implements OnInit {
         }
       });
 
+    this.router.navigate(['/recipe/global']);
+
   }
 
   public dislike(id:number) {
-    window.alert("test");
     this.service.dislikeRecipe(id)
       .subscribe({
         next: data => {
@@ -59,6 +61,9 @@ export class RecipeGlobalComponent implements OnInit {
           this.defaultServiceErrorHandling(error)
         }
       });
+    this.router.navigate(['/recipe/global']);
+
+
   }
 
   public getScore(recipe: RecipeGlobalListDto): number {
