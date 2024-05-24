@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -39,7 +38,7 @@ public class UserServiceTest {
     private CustomUserDetailService userService;
 
     private UserRegisterDto userRegisterDto;
-    @Autowired
+    @Mock
     private JwtTokenizer jwtTokenizer;
 
     @BeforeEach
@@ -59,6 +58,7 @@ public class UserServiceTest {
         var createdUser = ApplicationUser.builder().email("test@example.com").password("encodedPassword").id(4L).admin(false).build();
         when(userRepository.findByEmail(userRegisterDto.getEmail())).thenReturn(null).thenReturn(createdUser);
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(jwtTokenizer.getAuthToken(any(), any())).thenReturn("token");
 
 
         userService.register(userRegisterDto, false);

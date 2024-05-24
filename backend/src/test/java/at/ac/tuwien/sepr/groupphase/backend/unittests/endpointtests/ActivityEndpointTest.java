@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,7 +23,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,6 +58,7 @@ public class ActivityEndpointTest {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("test@email.com")
     public void testGetById() throws Exception {
         ActivityDetailDto mockActivity = ActivityDetailDto.builder()
             .id(1L)
@@ -62,8 +66,8 @@ public class ActivityEndpointTest {
             .timestamp(LocalDateTime.now())
             .build();
         when(activityService.getById(any(), anyString())).thenReturn(mockActivity);
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/1")
-            .header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/1"))
+            //.header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsByteArray();
 
@@ -78,6 +82,7 @@ public class ActivityEndpointTest {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("test@email.com")
     public void testGetGroupExpenses() throws Exception {
         ActivityDetailDto mockActivity = ActivityDetailDto.builder()
             .id(1L)
@@ -85,8 +90,8 @@ public class ActivityEndpointTest {
             .timestamp(LocalDateTime.now())
             .build();
         when(activityService.getExpenseActivitiesByGroupId(any(), any(), any())).thenReturn(List.of(mockActivity));
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/group-expenses/1")
-            .header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/group-expenses/1"))
+            //.header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsByteArray();
 
@@ -102,6 +107,7 @@ public class ActivityEndpointTest {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("test@email.com")
     public void testGetGroupPayments() throws Exception {
         ActivityDetailDto mockActivity = ActivityDetailDto.builder()
             .id(1L)
@@ -109,8 +115,8 @@ public class ActivityEndpointTest {
             .timestamp(LocalDateTime.now())
             .build();
         when(activityService.getPaymentActivitiesByGroupId(anyLong(), any(), any())).thenReturn(List.of(mockActivity));
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/group-payments/1")
-            .header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activity/group-payments/1"))
+            //.header("Authorization", "Bearer " + jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES)))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsByteArray();
 
