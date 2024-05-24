@@ -4,7 +4,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto,
+  ShoppingListDetailDto, ShoppingListItemDto, ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
 
@@ -75,5 +75,27 @@ export class ShoppingListService {
    */
   getShoppingListsForUser(currentUserId: number) {
     return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/users/${currentUserId}/shopping-lists`);
+  }
+
+  /**
+   * Creates a new shopping list item.
+   *
+   * @param userId the id of the user creating the shopping list item
+   * @param shoppingListId the id of the shopping list the item belongs to
+   * @param id the id of the item
+   */
+  deleteShoppingListItem(userId: number, shoppingListId: number, id: number) {
+    return this.httpClient.delete(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${id}`);
+  }
+
+  /**
+   * Updates a shopping list item.
+   *
+   * @param userId the id of the user updating the shopping list item
+   * @param shoppingListId the id of the shopping list the item belongs to
+   * @param shoppingListItem the item to update the item to update
+   */
+  updateShoppingListItem(userId: number, shoppingListId: number, shoppingListItem: ShoppingListItemUpdateDto) {
+    return this.httpClient.patch(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${shoppingListItem.id}`, shoppingListItem);
   }
 }

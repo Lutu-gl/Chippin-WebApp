@@ -23,6 +23,12 @@ export interface ShoppingListDetailDto {
 export interface ShoppingListItemDto {
   id: number;
   item: ItemDetailDto;
+  checkedById: number;
+}
+
+export interface ShoppingListItemUpdateDto {
+  id: number;
+  item: ItemDetailDto;
   checked: boolean;
 }
 

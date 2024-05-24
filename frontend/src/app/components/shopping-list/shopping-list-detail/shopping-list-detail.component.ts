@@ -1,9 +1,14 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
+import {ShoppingListDetailDto, ShoppingListItemDto, ShoppingListItemUpdateDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
-import {NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {
+  ShoppingListItemListItemComponent
+} from "../shopping-list-item-list-item/shopping-list-item-list-item.component";
+import {AuthService} from "../../../services/auth.service";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -12,6 +17,9 @@ import {NgForOf, NgIf} from "@angular/common";
     RouterLink,
     NgForOf,
     NgIf,
+    ShoppingListItemListItemComponent,
+    FormsModule,
+    NgClass,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
@@ -21,7 +29,8 @@ export class ShoppingListDetailComponent implements OnInit{
   constructor(private shoppingListService: ShoppingListService,
               private route: ActivatedRoute,
               private notification: ToastrService,
-              private router: Router) {
+              private router: Router,
+              private authService: AuthService) {
   }
 
   shoppingListDetailDto: ShoppingListDetailDto;
@@ -66,4 +75,39 @@ export class ShoppingListDetailComponent implements OnInit{
       }
     });
   }
+
+  deleteItem(itemId: number) {
+    this.shoppingListService.deleteShoppingListItem(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
+      next: value => {
+        this.loadShoppingListDetailDto();
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
+  }
+
+  addItemToPantry(itemId: number) {
+    this.notification.info("Not implemented yet")
+  }
+
+  toggleChecked(itemId: number) {
+    let shoppingListItem = this.shoppingListDetailDto.items.find(item => item.id === itemId);
+    let shoppingListItemUpdateDto: ShoppingListItemUpdateDto = {
+      id: shoppingListItem.id,
+      item: shoppingListItem.item,
+      checked: !shoppingListItem.checkedById
+    }
+
+    this.shoppingListService.updateShoppingListItem(this.authService.getUserId(), this.shoppingListId, shoppingListItemUpdateDto ).subscribe({
+      next: value => {
+        this.loadShoppingListDetailDto();
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
+  }
+
+
 }
