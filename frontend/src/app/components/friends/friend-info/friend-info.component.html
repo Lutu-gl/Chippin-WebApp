@@ -1,0 +1,28 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h1>Friend: {{ friendEmail }}</h1>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h2>Total debt: <span [ngClass]="{'text-danger': totalDebt < 0, 'text-success': totalDebt >= 0}">{{ totalDebt }}€</span></h2>
+            </div>
+            <div>
+                <h3>Common groups</h3>
+                <ul class="list-group">
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                        *ngFor="let group of detailedGroups"
+                        style="font-size: 1.2em;"
+                        [routerLink]="['/group', group.groupId]"
+                    >
+                        <span>{{ group.groupName }}</span>
+                        <span [ngClass]="{'text-danger': group.debt < 0, 'text-success': group.debt > 0}">
+                            {{ group.debt === 0 ? 'quitt' : group.debt + '€' }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
