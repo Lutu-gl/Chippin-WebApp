@@ -5,6 +5,11 @@ public enum ActivityCategory {
     EXPENSE_UPDATE,
     EXPENSE_DELETE,
     EXPENSE_RECOVER,
+
     PAYMENT,
+    PAYMENT_DELETE,
+
+    PAYMENT_UPDATE,
+    PAYMENT_RECOVER,
     GROUP_CREATION
 }

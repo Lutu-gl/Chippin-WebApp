@@ -16,9 +16,12 @@
     </ul>
   </div>
 
-  <ul class="friend-list" *ngIf="friends !== null && friends.length > 0">
-    <li *ngFor="let email of friends">
-      {{ email }}
+  <ul class="list-group" *ngIf="friends !== null && friends.length > 0">
+    <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let friend of friends" [routerLink]="['/friends', friend.email]" style="cursor: pointer;">
+        <span>{{ friend.email }}</span>
+        <span class="ms-3" [ngClass]="{'text-danger': friend.debt < 0, 'text-success': friend.debt > 0, 'badge bg-secondary rounded-pill': friend.debt === 0}">
+            {{ friend.debt === 0 ? 'quitt' : friend.debt + '€' }}
+        </span>
     </li>
   </ul>
 

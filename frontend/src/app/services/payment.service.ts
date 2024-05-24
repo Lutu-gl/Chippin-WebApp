@@ -5,6 +5,7 @@ import {Observable} from "rxjs";
 import { HttpClient } from '@angular/common/http';
 import { Globals } from '../global/globals';
 import { UserSelection } from '../dtos/user';
+import {DebtGroupDetailDto} from "../dtos/debt";
 
 @Injectable({
   providedIn: 'root'
@@ -15,11 +16,23 @@ export class PaymentService {
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
 
-  create(payment: PaymentDto): Observable<PaymentDto> {
+  createPayment(payment: PaymentDto): Observable<PaymentDto> {
     return this.httpClient.post<PaymentDto>(this.paymentBaseUri, payment);
   }
 
-  update(payment: PaymentDto) {
-    return undefined;
+  updatePayment(paymentId: number, payment: PaymentDto): Observable<PaymentDto> {
+    return this.httpClient.put<PaymentDto>(this.paymentBaseUri + `/${paymentId}`, payment)
+  }
+
+  deletePayment(paymentId: number): Observable<PaymentDto> {
+    return this.httpClient.delete<PaymentDto>(this.paymentBaseUri + `/${paymentId}`)
+  }
+
+  recoverPayment(paymentId: number): Observable<PaymentDto>{
+    return this.httpClient.put<PaymentDto>(this.paymentBaseUri + `/recover/${paymentId}`, {});
+  }
+
+  getPaymentById(paymentId: number): Observable<PaymentDto> {
+    return this.httpClient.get<PaymentDto>(this.paymentBaseUri + `/${paymentId}`)
   }
 }

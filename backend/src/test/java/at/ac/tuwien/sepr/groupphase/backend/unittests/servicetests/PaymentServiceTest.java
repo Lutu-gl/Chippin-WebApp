@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.PaymentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
@@ -14,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -52,11 +55,21 @@ public class PaymentServiceTest {
             .groupId(1L)
             .build();
 
-        Payment mockPaymentEntity = Payment.builder().build();
+        ApplicationUser mockUser = ApplicationUser.builder()
+            .email("test@email.com")
+            .build();
+
+        GroupEntity mockGroupEntity = GroupEntity.builder()
+            .users(Set.of(mockUser))
+            .build();
+
+        Payment mockPaymentEntity = Payment.builder()
+            .group(mockGroupEntity)
+            .build();
 
         when(paymentMapper.paymentDtoToPaymentEntity(paymentDto)).thenReturn(mockPaymentEntity);
         when(paymentRepository.save(any(Payment.class))).thenReturn(mockPaymentEntity);
-        when(userRepository.findByEmail(anyString())).thenReturn(ApplicationUser.builder().email("test@email.com").build());
+        when(userRepository.findByEmail(anyString())).thenReturn(mockUser);
         when(paymentMapper.paymentEntityToPaymentDto(any(Payment.class)))
             .thenReturn(PaymentDto.builder()
                 .amount(10.0)

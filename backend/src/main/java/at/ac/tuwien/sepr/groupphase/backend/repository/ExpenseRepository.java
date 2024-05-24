@@ -24,7 +24,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     void markExpenseAsRecovered(Expense expense);
 
     /**
-     * Calculates the balances for a user in a group with its members.
+     * Calculates the balances for a user in a group with its members. This query does not take the payments into account.
      *
      * @param email   email of the user who wants to see the balances.
      * @param groupId group id of the group for which the balances should be calculated.
@@ -60,6 +60,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         + "GROUP BY ug.email", nativeQuery = true)
     List<Object[]> calculateBalancesExpensesForUser(@Param("email") String email, @Param("groupId") Long groupId);
 
+
+    /**
+     * Calculates the balances for a user in a group with its members. This query takes  payments into account.
+     *
+     * @param email   email of the user who wants to see the balances.
+     * @param groupId group id of the group for which the balances should be calculated.
+     * @return a list of objects containing the email of the user and the total amount of money the user owes or is owed by other users in the group.
+     */
     // Idea is: First calc debt from users from expenses data like explained above
     // Then calc debt from payments data with bascially the same query
     // finally union both results and the right join is for listing all users in the group (except the user itself) also with amount 0

@@ -30,6 +30,7 @@ export class PaymentCreateComponent implements OnInit {
     amount: this.route.snapshot.params.amount,
     groupId: this.route.snapshot.params.id
   }
+  private paymentId: number;
 
 
 
@@ -87,14 +88,14 @@ export class PaymentCreateComponent implements OnInit {
       this.mode = data.mode;
     });
 
-    let emailString = this.userService.getUserEmail();
-    if(emailString === null) {
-      this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
-      return;
-    }
-
     if (this.mode != PaymentCreateEditMode.create) {
-      //this.getPayment(); TODO implement getPayment
+      this.getPayment();
+    } else {
+      let emailString = this.userService.getUserEmail();
+      if(emailString === null) {
+        this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
+        return;
+      }
     }
   }
 
@@ -113,10 +114,10 @@ export class PaymentCreateComponent implements OnInit {
       let observable: Observable<PaymentDto>;
       switch (this.mode) {
         case PaymentCreateEditMode.create:
-          observable = this.service.create(this.payment);
+          observable = this.service.createPayment(this.payment);
           break;
         case PaymentCreateEditMode.edit:
-          observable = this.service.update(this.payment);
+          observable = this.service.updatePayment(Number(this.route.snapshot.paramMap.get('id')), this.payment);
           break;
         default:
           console.error('Unknown PaymentCreateEditMode', this.mode);
@@ -129,7 +130,6 @@ export class PaymentCreateComponent implements OnInit {
           this.router.navigate(['/group', this.payment.groupId]);
         },
         error: error => {
-          console.log(error);
           if (error && error.error && error.error.errors) {
             //this.notification.error(`${error.error.errors.join('. \n')}`);
             for (let i = 0; i < error.error.errors.length; i++) {
@@ -163,4 +163,46 @@ export class PaymentCreateComponent implements OnInit {
   }
 
   protected readonly PaymentCreateEditMode = PaymentCreateEditMode;
+
+  private getPayment() {
+    const paymentId = Number(this.route.snapshot.paramMap.get('paymentId'));
+    this.paymentId = paymentId;
+    if(paymentId) {
+      this.service.getPaymentById(paymentId).subscribe({
+        next: data => {
+          console.log(data)
+          this.payment = data;
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            //this.notification.error(`${error.error.errors.join('. \n')}`);
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.notification.error(`${error.error.errors[i]}`);
+            }
+          } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+            this.notification.error(`${error.error.message}`);
+          } else if (error && error.error.detail) {
+            this.notification.error(`${error.error.detail}`);
+          } else {
+            switch (this.mode) {
+              case PaymentCreateEditMode.create:
+                console.error('Error making payment', error);
+                this.notification.error(`Creation of payment did not work!`);
+                break;
+              case PaymentCreateEditMode.edit:
+                console.error('Error editing payment', error);
+                this.notification.error(`Edit of payment did not work!`);
+                break;
+              case PaymentCreateEditMode.info:
+                console.error('Error getting payment', error);
+                this.notification.error(`Getting payment did not work!`);
+                break;
+              default:
+                console.error('Unknown PaymentCreateEditMode. Operation did not work!', this.mode);
+            }
+          }
+        }
+      })
+    }
+  }
 }

@@ -26,6 +26,9 @@ public class ActivityDetailDto {
     private Long expenseId;
 
     @ManyToOne
+    private Long paymentId;
+
+    @ManyToOne
     private Long groupId;
 
     @ManyToOne

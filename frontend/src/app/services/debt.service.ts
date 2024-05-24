@@ -9,11 +9,11 @@ import {DebtGroupDetailDto} from "../dtos/debt";
   providedIn: 'root'
 })
 export class DebtService {
-  private expenseBaseUri: string = this.globals.backendUri + '/debt';
+  private debtBaseUri: string = this.globals.backendUri + '/debt';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
   getDebtById(groupId: number): Observable<DebtGroupDetailDto> {
-    return this.httpClient.get<any>(this.expenseBaseUri + `/${groupId}`)
+    return this.httpClient.get<any>(this.debtBaseUri + `/${groupId}`)
   }
 }
