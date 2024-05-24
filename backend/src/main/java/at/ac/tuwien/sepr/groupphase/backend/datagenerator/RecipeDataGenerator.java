@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -31,7 +33,8 @@ public class RecipeDataGenerator implements DataGenerator {
     @Transactional
     public void generateData() {
         LOGGER.debug("generating data for recipes");
-        ApplicationUser owner = userService.findApplicationUserByEmail("user1@example.com");
+        ApplicationUser owner = userRepository.save(ApplicationUser.builder().email("RecipeGenerator@test.at").password("RezeptTest1").admin(false).build());
+
 
         Recipe recipe1 = Recipe.builder()
             .name("Lasagne Bolognese")
@@ -51,7 +54,7 @@ public class RecipeDataGenerator implements DataGenerator {
             .isPublic(true)
             .owner(owner)
             .portionSize(1).likes(1).dislikes(1).build();
-
+        owner.addRecipe(recipe1);
 
         List<Item> items = itemRepository.findAll();
 
@@ -78,12 +81,13 @@ public class RecipeDataGenerator implements DataGenerator {
             .isPublic(false)
             .owner(owner)
             .portionSize(1).likes(1).dislikes(1).build();
-
+        owner.addRecipe(recipe2);
         List<Item> ingredientsToAdd2 = items.subList(13, 25);
         for (Item item : ingredientsToAdd2) {
             recipe2.addIngredient(item);
         }
         recipeRepository.saveAndFlush(recipe2);
+        userRepository.saveAndFlush(owner);
 
 
         recipeRepository.saveAndFlush(Recipe.builder()

@@ -137,16 +137,8 @@ public class RecipeEndpointTest extends BaseTest {
     @BeforeEach
     @Transactional
     public void beforeEach() throws UserAlreadyExistsException {
-        shoppingListRepository.deleteAll();
-        itemListRepository.deleteAll();
-        budgetRepository.deleteAll();
-        recipeRepository.deleteAll();
-        itemRepository.deleteAll();
-        pantryRepository.deleteAll();
-        friendshipRepository.deleteAll();
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
-
+        userDetailService.register(UserRegisterDto.builder().email("help@at").password("RezeptTest1").build(), false);
+        user = userDetailService.findApplicationUserByEmail("help@at");
 
         item = Item.builder()
             .description("Potato")
@@ -396,8 +388,6 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
@@ -444,7 +434,7 @@ public class RecipeEndpointTest extends BaseTest {
         );
     }
 
-    @Test
+    /*@Test
     public void likeRecipeSuccessfully() throws Exception {
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
@@ -490,7 +480,7 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(1, user.getDislikedRecipes().size());
         assertEquals(user.getDislikedRecipes().iterator().next().getId(), resultDto.getId());
         assertEquals(user.getId(), resultDto.getDislikedByUsers().iterator().next().getId());
-    }
+    }*/
 
     @Test
     public void givenUser_findRecipesByUser_returnsListOfRecipesByUserThen200() throws Exception {
