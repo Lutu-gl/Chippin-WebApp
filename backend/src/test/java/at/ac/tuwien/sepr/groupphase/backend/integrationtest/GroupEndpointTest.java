@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -98,7 +99,8 @@ public class GroupEndpointTest implements TestData {
         GroupEntity savedGroup = groupRepository.save(group);
 
         GroupCreateDto groupUpdateDto =
-            GroupCreateDto.builder().groupName("NewGroupChangedName").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
+            GroupCreateDto.builder().groupName("NewGroupChangedName").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com")))
+                .build();
 
         String body = objectMapper.writeValueAsString(groupUpdateDto);
 
@@ -195,6 +197,7 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Rollback
     @Transactional
+    @WithMockUser("user1GE@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
         GroupCreateDto groupCreateDto =
             GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2GE@example.com"))).build();
@@ -203,8 +206,8 @@ public class GroupEndpointTest implements TestData {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
+                .content(body))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict())
             .andExpect(new ResultMatcher() {
                 @Override
@@ -219,6 +222,7 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Rollback
     @Transactional
+    @WithMockUser("admin@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
         GroupCreateDto groupCreateDto =
             GroupCreateDto.builder().groupName("NewGroup").members(new HashSet<>(Arrays.asList("user1GE@example.com", "user2@example.com"))).build();
@@ -227,8 +231,8 @@ public class GroupEndpointTest implements TestData {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@example.com", ADMIN_ROLES)))
+                .content(body))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict())
             .andExpect(new ResultMatcher() {
                 @Override
@@ -242,6 +246,7 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Rollback
     @Transactional
+    @WithMockUser("user1E@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("     ")
@@ -252,8 +257,8 @@ public class GroupEndpointTest implements TestData {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
+                .content(body))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(new ResultMatcher() {
                 @Override

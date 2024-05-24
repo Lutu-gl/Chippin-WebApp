@@ -42,9 +42,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingList.setOwner(userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("User with id " + ownerId + " not found")));
 
         // Add group to shopping list
-        if (shoppingListCreateDto.getGroupId() != null) {
-            var group = groupRepository.findById(shoppingListCreateDto.getGroupId())
-                .orElseThrow(() -> new NotFoundException("Group with id " + shoppingListCreateDto.getGroupId() + " not found"));
+        if (shoppingListCreateDto.getGroup() != null) {
+            var group = groupRepository.findById(shoppingListCreateDto.getGroup().getId())
+                .orElseThrow(() -> new NotFoundException("Group with id " + shoppingListCreateDto.getGroup().getId() + " not found"));
             log.debug("Setting group of shopping list to: {}", group);
             shoppingList.setGroup(group);
         }
@@ -120,7 +120,14 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         log.debug("Updating shopping list with id {}", shoppingListId);
         var shoppingListEntity =
             shoppingListRepository.findById(shoppingListId).orElseThrow(() -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
-        shoppingListEntity.setName(shoppingList.getName());
+        shoppingListMapper.updateShoppingList(shoppingListEntity, shoppingList);
+        // Add group to shopping list
+        if (shoppingList.getGroup() != null) {
+            var group = groupRepository.findById(shoppingList.getGroup().getId())
+                .orElseThrow(() -> new NotFoundException("Group with id " + shoppingList.getGroup().getId() + " not found"));
+            log.debug("Setting group of shopping list to: {}", group);
+            shoppingListEntity.setGroup(group);
+        }
         var savedShoppingList = shoppingListRepository.save(shoppingListEntity);
         log.debug("Shopping list updated: {}", savedShoppingList);
         return savedShoppingList;
@@ -134,8 +141,10 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         var groupShoppingLists = shoppingListRepository.findByGroup_Users_Id(userId);
         log.debug("Found {} shopping lists where user is in group", groupShoppingLists.size());
 
-        // Add group shopping lists to owned shopping lists
-        ownedShoppingLists.addAll(groupShoppingLists);
+        // Add group shopping lists to owned shopping lists if not already present
+        groupShoppingLists.stream()
+            .filter(sl -> ownedShoppingLists.stream().noneMatch(osl -> osl.getId().equals(sl.getId())))
+            .forEach(ownedShoppingLists::add);
 
         return ownedShoppingLists;
     }

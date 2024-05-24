@@ -10,5 +10,6 @@ import lombok.ToString;
 @ToString
 @Builder
 public class UserDetailsDto {
+    private Long id;
     private String email;
 }

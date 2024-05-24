@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {CurrencyPipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {FriendshipService} from "../../../services/friendship.service";
 import {ToastrService} from "ngx-toastr";
@@ -21,7 +21,8 @@ interface FriendInfo {
     NgForOf,
     NgIf,
     RouterLink,
-    NgClass
+    NgClass,
+    CurrencyPipe
   ],
   templateUrl: './friends-info-card-content.component.html',
   styleUrl: './friends-info-card-content.component.scss'
