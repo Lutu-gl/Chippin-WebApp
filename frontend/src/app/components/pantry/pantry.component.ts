@@ -17,6 +17,7 @@ import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-del
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
 import {displayQuantity} from "../../util/unit-helper";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-pantry',
@@ -56,7 +57,8 @@ export class PantryComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: PantryService
+    private service: PantryService,
+    private notification: ToastrService
   ) {
   }
 
@@ -93,7 +95,6 @@ export class PantryComponent implements OnInit {
   getPantry(id: number) {
     this.service.getPantryById(id).subscribe({
       next: res => {
-        console.log(res.items);
         this.items = res.items;
       },
       error: err => {
@@ -105,8 +106,8 @@ export class PantryComponent implements OnInit {
   deleteItem(id: number) {
     this.service.deleteItem(this.id, id).subscribe({
       next: res => {
-        console.log('deleted item: ', res)
         this.getPantry(this.id);
+        this.notification.success('Item deleted');
       },
       error: err => {
         this.defaultServiceErrorHandling(err);
@@ -167,7 +168,7 @@ export class PantryComponent implements OnInit {
     this.newLowerLimit = 0;
     this.service.createItem(this.id, this.convertItemDto(this.newItem)).subscribe({
       next: res => {
-        console.log("Item created: ", res);
+        this.notification.success('Added ' + this.newItem.amount + ' ' + this.newItem.unit + ' ' + this.newItem.description);
         this.newItem.amount = 0;
         this.newItem.unit = DisplayedUnit.Piece;
         this.newItem.description = '';
@@ -182,6 +183,7 @@ export class PantryComponent implements OnInit {
   editItem() {
     this.service.updateItem(this.itemToEdit, this.id).subscribe({
       next: dto => {
+        this.notification.success('Edited ' + dto.description);
         this.selectedItem = dto;
       },
       error: error => {
@@ -193,6 +195,7 @@ export class PantryComponent implements OnInit {
   mergeItems() {
     this.service.mergeItems(this.mergeItem, this.id).subscribe({
       next: dto => {
+        this.notification.success('Items merged');
         this.selectedItem = dto;
       },
       error: error => {
@@ -226,6 +229,7 @@ export class PantryComponent implements OnInit {
     } else {
       this.errorMessage = error.error;
     }
+    this.notification.error(this.errorMessage);
   }
 
   selectItem(item: PantryItemDetailDto) {
@@ -258,7 +262,7 @@ export class PantryComponent implements OnInit {
         value = item.amount < 1000 ? value * 10 : value * 100;
         break;
       default:
-        console.error("Undefined unit");
+        console.warn("Undefined unit");
     }
     value *= prefixNum;
     return largeStep ? value * 10 : value;
