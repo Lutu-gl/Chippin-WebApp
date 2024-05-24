@@ -1,1 +1,17 @@
-<p>shopping-list-info-card-content works!</p>
+<!-- Create a ngFor for each shoppingList in shoppingLists -->
+
+<div class="tw-h-40 tw-overflow-y-auto">
+  <ul class="tw-p-0 tw-list-none tw-mx-[20px]" *ngIf="shoppingLists.length > 0">
+      <li class="tw-cursor-pointer tw-bg-gray-50 tw-flex tw-justify-between tw-gap-2 tw-justify-betweenn tw-border tw-px-1 tw-py-2 tw-mb-1 tw-transition-[0.3s] hover:tw-bg-gray-100"
+          *ngFor="let shoppingList of shoppingLists; let i=index" [routerLink]="['/shopping-list/', shoppingList.id]">
+        <div class="tw-truncate tw-max-w-64 tw-pl-2">{{ shoppingList.name}}</div>
+        <div class="tw-pr-2 tw-max-w-16 tw-min-w-12">{{shoppingList.checkedItemCount}} / {{shoppingList.itemCount}}</div>
+
+      </li>
+  </ul>
+  <ul class="group-list" *ngIf="shoppingLists.length === 0">
+    <li>
+      You don't have any shopping lists yet
+    </li>
+  </ul>
+</div>

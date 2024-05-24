@@ -47,6 +47,12 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import {
+  ShoppingListCreateComponent
+} from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
+import {
+  ShoppingListInfoCardContentComponent
+} from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 
@@ -74,6 +80,7 @@ import { ExpenseInfoCardContentComponent } from './components/expense/expense-in
     RecipeEditComponent,
     RecipeGlobalComponent,
     PaymentCreateComponent,
+    ShoppingListCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -93,7 +100,7 @@ import { ExpenseInfoCardContentComponent } from './components/expense/expense-in
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

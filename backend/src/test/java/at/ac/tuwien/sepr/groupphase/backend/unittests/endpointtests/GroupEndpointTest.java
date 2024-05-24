@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -63,17 +64,18 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("testUser1@example.com")
     public void testCreateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
-            .members(Arrays.stream(new String[]{"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
+            .members(Arrays.stream(new String[] {"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
             .build();
         when(groupService.create(any(), anyString())).thenReturn(mockResponse);
 
         String groupJson = "{\"name\":\"Test Group\",\"members\":[\"testUser1@example.com\",\"testUser2@example.com\"]}";
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/group")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isCreated())
@@ -92,10 +94,11 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("testUser1@example.com")
     public void testUpdateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
-            .members(Arrays.stream(new String[]{"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
+            .members(Arrays.stream(new String[] {"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
             .build();
         when(groupService.update(any(), anyString())).thenReturn(mockResponse);
 
@@ -103,7 +106,7 @@ public class GroupEndpointTest implements TestData {
 
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/1")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupUpdateJson))
             .andExpect(status().isOk())
@@ -122,6 +125,7 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("testUser1@example.com")
     public void testCreateGroupValidationException() throws Exception {
         // Arrange: Mock the service to throw ValidationException when called
         doThrow(new ValidationException("Invalid data", new ArrayList<>())).when(groupService).create(any(), anyString());
@@ -129,7 +133,7 @@ public class GroupEndpointTest implements TestData {
         // Act: Perform POST request with invalid data
         String groupJson = "{\"name\":\"   \"}"; // Invalid data due to empty name
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isUnprocessableEntity())
@@ -143,6 +147,7 @@ public class GroupEndpointTest implements TestData {
     @Test
     @Transactional
     @Rollback
+    @WithMockUser("userNotInMember@example.com")
     public void testCreateGroupConflictException() throws Exception {
         // Arrange: Mock the service to throw ConflictException when called
         doThrow(new ConflictException("User not in members list", new ArrayList<>())).when(groupService).create(any(), anyString());
@@ -150,7 +155,7 @@ public class GroupEndpointTest implements TestData {
         // Act: Perform POST request with conflicting data
         String groupJson = "{\"name\":\"Test Group\",\"members\":[\"testUser1@example.com\",\"testUser2@example.com\"]}";
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/group")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("userNotInMember@example.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("userNotInMember@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isConflict())

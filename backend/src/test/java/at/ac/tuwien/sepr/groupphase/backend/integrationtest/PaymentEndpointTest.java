@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,6 +73,7 @@ public class PaymentEndpointTest extends BaseTest {
 
 
     @Test
+    @WithMockUser(username = "use23123r1@examp666le.com")
     public void createPaymentPayerDoesNotExistConflict() throws Exception {
         PaymentDto paymentDto = PaymentDto.builder()
             .groupId(1L)
@@ -81,10 +83,10 @@ public class PaymentEndpointTest extends BaseTest {
             .build();
 
         String contentAsString = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/payment")
-                .content(objectMapper.writeValueAsString(paymentDto))
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("use23123r1@examp666le.com", ADMIN_ROLES)))
-            .andExpect(status().isConflict())
+                    .content(objectMapper.writeValueAsString(paymentDto))
+                    .contentType(MediaType.APPLICATION_JSON)
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("use23123r1@examp666le.com", ADMIN_ROLES)))
+            ).andExpect(status().isConflict())
             .andReturn().getResponse().getContentAsString();
 
         assertTrue(contentAsString.contains("Payer does not exist"));
