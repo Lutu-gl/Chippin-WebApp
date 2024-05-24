@@ -69,7 +69,7 @@ export class RecipeCreateComponent implements OnInit {
           this.router.navigate(['/recipe']);
         },
         error: error => {
-          this.defaultServiceErrorHandling(error);
+          this.printError(error);
         }
       });
     }
@@ -128,13 +128,21 @@ export class RecipeCreateComponent implements OnInit {
 
   }
 
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.notification.error(`${error.error.errors[i]}`);
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.notification.error(`${error.error.message}`);
     } else {
-      this.errorMessage = error.error;
+      console.error('Error', error);
+      if(error.status !== 401) {
+        const errorMessage = error.status === 0
+          ? 'Is the backend up?'
+          : error.message.message;
+        this.notification.error(errorMessage, 'Could not connect to the server.');
+      }
     }
   }
 
