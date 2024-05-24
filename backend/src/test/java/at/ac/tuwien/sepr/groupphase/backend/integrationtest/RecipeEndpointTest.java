@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -93,19 +94,7 @@ public class RecipeEndpointTest extends BaseTest {
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private GroupRepository groupRepository;
-    @Autowired
-    private FriendshipRepository friendshipRepository;
-    @Autowired
-    private PantryRepository pantryRepository;
-    @Autowired
-    private BudgetRepository budgetRepository;
-    @Autowired
-    private ItemListRepository itemListRepository;
-    @Autowired
-    private ShoppingListRepository shoppingListRepository;
+    private ItemMapper itemMapper;
 
 
     @Autowired
@@ -118,7 +107,6 @@ public class RecipeEndpointTest extends BaseTest {
     @Autowired
     private SecurityProperties securityProperties;
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    //TODO isPublic is not being tested yet
     List<String> ADMIN_ROLES = new ArrayList<>() {
         {
             add("ROLE_ADMIN");
@@ -237,10 +225,12 @@ public class RecipeEndpointTest extends BaseTest {
             .andReturn();
     }
 
-    /*@Test
+    @Test
     public void updateExistingRecipe_ChangesSuccessfully_Then200() throws Exception {
+
         RecipeDetailDto newRecipe = RecipeDetailDto.builder().id(recipe.getId()).owner(recipe.getOwner()).portionSize(6)
-            .description("for a test").name("differentName").isPublic(true).likes(0).dislikes(0).build();
+            .description("for a test").name("differentName").ingredients(itemMapper.listOfItemsToListOfItemDto(recipe.getIngredients()))
+            .isPublic(true).likes(0).dislikes(0).build();
         String groupJson = objectMapper.writeValueAsString(newRecipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/update")
@@ -260,11 +250,11 @@ public class RecipeEndpointTest extends BaseTest {
         LOGGER.debug("detailDto: " + recipeDetailDto);
 
         assertEquals(recipeDetailDto.getId(), recipe.getId());
-        assertEquals(recipeDetailDto.getName(), recipe.getName());
-        assertEquals(recipeDetailDto.getPortionSize(), recipe.getPortionSize());
+        assertEquals(recipeDetailDto.getName(), "differentName");
+        assertEquals(recipeDetailDto.getPortionSize(), 6);
 
 
-    }*/
+    }
 
     @Test
     public void givenEmptyRecipe_whenFindById_thenEmptyList()
