@@ -33,12 +33,9 @@
           <app-menu-card>
             <div title>Expenses</div>
             <div content>
-              expenses overview
+              <app-expense-info-card-content></app-expense-info-card-content>
             </div>
-            <div cardButton1>
-              <a class="btn btn-secondary" routerLink="invalid">Details</a>
-            </div>
-            <div cardButton2>
+            <div cardButton2 class="ms-auto">
               <a class="btn btn-primary" [routerLink]="['/expenses']">+</a>
             </div>
           </app-menu-card>

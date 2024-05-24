@@ -53,6 +53,8 @@ import {
 import {
   ShoppingListInfoCardContentComponent
 } from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
+import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +65,7 @@ import {
     AutocompleteComponent,
     LoginComponent,
     FriendsComponent,
+    FriendInfoComponent,
     AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
@@ -94,14 +97,12 @@ import {
     MenuCardComponent,
     GroupInfoCardContentComponent,
     FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
     ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
-  exports: [
-    AutocompleteComponent
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

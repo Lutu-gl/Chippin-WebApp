@@ -4,10 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +50,9 @@ public class PaymentEndpointTest extends BaseTest {
     private GroupRepository groupRepository;
 
     @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -64,6 +70,7 @@ public class PaymentEndpointTest extends BaseTest {
             add("ROLE_USER");
         }
     };
+
 
     @Test
     @WithMockUser(username = "use23123r1@examp666le.com")
@@ -183,5 +190,195 @@ public class PaymentEndpointTest extends BaseTest {
         assertEquals(paymentDto.getPayerEmail(), paymentDtoResponse.getPayerEmail());
         assertEquals(paymentDto.getReceiverEmail(), paymentDtoResponse.getReceiverEmail());
         assertEquals(paymentDto.getAmount(), paymentDtoResponse.getAmount());
+    }
+
+    @Test
+    public void updatePaymentForGroupAnd2UsersWorksAndValid() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        PaymentDto paymentDto = PaymentDto.builder()
+            .groupId(group.getId())
+            .payerEmail(payment.getPayer().getEmail())
+            .receiverEmail(payment.getReceiver().getEmail())
+            .amount(payment.getAmount() + 100)
+            .build();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/%d", payment.getId()))
+                .content(objectMapper.writeValueAsString(paymentDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        PaymentDto paymentDtoResponse = objectMapper.readValue(contentAsString, PaymentDto.class);
+
+        assertNotNull(paymentDtoResponse.getGroupId());
+        assertEquals(paymentDto.getPayerEmail(), paymentDtoResponse.getPayerEmail());
+        assertEquals(paymentDto.getReceiverEmail(), paymentDtoResponse.getReceiverEmail());
+        assertEquals(paymentDto.getAmount(), paymentDtoResponse.getAmount());
+    }
+
+    @Test
+    public void updatePaymentForGroupNotValidBecausePayerChanged() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        PaymentDto paymentDto = PaymentDto.builder()
+            .groupId(group.getId())
+            .payerEmail(payment.getReceiver().getEmail())
+            .receiverEmail(payment.getPayer().getEmail())
+            .amount(payment.getAmount() + 100)
+            .build();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/%d", payment.getId()))
+                .content(objectMapper.writeValueAsString(paymentDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isUnprocessableEntity())
+            .andReturn().getResponse().getContentAsString();
+
+        assertTrue(contentAsString.contains("Payer cannot be changed"));
+    }
+
+    @Test
+    public void updatePaymentForGroupNotValidAmountNegative() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        PaymentDto paymentDto = PaymentDto.builder()
+            .groupId(group.getId())
+            .payerEmail(payment.getReceiver().getEmail())
+            .receiverEmail(payment.getPayer().getEmail())
+            .amount(-50)
+            .build();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/%d", payment.getId()))
+                .content(objectMapper.writeValueAsString(paymentDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isBadRequest())
+            .andReturn().getResponse().getContentAsString();
+
+        assertTrue(contentAsString.contains("Amount must be positive"));
+    }
+
+    @Test
+    public void updatePaymentForGroupNotValidWrongId() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        PaymentDto paymentDto = PaymentDto.builder()
+            .groupId(group.getId())
+            .payerEmail(payment.getPayer().getEmail())
+            .receiverEmail(payment.getReceiver().getEmail())
+            .amount(payment.getAmount() + 100)
+            .build();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/%d", -666))
+                .content(objectMapper.writeValueAsString(paymentDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isNotFound())
+            .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void deletePaymentForGroupWorksAndValid() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId()) && !p.isDeleted()).findFirst().orElseThrow();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("/api/v1/payment/%d", payment.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isNoContent());
+
+        Payment deletedPayment = paymentRepository.findById(payment.getId()).orElse(null);
+        assertNotNull(deletedPayment);
+        assertTrue(deletedPayment.isDeleted());
+    }
+
+    @Test
+    public void deletePaymentForGroupNotWorksBecauseAlreadyDeleted() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId()) && p.isDeleted()).findFirst().orElseThrow();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.delete(String.format("/api/v1/payment/%d", payment.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isConflict())
+            .andReturn().getResponse().getContentAsString();
+
+        assertTrue(contentAsString.contains("Payment is already marked as deleted"));
+    }
+
+    @Test
+    public void recoverPaymentForGroupNotWorksBecauseNotDeleted() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId()) && !p.isDeleted()).findFirst().orElseThrow();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/recover/%d", payment.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isConflict())
+            .andReturn().getResponse().getContentAsString();
+
+        assertTrue(contentAsString.contains("Payment is not marked as deleted"));
+    }
+
+    @Test
+    public void recoverPaymentForGroupWorksAndValid() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId()) && p.isDeleted()).findFirst().orElseThrow();
+
+        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/recover/%d", payment.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isOk());
+
+        Payment deletedPayment = paymentRepository.findById(payment.getId()).orElse(null);
+        assertNotNull(deletedPayment);
+        assertFalse(deletedPayment.isDeleted());
+    }
+
+    @Test
+    public void getPaymentByIdForGroupWorks() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/api/v1/payment/%d", payment.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        PaymentDto paymentDtoResponse = objectMapper.readValue(contentAsString, PaymentDto.class);
+
+        assertNotNull(paymentDtoResponse.getGroupId());
+        assertEquals(payment.getPayer().getEmail(), paymentDtoResponse.getPayerEmail());
+        assertEquals(payment.getReceiver().getEmail(), paymentDtoResponse.getReceiverEmail());
+        assertEquals(payment.getAmount(), paymentDtoResponse.getAmount());
+    }
+
+    @Test
+    public void getPaymentByIdForGroupNotFoundException() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId())).findFirst().orElseThrow();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/api/v1/payment/%d", -666))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isNotFound())
+            .andReturn().getResponse().getContentAsString();
     }
 }

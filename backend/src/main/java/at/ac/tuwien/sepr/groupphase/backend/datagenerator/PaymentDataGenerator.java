@@ -54,6 +54,16 @@ public class PaymentDataGenerator implements DataGenerator {
                     .group(group)
                     .build();
 
+                Payment paymentDeleted = Payment.builder()
+                    .payer(usersInGroup.get(0))
+                    .receiver(usersInGroup.get(1))
+                    .amount(420.0)
+                    .date(LocalDateTime.now())
+                    .group(group)
+                    .deleted(true)
+                    .build();
+
+                paymentRepository.save(paymentDeleted);
                 paymentRepository.save(payment);
                 continue;
             }

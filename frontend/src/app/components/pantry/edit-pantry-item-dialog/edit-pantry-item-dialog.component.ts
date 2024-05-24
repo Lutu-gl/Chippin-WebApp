@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../../dtos/item";
+import {DisplayedUnit, PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../../dtos/item";
 import {FormsModule, NgForm} from "@angular/forms";
 import {KeyValuePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 
@@ -92,4 +92,5 @@ export class EditPantryItemDialogComponent {
   }
 
   protected readonly Unit = Unit;
+  protected readonly DisplayedUnit = DisplayedUnit;
 }
