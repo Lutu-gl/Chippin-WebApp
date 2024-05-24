@@ -7,7 +7,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import jakarta.annotation.security.DeclareRoles;
@@ -124,7 +123,7 @@ public class SecurityTest extends BaseTest {
 
     @Test
     public void givenUserLoggedIn_whenFindAllInPantry_then200() throws Exception {
-        ApplicationUser user1 = ApplicationUser.builder().email("user1@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
+        ApplicationUser user1 = ApplicationUser.builder().email("user1TestSec@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
         userRepository.save(user1);
         GroupEntity group = GroupEntity.builder().groupName("Test").users(Set.of(user1)).build();
         Pantry pantry = Pantry.builder().build();
@@ -133,7 +132,7 @@ public class SecurityTest extends BaseTest {
         groupRepository.save(group);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@email.com", USER_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -147,16 +146,16 @@ public class SecurityTest extends BaseTest {
 
     @Test
     public void givenUserLoggedIn_whenFindAllInPantryThatBelongsToForeignGroup_then403() throws Exception {
-        ApplicationUser user1 = ApplicationUser.builder().email("user1@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
+        ApplicationUser user1 = ApplicationUser.builder().email("user1TestSec@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
         userRepository.save(user1);
-        GroupEntity group = GroupEntity.builder().groupName("Test").users(Set.of()).build();
+        GroupEntity group = GroupEntity.builder().groupName("TestTestSec").users(Set.of()).build();
         Pantry pantry = Pantry.builder().build();
         pantry.setGroup(group);
         group.setPantry(pantry);
         groupRepository.save(group);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@email.com", USER_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
