@@ -1,4 +1,7 @@
-<h1 class="display-1">{{heading}}</h1>
+<div>
+  <h1 class="display-1">{{heading}}</h1>
+  <span *ngIf="paymentIsDeleted()" style="color: red;">This expense is marked as deleted!</span>
+</div>
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
   <br>
   <div class="row justify-content-center">
@@ -24,13 +27,59 @@
         </div>
       </div>
     </div>
-    <div class="mt-4 d-flex flex-row w-100 justify-content-between">
-      <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group List</button>
-      <button *ngIf="mode !== PaymentCreateEditMode.info" type="submit" class="btn btn-primary"
-              [disabled]="!form.valid || payment === undefined">
-        Submit
+
+    <!-- Create/Edit button -->
+    <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row justify-content-between align-items-center">
+      <div>
+        <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
+      </div>
+      <button type="submit" class="btn btn-primary"
+              [disabled]="(!form.valid || payment === undefined)" type="submit">
+        {{submitButtonText}}
       </button>
     </div>
 
+    <!-- Delete buttons -->
+    <div *ngIf="modeIsInfo() && !paymentIsDeleted()" class="d-flex flex-row justify-content-between align-items-center mt-4">
+      <!-- Delete expense -->
+      <div class="me-2">
+        <!--
+          TODO: Add this to button
+          data-bs-toggle="modal"
+          data-bs-target="#confirmDeleteDialog"
+        -->
+        <button
+          class="btn btn-danger"
+          (click)="deleteExistingPayment()"
+        >
+          <i class="bi bi-trash"></i>
+          Delete expense
+        </button>
+      </div>
+
+      <!-- Go to edit mode button -->
+      <div>
+        <!-- <a [routerLink]="['payments', this.route.snapshot.paramMap.get('id') , 'edit']" class="btn btn-warning">-->
+        <a [routerLink]="['../edit']" class="btn btn-warning">
+          <i class="bi bi-pencil"></i>
+          Go to Edit
+        </a>
+      </div>
+    </div>
+    <!-- Recover expense -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div *ngIf="modeIsInfo()">
+        <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
+      </div>
+      <div *ngIf="modeIsInfo() && paymentIsDeleted()" class="me-2">
+        <button
+          class="btn btn-success"
+          (click)="recoverDeletedPayment()"
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+          Recover expense
+        </button>
+      </div>
+    </div>
   </div>
 </form>

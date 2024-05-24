@@ -23,12 +23,14 @@ export enum PaymentCreateEditMode {
 })
 export class PaymentCreateComponent implements OnInit {
   mode: PaymentCreateEditMode = PaymentCreateEditMode.create;
+  paymentDeleted: boolean;
 
   payment: PaymentDto = {
     payerEmail: this.userService.getUserEmail(),
     receiverEmail: this.route.snapshot.params.email,
     amount: this.route.snapshot.params.amount,
-    groupId: this.route.snapshot.params.id
+    groupId: this.route.snapshot.params.id,
+    deleted: false,
   }
   private paymentId: number;
 
@@ -39,7 +41,7 @@ export class PaymentCreateComponent implements OnInit {
     protected userService: UserService,
     private friendshipService: FriendshipService,
     private router: Router,
-    private route: ActivatedRoute,
+    protected route: ActivatedRoute,
     private notification: ToastrService,
   ) {
   }
@@ -96,6 +98,8 @@ export class PaymentCreateComponent implements OnInit {
         this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
         return;
       }
+      this.paymentDeleted = false;
+      this.payment.deleted = false;
     }
   }
 
@@ -117,7 +121,7 @@ export class PaymentCreateComponent implements OnInit {
           observable = this.service.createPayment(this.payment);
           break;
         case PaymentCreateEditMode.edit:
-          observable = this.service.updatePayment(Number(this.route.snapshot.paramMap.get('id')), this.payment);
+          observable = this.service.updatePayment(Number(this.route.snapshot.paramMap.get('paymentId')), this.payment);
           break;
         default:
           console.error('Unknown PaymentCreateEditMode', this.mode);
@@ -172,6 +176,7 @@ export class PaymentCreateComponent implements OnInit {
         next: data => {
           console.log(data)
           this.payment = data;
+          this.paymentDeleted = data.deleted;
         },
         error: error => {
           if (error && error.error && error.error.errors) {
@@ -204,5 +209,92 @@ export class PaymentCreateComponent implements OnInit {
         }
       })
     }
+  }
+
+  paymentIsDeleted(): boolean {
+    return this.paymentDeleted;
+  }
+
+  modeIsInfo() {
+    return this.mode === PaymentCreateEditMode.info;
+  }
+
+  public modeIsCreate(): boolean {
+    return this.mode === PaymentCreateEditMode.create;
+  }
+
+  public editExistingPayment(paymentId: number, payment: PaymentDto) {
+    this.service.updatePayment(paymentId, payment).subscribe({
+      next: data => {
+        this.notification.success(`Payment successfully edited.`);
+        this.payment = data;
+        this.goBack();
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          //this.notification.error(`${error.error.errors.join('. \n')}`);
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.notification.error(`${error.error.errors[i]}`);
+          }
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.notification.error(`${error.error.message}`);
+        } else if (error && error.error.detail) {
+          this.notification.error(`${error.error.detail}`);
+        } else {
+          console.error('Error editing payment', error);
+          this.notification.error("Could not edit payment!");
+        }
+      }
+    })
+  }
+
+  public deleteExistingPayment() {
+    this.service.deletePayment(this.paymentId).subscribe({
+      next: data => {
+        this.notification.success(`Payment successfully deleted.`);
+        this.paymentDeleted = true;
+        this.goBack();
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          //this.notification.error(`${error.error.errors.join('. \n')}`);
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.notification.error(`${error.error.errors[i]}`);
+          }
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.notification.error(`${error.error.message}`);
+        } else if (error && error.error.detail) {
+          this.notification.error(`${error.error.detail}`);
+        } else {
+          console.error('Error deleting payment', error);
+          this.notification.error("Could not delete payment!");
+        }
+      }
+    })
+  }
+
+  public recoverDeletedPayment() {
+    this.service.recoverPayment(this.paymentId).subscribe({
+      next: data => {
+        this.notification.success(`Payment successfully recovered.`);
+        this.paymentDeleted = false;
+        this.payment = data;
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          //this.notification.error(`${error.error.errors.join('. \n')}`);
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.notification.error(`${error.error.errors[i]}`);
+          }
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.notification.error(`${error.error.message}`);
+        } else if (error && error.error.detail) {
+          this.notification.error(`${error.error.detail}`);
+        } else {
+          console.error('Error recovering payment', error);
+          this.notification.error("Could not recover payment!");
+        }
+      }
+    })
   }
 }

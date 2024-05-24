@@ -53,7 +53,8 @@ const routes: Routes = [
           {path: 'payment', children: [
               {path: 'create/:email/:amount', component: PaymentCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
               {path: ':paymentId', children: [
-                  {path: 'info', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.info} }
+                  {path: 'info', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.info} },
+                  {path: 'edit', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.edit} }
                 ]}
             ]},
           {path: 'shoppingList', children: [
