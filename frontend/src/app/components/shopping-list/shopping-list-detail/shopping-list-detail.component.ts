@@ -10,6 +10,9 @@ import {ConfirmDeleteDialogComponent} from "../../confirm-delete-dialog/confirm-
 import {
   AddShoppingListItemModalComponent
 } from "../add-shopping-list-item-modal/add-shopping-list-item-modal.component";
+import {
+  EditShoppingListItemModalComponent
+} from "../edit-shopping-list-item-modal/edit-shopping-list-item-modal.component";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -22,6 +25,7 @@ import {
     NgClass,
     ConfirmDeleteDialogComponent,
     AddShoppingListItemModalComponent,
+    EditShoppingListItemModalComponent,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
@@ -79,7 +83,7 @@ export class ShoppingListDetailComponent implements OnInit{
     });
   }
 
-  selectItemForDelete(item: ShoppingListItemDto) {
+  selectItem(item: ShoppingListItemDto) {
     this.selectedItem = item;
   }
 
@@ -116,8 +120,4 @@ export class ShoppingListDetailComponent implements OnInit{
     })
   }
 
-
-  selectItemForEdit(shoppingListItem: ShoppingListItemDto) {
-
-  }
 }

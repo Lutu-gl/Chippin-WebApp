@@ -56,7 +56,7 @@ export class ShoppingListService {
    * @param groupId the id of the group
    */
   getShoppingListsForGroup(groupId: number): Observable<ShoppingListListDto[]> {
-    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist`);
+    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/groups/${groupId}/shopping-lists`);
   }
 
   /**

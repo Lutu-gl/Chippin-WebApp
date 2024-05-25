@@ -54,7 +54,6 @@ export class AddShoppingListItemModalComponent {
     this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.shoppingListId, this.itemToEdit).subscribe({
         next: () => {
           this.notifications.success('Item added to shopping list');
-          this.reset();
           this.onAdd.emit();
         },
         error: err => {

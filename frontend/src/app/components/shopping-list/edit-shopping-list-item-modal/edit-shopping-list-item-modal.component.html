@@ -1,13 +1,13 @@
-<div class="modal fade" id="add-shopping-list-item-modal" role="dialog">
+<div class="modal fade" id="edit-shopping-list-item-modal" role="dialog">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add new Item</h5>
+        <h5 class="modal-title">Edit Item</h5>
         <button (click)="reset()" aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
       </div>
       <div>
         <div *ngIf="itemToEdit !== undefined" class="modal-body">
-          <form #form="ngForm" (ngSubmit)="form.valid && onSubmit(form)" class="row pt-1"
+          <form #form="ngForm" (ngSubmit)="onSubmit()" class="row pt-1"
                 id="form">
 
             <div class="col-2">
@@ -20,7 +20,7 @@
               <label for="newItemUnit">Unit</label>
               <select [(ngModel)]="itemToEdit.unit" class="form-select" id="newItemUnit" name="newItemUnit" required>
                 <option *ngFor="let unit of Unit | keyvalue"
-                        [selected]="itemToEdit.unit===unit.key">{{ unit.value }}
+                        [selected]="shoppingListItem.item.unit===unit.key">{{ unit.value }}
                 </option>
               </select>
             </div>
@@ -39,7 +39,7 @@
         >
           Discard changes
         </button>
-        <button #modalClose class="btn btn-warning" data-bs-dismiss="modal" form="form" type="submit">
+        <button (click)="onSubmit()" class="btn btn-warning" data-bs-dismiss="" form="form" type="submit">
           Add
         </button>
       </div>
