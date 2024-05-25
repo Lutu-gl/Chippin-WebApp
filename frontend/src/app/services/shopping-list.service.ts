@@ -4,9 +4,11 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto, ShoppingListItemDto, ShoppingListItemUpdateDto,
+  ShoppingListDetailDto,
+  ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
+import {ItemCreateDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -97,5 +99,16 @@ export class ShoppingListService {
    */
   updateShoppingListItem(userId: number, shoppingListId: number, shoppingListItem: ShoppingListItemUpdateDto) {
     return this.httpClient.patch(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${shoppingListItem.id}`, shoppingListItem);
+  }
+
+  /**
+   * Adds a shopping list item to a shopping list.
+   *
+   * @param userId the id of the user adding the item
+   * @param shoppingListId the id of the shopping list to add the item to
+   * @param itemToEdit the item to add
+   */
+  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
+    return this.httpClient.post(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
 }
