@@ -5,7 +5,9 @@ import {RecipeService} from "../../../services/recipe.service";
 import {Unit} from "../../../dtos/item";
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
-import {data} from "autoprefixer";
+import {GroupDto} from "../../../dtos/group";
+import {Observable, of} from "rxjs";
+import {UserService} from "../../../services/user.service";
 
 export enum RecipeDetailMode {
   owner,
@@ -28,13 +30,20 @@ export class RecipeDetailComponent implements OnInit {
     dislikes:0
   };
   portion:number = 1;
+  group: GroupDto = {
+    id: 0,
+    members: [],
+    groupName: ''
+  }
   recipeId: number;
   error = false;
   errorMessage = '';
+  groups: GroupDto[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private service: RecipeService,
+    private userService: UserService,
     private router: Router,
     private notification: ToastrService
   ) {
@@ -55,6 +64,15 @@ export class RecipeDetailComponent implements OnInit {
           this.printError(error);
         }
       });
+
+    this.userService.getUserGroups().subscribe({
+      next: groups => {
+        this.groups = groups;
+      },
+      error: error => {
+        this.printError(error);
+      }
+    });
   }
 
   printError(error): void {
@@ -104,6 +122,10 @@ export class RecipeDetailComponent implements OnInit {
 
   }
 
+  public updatePortion() {
+
+  }
+
   public dislike(id:number) {
     window.alert("test");
     this.service.dislikeRecipe(id)
@@ -122,7 +144,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   public removeRecipeIngredientsFromPantry() {
-    this.service.removeRecipeIngredientsFromPantry(233,this.recipe.id, 1).subscribe(
+    this.service.removeRecipeIngredientsFromPantry(this.group.id,this.recipe.id, this.portion).subscribe(
       {
         next: data => {
             console.log("Es funktioniert");
@@ -133,6 +155,18 @@ export class RecipeDetailComponent implements OnInit {
         }
       }
     );
+  }
+
+  getGroupSuggestions = (input: string): Observable<GroupDto[]> => {
+    if (!input) {
+      return of([]);
+    }
+    const filterValue = input.toLowerCase();
+    return of(this.groups.filter(group => group.groupName.toLowerCase().includes(filterValue)));
+  }
+
+  formatGroup = (group: GroupDto | null): string => {
+    return group ? group.groupName : '';
   }
 
   protected readonly Unit = Unit;
