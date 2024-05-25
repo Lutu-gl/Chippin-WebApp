@@ -63,7 +63,7 @@ public interface PantryService {
     PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
 
     /**
-     * Get recipes with ingredients that are stored in the pantry
+     * Get recipes with ingredients that are stored in the pantry.
      *
      * @param pantryId the id of the pantry
      * @return a list of recipes
