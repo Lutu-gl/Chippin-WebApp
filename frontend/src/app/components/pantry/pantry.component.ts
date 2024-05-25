@@ -16,7 +16,7 @@ import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
-import {displayQuantity} from "../../util/unit-helper";
+import {displayQuantity, unitToDisplayedUnit} from "../../util/unit-helper";
 import {ToastrService} from "ngx-toastr";
 
 @Component({
@@ -289,4 +289,6 @@ export class PantryComponent implements OnInit {
   protected readonly clone = clone;
   protected readonly displayQuantity = displayQuantity;
   protected readonly DisplayedUnit = DisplayedUnit;
+  protected readonly unitToDisplayedUnit = unitToDisplayedUnit;
+  protected readonly undefined = undefined;
 }

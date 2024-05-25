@@ -63,6 +63,7 @@ export class PantryService {
    * @param pantryId the pantry id
    */
   updateItem(itemToUpdate: PantryItemDetailDto, pantryId: number) {
+    console.log(itemToUpdate)
     return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
   }
 

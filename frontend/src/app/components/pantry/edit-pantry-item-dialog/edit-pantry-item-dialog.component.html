@@ -15,7 +15,7 @@
       </div>
       <div class="modal-body" *ngIf="itemToEdit !== undefined && edit">
         <form #form="ngForm" id="form" class="row pt-1"
-              (ngSubmit)="form.valid ? confirmEdit.emit() : null; onSubmit(form)">
+              (ngSubmit)="onSubmit(form); form.valid ? confirmEdit.emit() : null;">
           <button id="important" name="button" type="button" class="btn btn-warning m-2 col-1"
                   (click)="markImportant()">
             <i *ngIf="itemToEdit.lowerLimit === null" class="bi bi-star"></i>
@@ -24,7 +24,7 @@
           <div class="col-2">
             <label for="newItemAmount">Amount</label>
             <input name="newItemAmount" type="number" class="form-control" id="newItemAmount"
-                   [(ngModel)]="itemToEdit.amount"
+                   [(ngModel)]="displayedAmount"
                    required min="0">
           </div>
           <div class="col-2" *ngIf="itemToEdit.lowerLimit !== null">
@@ -35,9 +35,8 @@
           </div>
           <div class="col-2">
             <label for="newItemUnit">Unit</label>
-            <select name="newItemUnit" id="newItemUnit" class="form-select" [(ngModel)]="itemToEdit.unit" required>
-              <option *ngFor="let unit of DisplayedUnit | keyvalue"
-                      [selected]="itemToEdit.unit===unit.key">{{ unit.value }}</option>
+            <select name="newItemUnit" id="newItemUnit" class="form-select" [(ngModel)]="displayedUnit" required>
+              <option *ngFor="let unit of DisplayedUnit | keyvalue">{{ unit.value }}</option>
             </select>
           </div>
           <div class="col">
@@ -55,10 +54,10 @@
         </div>
         <div class="row pt-3">
           <div class="col-2">
-            <input type="text" class="form-control" [value]="itemToMerge.amount" disabled>
+            <input type="text" class="form-control" [value]="displayQuantity(itemToMerge.unit, itemToMerge.amount)[1]" disabled>
           </div>
           <div class="col-2">
-            <input type="text" class="form-control" [value]="itemToMerge.unit" disabled>
+            <input type="text" class="form-control" [value]="displayQuantity(itemToMerge.unit, itemToMerge.amount)[0]" disabled>
           </div>
           <div class="col">
             <input type="text" class="form-control" [value]="itemToMerge.description" disabled>
@@ -74,13 +73,13 @@
             <select class="form-select" [(ngModel)]="itemToMergeWith" (change)="prepareItemToMerge()">
               <option [ngValue]="null" selected></option>
               <option [ngValue]="item"
-                      *ngFor="let item of filterItems(itemToMerge)">{{item.amount}} {{item.unit}} {{item.description}}</option>
+                      *ngFor="let item of filterItems(itemToMerge)">{{displayQuantity(item.unit, item.amount)[1]}} {{displayQuantity(item.unit, item.amount)[0]}} {{item.description}}</option>
             </select>
           </div>
         </div>
         <div class="row pt-4" *ngIf="itemToMergeWith !== null && itemMergeDto.result !== null">
           <form #form="ngForm" id="form-merge" class="row pt-1"
-                (ngSubmit)="form.valid ? confirmMerge.emit() : null; onSubmit(form)">
+                (ngSubmit)=" onSubmit(form); form.valid ? confirmMerge.emit() : null;">
             <!--same unit-->
             <div class="col-2">
               <label for="mergedItemAmount">Amount</label>

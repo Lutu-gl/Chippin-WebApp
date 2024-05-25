@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {DisplayedUnit, PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../../dtos/item";
 import {FormsModule, NgForm} from "@angular/forms";
 import {KeyValuePipe, NgClass, NgForOf, NgIf} from "@angular/common";
+import {convertQuantity, displayQuantity} from "../../../util/unit-helper";
 
 @Component({
   selector: 'app-edit-pantry-item-dialog',
@@ -20,6 +21,8 @@ import {KeyValuePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 export class EditPantryItemDialogComponent {
   @Input() items: PantryItemDetailDto[] = undefined;
   @Input() itemToEdit: PantryItemDetailDto = undefined;
+  @Input() displayedUnit: DisplayedUnit;
+  @Input() displayedAmount: number;
   @Input() itemToMerge: PantryItemDetailDto = undefined;
   @Input() itemMergeDto: PantryItemMergeDto = undefined;
   @Output() confirmEdit = new EventEmitter<void>();
@@ -30,6 +33,7 @@ export class EditPantryItemDialogComponent {
   newLowerLimit: number = 0;
   merge: boolean = false;
   edit: boolean = true;
+
 
   constructor() {
   }
@@ -55,6 +59,12 @@ export class EditPantryItemDialogComponent {
   }
 
   onSubmit(form: NgForm) {
+    if(this.edit) {
+      let quantity: [Unit, number] = convertQuantity(this.displayedUnit, this.displayedAmount);
+      this.itemToEdit.unit = quantity[0];
+      this.itemToEdit.amount = quantity[1];
+      console.log(this.itemToEdit);
+    }
     this.isFormValid = form.valid;
     if (form.valid) {
       this.reset();
@@ -93,4 +103,5 @@ export class EditPantryItemDialogComponent {
 
   protected readonly Unit = Unit;
   protected readonly DisplayedUnit = DisplayedUnit;
+  protected readonly displayQuantity = displayQuantity;
 }
