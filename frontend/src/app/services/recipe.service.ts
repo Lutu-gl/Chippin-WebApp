@@ -152,4 +152,9 @@ export class RecipeService {
     params = params.append('details', searchParam.details)
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/own`, {params});
   }
+
+  removeRecipeIngredientsFromPantry(pantryId:number, recipeId:number, portion:number): Observable<String[]> {
+
+    return this.httpClient.put<String[]>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
+  }
 }

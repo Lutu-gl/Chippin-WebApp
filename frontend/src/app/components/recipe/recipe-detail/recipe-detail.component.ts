@@ -27,7 +27,7 @@ export class RecipeDetailComponent implements OnInit {
     likes:0,
     dislikes:0
   };
-
+  portion:number = 1;
   recipeId: number;
   error = false;
   errorMessage = '';
@@ -52,33 +52,42 @@ export class RecipeDetailComponent implements OnInit {
           this.recipe = data;
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error);
         }
       });
   }
 
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.notification.error(`${error.error.errors[i]}`);
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.notification.error(`${error.error.message}`);
     } else {
-      this.errorMessage = error.error;
+      window.alert(error);
+      console.log(error);
+      if(error.status !== 401) {
+        const errorMessage = error.status === 0
+          ? 'Is the backend up?'
+          : error.message.message;
+        this.notification.error(errorMessage, 'Could not connect to the server.');
+      }
     }
   }
 
   deleteRecipe() {
     this.service.deleteRecipe(this.recipe.id).subscribe({
       next: res => {
-        console.log('deleted recipe: ', res)
+        console.log('deleted recipe: ', res);
 
       },
       error: err => {
-        this.defaultServiceErrorHandling(err);
+        this.printError(err);
       }
     });
       this.notification.success("Recipe successfully deleted");
-      this.router.navigate(['/recipe']);
+      this.router.navigate(['/recipe', 'owner', this.recipe.id]);
   }
 
 
@@ -89,7 +98,7 @@ export class RecipeDetailComponent implements OnInit {
 
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error);
         }
       });
 
@@ -103,13 +112,27 @@ export class RecipeDetailComponent implements OnInit {
 
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error);
         }
       });
   }
 
   public getScore(recipe: RecipeGlobalListDto): number {
     return recipe.likes-recipe.dislikes;
+  }
+
+  public removeRecipeIngredientsFromPantry() {
+    this.service.removeRecipeIngredientsFromPantry(233,this.recipe.id, 1).subscribe(
+      {
+        next: data => {
+            console.log("Es funktioniert");
+            console.log(data);
+        },
+        error: error => {
+          this.printError(error)
+        }
+      }
+    );
   }
 
   protected readonly Unit = Unit;

@@ -47,7 +47,7 @@ export class RecipeComponent implements OnInit {
       details: this.searchString
     };
 
-    this.service.searchGlobalRecipes(search).subscribe({
+    this.service.searchOwnRecipes(search).subscribe({
       next: res => {
         this.recipes = res;
       },

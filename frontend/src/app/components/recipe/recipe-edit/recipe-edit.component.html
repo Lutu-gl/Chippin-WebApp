@@ -146,8 +146,9 @@
     <tr *ngFor="let ingredient of recipe.ingredients; let i=index" class="center-td">
       <td class="row">
         <div class="col align-content-center">
+
           <a class="btn responsive-danger-button m-1"
-             (click)="selectIndexToDelete(i)"
+             (click)="selectIdToDelete(recipe.ingredients[i].id, i)"
              data-bs-toggle="modal"
              data-bs-target="#confirm-delete-dialog-title"
              aria-label="Delete item">
@@ -203,6 +204,6 @@
 
 <app-confirm-delete-dialog
                            [deleteWhat]="deleteWhatString"
-                           (confirm)="removeIngredient(selectedIndexToDelete)"></app-confirm-delete-dialog>
+                           (confirm)="deleteIngredient(selectedIdToDelete,selectedIndexToDelete)"></app-confirm-delete-dialog>
 <!-- <app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [pantryId]=""
                              (confirm)="editItem(); searchChanged()"></app-edit-pantry-item-dialog>-->
