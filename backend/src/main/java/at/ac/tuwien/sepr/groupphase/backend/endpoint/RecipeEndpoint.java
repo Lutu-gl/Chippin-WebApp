@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
+import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -21,17 +22,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -44,14 +47,16 @@ public class RecipeEndpoint {
     private final ItemMapper itemMapper;
     private final RecipeMapper recipeMapper;
     private final UserService userService;
+    private final PantryService pantryService;
 
 
     @Autowired
-    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService, RecipeMapper recipeMapper) {
+    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService, RecipeMapper recipeMapper, PantryService pantryService) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
         this.recipeMapper = recipeMapper;
         this.userService = userService;
+        this.pantryService = pantryService;
     }
 
 
@@ -72,7 +77,7 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/own")
-    public List<RecipeListDto> searchOwnRecipe(RecipeSearchDto searchParams) {
+    public List<RecipeListDto> searchOwnRecipe(@RequestBody RecipeSearchDto searchParams) {
         LOGGER.info("GET /api/v1/recipe/recipe/search/own: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
@@ -81,7 +86,7 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/global")
-    public List<RecipeGlobalListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
+    public List<RecipeGlobalListDto> searchGlobalRecipe(@RequestBody RecipeSearchDto searchParams) {
         LOGGER.info("GET /api/v1/recipe/recipe/search/global: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
@@ -176,6 +181,16 @@ public class RecipeEndpoint {
         LOGGER.info("DELETE /api/v1/group/recipe/{}", id);
 
         recipeService.deleteRecipe(id);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#groupId)")
+    @PutMapping("recipe/{recipeId}/pantry/{groupId}/{portion}")
+    public List<String> removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId, @PathVariable int portion) {
+        LOGGER.info("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
+
+
+        return pantryService.removeRecipeIngredientsFromPantry(groupId, recipeId, portion);
     }
 
 }

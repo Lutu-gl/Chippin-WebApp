@@ -61,4 +61,14 @@ public interface PantryService {
      * @return the updated item
      */
     PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
+
+    /**
+     * Update items in pantry that have been used in a recipe.
+     * Decreases the amount from items, according to the recipe specifics
+     *
+     * @param groupId  the group to substract the items from
+     * @param recipeId the recipe that has the ingredients
+     * @param portion  how many people ate the recipe
+     */
+    List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
 }
