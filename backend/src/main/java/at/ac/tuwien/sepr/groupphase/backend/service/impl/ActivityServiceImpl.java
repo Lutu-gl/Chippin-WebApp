@@ -130,6 +130,12 @@ public class ActivityServiceImpl implements ActivityService {
                 String.format("User %s recovered expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.PAYMENT ->
                 String.format("%s payed %s in group %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail(), activity.getGroup().getGroupName());
+            case ActivityCategory.PAYMENT_DELETE ->
+                String.format("User %s deleted payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+            case ActivityCategory.PAYMENT_UPDATE ->
+                String.format("User %s updated payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+            case ActivityCategory.PAYMENT_RECOVER ->
+                String.format("User %s recovered payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
             default -> "No description available";
         };
     }
