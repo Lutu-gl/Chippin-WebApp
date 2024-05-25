@@ -178,7 +178,7 @@ public class RecipeServiceImpl implements RecipeService {
             Recipe recipe = optional.get();
             recipe.getOwner().removeRecipe(recipe);
             userRepository.save(recipe.getOwner());
-            recipe.setOwner(null);
+            //recipe.setOwner(null);
             for (ApplicationUser user : recipe.getDislikedByUsers()) {
                 user.removeRecipeDislike(recipe);
                 recipe.removeDisliker(user);
@@ -247,19 +247,10 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams) {
-        List<Recipe> recipes = owner.getRecipes();
-        List<RecipeListDto> recipeList = new ArrayList<>();
-        for (Recipe recipe : recipes) {
-            if (recipe.getName().toLowerCase().contains(searchParams.toLowerCase())) {
-                recipeList.add(RecipeListDto.builder()
-                    .name(recipe.getName())
-                    .id(recipe.getId())
-                    .likes(recipe.getLikes())
-                    .dislikes(recipe.getDislikes())
-                    .build());
-            }
-        }
-        return recipeList;
+        List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams, owner);
+
+
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
     }
 
     @Override

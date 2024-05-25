@@ -10,7 +10,6 @@ import {
   RecipeSearch
 } from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
-import {RecipeDetailComponent} from "../components/recipe/recipe-detail/recipe-detail.component";
 
 @Injectable({
   providedIn: 'root'
@@ -107,15 +106,50 @@ export class RecipeService {
     return this.httpClient.get<RecipeGlobalListDto[]>(`${this.recipeBaseUri}/recipe/global`);
   }
 
-  deleteRecipe(id: number) : Observable<void>{
-     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}`);
+  /**
+   * Delete a recipe with the given id.
+   * @param id the id of the recipe to delete
+   */
+  deleteRecipe(id: number) : Observable<void> {
+
+     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}/delete`);
+
   }
 
+  /**
+   * Increase the like count of the recipe by 1 and store who liked it.
+   * If the user already disliked, remove the dislike
+   * @param id of the recipe to like
+   */
   likeRecipe(id:number): Observable<RecipeDetailDto> {
     return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/like`, {});
   }
-
+  /**
+   * Increase the dislike count of the recipe by 1 and store who disliked it.
+   * If the user already liked, remove the like
+   * @param id of the recipe to dislike
+   */
   dislikeRecipe(id:number): Observable<RecipeDetailDto> {
     return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/dislike`, {});
+  }
+
+  /**
+   * Search for all public recipes with a search string
+   * @param searchParam the string to search for
+   */
+  searchGlobalRecipes(searchParam: RecipeSearch): Observable<RecipeGlobalListDto[]> {
+    let params = new HttpParams();
+    params = params.append('details', searchParam.details)
+    return this.httpClient.get<RecipeGlobalListDto[]>(`${this.recipeBaseUri}/recipe/search/global`, {params});
+  }
+
+  /**
+   * Search for all owned recipes with a search string
+   * @param searchParam the string to search for
+   */
+  searchOwnRecipes(searchParam: RecipeSearch): Observable<RecipeListDto[]> {
+    let params = new HttpParams();
+    params = params.append('details', searchParam.details)
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/own`, {params});
   }
 }

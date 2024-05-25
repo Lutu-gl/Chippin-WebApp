@@ -81,11 +81,11 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/global")
-    public List<RecipeListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
+    public List<RecipeGlobalListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
         LOGGER.info("GET /api/v1/recipe/recipe/search/global: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
-        return recipeService.searchOwnRecipe(user, searchParams.getDetails());
+        return recipeService.searchGlobalRecipe(user, searchParams.getDetails());
     }
 
     @Secured("ROLE_USER")
@@ -172,7 +172,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @DeleteMapping("recipe/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRecipe(@PathVariable(name = "id") long id) {
+    public void deleteRecipe(@PathVariable long id) {
         LOGGER.info("DELETE /api/v1/group/recipe/{}", id);
 
         recipeService.deleteRecipe(id);

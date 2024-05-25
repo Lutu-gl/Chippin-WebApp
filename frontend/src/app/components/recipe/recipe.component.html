@@ -9,6 +9,13 @@
 </div>
 
 <div class="mt-2">
+  <input type="text" id="searchDescription" name="searchDescription"
+                         class="form-control col-9"
+                         placeholder="Search for an item"
+                         [(ngModel)]="searchString"
+                         (ngModelChange)="searchChanged()"
+>
+
   <table class="table table-hover">
     <thead>
     <tr>

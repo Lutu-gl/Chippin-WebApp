@@ -1,7 +1,9 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeGlobalListDto, RecipeListDto} from "../../../dtos/recipe";
+import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../../dtos/recipe";
 import {ActivatedRoute, Router} from "@angular/router";
 import {RecipeService} from "../../../services/recipe.service";
+import {debounceTime, Subject} from "rxjs";
+
 
 
 @Component({
@@ -14,6 +16,8 @@ export class RecipeGlobalComponent implements OnInit {
   recipes: RecipeGlobalListDto[] = [];
   error = false;
   errorMessage = '';
+  searchString: string = "";
+  searchChangedObservable = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -34,6 +38,14 @@ export class RecipeGlobalComponent implements OnInit {
           this.defaultServiceErrorHandling(error)
         }
       });
+
+    this.searchChangedObservable
+      .pipe(debounceTime(300))
+      .subscribe({next: () => this.filterRecipe()});
+  }
+
+  searchChanged() {
+    this.searchChangedObservable.next();
   }
 
   public like(id: number) {
@@ -68,6 +80,21 @@ export class RecipeGlobalComponent implements OnInit {
 
   public getScore(recipe: RecipeGlobalListDto): number {
     return recipe.likes-recipe.dislikes;
+  }
+
+  filterRecipe() {
+    let search: RecipeSearch = {
+      details: this.searchString
+    };
+
+    this.service.searchGlobalRecipes(search).subscribe({
+      next: res => {
+        this.recipes = res;
+      },
+      error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    });
   }
 
   private defaultServiceErrorHandling(error: any) {
