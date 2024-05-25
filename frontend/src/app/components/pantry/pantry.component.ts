@@ -103,6 +103,14 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  getRecipe() {
+    this.service.getRecipes(this.id).subscribe({
+      next: res => {
+        console.log(res);
+      }
+    })
+  }
+
   deleteItem(id: number) {
     this.service.deleteItem(this.id, id).subscribe({
       next: res => {

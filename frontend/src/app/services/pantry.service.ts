@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
 import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
+import {RecipeListDto} from "../dtos/recipe";
 
 @Injectable({
   providedIn: 'root'
@@ -75,5 +76,13 @@ export class PantryService {
    */
   mergeItems(itemMergeDto: PantryItemMergeDto, pantryId: number): Observable<PantryItemDetailDto> {
     return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/merged`, itemMergeDto)
+  }
+
+  /**
+   *
+   * @param id
+   */
+  getRecipes(id: number) {
+    return this.httpClient.get<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes`);
   }
 }
