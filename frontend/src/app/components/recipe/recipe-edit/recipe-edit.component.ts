@@ -26,7 +26,7 @@ export class RecipeEditComponent implements OnInit {
     isPublic: false,
     portionSize:1,
     likes:0,
-    dislikes:0
+    dislikes:0,
   };
   newIngredient: ItemCreateDto = {
     amount: 0,

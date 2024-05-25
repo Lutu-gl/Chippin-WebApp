@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,26 +95,6 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public Item updateItem(ItemDto item, long recipeId) {
-        LOGGER.debug("Update item {} in recipe with ID {}", item, recipeId);
-        Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
-        if (optionalRecipe.isPresent()) {
-            Recipe recipe = optionalRecipe.get();
-            Item loadItem = itemRepository.getReferenceById(item.getId());
-            loadItem = Item.builder()
-                .recipe(recipe)
-                .id(item.getId())
-                .unit(item.getUnit())
-                .amount(item.getAmount())
-                .description(item.getDescription()).build();
-            itemRepository.save(loadItem);
-            return loadItem;
-        } else {
-            throw new NotFoundException(String.format("Could not find recipe with id %s", recipeId));
-        }
-    }
-
-    @Override
     @Transactional
     public RecipeDetailDto createRecipe(RecipeCreateDto recipe) {
         LOGGER.debug("Create recipe {}", recipe);
@@ -156,7 +137,16 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate) {
         LOGGER.debug("Update Recipe with ID {}", toUpdate.getId());
-        return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
+        Optional<Recipe> optional = recipeRepository.findById(toUpdate.getId());
+        if (optional.isPresent()) {
+            Recipe fillInRecipe = optional.get();
+            toUpdate.setOwner(fillInRecipe.getOwner());
+            toUpdate.setDislikedByUsers(fillInRecipe.getDislikedByUsers());
+            toUpdate.setLikedByUsers(fillInRecipe.getLikedByUsers());
+            return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
+        } else {
+            throw new NotFoundException("Could not find recipe to update");
+        }
     }
 
     @Override

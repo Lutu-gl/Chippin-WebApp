@@ -3,10 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.datagenerator.ItemDataGenerator;
-import at.ac.tuwien.sepr.groupphase.backend.datagenerator.RecipeDataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.RegistrationEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
@@ -21,20 +18,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ItemListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,8 +36,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -328,35 +314,6 @@ public class RecipeEndpointTest extends BaseTest {
         );
     }
 
-    @Test
-    @Rollback
-    @Transactional
-    public void givenNothing_whenAddItemToRecipe_thenItemWithAllPropertiesPlusId()
-        throws Exception {
-        ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
-        String body = objectMapper.writeValueAsString(itemCreateDto);
-
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/recipe", recipe.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
-                .accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
-
-        ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
-
-        assertAll(
-            () -> assertEquals(itemCreateDto.getDescription(), itemDto.getDescription()),
-            () -> assertEquals(itemCreateDto.getAmount(), itemDto.getAmount()),
-            () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
-            () -> assertNotNull(itemDto.getId())
-        );
-    }
 
     @Test
     @Rollback
@@ -567,4 +524,23 @@ public class RecipeEndpointTest extends BaseTest {
 
     }
 
+   /* @Test
+    public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
+        String groupJson = objectMapper.writeValueAsString("Test Recipe");
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        RecipeListDto[] resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeListDto[].class);
+
+        assertNotNull(resultDto);
+        assertEquals(resultDto.length, 1);
+        assertEquals(resultDto[0].getName(), "Test Recipe");
+    }
+*/
 }

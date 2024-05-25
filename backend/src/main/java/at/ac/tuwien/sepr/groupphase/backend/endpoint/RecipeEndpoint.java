@@ -105,12 +105,6 @@ public class RecipeEndpoint {
         recipeService.deleteItem(recipeId, itemId);
     }
 
-    @Secured("ROLE_USER")
-    @PutMapping("/{recipeId}/recipe")
-    public ItemDto updateItem(@PathVariable long recipeId, @Valid @RequestBody ItemDto itemDto) {
-        LOGGER.info("PUT /api/v1/group/{}/recipe body: {}", recipeId, itemDto);
-        return itemMapper.itemToItemDto(recipeService.updateItem(itemDto, recipeId));
-    }
 
     @Secured("ROLE_USER")
     @PostMapping("/recipe/create")

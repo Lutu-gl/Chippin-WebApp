@@ -42,14 +42,6 @@ public interface RecipeService {
      */
     void deleteItem(long recipeId, long itemId);
 
-    /**
-     * Updates an item in a recipe.
-     *
-     * @param item     the item to update
-     * @param recipeId the recipe id
-     * @return the updated item
-     */
-    Item updateItem(ItemDto item, long recipeId);
 
     /**
      * Create a new recipe.

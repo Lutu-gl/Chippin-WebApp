@@ -73,16 +73,6 @@ export class RecipeService {
     return this.httpClient.delete<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe/${id}`);
   }
 
-  /**
-   * Updates an item in a recipe.
-   *
-   * @param itemToUpdate the item to update
-   * @param recipeId the recipe id
-   */
-  updateItem(itemToUpdate: ItemDetailDto, recipeId: number) {
-    console.log("item: ", itemToUpdate)
-    return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, itemToUpdate);
-  }
 
   /**
    * Get all recipes associated with the user that sends this request.
