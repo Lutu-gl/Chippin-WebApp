@@ -5,13 +5,15 @@ import {ShoppingListService} from "../../../services/shopping-list.service";
 import {NgForOf, NgIf} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
 import {displayQuantity} from "../../../util/unit-helper";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-shopping-list-add-dialog',
   standalone: true,
   imports: [
     NgForOf,
-    NgIf
+    NgIf,
+    FormsModule
   ],
   templateUrl: './shopping-list-add-dialog.component.html',
   styleUrl: './shopping-list-add-dialog.component.scss'
@@ -19,6 +21,7 @@ import {displayQuantity} from "../../../util/unit-helper";
 export class ShoppingListAddDialogComponent implements OnInit {
   @Input() item: PantryItemDetailDto;
   shoppingLists: ShoppingListListDto[];
+  selectedList: ShoppingListListDto;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,6 +46,10 @@ export class ShoppingListAddDialogComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  addToShoppingList() {
+    //this.shoppingListService.updateShoppingList()
   }
 
   protected readonly displayQuantity = displayQuantity;
