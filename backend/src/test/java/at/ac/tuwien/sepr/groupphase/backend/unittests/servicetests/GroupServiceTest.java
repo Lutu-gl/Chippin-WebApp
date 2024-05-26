@@ -5,14 +5,17 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.GroupServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.GroupValidator;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -33,8 +36,9 @@ public class GroupServiceTest {
     private GroupRepository groupRepository;
 
     @Mock
+    private PantryRepository pantryRepository;
+    @Mock
     private UserRepository userRepository;
-
     @Mock
     private GroupMapper groupMapper;
     @Mock
@@ -49,17 +53,22 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupSuccess() throws Exception {
         // Mock-Konfigurationen
         GroupEntity mockGroupEntity = new GroupEntity();
         ;
         when(groupMapper.groupCreateDtoToGroupEntity(any(GroupCreateDto.class))).thenReturn(mockGroupEntity);
         when(groupRepository.save(any(GroupEntity.class))).thenReturn(mockGroupEntity);
+        when(pantryRepository.save(any())).thenReturn(null);
         when(groupMapper.groupEntityToGroupCreateDto(any(GroupEntity.class)))
             .thenReturn(GroupCreateDto.builder()
                 .groupName("NewTestGroup")
                 .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
                 .build());
+
+        when(groupValidator.validateFriendsWithEveryone(any(GroupEntity.class))).thenReturn(true);
 
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
             .groupName("NewTestGroup")
@@ -79,6 +88,8 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testUpdateGroupSuccess() throws Exception {
         GroupEntity existingGroupEntity = new GroupEntity();
         existingGroupEntity.setId(1L); // assuming this ID exists in the database
@@ -91,6 +102,7 @@ public class GroupServiceTest {
         when(groupMapper.groupCreateDtoToGroupEntity(updateDto)).thenReturn(existingGroupEntity);
         when(groupRepository.save(existingGroupEntity)).thenReturn(existingGroupEntity);
         when(groupMapper.groupEntityToGroupCreateDto(existingGroupEntity)).thenReturn(updateDto);
+        when(groupValidator.validateFriendsWithEveryone(any(GroupEntity.class))).thenReturn(true);
 
         // Act
         GroupCreateDto result = groupService.update(updateDto, "user1@example.com");
@@ -104,6 +116,8 @@ public class GroupServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void testCreateGroupValidationException() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder().build();
         doThrow(new ValidationException("Invalid data", null)).when(groupValidator).validateForCreation(any(), anyString());

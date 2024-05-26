@@ -1,10 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ItemList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
@@ -23,13 +24,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.lang.invoke.MethodHandles;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest {
+public class ItemListEndpointTest extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -81,12 +82,11 @@ public class ItemListEndpointTest {
     @BeforeEach
     public void beforeEach() {
         itemListRepository.deleteAll();
-        itemRepository.deleteAll();
 
         item = Item.builder()
             .description("Potato")
             .amount(1)
-            .unit(Unit.Kilogram)
+            .unit(Unit.Gram)
             .build();
 
         itemList = ItemList.builder()
@@ -102,10 +102,11 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenEmptyItemList_whenFindAllInItemList_thenEmptyList()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/itemlist", emptyItemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/itemlist", emptyItemList.getId())))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -121,10 +122,11 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenItemListWithOneItem_whenFindAllInItemList_thenListWithSizeOneAndCorrectItem()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/itemlist", itemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/itemlist", itemList.getId())))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -144,11 +146,12 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenItemListWithOneItemAndMatchingDescription_whenSearchItemsInItemList_thenListWithSizeOneAndCorrectItem()
         throws Exception {
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/itemlist/search", itemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/itemlist/search", itemList.getId()))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .queryParam("details", "otat")
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -170,13 +173,14 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenNothing_whenAddItemToItemList_thenItemWithAllPropertiesPlusId()
         throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/itemlist", itemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+        MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/itemlist", itemList.getId()))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -198,12 +202,13 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenNothing_whenAddInvalidItemToItemList_then400()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/itemlist", itemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+        MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/itemlist", itemList.getId()))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -215,10 +220,11 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(delete(MessageFormat.format("/api/v1/group/{0}/itemlist/{1}", itemList.getId(), item.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/itemlist/%d", itemList.getId(), item.getId()))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andReturn();
@@ -232,12 +238,13 @@ public class ItemListEndpointTest {
     }
 
     @Test
+    @WithMockUser
     public void givenNothing_whenPut_thenItemWithAllProperties()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/itemlist", itemList.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/itemlist", itemList.getId()))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))

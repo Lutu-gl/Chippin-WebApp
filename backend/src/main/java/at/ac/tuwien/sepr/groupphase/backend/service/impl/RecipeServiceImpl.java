@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -13,10 +15,12 @@ import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +32,15 @@ public class RecipeServiceImpl implements RecipeService {
     private final ItemRepository itemRepository;
     private final RecipeRepository recipeRepository;
     private final RecipeMapper recipeMapper;
+    private final ItemMapper itemMapper;
+
+    @Autowired
+    public RecipeServiceImpl(RecipeRepository recipeRepository, ItemRepository itemRepository, RecipeMapper recipeMapper, ItemMapper itemMapper) {
+        this.recipeRepository = recipeRepository;
+        this.itemRepository = itemRepository;
+        this.recipeMapper = recipeMapper;
+        this.itemMapper = itemMapper;
+    }
 
     @Override
     @Transactional
@@ -75,7 +88,7 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> recipe = recipeRepository.findById(recipeId);
         if (recipe.isPresent()) {
             LOGGER.debug("Found recipe: {}", recipe.get());
-            return recipe.get().isPublic();
+            return recipe.get().getIsPublic();
         } else {
             throw new NotFoundException(String.format("Could not find recipe with ID %s", recipeId));
         }
@@ -115,8 +128,13 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
         if (optionalRecipe.isPresent()) {
             Recipe recipe = optionalRecipe.get();
-            Item item = itemRepository.getReferenceById(itemId);
-            recipe.removeItem(item);
+            Item ingredient = itemRepository.getReferenceById(itemId);
+            recipe.removeItem(ingredient);
+            ingredient.setRecipe(null);
+
+            recipeRepository.save(recipe);
+            itemRepository.save(ingredient);
+
         }
     }
 
@@ -144,8 +162,50 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public RecipeDetailDto createRecipe(RecipeCreateDto recipe) {
         LOGGER.debug("Create recipe {}", recipe);
+
+        List<Item> ingredients = itemMapper.listOfItemCreateDtoToListOfItemEntity(recipe.getIngredients());
+        recipe.setIngredients(new ArrayList<>());
+
         Recipe finishedRecipe = recipeRepository.save(recipeMapper.recipeCreateToRecipeEntity(recipe));
 
+        for (Item ingredient : ingredients) {
+            if (ingredient != null) {
+                addItemToRecipe(ingredient, finishedRecipe.getId());
+            }
+        }
+
         return recipeMapper.recipeEntityToRecipeDetailDto(finishedRecipe);
+    }
+
+    @Override
+    @Transactional
+    public RecipeDetailDto getById(long id) {
+        LOGGER.debug("Get by Id: {}", id);
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
+        if (optionalRecipe.isPresent()) {
+            return recipeMapper.recipeEntityToRecipeDetailDto(optionalRecipe.get());
+        } else {
+            throw new NotFoundException(String.format("Could not find recipe with id %s", id));
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<RecipeListDto> getRecipesFromUser() {
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findAll());
+    }
+
+    @Override
+    @Transactional
+    public RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate) {
+        LOGGER.debug("Update Recipe with ID {}", toUpdate.getId());
+        return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipeMapper.recipeDetailDtoToRecipeEntity(toUpdate)));
+    }
+
+    @Override
+    @Transactional
+    public List<RecipeListDto> getPublicRecipeOrderedByLikes() {
+        LOGGER.debug("Get all public recipes");
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findByIsPublicTrueOrderByLikesDesc());
     }
 }

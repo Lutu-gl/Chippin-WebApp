@@ -1,0 +1,12 @@
+<div>
+  <ul class="group-list" *ngIf="recipes.length > 0">
+    <li *ngFor="let recipe of recipes | slice:0:3; let i=index" [routerLink]="['/recipe/', recipe.id]">
+      {{ recipe.name }}
+    </li>
+  </ul>
+  <ul class="group-list" *ngIf="recipes === null || recipes.length === 0">
+    <li>
+      You have no recipes
+    </li>
+  </ul>
+</div>

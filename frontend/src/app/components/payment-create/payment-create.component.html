@@ -1,0 +1,90 @@
+<div>
+  <h1 class="display-1">{{heading}}</h1>
+  <span *ngIf="paymentIsDeleted()" style="color: red;">This payment is marked as deleted!</span>
+</div>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <br>
+  <div class="row justify-content-center">
+    <div class="mb-2 col-lg-10 text-center justify-content-center">
+      <div class="row justify-content-center">
+        <div class="col-md-12 col-lg-10 d-flex align-items-center justify-content-center text-large">
+          Payment from {{payment.payerEmail}} to {{payment.receiverEmail}}
+        </div>
+      </div>
+      <div class="row mt-2 justify-content-center">
+        <div class="col-md-12 col-lg-10">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">€</span>
+            </div>
+            <input type="number" id="amount" name="amount" placeholder="Amount" class="form-control"
+                   [class]="dynamicCssClassesForInput(paymentNameModel)" [(ngModel)]="payment.amount"
+                   [disabled]="this.mode === PaymentCreateEditMode.info" #paymentNameModel="ngModel" required>
+            <div class="invalid-feedback">
+              Amount is required
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create/Edit button -->
+    <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row justify-content-between align-items-center">
+      <div>
+        <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
+      </div>
+      <button *ngIf="this.modeIsEdit() && this.isUserInvolvedInPayment()" type="submit" class="btn btn-primary"
+        [disabled]="(!form.valid || payment === undefined)" type="submit">
+        {{submitButtonText}}
+      </button>
+
+      <button *ngIf="this.modeIsCreate()" type="submit" class="btn btn-primary"
+              [disabled]="(!form.valid || payment === undefined)" type="submit">
+        {{submitButtonText}}
+      </button>
+    </div>
+
+    <!-- Delete buttons -->
+    <div *ngIf="modeIsInfo() && !paymentIsDeleted() && isUserInvolvedInPayment()" class="d-flex flex-row justify-content-between align-items-center mt-4">
+      <!-- Delete payment -->
+      <div class="me-2">
+        <!--
+          TODO: Add this to button
+          data-bs-toggle="modal"
+          data-bs-target="#confirmDeleteDialog"
+        -->
+        <button
+          class="btn btn-danger"
+          (click)="deleteExistingPayment()"
+        >
+          <i class="bi bi-trash"></i>
+          Delete payment
+        </button>
+      </div>
+
+      <!-- Go to edit mode button -->
+      <div>
+        <!-- <a [routerLink]="['payments', this.route.snapshot.paramMap.get('id') , 'edit']" class="btn btn-warning">-->
+        <a [routerLink]="['../edit']" class="btn btn-warning">
+          <i class="bi bi-pencil"></i>
+          Go to Edit
+        </a>
+      </div>
+    </div>
+    <!-- Recover payment -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div *ngIf="modeIsInfo()">
+        <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Back To Group</button>
+      </div>
+      <div *ngIf="modeIsInfo() && paymentIsDeleted() && isUserInvolvedInPayment()" class="me-2">
+        <button
+          class="btn btn-success"
+          (click)="recoverDeletedPayment()"
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+          Recover payment
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public interface PantryService {
      * @param pantryId the pantry id
      * @return ordered list of all items in the pantry
      */
-    List<Item> findAllItems(long pantryId);
+    List<PantryItem> findAllItems(long pantryId);
 
     /**
      * Find all items in a pantry where {@code description} is a substring of the item description ordered by the item id.
@@ -23,31 +25,48 @@ public interface PantryService {
      * @param pantryId    the pantry id
      * @return ordered list of all items in the pantry where {@code description} is a substring of the item description
      */
-    List<Item> findItemsByDescription(String description, long pantryId);
+    List<PantryItem> findItemsByDescription(String description, long pantryId);
 
     /**
      * Saves an item that belongs into a pantry.
      *
-     * @param item the item to save
+     * @param item     the item to save
      * @param pantryId the id of the corresponding pantry
      * @return the saved item
      */
-    Item addItemToPantry(Item item, long pantryId);
+    Item addItemToPantry(PantryItem item, long pantryId);
 
     /**
      * Deletes an item in a pantry.
      *
-     * @param itemId the id of the item to delete
      * @param pantryId the pantry id
+     * @param itemId   the id of the item to delete
      */
-    void deleteItem(long itemId, long pantryId);
+    void deleteItem(long pantryId, long itemId);
 
     /**
      * Updates an item in a pantry.
      *
-     * @param item the item to update
+     * @param item     the item to update
      * @param pantryId the pantry id
      * @return the updated item
      */
-    Item updateItem(ItemDto item, long pantryId);
+    PantryItem updateItem(PantryItemDto item, long pantryId);
+
+    /**
+     * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
+     *
+     * @param itemMergeDto contains the item to update and the id of the item to delete
+     * @param pantryId     the id of the pantry
+     * @return the updated item
+     */
+    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
+
+    /**
+     * Get recipes with ingredients that are stored in the pantry.
+     *
+     * @param pantryId the id of the pantry
+     * @return a list of recipes
+     */
+    List<RecipeListDto> getRecipes(Long pantryId);
 }

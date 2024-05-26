@@ -32,16 +32,14 @@ export class GroupCreateComponent implements OnInit {
   members: (UserSelection | null)[] = new Array(0);
   dummyMemberSelectionModel: unknown; // Just needed for the autocomplete
   budgets: BudgetDto[] = [];
-  newBudget: BudgetDto = {
-     name: '', amount: 0 };
 
   constructor(
-    private service: GroupService,
-    private userService: UserService,
-    private friendshipService: FriendshipService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private notification: ToastrService,
+      private service: GroupService,
+      protected userService: UserService,
+      private friendshipService: FriendshipService,
+      private router: Router,
+      private route: ActivatedRoute,
+      private notification: ToastrService,
   ) {
   }
 
@@ -114,38 +112,82 @@ export class GroupCreateComponent implements OnInit {
   }
   getGroup(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.service.getById(id)
-      .subscribe(pGroup => {
-        this.group = pGroup;
-        this.members = pGroup.members;
-      });
-  }
 
-  
-  getGroupBudgets(): void{
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.service.getGroupBudgets(id)
-      .subscribe(budgets =>{
-        this.budgets = budgets;
-        console.log(budgets[0].id)
+    this.service.getById(id)
+      .subscribe( {
+        next: data => {
+          this.group = data;
+          this.members = data.members;
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.notification.error(`${error.error.errors[i]}`);
+            }
+          } else if (error && error.error && error.error.message) {
+            this.notification.error(`${error.error.message}`);
+          } else if (error && error.error && error.error.detail) {
+            this.notification.error(`${error.error.detail}`);
+          } else {
+            console.error('Error getting group', error);
+            this.notification.error(`Getting group did not work!`);
+          }
+        }
       })
   }
 
-  addBudget(): void {
-    console.log(this.newBudget.name)
-    console.log(this.newBudget.amount)
-    if (this.newBudget.name && this.newBudget.amount > 0) {
-      this.budgets.push(this.newBudget);
-      this.newBudget = { name: '', amount: 0 };
-    } else {
-      this.notification.error('Please provide a valid budget name and amount.');
-    }
+
+  getGroupBudgets(): void{
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    this.service.getGroupBudgets(id)
+      .subscribe( {
+        next: budgets => {
+          this.budgets = budgets;
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.notification.error(`${error.error.errors[i]}`);
+            }
+          } else if (error && error.error && error.error.message) {
+            this.notification.error(`${error.error.message}`);
+          } else if (error && error.error && error.error.detail) {
+            this.notification.error(`${error.error.detail}`);
+          } else {
+            console.error('Error getting group', error);
+            this.notification.error(`Getting group did not work!`);
+          }
+        }
+      })
   }
 
-  removeBudget(index: number): void {
-    //only in frontend
-    this.budgets.splice(index, 1);
-  }
+  // addBudget(): void {
+  //   console.log(this.newBudget.name)
+  //   console.log(this.newBudget.amount)
+  //   if (this.newBudget.name && this.newBudget.amount > 0) {
+  //     this.budgets.push(this.newBudget);
+  //     this.newBudget = { name: '', amount: 0 };
+  //   } else {
+  //     this.notification.error('Please provide a valid budget name and amount.');
+  //   }
+  // }
+
+  // removeBudget(index: number): void {
+  //   //this.budgets.splice(index, 1);
+
+  //   this.service.deleteBudget(this.group.id, this.budgets[index].id).subscribe({
+  //     next: () => {
+  //       this.budgets.splice(index, 1);
+  //       this.notification.success('Budget successfully deleted.');
+  //     },
+  //     error: (err) => {
+  //       console.error('Error deleting budget', err);
+  //       this.notification.error('Failed to delete budget. Please try again.');
+  //     }
+  //   });
+
+  // }
 
 
   public dynamicCssClassesForInput(input: NgModel): any {
@@ -187,8 +229,8 @@ export class GroupCreateComponent implements OnInit {
               this.service.createBudget(groupId, budget).subscribe();
             }
           });
-          
-          
+
+
           this.router.navigate(['/groups']);
         },
         error: error => {
@@ -228,8 +270,7 @@ export class GroupCreateComponent implements OnInit {
   }
 
   public addMember(member: UserSelection | null) {
-    if (!member)
-      return;
+    if (!member) return;
     setTimeout(() => {
       const members = this.members;
       if (members.some(m => m?.email === member.email)) {
@@ -257,5 +298,15 @@ export class GroupCreateComponent implements OnInit {
     this.members.splice(index, 1);
   }
 
+
+  getSortedMembers(): UserSelection[] {
+    return this.members.sort((a, b) => a.email.localeCompare(b.email));
+  }
+
+
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
+
+  goBack() {
+      this.router.navigate(['/group']);
+  }
 }

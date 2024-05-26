@@ -1,42 +1,76 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
-import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Random;
 
-@Profile("generateData")
 @Component
-public class PantryDataGenerator {
+@AllArgsConstructor
+public class PantryDataGenerator implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final PantryRepository pantryRepository;
 
-    public PantryDataGenerator(PantryRepository pantryRepository) {
-        this.pantryRepository = pantryRepository;
+    private final PantryRepository pantryRepository;
+    private final GroupRepository groupRepository;
+
+
+    @Override
+    public void generateData() {
+        LOGGER.debug("generating data for pantry");
+        List<GroupEntity> groups = groupRepository.findAll();
+
+        String[] descriptions = {
+            "Milk", "Chocolate", "Banana", "Butter", "Honey", "Egg", "Cheese", "Bread",
+            "Apple", "Orange", "Pear", "Grapes", "Strawberries", "Blueberries", "Raspberries",
+            "Tomato", "Cucumber", "Lettuce", "Carrot", "Potato", "Onion", "Garlic", "Pepper",
+            "Chicken", "Beef", "Pork", "Fish", "Shrimp", "Tofu", "Beans", "Rice", "Pasta",
+            "Bread", "Bagel", "Muffin", "Donut", "Cake", "Pie", "Ice Cream", "Yogurt",
+            "Coffee", "Tea", "Juice", "Water", "Soda", "Beer", "Wine", "Whiskey"
+        };
+        Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
+        Random random = new Random();
+
+        for (GroupEntity group : groups) {
+            Pantry pantry = Pantry.builder()
+                .group(group)
+                .build();
+            pantry.setGroup(group);
+
+            group.setPantry(pantry);
+
+            for (int i = 0; i < 5; i++) {
+                String description = descriptions[random.nextInt(descriptions.length)];
+                Unit unit = units[random.nextInt(units.length)];
+                int amount = random.nextInt(500) + 1;
+
+                PantryItem item = PantryItem.builder()
+                    .description(description)
+                    .unit(unit)
+                    .amount(amount)
+                    .build();
+
+                group.getPantry().addItem(item);
+            }
+
+            groupRepository.save(group); // update groups
+        }
     }
 
-    @PostConstruct
-    private void generatePantryWithItems() {
-        if (pantryRepository.findAll().size() > 0) {
-            LOGGER.debug("pantry already generated");
-        } else {
-            LOGGER.debug("generating 1 pantry entry");
-
-            Pantry pantry = Pantry.builder().build();
-            Item item = Item.builder().description("Milk").unit(Unit.Milliliter).amount(500).build();
-            Item item2 = Item.builder().description("Chocolate").unit(Unit.Gram).amount(200).build();
-            pantry.addItem(item);
-            pantry.addItem(item2);
-            LOGGER.debug("saving pantry {}", pantry);
-            pantryRepository.save(pantry);
-        }
+    @Override
+    public void cleanData() {
+        LOGGER.debug("cleaning data for pantry");
+        pantryRepository.deleteAll();
     }
 }

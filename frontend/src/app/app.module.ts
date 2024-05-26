@@ -21,12 +21,42 @@ import {AutocompleteComponent} from "./components/autocomplete/autocomplete.comp
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {RecipeCreateEditComponent} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+import {RecipeCreateComponent} from "./components/recipe/recipe-create/recipe-create.component";
 import {
   ItemListCreateEditComponent
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import { BudgetListComponent } from './components/budget/budget-list.component';
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
+import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
+import { ExpenseListComponent } from './components/expense/expense-list.component';
+import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
+import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
+import {
+  GroupInfoCardContentComponent
+} from "./components/group-list/group-info-card-content/group-info-card-content.component";
+import {
+  FriendsInfoCardContentComponent
+} from "./components/friends/friends-info-card-content/friends-info-card-content.component";
+import {
+  ItemListInfoCardContentComponent
+} from "./components/item-list/item-list-info-card-content/item-list-info-card-content.component";
+import {
+  RecipeInfoCardContentComponent
+} from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
+import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
+import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
+import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import {
+  ShoppingListCreateComponent
+} from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
+import {
+  ShoppingListInfoCardContentComponent
+} from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
+import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +67,7 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     AutocompleteComponent,
     LoginComponent,
     FriendsComponent,
+    FriendInfoComponent,
     AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
@@ -44,7 +75,16 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     ItemListComponent,
     ItemListCreateEditComponent,
     RecipeComponent,
-    RecipeCreateEditComponent
+    ExpenseCreateComponent,
+    ExpenseListComponent,
+    BudgetListComponent,
+    BudgetCreateComponent,
+    RecipeCreateComponent,
+    RecipeDetailComponent,
+    RecipeEditComponent,
+    RecipeGlobalComponent,
+    PaymentCreateComponent,
+    ShoppingListCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +93,18 @@ import {ShoppingListComponent} from "./components/shopping-list/shopping-list.co
     HttpClientModule,
     NgbModule,
     FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(), ShoppingListComponent
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

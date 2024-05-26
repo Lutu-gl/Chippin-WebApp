@@ -25,8 +25,6 @@ export class HomeComponent implements OnInit {
   incomingFriendRequests: string[] = [];
   friends: string[] = [];
 
-  itemLists: ItemListDetailDto[] = [];
-  recipes: RecipeDetailDto[]=[];
   ngOnInit(): void {
     console.log("logged in? ", this.authService.isLoggedIn());
     if(this.authService.isLoggedIn()){
@@ -75,33 +73,6 @@ export class HomeComponent implements OnInit {
         this.notification.error(errorMessage, 'Could not connect to the server.');
       }
     }
-  }
-
-  acceptFriendRequest(email: string): void {
-    const acceptFriendRequest: AcceptFriendRequest = new AcceptFriendRequest();
-    acceptFriendRequest.senderEmail = email;
-    this.friendshipService.acceptFriendRequest(acceptFriendRequest).subscribe({
-      next: () => {
-        this.notification.success("Accepted friend request successfully!");
-        this.incomingFriendRequests = this.incomingFriendRequests.filter(senderEmail => senderEmail !== email);
-        this.friends.push(email);
-      },
-      error: (error) => {
-        this.notification.error(error.error.detail);
-      }
-    })
-  }
-
-  rejectFriendRequest(email: string): void {
-    this.friendshipService.rejectFriendRequest(email).subscribe({
-      next: () => {
-        this.notification.success("Rejected friend request successfully!");
-        this.incomingFriendRequests = this.incomingFriendRequests.filter(senderEmail => senderEmail !== email);
-      },
-      error: (error) => {
-        this.notification.error(error.error.detail);
-      }
-    })
   }
 
 }

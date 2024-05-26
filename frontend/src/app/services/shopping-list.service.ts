@@ -3,11 +3,12 @@ import {Globals} from '../global/globals';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
-  ShoppingListCreateDto,
+  ShoppingListCreateEditDto,
   ShoppingListDetailDto,
-  ShoppingListEditDto,
+  ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
+import {ItemCreateDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -23,21 +24,20 @@ export class ShoppingListService {
   /**
    * Creates a new shopping list for a group.
    *
-   * @param groupId the id of the group
+   * @param userId the id of the user creating the shopping list
    * @param shoppingList the shopping list to create
    */
-  createShoppingList(groupId: number, shoppingList: ShoppingListCreateDto): Observable<ShoppingListDetailDto> {
-    return this.httpClient.post<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist`, shoppingList);
+  createShoppingList(userId: number, shoppingList: ShoppingListCreateEditDto): Observable<ShoppingListDetailDto> {
+    return this.httpClient.post<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists`, shoppingList);
   }
 
   /**
    * Gets a shopping list by its id.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    */
-  getShoppingListById(groupId: number, shoppingListId: number): Observable<ShoppingListDetailDto> {
-    return this.httpClient.get<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`);
+  getShoppingListById(shoppingListId: number): Observable<ShoppingListDetailDto> {
+    return this.httpClient.get<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`);
   }
 
   /**
@@ -56,18 +56,59 @@ export class ShoppingListService {
    * @param groupId the id of the group
    */
   getShoppingListsForGroup(groupId: number): Observable<ShoppingListListDto[]> {
-    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist`);
+    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/groups/${groupId}/shopping-lists`);
   }
 
   /**
    * Updates a shopping list.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    * @param shoppingList the shopping list to update
    * @returns the updated shopping list
    */
-  updateShoppingList(groupId: number, shoppingListId: number, shoppingList: ShoppingListEditDto): Observable<ShoppingListDetailDto> {
-    return this.httpClient.put<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`, shoppingList);
+  updateShoppingList(shoppingListId: number, shoppingList: ShoppingListCreateEditDto): Observable<ShoppingListDetailDto> {
+    return this.httpClient.patch<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`, shoppingList);
+  }
+
+  /**
+   * Gets all shopping lists for a user.
+   *
+   * @param currentUserId the id of the user
+   */
+  getShoppingListsForUser(currentUserId: number) {
+    return this.httpClient.get<ShoppingListListDto[]>(`${this.shoppingListBaseUri}/users/${currentUserId}/shopping-lists`);
+  }
+
+  /**
+   * Creates a new shopping list item.
+   *
+   * @param userId the id of the user creating the shopping list item
+   * @param shoppingListId the id of the shopping list the item belongs to
+   * @param id the id of the item
+   */
+  deleteShoppingListItem(userId: number, shoppingListId: number, id: number) {
+    return this.httpClient.delete(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${id}`);
+  }
+
+  /**
+   * Updates a shopping list item.
+   *
+   * @param userId the id of the user updating the shopping list item
+   * @param shoppingListId the id of the shopping list the item belongs to
+   * @param shoppingListItem the item to update the item to update
+   */
+  updateShoppingListItem(userId: number, shoppingListId: number, shoppingListItem: ShoppingListItemUpdateDto) {
+    return this.httpClient.patch(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${shoppingListItem.id}`, shoppingListItem);
+  }
+
+  /**
+   * Adds a shopping list item to a shopping list.
+   *
+   * @param userId the id of the user adding the item
+   * @param shoppingListId the id of the shopping list to add the item to
+   * @param itemToEdit the item to add
+   */
+  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
+    return this.httpClient.post(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
 }

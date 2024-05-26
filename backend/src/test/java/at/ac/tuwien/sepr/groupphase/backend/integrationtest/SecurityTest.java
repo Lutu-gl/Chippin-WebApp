@@ -1,21 +1,22 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.BackendApplication;
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,23 +30,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.security.DeclareRoles;
-import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
-
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
@@ -55,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class SecurityTest implements TestData {
+public class SecurityTest extends BaseTest {
 
     private static final List<Class<?>> mappingAnnotations = Lists.list(
         RequestMapping.class,
@@ -79,7 +81,10 @@ public class SecurityTest implements TestData {
     private MockMvc mockMvc;
 
     @Autowired
-    private PantryRepository pantryRepository;
+    private UserRepository userRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -90,14 +95,8 @@ public class SecurityTest implements TestData {
     @Autowired
     private List<Object> components;
 
-    private Pantry pantry = Pantry.builder().build();
+    private GroupEntity group = GroupEntity.builder().groupName("TestGroup").build();
 
-    @BeforeEach
-    public void beforeEach() {
-        pantryRepository.deleteAll();
-        pantry = Pantry.builder().build();
-        pantryRepository.save(pantry);
-    }
 
     /**
      * This ensures every Rest Method is secured with Method Security.
@@ -124,8 +123,16 @@ public class SecurityTest implements TestData {
 
     @Test
     public void givenUserLoggedIn_whenFindAllInPantry_then200() throws Exception {
+        ApplicationUser user1 = ApplicationUser.builder().email("user1TestSec@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
+        userRepository.save(user1);
+        GroupEntity group = GroupEntity.builder().groupName("Test").users(Set.of(user1)).build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+        groupRepository.save(group);
+
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -134,10 +141,36 @@ public class SecurityTest implements TestData {
             () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
             () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType())
         );
+
+    }
+
+    @Test
+    public void givenUserLoggedIn_whenFindAllInPantryThatBelongsToForeignGroup_then403() throws Exception {
+        ApplicationUser user1 = ApplicationUser.builder().email("user1TestSec@email.com").password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG").build();
+        userRepository.save(user1);
+        GroupEntity group = GroupEntity.builder().groupName("TestTestSec").users(Set.of()).build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+        groupRepository.save(group);
+
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
     }
 
     @Test
     public void givenNoOneLoggedIn_whenFindAll_then401() throws Exception {
+        GroupEntity group = GroupEntity.builder().groupName("Test").build();
+        Pantry pantry = Pantry.builder().build();
+        pantry.setGroup(group);
+        group.setPantry(pantry);
+        groupRepository.save(group);
+
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId())))
             .andDo(print())
             .andReturn();

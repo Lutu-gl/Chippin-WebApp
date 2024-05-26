@@ -24,10 +24,10 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
+
 public class CustomUserDetailService implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -92,7 +92,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String register(UserRegisterDto userRegisterDto, boolean admin) throws UserAlreadyExistsException {
-        LOGGER.trace("register({}, {})", userRegisterDto, admin);
+        LOGGER.trace("register({}, {})", userRegisterDto, admin); // password is not logged here
 
         ApplicationUser existingUser = userRepository.findByEmail(userRegisterDto.getEmail());
         if (existingUser != null) {

@@ -13,9 +13,8 @@ import {GroupInfoComponent} from "./components/group-list/group-info/group-info.
 import {RecipeComponent} from "./components/recipe/recipe.component";
 import {ItemListComponent} from "./components/item-list/item-list.component";
 import {
-  RecipeCreateEditComponent,
-  RecipeCreateEditMode
-} from "./components/recipe/recipe-create-edit/recipe-create-edit.component";
+  RecipeCreateComponent
+} from "./components/recipe/recipe-create/recipe-create.component";
 import {
   ItemListCreateEditComponent, ItemListCreateEditMode
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
@@ -27,17 +26,40 @@ import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
 
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
+import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
+import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
+import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
+import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
+import {PaymentCreateComponent, PaymentCreateEditMode} from "./components/payment-create/payment-create.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
+
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
+  {path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
+      {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
+      {path: ':shoppingListId', children: [
+          {path: '', component: ShoppingListDetailComponent},
+          {path: 'edit', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.edit}},
+        ]}
+    ]},
   {path: 'group', canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
       {path: '', component: GroupListComponent},
       {path: ':id', children: [
           {path: '', component: GroupInfoComponent},
+          {path: 'budgets/create', component: BudgetCreateComponent },
           {path: 'pantry', component: PantryComponent},
           {path: 'edit', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
+          {path: 'payment', children: [
+              {path: 'create/:email/:amount', component: PaymentCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+              {path: ':paymentId', children: [
+                  {path: 'info', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.info} },
+                  {path: 'edit', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.edit} }
+                ]}
+            ]},
           {path: 'shoppingList', children: [
               {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
               {path: ':shoppingListId', children: [
@@ -49,14 +71,21 @@ const routes: Routes = [
     ]},
   {path: 'register', component: RegisterComponent},
   {path: 'friends', canActivate: mapToCanActivate([AuthGuard]), component: FriendsComponent},
+  {path: 'friends/:email', canActivate: mapToCanActivate([AuthGuard]), component: FriendInfoComponent},
   {path: 'add-friend', canActivate: mapToCanActivate([AuthGuard]), component: AddFriendComponent},
-  //May need to change if recipe is dependent on group
   {path: 'recipe', canActivate: mapToCanActivate([AuthGuard]), component: RecipeComponent},
-  {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.create}},
-  {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateEditComponent, data: {mode: RecipeCreateEditMode.edit}},
+  {path: 'recipe/create', canActivate: mapToCanActivate([AuthGuard]), component:RecipeCreateComponent},
+  {path: 'recipe/:id/detail', canActivate: mapToCanActivate([AuthGuard]), component:RecipeDetailComponent},
+  {path: 'recipe/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:RecipeEditComponent},
+  {path: 'recipe/global',canActivate: mapToCanActivate([AuthGuard]), component:RecipeGlobalComponent},
   {path: 'itemList', component: ItemListComponent},
   {path: 'itemList/create', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.create}},
   {path: 'itemList/:id/edit', canActivate: mapToCanActivate([AuthGuard]), component:ItemListCreateEditComponent, data: {mode: ItemListCreateEditMode.edit}},
+  {path: 'expenses', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+  {path: 'expenses/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
+  {path: 'expenses/info/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.info}},
+  {path: 'expenses/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.edit}},
+  {path: 'payments', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
   {path: '**', redirectTo: ''},
 
 
