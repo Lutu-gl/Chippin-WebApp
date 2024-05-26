@@ -11,13 +11,15 @@ import {
 } from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
-import {debounceTime, Subject} from "rxjs";
+import {debounceTime, Observable, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
 import {displayQuantity, unitToDisplayedUnit} from "../../util/unit-helper";
 import {ToastrService} from "ngx-toastr";
+import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
+import {RecipeListDto} from "../../dtos/recipe";
 
 @Component({
   selector: 'app-pantry',
@@ -30,7 +32,8 @@ import {ToastrService} from "ngx-toastr";
     ConfirmDeleteDialogComponent,
     NgSwitchCase,
     NgSwitch,
-    EditPantryItemDialogComponent
+    EditPantryItemDialogComponent,
+    DisplayRecipesDialogComponent
   ],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
@@ -54,6 +57,7 @@ export class PantryComponent implements OnInit {
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
+  recipes: RecipeListDto[];
 
   constructor(
     private route: ActivatedRoute,
@@ -103,10 +107,13 @@ export class PantryComponent implements OnInit {
     });
   }
 
-  getRecipes() {
+  getRecipes(){
     this.service.getRecipes(this.id).subscribe({
       next: res => {
         console.log(res);
+        this.recipes = res;
+      }, error: err => {
+        this.defaultServiceErrorHandling(err);
       }
     })
   }
@@ -297,6 +304,4 @@ export class PantryComponent implements OnInit {
   protected readonly clone = clone;
   protected readonly displayQuantity = displayQuantity;
   protected readonly DisplayedUnit = DisplayedUnit;
-  protected readonly unitToDisplayedUnit = unitToDisplayedUnit;
-  protected readonly undefined = undefined;
 }
