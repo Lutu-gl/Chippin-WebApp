@@ -73,7 +73,11 @@
         <tbody>
         <tr *ngFor="let item of items" class="center-td">
           <td>
-            <button class="btn btn-danger" *ngIf="item.lowerLimit !== null && item.lowerLimit > item.amount">
+            <button class="btn btn-danger" *ngIf="item.lowerLimit !== null && item.lowerLimit > item.amount"
+                    (click)="selectItem(item)"
+                    data-bs-toggle="modal"
+                    data-bs-target="#app-shopping-list-add-dialog-title"
+                    aria-label="Add to shopping list">
               <i class="bi bi-exclamation-triangle"></i>
             </button>
           </td>
@@ -158,3 +162,4 @@
                              (confirmEdit)="editItem(); searchChanged()"
                              (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>
 <app-display-recipes-dialog [recipes]="recipes"></app-display-recipes-dialog>
+<app-shopping-list-add-dialog [item]="selectedItem"></app-shopping-list-add-dialog>

@@ -20,6 +20,7 @@ import {displayQuantity, unitToDisplayedUnit} from "../../util/unit-helper";
 import {ToastrService} from "ngx-toastr";
 import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
 import {RecipeListDto} from "../../dtos/recipe";
+import {ShoppingListAddDialogComponent} from "./shopping-list-add-dialog/shopping-list-add-dialog.component";
 
 @Component({
   selector: 'app-pantry',
@@ -33,7 +34,8 @@ import {RecipeListDto} from "../../dtos/recipe";
     NgSwitchCase,
     NgSwitch,
     EditPantryItemDialogComponent,
-    DisplayRecipesDialogComponent
+    DisplayRecipesDialogComponent,
+    ShoppingListAddDialogComponent
   ],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
