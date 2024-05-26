@@ -8,10 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -147,45 +144,40 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
     @Transactional
-    @WithMockUser
+    @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
-        ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
-        ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
-        RecipeCreateDto recipeCreateDto = RecipeCreateDto.builder()
-            .name("Carrot Banana")
-            .description("this is a test")
-            .isPublic(false)
-            .portionSize(1)
-            .owner(user)
+        RecipeCreateWithoutUserDto recipeCreateDto = RecipeCreateWithoutUserDto.builder()
+            .name("New Recipe")
+            .description("This is a test recipe")
+            .portionSize(4)
+            .isPublic(true)
+            .ingredients(List.of(
+                ItemCreateDto.builder().description("new item").amount(4).unit(Unit.Piece).build()
+                , ItemCreateDto.builder().description("new item2").amount(4).unit(Unit.Piece).build()))
             .build();
-        ArrayList<ItemCreateDto> toAdd = new ArrayList<>();
-        toAdd.add(item1);
-        toAdd.add(item2);
-        recipeCreateDto.setIngredients(toAdd);
 
+        String recipeJson = objectMapper.writeValueAsString(recipeCreateDto);
 
-        String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/group/recipe/create")
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(groupJson))
+                .content(recipeJson))
             .andExpect(status().isCreated())
-            .andReturn().getResponse().getContentAsByteArray();
+            .andDo(print())
+            .andReturn();
 
-        RecipeDetailDto recipeDetailDto = objectMapper.readerFor(RecipeDetailDto.class)
-            .readValue(body);
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        LOGGER.debug("detailDto: " + recipeDetailDto);
-
-        assertEquals(recipeDetailDto.getName(), recipeCreateDto.getName());
-        assertEquals(recipeDetailDto.getDescription(), recipeCreateDto.getDescription());
-        assertEquals(recipeDetailDto.getIngredients().size(), recipeCreateDto.getIngredients().size());
-
+        RecipeDetailDto responseDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
+        assertEquals("New Recipe", responseDto.getName());
+        assertEquals("This is a test recipe", responseDto.getDescription());
 
     }
+
 
     @Test
     @Rollback
@@ -198,7 +190,6 @@ public class RecipeEndpointTest extends BaseTest {
         String groupJson = objectMapper.writeValueAsString(recipeCreateDto);
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/v1/group/recipe/create")
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isBadRequest())
@@ -213,7 +204,6 @@ public class RecipeEndpointTest extends BaseTest {
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", 0)))
-            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andExpect(status().isNotFound())
             .andReturn();
@@ -229,7 +219,6 @@ public class RecipeEndpointTest extends BaseTest {
         String groupJson = objectMapper.writeValueAsString(newRecipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/update")
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -256,7 +245,6 @@ public class RecipeEndpointTest extends BaseTest {
     public void givenEmptyRecipe_whenFindById_thenEmptyList()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", emptyRecipe.getId())))
-            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -277,7 +265,6 @@ public class RecipeEndpointTest extends BaseTest {
     public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", recipe.getId())))
-            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -305,7 +292,6 @@ public class RecipeEndpointTest extends BaseTest {
         throws Exception {
 
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe/search", recipe.getId()))
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .queryParam("details", "otat")
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -336,7 +322,6 @@ public class RecipeEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
         MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/recipe", recipe.getId()))
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -354,7 +339,6 @@ public class RecipeEndpointTest extends BaseTest {
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
-                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("admin@email.com", ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andReturn();
@@ -368,11 +352,12 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "tester@at", roles = "USER")
     public void likeRecipeSuccessfully() throws Exception {
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/like", recipe.getId())
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -391,11 +376,12 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "tester@at", roles = "USER")
     public void dislikeRecipeSuccessfully() throws Exception {
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/dislike", recipe.getId())
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
+                // .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -414,6 +400,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUser_findRecipesByUser_returnsListOfRecipesByUserThen200() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         ItemCreateDto item2 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Banana").build();
@@ -434,7 +421,7 @@ public class RecipeEndpointTest extends BaseTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/v1/group/recipe/list")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -449,6 +436,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "tester@at", roles = "USER")
     public void getPublicRecipeOrderedByLikes_returnsAllPublicRecipesOrderedSuccessfully() throws Exception {
 
         Recipe recipe1 = Recipe.builder()
@@ -475,7 +463,7 @@ public class RecipeEndpointTest extends BaseTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/v1/group/recipe/global")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -492,10 +480,10 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser
     public void givenNothing_DeleteExistingRecipe_returns204_RecipeDoesntExistAnymore() throws Exception {
         recipeRepository.save(Recipe.builder().id(-5L).isPublic(false).portionSize(0).name("test").owner(user).description("test").build());
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/recipe/%d/delete", -5L))
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getEmail(), ADMIN_ROLES))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isNoContent())
@@ -509,10 +497,11 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
                 .queryParam("details", "Test Recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
@@ -529,10 +518,11 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "user1@example.com", roles = "USER")
     public void givenWrongUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_Returns404() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -547,10 +537,11 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username = "user5@example.com", roles = "USER")
     public void givenSearchString_SearchGlobalRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/global")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user5@example.com", ADMIN_ROLES)) // This is not the user that wrote the recipe
+                //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user5@example.com", ADMIN_ROLES)) // This is not the user that wrote the recipe
                 .contentType(MediaType.APPLICATION_JSON)
                 .queryParam("details", "Test Recipe")
                 .content(groupJson))

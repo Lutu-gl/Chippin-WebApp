@@ -37,7 +37,6 @@ public class PantryServiceImpl implements PantryService {
     private final ItemService itemService;
     private final RecipeRepository recipeRepository;
     private final ItemMapper itemMapper;
-    private final RecipeRepository recipeRepository;
     private final RecipeMapper recipeMapper;
 
     @Override
