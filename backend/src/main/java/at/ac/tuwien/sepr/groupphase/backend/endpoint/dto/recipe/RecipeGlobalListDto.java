@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class RecipeListDto {
+public class RecipeGlobalListDto {
 
     private long id;
 
@@ -23,4 +23,7 @@ public class RecipeListDto {
 
     private int dislikes;
 
+    private boolean likedByUser;
+
+    private boolean dislikedByUser;
 }
