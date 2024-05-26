@@ -71,7 +71,7 @@
         <div class="row pt-3">
           <div class="col">
             <select class="form-select" [(ngModel)]="itemToMergeWith" (change)="prepareItemToMerge()">
-              <option [ngValue]="null" selected></option>
+              <option [ngValue]="null" selected>Select an item</option>
               <option [ngValue]="item"
                       *ngFor="let item of filterItems(itemToMerge)">{{displayQuantity(item.unit, item.amount)[1]}} {{displayQuantity(item.unit, item.amount)[0]}} {{item.description}}</option>
             </select>
@@ -84,15 +84,15 @@
             <div class="col-2">
               <label for="mergedItemAmount">Amount</label>
               <input name="mergedItemAmount" type="number" class="form-control" id="mergedItemAmount"
-                     [(ngModel)]="itemMergeDto.result.amount"
+                     [(ngModel)]="displayedAmount"
                      required min="0" [disabled]="itemToMergeWith.unit === itemToEdit.unit">
             </div>
             <div class="col-2">
               <label for="mergedItemUnit">Unit</label>
-              <select name="mergedItemUnit" id="mergedItemUnit" class="form-select" [(ngModel)]="itemMergeDto.result.unit"
+              <select name="mergedItemUnit" id="mergedItemUnit" class="form-select" [(ngModel)]="displayedUnit"
                       required [disabled]="itemToMergeWith.unit === itemToEdit.unit">
                 <option *ngFor="let unit of DisplayedUnit | keyvalue"
-                        [selected]="itemMergeDto.result.unit===unit.key">{{ unit.value }}</option>
+                        [selected]="displayedUnit===unit.key">{{ unit.value }}</option>
               </select>
             </div>
             <div class="col">
