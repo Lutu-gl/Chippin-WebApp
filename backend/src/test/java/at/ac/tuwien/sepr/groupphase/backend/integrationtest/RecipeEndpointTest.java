@@ -501,6 +501,7 @@ public class RecipeEndpointTest extends BaseTest {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("tester@at", ADMIN_ROLES))
+                .queryParam("details", "Test Recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -537,8 +538,9 @@ public class RecipeEndpointTest extends BaseTest {
     public void givenSearchString_SearchGlobalRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/global")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES)) // This is not the user that wrote the recipe
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user5@example.com", ADMIN_ROLES)) // This is not the user that wrote the recipe
                 .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("details", "Test Recipe")
                 .content(groupJson))
             .andExpect(status().isOk())
             .andDo(print())
