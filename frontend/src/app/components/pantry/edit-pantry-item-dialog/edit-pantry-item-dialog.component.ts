@@ -51,19 +51,27 @@ export class EditPantryItemDialogComponent {
   openEdit() {
     this.edit = true;
     this.merge = false;
+    this.displayedUnit = displayQuantity(this.itemToEdit.unit, this.itemToEdit.amount)[0];
+    this.displayedAmount = displayQuantity(this.itemToEdit.unit, this.itemToEdit.amount)[1];
   }
 
   openMerge() {
     this.merge = true;
     this.edit = false;
+    this.displayedUnit = displayQuantity(this.itemToMerge.unit, this.itemToMerge.amount)[0];
+    this.displayedAmount = displayQuantity(this.itemToMerge.unit, this.itemToMerge.amount)[1];
   }
 
   onSubmit(form: NgForm) {
-    if(this.edit) {
+    if (this.edit) {
       let quantity: [Unit, number] = convertQuantity(this.displayedUnit, this.displayedAmount);
       this.itemToEdit.unit = quantity[0];
       this.itemToEdit.amount = quantity[1];
       console.log(this.itemToEdit);
+    } else if (this.merge) {
+      let quantity: [Unit, number] = convertQuantity(this.displayedUnit, this.displayedAmount);
+      this.itemMergeDto.result.unit = quantity[0];
+      this.itemMergeDto.result.amount = quantity[1];
     }
     this.isFormValid = form.valid;
     if (form.valid) {
@@ -93,7 +101,13 @@ export class EditPantryItemDialogComponent {
         amount: this.itemMergeDto.result?.unit === this.itemToMergeWith?.unit ? this.itemToMerge.amount + this.itemToMergeWith.amount : this.itemToMerge.amount,
         lowerLimit: this.itemToMerge.lowerLimit
       }
+
+      this.displayedAmount = displayQuantity(this.itemMergeDto.result.unit, this.itemMergeDto.result.amount)[1];
+      this.displayedUnit = displayQuantity(this.itemMergeDto.result.unit, this.itemMergeDto.result.amount)[0];
       this.itemMergeDto.itemToDeleteId = this.itemToMergeWith.id;
+      console.log(this.displayedUnit)
+      console.log(this.displayedAmount)
+      console.log(this.itemMergeDto.result)
     }
   }
 
