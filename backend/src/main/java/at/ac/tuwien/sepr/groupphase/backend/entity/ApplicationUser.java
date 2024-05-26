@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -96,22 +95,30 @@ public class ApplicationUser {
         recipe.setOwner(null);
     }
 
-    public ApplicationUser likeRecipe(Recipe recipe) {
+    public ApplicationUser addRecipeLike(Recipe recipe) {
+        recipe.setLikes(recipe.getLikes() + 1);
         likedRecipes.add(recipe);
+        recipe.addLiker(this);
         return this;
     }
 
-    public ApplicationUser dislikeRecipe(Recipe recipe) {
+    public void removeLike(Recipe recipe) {
+        recipe.setLikes(recipe.getLikes() - 1);
+        this.likedRecipes.remove(recipe);
+        recipe.getLikedByUsers().remove(this);
+    }
+
+    public void removeDisLike(Recipe recipe) {
+        recipe.setLikes(recipe.getDislikes() - 1);
+        this.dislikedRecipes.remove(recipe);
+        recipe.getDislikedByUsers().remove(this);
+    }
+
+    public ApplicationUser addRecipeDislike(Recipe recipe) {
+        recipe.setLikes(recipe.getDislikes() + 1);
         dislikedRecipes.add(recipe);
+        recipe.addDisliker(this);
         return this;
-    }
-
-    public void removeRecipeLike(Recipe recipe) {
-        recipe.removeLiker(this);
-    }
-
-    public void removeRecipeDislike(Recipe recipe) {
-        recipe.removeDisliker(this);
     }
 
 

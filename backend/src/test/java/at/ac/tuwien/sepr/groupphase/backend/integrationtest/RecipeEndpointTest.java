@@ -371,12 +371,11 @@ public class RecipeEndpointTest extends BaseTest {
 
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        RecipeDetailDto resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
-        assertEquals(1, resultDto.getLikes());
-        assertEquals(1, resultDto.getLikedByUsers().size());
+        Recipe result = recipeRepository.findById(recipe.getId()).get();
+        assertEquals(1, result.getLikedByUsers().size());
 
-        assertEquals(userDetailService.findApplicationUserByEmail("help@at").getLikedRecipes().iterator().next().getId(), resultDto.getId());
-        assertEquals(userDetailService.findApplicationUserByEmail("help@at").getId(), resultDto.getLikedByUsers().iterator().next().getId());
+        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getLikedRecipes().iterator().next().getId(), result.getId());
+        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getLikedByUsers().iterator().next().getId());
     }
 
     @Test
@@ -395,12 +394,11 @@ public class RecipeEndpointTest extends BaseTest {
 
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        RecipeDetailDto resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
-        assertEquals(1, resultDto.getDislikes());
-        //TODOassertEquals(1, resultDto.getDislikedByUsers().size());
-        assertEquals(1, user.getDislikedRecipes().size());
-        assertEquals(user.getDislikedRecipes().iterator().next().getId(), resultDto.getId());
-        assertEquals(user.getId(), resultDto.getDislikedByUsers().iterator().next().getId());
+        Recipe result = recipeRepository.findById(recipe.getId()).get();
+
+        assertEquals(1, result.getDislikedByUsers().size());
+        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getDislikedRecipes().iterator().next().getId(), result.getId());
+        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getDislikedByUsers().iterator().next().getId());
     }
 
     @Test

@@ -75,13 +75,12 @@ public class Recipe {
     @JsonBackReference
     private ApplicationUser owner;
 
-    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
+    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.EAGER)
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
-    @ManyToMany(mappedBy = "dislikedRecipes", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
-    @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikedRecipes")
     @JsonIgnore
     private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
 
@@ -101,10 +100,12 @@ public class Recipe {
 
     public void addLiker(ApplicationUser user) {
         likedByUsers.add(user);
+        user.getLikedRecipes().add(this);
     }
 
     public void addDisliker(ApplicationUser user) {
         dislikedByUsers.add(user);
+        user.getDislikedRecipes().add(this);
     }
 
     public void removeLiker(ApplicationUser user) {
