@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetDto } from '../../../dtos/budget';
 import { GroupService } from '../../../services/group.service';
 import {Category} from '../../../dtos/category';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-budget-create',
@@ -10,7 +11,7 @@ import {Category} from '../../../dtos/category';
   styleUrls: ['./budget-create.component.scss']
 })
 export class BudgetCreateComponent implements OnInit {
-  newBudget: BudgetDto = { name: '', amount: undefined, category: Category.Other }; 
+  newBudget: BudgetDto = { name: '', amount: undefined, category: Category }; 
   groupId: number;
   categories = Category; 
 
@@ -25,6 +26,24 @@ export class BudgetCreateComponent implements OnInit {
       this.groupId = Number(params.get('id'));
     });
   }
+  
+
+
+  formatCategory(category: Category): string {
+    return category ? Category[category] : '';
+  }
+
+  categorySelected(category: Category): void {
+    if (!category) {
+      this.newBudget.category = undefined;
+    } else {
+      this.newBudget.category = category;
+    }
+  }
+
+  
+  categorySuggestions = (input: string): Observable<Category[]> =>
+    of(Object.values(Category));
 
   addBudget(): void {
     if (this.newBudget.name && this.newBudget.amount > 0 && this.newBudget.category) {

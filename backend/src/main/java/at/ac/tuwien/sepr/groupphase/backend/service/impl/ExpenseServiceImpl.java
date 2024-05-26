@@ -71,9 +71,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
-        if (budgetService != null) {
-            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
-        }
+        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder().category(ActivityCategory.EXPENSE).expense(expenseSaved).timestamp(LocalDateTime.now()).group(expenseSaved.getGroup()).user(user).build();

@@ -3,20 +3,24 @@
     <form #budgetForm="ngForm" (ngSubmit)="addBudget()">
         <div class="form-group">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name" [(ngModel)]="newBudget.name" class="form-control" required>
+            <input type="text" id="name" placeholder="Budget Name" name="name" [(ngModel)]="newBudget.name" class="form-control" required>
         </div>
         <div class="form-group">
             <label for="amount">Amount:</label>
-            <input type="number" id="amount" placeholder="Amount" name="amount" [(ngModel)]="newBudget.amount" class="form-control" required>
+            <input type="number" id="amount" placeholder="Budget Amount" name="amount" [(ngModel)]="newBudget.amount" class="form-control" required>
         </div>
-        <div>
-            <label for="category">Category:</label>
-            <select [(ngModel)]="newBudget.category" id="category" class="form-control" required>
-              <option *ngFor="let category of categories | keyvalue" [ngValue]="category.value">
-                {{ category.value }}
-              </option>
-            </select>
+        <div class="mb-2 col-lg-6">
+          <label for="budgetCategory">
+            Category
+          </label>
+          <div class="col-md-9 col-lg-8">
+            <app-autocomplete name="categorySelection" textInputClass="form-control"
+              [suggestions]="categorySuggestions" [formatModel]="formatCategory"
+              [(ngModel)]="newBudget.category" (ngModelChange)="categorySelected($event)">
+            </app-autocomplete>
           </div>
+        </div>
+        
           
         <button type="submit" class="btn btn-primary" [disabled]="!budgetForm.valid">Add Budget</button>
     </form>

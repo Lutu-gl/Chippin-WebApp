@@ -11,11 +11,11 @@
   
   <div class="h-96 overflow-y-auto overflow-x-hidden">
     <div *ngFor="let budget of budgets" class="">
-      <a [routerLink]="['/budgets', budget.id]" class="no-underline text-black">
+      <a class="no-underline text-black">
         <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
         flex justify-between items-center
         hover:bg-slate-100 hover:cursor-pointer">
-          <div>{{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}</div>
+          <div>{{ budget.name }} [{{budget.category}}]: {{budget.alreadySpent}} / {{ budget.amount }}€</div>
         </div>
       </a>
     </div>
