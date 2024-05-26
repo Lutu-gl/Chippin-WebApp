@@ -139,7 +139,7 @@ export class RecipeService {
    */
   searchGlobalRecipes(searchParam: RecipeSearch): Observable<RecipeGlobalListDto[]> {
     let params = new HttpParams();
-    params = params.append('details', searchParam.details)
+    params = params.append('details', searchParam.details);
     return this.httpClient.get<RecipeGlobalListDto[]>(`${this.recipeBaseUri}/recipe/search/global`, {params});
   }
 

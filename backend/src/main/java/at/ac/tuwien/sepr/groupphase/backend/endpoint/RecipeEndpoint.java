@@ -77,8 +77,8 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/own")
-    public List<RecipeListDto> searchOwnRecipe(@RequestBody RecipeSearchDto searchParams) {
-        LOGGER.info("GET /api/v1/recipe/recipe/search/own: {}", searchParams);
+    public List<RecipeListDto> searchOwnRecipe(RecipeSearchDto searchParams) {
+        LOGGER.info("GET /api/v1/recipe/search/own: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.searchOwnRecipe(owner, searchParams.getDetails());
@@ -86,8 +86,8 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/global")
-    public List<RecipeGlobalListDto> searchGlobalRecipe(@RequestBody RecipeSearchDto searchParams) {
-        LOGGER.info("GET /api/v1/recipe/recipe/search/global: {}", searchParams);
+    public List<RecipeGlobalListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
+        LOGGER.info("GET /api/v1/group/recipe/search/global: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.searchGlobalRecipe(user, searchParams.getDetails());

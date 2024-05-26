@@ -81,6 +81,7 @@ public class Recipe {
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikedRecipes")
+    @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
 

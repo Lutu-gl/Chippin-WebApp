@@ -57,7 +57,7 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "Ganz zum Schluss mit der Bechamelsauce abschließen und frisch geriebenen Gouda draufgeben. "
                 + "Im vorgeheizten Ofen bei 180° C Heißluft ca. 30 Minuten backen.")
             .isPublic(true)
-            .owner(users.getFirst())
+            .owner(users.get(5))
             .portionSize(1).likes(1).dislikes(1).build();
         users.getFirst().addRecipe(recipe1);
 
@@ -84,7 +84,7 @@ public class RecipeDataGenerator implements DataGenerator {
                 + "mit dem Pürierstab pürieren und mit Salz und Pfeffer nochmals abschmecken. Zum Schluss nochmals"
                 + " das ausgelöste Hühnerfleisch hinzufügen und ganz kurz aufkochen lassen.")
             .isPublic(false)
-            .owner(users.getFirst())
+            .owner(users.get(5))
             .portionSize(1).likes(1).dislikes(1).build();
         users.getFirst().addRecipe(recipe2);
         List<Item> ingredientsToAdd2 = items.subList(13, 25);
@@ -100,15 +100,18 @@ public class RecipeDataGenerator implements DataGenerator {
             .description("This Recipe has no Ingredients")
             .isPublic(true)
             .portionSize(1)
-            .owner(users.getFirst())
+            .owner(users.get(5))
             .ingredients(new ArrayList<>())
             .likes(0).dislikes(0).build());
 
-        String[] descriptions =
-            {"Milk", "Chocolate", "Banana", "Butter", "Honey", "Egg", "Cheese", "Bread", "Apple", "Orange", "Pear", "Grapes", "Strawberries", "Blueberries",
-                "Raspberries", "Tomato", "Cucumber", "Lettuce", "Carrot", "Potato", "Onion", "Garlic", "Pepper", "Chicken", "Beef", "Pork", "Fish", "Shrimp",
-                "Tofu", "Beans", "Rice", "Pasta", "Bread", "Bagel", "Muffin", "Donut", "Cake", "Pie", "Ice Cream", "Yogurt", "Coffee", "Tea", "Juice", "Water",
-                "Soda", "Beer", "Wine", "Whiskey"};
+        String[] descriptions = {
+            "Milk", "Chocolate", "Banana", "Butter", "Honey", "Egg", "Cheese", "Bread",
+            "Apple", "Orange", "Pear", "Grapes", "Strawberries", "Blueberries", "Raspberries",
+            "Tomato", "Cucumber", "Lettuce", "Carrot", "Potato", "Onion", "Garlic", "Pepper",
+            "Chicken", "Beef", "Pork", "Fish", "Shrimp", "Tofu", "Beans", "Rice", "Pasta",
+            "Bread", "Bagel", "Muffin", "Donut", "Cake", "Pie", "Ice Cream", "Yogurt",
+            "Coffee", "Tea", "Juice", "Water", "Soda", "Beer", "Wine", "Whiskey"
+        };
         Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
 
         for (int i = 0; i < 30; i++) {
@@ -117,11 +120,8 @@ public class RecipeDataGenerator implements DataGenerator {
                 .description("This is a random recipe description.")
                 .isPublic(random.nextBoolean())
                 .portionSize(random.nextInt(10) + 1)
-                .owner(users.getFirst())
+                .owner(users.get(5))
                 .build();
-
-            // Adding random ingredients
-            List<Item> recipeIngredients = new ArrayList<>();
 
 
             for (int j = 0; j < 5; j++) {

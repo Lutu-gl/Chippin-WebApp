@@ -76,15 +76,14 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   onIngredientSubmit(form: NgForm) {
-    console.log('is form valid?', form.valid);
-    //if (form.valid) {
+
       this.recipe.ingredients.push(this.newIngredient);
       this.newIngredient= {
         amount: 0,
         unit: Unit.Piece,
         description: ""}
 
-    //}
+
   }
 
   public removeIngredient(index: number) {

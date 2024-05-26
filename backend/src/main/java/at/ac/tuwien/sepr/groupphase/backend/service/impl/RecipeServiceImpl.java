@@ -24,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -170,25 +173,33 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public void deleteRecipe(long id) {
         LOGGER.debug("Delete recipe with id {}", id);
-        Optional<Recipe> optional = recipeRepository.findById(id);
-        if (optional.isPresent()) {
-            Recipe recipe = optional.get();
-            recipe.getOwner().removeRecipe(recipe);
-            userRepository.save(recipe.getOwner());
-            //recipe.setOwner(null);
-            for (ApplicationUser user : recipe.getDislikedByUsers()) {
-                user.removeRecipe(recipe);
-                recipe.removeDisliker(user);
+        Optional<Recipe> recipeOptional = recipeRepository.findById(id);
+
+        if (recipeOptional.isPresent()) {
+            Recipe recipe = recipeOptional.get();
+
+
+            ApplicationUser owner = recipe.getOwner();
+            if (owner != null) {
+                owner.getRecipes().remove(recipe);
+                userRepository.save(owner);
             }
+
+
             for (ApplicationUser user : recipe.getLikedByUsers()) {
-                user.removeLike(recipe);
-                recipe.removeLiker(user);
+                user.getLikedRecipes().remove(recipe);
+                userRepository.save(user);
+            }
+            for (ApplicationUser user : recipe.getDislikedByUsers()) {
+                user.getDislikedRecipes().remove(recipe);
+                userRepository.save(user);
             }
 
-            recipeRepository.deleteById(id);
+
+            recipeRepository.delete(recipe);
+
+
         }
-
-
     }
 
     @Override

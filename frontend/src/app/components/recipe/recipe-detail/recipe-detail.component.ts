@@ -105,7 +105,7 @@ export class RecipeDetailComponent implements OnInit {
       }
     });
       this.notification.success("Recipe successfully deleted");
-      this.router.navigate(['/recipe', 'owner', this.recipe.id]);
+      this.router.navigate(['/recipe']);
   }
 
 
