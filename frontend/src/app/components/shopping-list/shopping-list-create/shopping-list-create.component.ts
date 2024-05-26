@@ -1,11 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ShoppingListCreateEditDto} from "../../../dtos/shoppingList";
-import {FormsModule, NgForm, NgModel} from "@angular/forms";
-import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
+import {NgForm, NgModel} from "@angular/forms";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ToastrService} from "ngx-toastr";
 import {ActivatedRoute, Router} from "@angular/router";
-import {AppModule} from "../../../app.module";
 import {map, Observable, of} from "rxjs";
 import {Category} from "../../../dtos/category";
 import {GroupService} from "../../../services/group.service";
@@ -69,6 +67,25 @@ export class ShoppingListCreateComponent implements OnInit {
   ngOnInit(): void {
     // Set current userId
     this.currentUserId = this.authService.getUserId();
+    // Get query param groupId
+    this.route.queryParams.subscribe({
+      next: params => {
+        this.groupId = +params['groupId']
+        this.groupService.getById(this.groupId).subscribe({
+          next: group => {
+            this.setGroup(group)
+            this.dummyGroupSelectionModel = group;
+            console.log(this.shoppingListDto)
+          },
+          error: err => {
+            console.error(err);
+          }
+        })
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
 
     this.route.data.subscribe({
       next: data => {
