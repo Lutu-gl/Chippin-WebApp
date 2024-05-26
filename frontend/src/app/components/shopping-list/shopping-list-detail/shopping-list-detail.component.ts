@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ShoppingListDetailDto, ShoppingListItemDto, ShoppingListItemUpdateDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
@@ -6,6 +6,13 @@ import {ToastrService} from "ngx-toastr";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {FormsModule} from "@angular/forms";
+import {ConfirmDeleteDialogComponent} from "../../confirm-delete-dialog/confirm-delete-dialog.component";
+import {
+  AddShoppingListItemModalComponent
+} from "../add-shopping-list-item-modal/add-shopping-list-item-modal.component";
+import {
+  EditShoppingListItemModalComponent
+} from "../edit-shopping-list-item-modal/edit-shopping-list-item-modal.component";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -16,6 +23,9 @@ import {FormsModule} from "@angular/forms";
     NgIf,
     FormsModule,
     NgClass,
+    ConfirmDeleteDialogComponent,
+    AddShoppingListItemModalComponent,
+    EditShoppingListItemModalComponent,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
@@ -32,6 +42,7 @@ export class ShoppingListDetailComponent implements OnInit{
   shoppingListDetailDto: ShoppingListDetailDto;
   groupId: number;
   shoppingListId: number;
+  selectedItem: ShoppingListItemDto;
 
   ngOnInit(): void {
     this.route.params.subscribe({
@@ -72,6 +83,10 @@ export class ShoppingListDetailComponent implements OnInit{
     });
   }
 
+  selectItem(item: ShoppingListItemDto) {
+    this.selectedItem = item;
+  }
+
   deleteItem(itemId: number) {
     this.shoppingListService.deleteShoppingListItem(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
       next: value => {
@@ -104,6 +119,5 @@ export class ShoppingListDetailComponent implements OnInit{
       }
     })
   }
-
 
 }
