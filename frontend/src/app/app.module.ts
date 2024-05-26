@@ -27,6 +27,8 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import { BudgetListComponent } from './components/budget/budget-list.component';
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
 import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
 import { ExpenseListComponent } from './components/expense/expense-list.component';
 import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
@@ -75,6 +77,8 @@ import { ExpenseInfoCardContentComponent } from './components/expense/expense-in
     RecipeComponent,
     ExpenseCreateComponent,
     ExpenseListComponent,
+    BudgetListComponent,
+    BudgetCreateComponent,
     RecipeCreateComponent,
     RecipeDetailComponent,
     RecipeEditComponent,

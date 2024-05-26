@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -18,4 +19,6 @@ public class BudgetCreateDto {
     private String name;
     @PositiveOrZero
     private double amount;
+
+    private Category category = Category.Other;
 }

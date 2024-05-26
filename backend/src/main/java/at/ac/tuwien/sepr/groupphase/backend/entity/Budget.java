@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -36,6 +38,12 @@ public class Budget {
     @PositiveOrZero
     @Column(nullable = false)
     private double amount;
+
+    private double alreadySpent;
+
+    private LocalDateTime timestamp;
+
+    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)

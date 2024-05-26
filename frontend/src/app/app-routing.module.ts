@@ -25,6 +25,8 @@ import {
 import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
+
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
 import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
 import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
@@ -48,6 +50,7 @@ const routes: Routes = [
       {path: '', component: GroupListComponent},
       {path: ':id', children: [
           {path: '', component: GroupInfoComponent},
+          {path: 'budgets/create', component: BudgetCreateComponent },
           {path: 'pantry', component: PantryComponent},
           {path: 'edit', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
           {path: 'payment', children: [
