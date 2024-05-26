@@ -13,8 +13,10 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExpenseService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
 import jakarta.transaction.Transactional;
@@ -37,6 +39,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseMapper expenseMapper;
     private final ExpenseValidator expenseValidator;
     private final UserRepository userRepository;
+    private final BudgetService budgetService;
+    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -67,6 +71,9 @@ public class ExpenseServiceImpl implements ExpenseService {
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
+
+
+        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder()
@@ -102,6 +109,11 @@ public class ExpenseServiceImpl implements ExpenseService {
             expense.setCategory(Category.Other);
         }
 
+        if ((existingExpense.getAmount() != expense.getAmount()) || existingExpense.getCategory() != expense.getCategory()) {
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        }
+
         Expense expenseSaved = expenseRepository.save(expense);
 
         Activity activityForExpenseUpdate = Activity.builder()
@@ -133,6 +145,8 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         expenseRepository.markExpenseAsDeleted(existingExpense);
+
+        budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
 
         Activity activityForExpenseDelete = Activity.builder()
             .category(ActivityCategory.EXPENSE_DELETE)

@@ -1,0 +1,23 @@
+<div class="flex justify-between items-center mb-4">
+    <h2 class="pt-2">Budgets</h2>
+    <div class="d-flex flex-row w-auto">
+      <span style="flex: 1"></span>
+      <a class="btn btn-secondary" [routerLink]="['/group', groupId, 'budgets', 'create']" aria-label="New Budget">
+        <i class="bi bi-plus-lg"></i>
+        New Budget
+      </a>
+    </div>
+  </div>
+  
+  <div class="h-96 overflow-y-auto overflow-x-hidden">
+    <div *ngFor="let budget of budgets" class="">
+      <a class="no-underline text-black">
+        <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
+        flex justify-between items-center
+        hover:bg-slate-100 hover:cursor-pointer">
+          <div>{{ budget.name }} [{{budget.category}}]: {{budget.alreadySpent}} / {{ budget.amount }}€</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  

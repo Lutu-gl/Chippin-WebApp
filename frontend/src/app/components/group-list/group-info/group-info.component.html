@@ -32,14 +32,6 @@
 
   <br>
 
-  <h3 class="budgets">Budgets</h3>
-  <div class="budget-list">
-    <div *ngFor="let budget of budgets" class="budget-list-item">
-      {{ budget.name }}: {{ budget.amount | currency:'EUR':'symbol':'1.0-0' }}
-
-    </div>
-  </div>
-
   <div class="">
     <app-expense-list [groupId]="group.id" [activityType]="ActivityType.expense"></app-expense-list>
   </div>
@@ -48,6 +40,14 @@
     <app-expense-list [groupId]="group.id" [activityType]="ActivityType.payment"></app-expense-list>
   </div>
   <br>
+
+
+
+  <div class="">
+    <app-budget-list [groupId]="group.id"></app-budget-list>
+  </div>
+
+  
   <div class="">
     <button type="button"
             class="btn btn-secondary"
@@ -59,6 +59,8 @@
   <div class="">
     <app-shopping-list [groupId]="group.id"></app-shopping-list>
   </div>
+
+
 
 <div class="pt-5">
   <div class="row">
