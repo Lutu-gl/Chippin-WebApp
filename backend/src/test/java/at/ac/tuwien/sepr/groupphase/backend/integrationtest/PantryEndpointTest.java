@@ -2,22 +2,31 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,9 +35,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -37,18 +48,18 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -78,6 +89,18 @@ public class PantryEndpointTest extends BaseTest {
 
     @Autowired
     private SecurityProperties securityProperties;
+
+    @Autowired
+    private GroupMapper groupMapper;
+
+    @SpyBean
+    private RecipeRepository recipeRepository;
+
+    @SpyBean
+    private PantryItemRepository pantryItemRepository;
+
+    @SpyBean
+    private SecurityService securityService;
 
     List<String> ADMIN_ROLES = new ArrayList<>() {
         {
@@ -149,7 +172,6 @@ public class PantryEndpointTest extends BaseTest {
         groupRepository.save(group3);
 
     }
-
 
     @Test
     public void givenInvalidPantryId_whenFindAllInPantry_then403()
@@ -350,6 +372,47 @@ public class PantryEndpointTest extends BaseTest {
             () -> assertEquals(fromRepository.getDescription(), returned.getDescription()),
             () -> assertEquals(fromRepository.getId(), returned.getId()),
             () -> assertFalse(itemRepository.existsById(item3.getId()))
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void givenNothing_whenGetRecipes_thenReturnListOfRecipesContainingItemsStoredInPantry() throws Exception {
+        Long userId = userRepository.findByEmail("user1@example.com").getId();
+        GroupDetailDto group = groupMapper.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
+        Long groupId = group.getId();
+        when(securityService.hasCorrectId(userId)).thenReturn(true);
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        List<PantryItem> ingredients = List.of(
+            PantryItem.builder().description("Water").unit(Unit.Milliliter).amount(100).build(),
+            PantryItem.builder().description("Milk").unit(Unit.Milliliter).amount(200).build(),
+            PantryItem.builder().description("Milk").unit(Unit.Piece).amount(1).build(),
+            PantryItem.builder().description("Sugar").unit(Unit.Gram).amount(200).build(),
+            PantryItem.builder().description("Banana").unit(Unit.Gram).amount(300).build(),
+            PantryItem.builder().description("Honey").unit(Unit.Milliliter).amount(10).build(),
+            PantryItem.builder().description("Tomato").unit(Unit.Gram).amount(100).build());
+        List<Recipe> recipeList = List.of(
+            Recipe.builder().name("Recipe1").portionSize(1).description("Description1").ingredients(List.of(ingredients.get(0))).build(),
+            Recipe.builder().name("Recipe2").portionSize(1).description("Description2").ingredients(List.of(ingredients.get(0), ingredients.get(1))).build(),
+            Recipe.builder().name("Recipe3").portionSize(1).description("Description3").ingredients(List.of(ingredients.get(1))).build(),
+            Recipe.builder().name("Recipe4").portionSize(1).description("Description4").ingredients(List.of(ingredients.get(2))).build(),
+            Recipe.builder().name("Recipe5").portionSize(1).description("Description5").ingredients(List.of(ingredients.get(0), ingredients.get(1), ingredients.get(2))).build());
+
+        when(pantryItemRepository.findAll()).thenReturn(List.of(ingredients.get(0), ingredients.get(1)));
+
+        when(recipeRepository.findRecipeByPantry(groupId)).thenReturn(List.of(recipeList.get(0), recipeList.get(1), recipeList.get(2), recipeList.get(4)));
+
+        byte[] body = this.mockMvc.perform(get("/api/v1/group/" + group.getId() + "/pantry/recipes")
+            ).andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsByteArray();
+
+        Collection<RecipeListDto> recipes = objectMapper.readerFor(Collection.class).readValue(body);
+
+        assertAll(
+            () -> assertEquals(4, recipes.size())
         );
     }
 }

@@ -21,6 +21,9 @@ export class PaymentService {
   }
 
   updatePayment(paymentId: number, payment: PaymentDto): Observable<PaymentDto> {
+    console.log(payment);
+    console.log(paymentId);
+
     return this.httpClient.put<PaymentDto>(this.paymentBaseUri + `/${paymentId}`, payment)
   }
 

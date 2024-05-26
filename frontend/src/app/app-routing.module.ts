@@ -25,6 +25,8 @@ import {
 import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
+
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
 import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
 import {RecipeDetailComponent, RecipeDetailMode} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
@@ -37,17 +39,26 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
+  {path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
+      {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
+      {path: ':shoppingListId', children: [
+          {path: '', component: ShoppingListDetailComponent},
+          {path: 'edit', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.edit}},
+        ]}
+    ]},
   {path: 'group', canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.create}},
       {path: '', component: GroupListComponent},
       {path: ':id', children: [
           {path: '', component: GroupInfoComponent},
+          {path: 'budgets/create', component: BudgetCreateComponent },
           {path: 'pantry', component: PantryComponent},
           {path: 'edit', component: GroupCreateComponent, data: {mode: GroupCreateEditMode.edit}},
           {path: 'payment', children: [
               {path: 'create/:email/:amount', component: PaymentCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
               {path: ':paymentId', children: [
-                  {path: 'info', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.info} }
+                  {path: 'info', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.info} },
+                  {path: 'edit', component: PaymentCreateComponent, data: {mode: PaymentCreateEditMode.edit} }
                 ]}
             ]},
           {path: 'shoppingList', children: [

@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -68,7 +69,7 @@ public class ShoppingListServiceTest extends BaseTest {
         when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
         var shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
-            .groupId(-1L)
+            .group(GroupDetailDto.builder().id(-1L).build())
             .build();
 
         shoppingListService.createShoppingList(shoppingListCreateDto, -1L);
@@ -82,7 +83,7 @@ public class ShoppingListServiceTest extends BaseTest {
         when(userRepository.findById(any())).thenReturn(Optional.of(ApplicationUser.builder().id(-1L).build()));
         var shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
-            .groupId(-1L)
+            .group(GroupDetailDto.builder().id(-1L).build())
             .build();
         assertThrows(NotFoundException.class, () -> shoppingListService.createShoppingList(shoppingListCreateDto, -1L));
 

@@ -27,6 +27,8 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
+import { BudgetListComponent } from './components/budget/budget-list.component';
+import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
 import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
 import { ExpenseListComponent } from './components/expense/expense-list.component';
 import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
@@ -47,6 +49,12 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import {
+  ShoppingListCreateComponent
+} from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
+import {
+  ShoppingListInfoCardContentComponent
+} from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
@@ -70,12 +78,15 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
     RecipeComponent,
     ExpenseCreateComponent,
     ExpenseListComponent,
+    BudgetListComponent,
+    BudgetCreateComponent,
     RecipeCreateComponent,
     RecipeDetailComponent,
     RecipeEditComponent,
     RecipeGlobalComponent,
     RecipeLikedComponent,
     PaymentCreateComponent,
+    ShoppingListCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -95,7 +106,7 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

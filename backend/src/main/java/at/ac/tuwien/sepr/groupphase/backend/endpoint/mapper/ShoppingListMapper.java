@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
@@ -16,15 +17,13 @@ import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper(uses = {ItemMapper.class})
+@Mapper(uses = {ItemMapper.class, GroupMapper.class, UserMapper.class})
 public interface ShoppingListMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "items", ignore = true)
-    @Mapping(target = "group", ignore = true)
     ShoppingList shoppingListCreateDtoToShoppingList(ShoppingListCreateDto shoppingListCreateDto);
 
-    @Mapping(target = "groupId", source = "group.id")
     ShoppingListDetailDto shoppingListToShoppingListDetailDto(ShoppingList shoppingList);
 
     @Mapping(target = "addedById", source = "addedBy.id")
@@ -62,4 +61,10 @@ public interface ShoppingListMapper {
     @Mapping(target = "addedBy", ignore = true)
     @Mapping(target = "checkedBy", ignore = true)
     ShoppingListItem updateShoppingListItem(@MappingTarget ShoppingListItem shoppingListItem, ShoppingListItemUpdateDto shoppingListItemUpdateDto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "group", ignore = true)
+    ShoppingList updateShoppingList(@MappingTarget ShoppingList shoppingListEntity, ShoppingListUpdateDto shoppingList);
 }

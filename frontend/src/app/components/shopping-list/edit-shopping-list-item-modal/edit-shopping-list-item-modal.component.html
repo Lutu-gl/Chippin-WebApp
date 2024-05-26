@@ -1,0 +1,48 @@
+<div class="modal fade" id="edit-shopping-list-item-modal" role="dialog">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Item</h5>
+        <button (click)="reset()" aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div>
+        <div *ngIf="itemToEdit !== undefined" class="modal-body">
+          <form #form="ngForm" (ngSubmit)="onSubmit()" class="row pt-1"
+                id="form">
+
+            <div class="col-2">
+              <label for="newItemAmount">Amount</label>
+              <input [(ngModel)]="itemToEdit.amount" class="form-control" id="newItemAmount" min="0"
+                     name="newItemAmount"
+                     required type="number">
+            </div>
+            <div class="col-2">
+              <label for="newItemUnit">Unit</label>
+              <select [(ngModel)]="itemToEdit.unit" class="form-select" id="newItemUnit" name="newItemUnit" required>
+                <option *ngFor="let unit of Unit | keyvalue"
+                        [selected]="shoppingListItem.item.unit===unit.key">{{ unit.value }}
+                </option>
+              </select>
+            </div>
+            <div class="col">
+              <label for="newItemDescription">Name</label>
+              <input [(ngModel)]="itemToEdit.description" class="form-control" id="newItemDescription" minlength="2"
+                     name="newItemDescription" placeholder="Add a new item" required>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button #modalClose (click)="reset()" class="btn btn-danger"
+                data-bs-dismiss="modal"
+                type="button"
+        >
+          Discard changes
+        </button>
+        <button (click)="onSubmit()" class="btn btn-warning" data-bs-dismiss="" form="form" type="submit">
+          Edit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

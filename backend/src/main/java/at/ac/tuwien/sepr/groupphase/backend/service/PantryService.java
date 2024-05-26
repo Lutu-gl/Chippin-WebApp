@@ -2,9 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -61,6 +61,14 @@ public interface PantryService {
      * @return the updated item
      */
     PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
+
+    /**
+     * Get recipes with ingredients that are stored in the pantry.
+     *
+     * @param pantryId the id of the pantry
+     * @return a list of recipes
+     */
+    List<RecipeListDto> getRecipes(Long pantryId);
 
     /**
      * Update items in pantry that have been used in a recipe.

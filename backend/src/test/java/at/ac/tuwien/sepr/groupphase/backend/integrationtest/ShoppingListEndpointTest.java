@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
@@ -51,6 +53,8 @@ public class ShoppingListEndpointTest extends BaseTest {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private GroupMapperImpl groupMapperImpl;
 
     @Test
     @WithMockUser(username = "user1@example.com")
@@ -84,14 +88,14 @@ public class ShoppingListEndpointTest extends BaseTest {
     public void givenValidShoppingLIstCreateDtoWithGroupId_whenCreateShoppingListWithGroupId_thenShoppingListIsPersisted() throws Exception {
         // Find id of user
         Long userId = userRepository.findByEmail("user1@example.com").getId();
-        Long groupId = groupRepository.findByGroupName("groupExample1").getId();
+        GroupDetailDto group = groupMapperImpl.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
 
         when(securityService.hasCorrectId(userId)).thenReturn(true);
-        when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.isGroupMember(group.getId())).thenReturn(true);
 
         ShoppingListCreateDto shoppingListCreateDto = ShoppingListCreateDto.builder()
             .name("Test Shopping List")
-            .groupId(groupId)
+            .group(group)
             .build();
 
         mockMvc.perform(post("/api/v1/users/" + userId + "/shopping-lists")
@@ -105,8 +109,8 @@ public class ShoppingListEndpointTest extends BaseTest {
             () -> assertThat(shoppingListRepository.findAllByOwnerId(userId)).isNotEmpty(),
             () -> assertThat(shoppingListRepository.findAllByOwnerId(userId).stream()
                 .anyMatch(shoppingList -> shoppingList.getName().equals("Test Shopping List"))).isTrue(),
-            () -> assertThat(shoppingListRepository.findAllByGroupId(groupId)).isNotEmpty(),
-            () -> assertThat(shoppingListRepository.findAllByGroupId(groupId).stream()
+            () -> assertThat(shoppingListRepository.findAllByGroupId(group.getId())).isNotEmpty(),
+            () -> assertThat(shoppingListRepository.findAllByGroupId(group.getId()).stream()
                 .anyMatch(shoppingList -> shoppingList.getName().equals("Test Shopping List"))).isTrue()
         );
 
