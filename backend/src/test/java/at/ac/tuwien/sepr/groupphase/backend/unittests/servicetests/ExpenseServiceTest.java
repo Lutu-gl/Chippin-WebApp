@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.BudgetServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,6 +48,9 @@ public class ExpenseServiceTest {
 
     @InjectMocks
     private ExpenseServiceImpl expenseService;
+
+    @Mock
+    private BudgetServiceImpl budgetService;
 
     @BeforeEach
     public void setup() {

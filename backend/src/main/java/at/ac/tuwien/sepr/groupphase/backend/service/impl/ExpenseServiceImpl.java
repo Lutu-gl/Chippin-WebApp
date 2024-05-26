@@ -13,8 +13,10 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExpenseService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ExpenseValidator;
 import jakarta.transaction.Transactional;
@@ -37,6 +39,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseMapper expenseMapper;
     private final ExpenseValidator expenseValidator;
     private final UserRepository userRepository;
+    private final BudgetService budgetService;
+    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -67,14 +71,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
+        if (budgetService != null) {
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        }
+
         Expense expenseSaved = expenseRepository.save(expense);
-        Activity activityForExpense = Activity.builder()
-            .category(ActivityCategory.EXPENSE)
-            .expense(expenseSaved)
-            .timestamp(LocalDateTime.now())
-            .group(expenseSaved.getGroup())
-            .user(user)
-            .build();
+        Activity activityForExpense = Activity.builder().category(ActivityCategory.EXPENSE).expense(expenseSaved).timestamp(LocalDateTime.now()).group(expenseSaved.getGroup()).user(user).build();
 
         activityRepository.save(activityForExpense);
 
@@ -96,16 +98,16 @@ public class ExpenseServiceImpl implements ExpenseService {
             expense.setCategory(Category.Other);
         }
 
+        if ((existingExpense.getAmount() != expense.getAmount()) || existingExpense.getCategory() != expense.getCategory()) {
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        }
+
         Expense expenseSaved = expenseRepository.save(expense);
 
+
         ApplicationUser user = userRepository.findByEmail(updaterEmail);
-        Activity activityForExpenseUpdate = Activity.builder()
-            .category(ActivityCategory.EXPENSE_UPDATE)
-            .expense(expenseSaved)
-            .timestamp(LocalDateTime.now())
-            .group(expenseSaved.getGroup())
-            .user(user)
-            .build();
+        Activity activityForExpenseUpdate = Activity.builder().category(ActivityCategory.EXPENSE_UPDATE).expense(expenseSaved).timestamp(LocalDateTime.now()).group(expenseSaved.getGroup()).user(user).build();
 
         activityRepository.save(activityForExpenseUpdate);
 
@@ -129,13 +131,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsDeleted(existingExpense);
 
-        Activity activityForExpenseDelete = Activity.builder()
-            .category(ActivityCategory.EXPENSE_DELETE)
-            .timestamp(LocalDateTime.now())
-            .expense(existingExpense)
-            .group(existingExpense.getGroup())
-            .user(user)
-            .build();
+        budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+
+        Activity activityForExpenseDelete = Activity.builder().category(ActivityCategory.EXPENSE_DELETE).timestamp(LocalDateTime.now()).expense(existingExpense).group(existingExpense.getGroup()).user(user).build();
 
         activityRepository.save(activityForExpenseDelete);
     }
@@ -160,13 +158,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         existingExpense.setDeleted(false);
 
-        Activity activityForExpenseRecover = Activity.builder()
-            .category(ActivityCategory.EXPENSE_RECOVER)
-            .timestamp(LocalDateTime.now())
-            .expense(existingExpense)
-            .group(existingGroup)
-            .user(user)
-            .build();
+        Activity activityForExpenseRecover = Activity.builder().category(ActivityCategory.EXPENSE_RECOVER).timestamp(LocalDateTime.now()).expense(existingExpense).group(existingGroup).user(user).build();
 
         activityRepository.save(activityForExpenseRecover);
 

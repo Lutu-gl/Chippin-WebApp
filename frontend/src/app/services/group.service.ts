@@ -25,6 +25,10 @@ export class GroupService {
     return this.http.post<BudgetDto>(this.groupBaseUri + `/${groupId}/budget`, budget);
   }
 
+  deleteBudget(groupId: number, budgetId: number): Observable<void> {
+    return this.http.delete<void>(`${this.groupBaseUri}/${groupId}/budget/${budgetId}`);
+  }
+
   updateBudget(groupId: number, budgetId: number, budget: BudgetDto): Observable<BudgetDto> {
     return this.http.put<BudgetDto>(this.groupBaseUri + `/${groupId}/budget/${budgetId}`, budget);
   }

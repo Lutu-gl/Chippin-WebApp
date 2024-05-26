@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.BudgetMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
