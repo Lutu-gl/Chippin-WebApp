@@ -54,6 +54,17 @@ export class AuthService {
   }
 
   /**
+   * Returns the user id based on the current token
+   */
+  getUserId(): number | null {
+    if (this.getToken() != null) {
+      const decoded = jwtDecode<{ userId: number }>(this.getToken());
+      return decoded.userId;
+    }
+    return null;
+  }
+
+  /**
    * Returns the user role based on the current token
    */
   getUserRole() {

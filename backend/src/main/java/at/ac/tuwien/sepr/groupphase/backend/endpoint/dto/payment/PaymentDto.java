@@ -29,4 +29,6 @@ public class PaymentDto {
 
     @NotNull(message = "Group id must be given")
     private Long groupId;
+
+    private Boolean deleted;
 }

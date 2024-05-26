@@ -1,0 +1,19 @@
+<div>
+  <ul class="list-group scrollable-list" *ngIf="expenses !== null && expenses.length > 0">
+    <li 
+      class="list-group-item d-flex justify-content-between align-items-center"
+      *ngFor="let expense of expenses"
+      [routerLink]="['/expenses', 'info', expense.id]"
+      style="cursor: pointer;"
+    >
+      <span>{{ expense.description }}</span>
+    </li>
+  </ul>
+
+  <ul class="expense-list"
+      *ngIf="expenses === null || expenses.length === 0">
+    <li>
+      You have no expenses yet
+    </li>
+  </ul>
+</div>

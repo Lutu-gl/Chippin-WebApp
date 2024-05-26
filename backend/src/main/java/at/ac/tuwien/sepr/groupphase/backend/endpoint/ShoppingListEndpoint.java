@@ -37,8 +37,8 @@ public class ShoppingListEndpoint {
 
     // POST /users/{userId}/shopping-lists (with an optional groupId in the request body)
     @Secured("ROLE_USER")
-    @PreAuthorize("@securityService.hasCorrectId(#userId) && (#shoppingListCreateDto.groupId == null "
-        + "|| @securityService.isGroupMember(#shoppingListCreateDto.groupId))")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && (#shoppingListCreateDto.group == null "
+        + "|| @securityService.isGroupMember(#shoppingListCreateDto.group.id))")
     @PostMapping("/users/{userId}/shopping-lists")
     public ShoppingListDetailDto createShoppingList(@PathVariable Long userId, @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
         log.debug("request body: {}", shoppingListCreateDto);

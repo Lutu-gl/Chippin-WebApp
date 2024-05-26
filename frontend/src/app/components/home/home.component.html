@@ -11,8 +11,10 @@
 
           <app-menu-card>
             <div title>Shopping lists</div>
-            <div content>shopping lists here</div>
-            <div cardButton1><a class="btn btn-secondary">Add shopping list</a></div>
+            <div content>
+              <app-shopping-list-info-card-content></app-shopping-list-info-card-content>
+            </div>
+            <div cardButton1><a class="btn btn-secondary" [routerLink]="['shopping-list', 'create']">Add shopping list</a></div>
           </app-menu-card>
 
           <app-menu-card>
@@ -31,12 +33,9 @@
           <app-menu-card>
             <div title>Expenses</div>
             <div content>
-              expenses overview
+              <app-expense-info-card-content></app-expense-info-card-content>
             </div>
-            <div cardButton1>
-              <a class="btn btn-secondary" routerLink="invalid">Details</a>
-            </div>
-            <div cardButton2>
+            <div cardButton2 class="ms-auto">
               <a class="btn btn-primary" [routerLink]="['/expenses']">+</a>
             </div>
           </app-menu-card>

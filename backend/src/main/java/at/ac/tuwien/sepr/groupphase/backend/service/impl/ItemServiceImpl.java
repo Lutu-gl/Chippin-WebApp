@@ -24,18 +24,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public Item pantryAutoMerge(PantryItem pantryItem, Pantry pantry) {
-        LOGGER.debug("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
-        List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(pantryItem.getDescription(), pantryItem.getUnit(), pantry);
+    public Item pantryAutoMerge(Item item, Pantry pantry) {
+        LOGGER.debug("Auto merge item {} in pantry {}", item, pantry);
+        List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(item.getDescription(), item.getUnit(), pantry);
         if (pantryItems.size() == 0) {
-            pantry.addItem(pantryItem);
-            LOGGER.debug("No item to merge. New pantryItem {} saved", pantryItem);
-            return itemRepository.save(pantryItem);
+            pantry.addItem((PantryItem) item);
+            LOGGER.debug("No item to merge. New item {} saved", item);
+            return itemRepository.save(item);
         }
-        //TODO: error if pantryItems.size > 1
         PantryItem baseItem = pantryItems.get(0);
-        baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
-        LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
+        baseItem.setAmount(item.getAmount() + baseItem.getAmount());
+        LOGGER.debug("PantryItem {} merged into {}", item, baseItem);
         return itemRepository.save(baseItem);
     }
 

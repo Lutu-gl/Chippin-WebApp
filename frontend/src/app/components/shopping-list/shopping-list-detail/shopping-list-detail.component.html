@@ -1,9 +1,6 @@
-<div class="pt-4 flex items-center justify-between">
+<div class="tw-pt-4 tw-flex tw-items-center tw-justify-between">
   <h1>{{ shoppingListDetailDto.name }}</h1>
-  <div class="flex gap-4 items-center">
-    <div class="p-2 bg-amber-200 outline outline-1 outline-gray-400 rounded-md">
-      Budget: <span class="font-medium bi-currency-euro">{{ shoppingListDetailDto.budget }}</span>
-    </div>
+  <div class="tw-flex tw-gap-4 tw-items-center">
     <div>
       <a class="btn btn-secondary" [routerLink]="['edit']">
         <i class="bi bi-pencil"></i>
@@ -17,22 +14,47 @@
       </button>
     </div>
   </div>
-
 </div>
-<div class="pt-4">
-  <div class="flex items-center justify-between">
+<div class="tw-flex tw-gap-2 tw-items-center" *ngIf="shoppingListDetailDto.categories.length > 0">
+  <h3 class="tw-pr-2">Categories</h3>
+  <div class="tw-bg-amber-100 tw-px-2 tw-rounded-xl tw-outline-1 tw-outline tw-outline-amber-400"
+       *ngFor="let category of shoppingListDetailDto.categories">
+    <div class="">
+      {{ category }}
+    </div>
+  </div>
+</div>
+<div *ngIf="shoppingListDetailDto.group" class="tw-flex tw-items-center gap-2">
+  <div class="tw-text-xl">Group:</div>
+  <div
+    class="tw-outline tw-outline-1 tw-px-2 tw-rounded-xl tw-outline-gray-300">{{ shoppingListDetailDto.group.groupName }}
+  </div>
+</div>
+<div class="tw-pt-4">
+  <div class="tw-flex tw-items-center tw-justify-between">
     <h2>Items</h2>
     <a class="btn btn-primary" [routerLink]="['shoppingList', shoppingListDetailDto.id, 'item', 'create']">
       <i class="bi bi-plus-lg"></i>
       Add Item
     </a>
   </div>
-  <div class="h-96 overflow-y-auto scroll-auto">
-    <div *ngFor="let item of shoppingListDetailDto.items" class="">
-      <div
-        class="p-2 m-2 rounded-md outline outline-1 outline-slate-300 flex justify-between items-center hover:bg-slate-100 hover:cursor-pointer">
-        <div>{{ item.description }}</div>
-        <div>{{ item.amount }} {{ item.unit }}</div>
+  <div class="tw-h-96 tw-overflow-y-auto tw-scroll-auto">
+    <div *ngFor="let shoppingListItem of shoppingListDetailDto.items" class="">
+      <div [ngClass]="{'tw-bg-gray-100': !!shoppingListItem.checkedById}"
+           class="tw-p-2 tw-m-2 tw-rounded-md tw-outline tw-outline-1 tw-outline-slate-300 tw-flex tw-justify-between tw-items-center tw-hover:bg-slate-100 tw-hover:cursor-pointer">
+        <div class="tw-flex tw-gap-4 tw-items-center">
+          <input
+            class="tw-relative before:tw-absolute tw-size-5 tw-cursor-pointer tw-rounded-md tw-border tw-border-blue-200 transition-all checked:tw-border-gray-900 checked:tw-bg-gray-900 hover:tw-border-amber-300"
+            type="checkbox" [ngModel]="!!shoppingListItem.checkedById" (click)="toggleChecked(shoppingListItem.id)">
+          <div class="tw-grid tw-grid-cols-2 tw-gap-6">
+            <div class="tw-text-xl tw-font-medium tw-min-w-60 tw-truncate tw-overflow-hidden">{{ shoppingListItem.item.description }}</div>
+            <div>{{ shoppingListItem.item.amount }} {{ shoppingListItem.item.unit }}</div>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-8 tw-items-center">
+          <button (click)="addItemToPantry(shoppingListItem.id)" class="btn btn-info">Add to pantry</button>
+          <button (click)="deleteItem(shoppingListItem.id)" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+        </div>
       </div>
     </div>
   </div>

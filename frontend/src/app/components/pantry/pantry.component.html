@@ -11,6 +11,11 @@
       <h2>Pantry</h2>
     </div>
   </div>
+  <button class="btn btn-danger mt-4"
+          data-bs-toggle="modal"
+          data-bs-target="#app-display-recipes-dialog-title"
+          aria-label="Display recipes"
+          (click)="getRecipes()">Find Recipes</button>
   <div class="row">
     <div class="mt-3">
       <input type="text" id="searchDescription" name="searchDescription"
@@ -44,7 +49,7 @@
         </div>
         <div class="col-2">
           <select name="newItemUnit" class="form-select" [(ngModel)]="newItem.unit" required>
-            <option *ngFor="let unit of Unit | keyvalue"
+            <option *ngFor="let unit of DisplayedUnit | keyvalue"
                     [selected]="newItem.unit===unit.key">{{ unit.value }}</option>
           </select>
         </div>
@@ -95,40 +100,41 @@
               <div class="row">
                 <!--small-->
                 <a class="btn btn-sm responsive-success-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, false, true), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, false, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, true))"></a>
                 <!--large-->
                 <a class="btn btn-sm responsive-success-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, true, true), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, true, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, true))"></a>
               </div>
               <div class="row">
                 <!--small-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, false, false), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, false, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, false))"></a>
                 <!--large-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
-                   [text]="getUnitStepString(getUnitStep(item, true, false), item.amount)"
+                   [text]="getUnitStepString(getUnitStep(item, true, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, false))"></a>
               </div>
             </div>
           </td>
           <td>
             <input type="number" class="form-control" id="itemAmount"
-                   [(ngModel)]="item.amount" disabled>
+                   [value]="displayQuantity(item.unit, item.amount)[1]"
+                   disabled>
           </td>
           <td>
             <input *ngIf="item.lowerLimit !== null" type="number" class="form-control" id="lowerLimit"
-                   [(ngModel)]="item.lowerLimit" disabled>
+                   [value]="displayQuantity(item.unit, item.lowerLimit)[1]" disabled>
             <input *ngIf="item.lowerLimit === null" type="text" class="form-control" id="lowerLimitDisabled"
                    [value]="'-'"
                    disabled>
           </td>
           <td>
-            <select class="form-select" [(ngModel)]="item.unit" disabled>
-              <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
-                      [selected]="item.unit===unit.key">{{ unit.value }}</option>
+            <select class="form-select" disabled>
+              <option *ngFor="let unit of Unit | keyvalue"
+                      [selected]="item.unit===unit.key">{{ displayQuantity(unit.value, item.amount)[0] }}</option>
             </select>
           </td>
           <td>
@@ -143,5 +149,12 @@
 
 <app-confirm-delete-dialog [deleteWhat]="selectedItem?.description"
                            (confirm)="deleteItem(selectedItem.id)"></app-confirm-delete-dialog>
-<app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [items]="items" [itemMergeDto]="mergeItem" [itemToMerge]="clone(itemToEdit)"
-                             (confirmEdit)="editItem(); searchChanged()" (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>
+<app-edit-pantry-item-dialog [itemToEdit]="itemToEdit"
+                             [items]="items"
+                             [itemMergeDto]="mergeItem"
+                             [itemToMerge]="clone(itemToEdit)"
+                             [displayedUnit]="displayQuantity(itemToEdit?.unit, itemToEdit?.amount)[0]"
+                             [displayedAmount]="displayQuantity(itemToEdit?.unit, itemToEdit?.amount)[1]"
+                             (confirmEdit)="editItem(); searchChanged()"
+                             (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>
+<app-display-recipes-dialog [recipes]="recipes"></app-display-recipes-dialog>

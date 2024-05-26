@@ -61,20 +61,28 @@ public class ExpenseServiceImpl implements ExpenseService {
     public ExpenseCreateDto createExpense(ExpenseCreateDto expenseCreateDto, String creatorEmail) throws ValidationException, ConflictException, NotFoundException {
         LOGGER.debug("parameters {}, {}", expenseCreateDto, creatorEmail);
         expenseValidator.validateForCreation(expenseCreateDto);
-
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
+        ApplicationUser user = userRepository.findByEmail(creatorEmail);
+        if (!expense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to create an expense in this group");
+        }
         expense.setDate(LocalDateTime.now());
         expense.setDeleted(false);
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
 
-        ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
         budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
 
         Expense expenseSaved = expenseRepository.save(expense);
-        Activity activityForExpense = Activity.builder().category(ActivityCategory.EXPENSE).expense(expenseSaved).timestamp(LocalDateTime.now()).group(expenseSaved.getGroup()).user(user).build();
+        Activity activityForExpense = Activity.builder()
+            .category(ActivityCategory.EXPENSE)
+            .expense(expenseSaved)
+            .timestamp(LocalDateTime.now())
+            .group(expenseSaved.getGroup())
+            .user(user)
+            .build();
 
         activityRepository.save(activityForExpense);
 
@@ -90,6 +98,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         expenseValidator.validateForCreation(expenseCreateDto);
 
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
+        ApplicationUser user = userRepository.findByEmail(updaterEmail);
+        if (!existingExpense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to update this expense");
+        }
+
         expense.setId(expenseId);
         expense.setDate(existingExpense.getDate());
         if (expense.getCategory() == null) {
@@ -103,9 +116,13 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         Expense expenseSaved = expenseRepository.save(expense);
 
-
-        ApplicationUser user = userRepository.findByEmail(updaterEmail);
-        Activity activityForExpenseUpdate = Activity.builder().category(ActivityCategory.EXPENSE_UPDATE).expense(expenseSaved).timestamp(LocalDateTime.now()).group(expenseSaved.getGroup()).user(user).build();
+        Activity activityForExpenseUpdate = Activity.builder()
+            .category(ActivityCategory.EXPENSE_UPDATE)
+            .expense(expenseSaved)
+            .timestamp(LocalDateTime.now())
+            .group(expenseSaved.getGroup())
+            .user(user)
+            .build();
 
         activityRepository.save(activityForExpenseUpdate);
 
@@ -131,7 +148,13 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
 
-        Activity activityForExpenseDelete = Activity.builder().category(ActivityCategory.EXPENSE_DELETE).timestamp(LocalDateTime.now()).expense(existingExpense).group(existingExpense.getGroup()).user(user).build();
+        Activity activityForExpenseDelete = Activity.builder()
+            .category(ActivityCategory.EXPENSE_DELETE)
+            .timestamp(LocalDateTime.now())
+            .expense(existingExpense)
+            .group(existingExpense.getGroup())
+            .user(user)
+            .build();
 
         activityRepository.save(activityForExpenseDelete);
     }
@@ -156,7 +179,13 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         existingExpense.setDeleted(false);
 
-        Activity activityForExpenseRecover = Activity.builder().category(ActivityCategory.EXPENSE_RECOVER).timestamp(LocalDateTime.now()).expense(existingExpense).group(existingGroup).user(user).build();
+        Activity activityForExpenseRecover = Activity.builder()
+            .category(ActivityCategory.EXPENSE_RECOVER)
+            .timestamp(LocalDateTime.now())
+            .expense(existingExpense)
+            .group(existingGroup)
+            .user(user)
+            .build();
 
         activityRepository.save(activityForExpenseRecover);
 

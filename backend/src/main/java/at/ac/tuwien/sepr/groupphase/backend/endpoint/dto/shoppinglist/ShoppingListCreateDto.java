@@ -1,11 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor
@@ -16,7 +20,7 @@ public class ShoppingListCreateDto {
     @NotNull
     private String name;
 
-    private Long groupId;
+    private GroupDetailDto group;
 
-    // TODO add categories
+    private Set<Category> categories;
 }

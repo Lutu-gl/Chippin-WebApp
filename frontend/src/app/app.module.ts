@@ -49,6 +49,14 @@ import {RecipeDetailComponent} from "./components/recipe/recipe-detail/recipe-de
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent} from "./components/payment-create/payment-create.component";
+import {
+  ShoppingListCreateComponent
+} from "./components/shopping-list/shopping-list-create/shopping-list-create.component";
+import {
+  ShoppingListInfoCardContentComponent
+} from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
+import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
+import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +67,7 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     AutocompleteComponent,
     LoginComponent,
     FriendsComponent,
+    FriendInfoComponent,
     AddFriendComponent,
     GroupListComponent,
     GroupCreateComponent,
@@ -75,6 +84,7 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     RecipeEditComponent,
     RecipeGlobalComponent,
     PaymentCreateComponent,
+    ShoppingListCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -91,9 +101,10 @@ import {PaymentCreateComponent} from "./components/payment-create/payment-create
     MenuCardComponent,
     GroupInfoCardContentComponent,
     FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

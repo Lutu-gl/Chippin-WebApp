@@ -115,22 +115,32 @@
         </div>
 
 
-        <div *ngFor="let member of members; let i = index" class="mb-2 row align-items-center">
-          <div class="col-md-3">
-            <span>{{ member.name }}</span>
+        <div *ngIf="expense.amount">
+          <div class="row mb-3">
+            <div class="col-md-5 offset-md-3 text-right">
+              <button class="mr-2" (click)="changeToPercentageMode($event)" [ngClass]="{'text-decoration-underline': splitModeIsPercentage()}">By Percentage</button>
+              <button (click)="changeToAmountMode($event)" [ngClass]="{'text-decoration-underline': splitModeIsAmount()}">By Amount</button>
+            </div>
           </div>
-          <div class="col-md-3">
-            <input type="checkbox" [(ngModel)]="member.isParticipating" class="form-check-input" name="isParticipating{{i}}" [disabled]="modeIsInfo()">
-          </div>
-          <div class="col-md-4">
-            <div class="input-group">
-              <input type="number" [(ngModel)]="member.percentage" class="form-control" placeholder="%" min="0" max="100" name="percentage{{i}}" [disabled]="modeIsInfo()">
-              <div class="input-group-append">
-                <span class="input-group-text">%</span>
+          <div *ngFor="let member of members; let i = index" class="mb-2 row align-items-center">
+            <div class="col-md-3">
+              <span>{{ member.name }}</span>
+            </div>
+            <div class="col-md-3">
+              <input type="checkbox" [(ngModel)]="member.isParticipating" class="form-check-input" name="isParticipating{{i}}" [disabled]="modeIsInfo()">
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <input type="number" [(ngModel)]="member.percentage" class="form-control" placeholder="%" min="0" max="100" name="percentage{{i}}" [disabled]="modeIsInfo()">
+                <div class="input-group-append">
+                  <span *ngIf="splitModeIsPercentage()" class="input-group-text">%</span>
+                  <span *ngIf="splitModeIsAmount()" class="input-group-text">€</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     
     </div>
@@ -165,7 +175,7 @@
     
       <!-- Go to edit mode button -->
       <div>
-        <a [routerLink]="['/expenses', 'edit', expense.groupId]" class="btn btn-warning">
+        <a [routerLink]="['/expenses', 'edit', expenseId]" class="btn btn-warning">
           <i class="bi bi-pencil"></i>
           Go to Edit
         </a>

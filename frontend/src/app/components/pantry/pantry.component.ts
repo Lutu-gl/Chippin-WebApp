@@ -1,14 +1,25 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto, Unit} from "../../dtos/item";
+import {
+  DisplayedUnit,
+  PantryItemCreateDisplayDto,
+  PantryItemCreateDto,
+  PantryItemDetailDto,
+  PantryItemMergeDto,
+  Unit
+} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule, NgForm} from "@angular/forms";
-import {debounceTime, Subject} from "rxjs";
+import {debounceTime, Observable, Subject} from "rxjs";
 import {PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {clone} from "lodash";
+import {displayQuantity, unitToDisplayedUnit} from "../../util/unit-helper";
+import {ToastrService} from "ngx-toastr";
+import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
+import {RecipeListDto} from "../../dtos/recipe";
 
 @Component({
   selector: 'app-pantry',
@@ -21,7 +32,8 @@ import {clone} from "lodash";
     ConfirmDeleteDialogComponent,
     NgSwitchCase,
     NgSwitch,
-    EditPantryItemDialogComponent
+    EditPantryItemDialogComponent,
+    DisplayRecipesDialogComponent
   ],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
@@ -32,9 +44,9 @@ export class PantryComponent implements OnInit {
   errorMessage = '';
 
   items: PantryItemDetailDto[];
-  newItem: PantryItemCreateDto = {
+  newItem: PantryItemCreateDisplayDto = {
     amount: 0,
-    unit: Unit.Piece,
+    unit: DisplayedUnit.Piece,
     description: "",
     lowerLimit: null
   };
@@ -45,10 +57,12 @@ export class PantryComponent implements OnInit {
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
+  recipes: RecipeListDto[];
 
   constructor(
     private route: ActivatedRoute,
-    private service: PantryService
+    private service: PantryService,
+    private notification: ToastrService
   ) {
   }
 
@@ -85,7 +99,6 @@ export class PantryComponent implements OnInit {
   getPantry(id: number) {
     this.service.getPantryById(id).subscribe({
       next: res => {
-        console.log(res.items);
         this.items = res.items;
       },
       error: err => {
@@ -94,11 +107,22 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  getRecipes(){
+    this.service.getRecipes(this.id).subscribe({
+      next: res => {
+        console.log(res);
+        this.recipes = res;
+      }, error: err => {
+        this.defaultServiceErrorHandling(err);
+      }
+    })
+  }
+
   deleteItem(id: number) {
     this.service.deleteItem(this.id, id).subscribe({
       next: res => {
-        console.log('deleted item: ', res)
         this.getPantry(this.id);
+        this.notification.success('Item deleted');
       },
       error: err => {
         this.defaultServiceErrorHandling(err);
@@ -121,13 +145,47 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  convertItemDto(item: PantryItemCreateDisplayDto): PantryItemCreateDto {
+    let updatedUnit: Unit;
+    let factor: number = 1;
+    switch (item.unit) {
+      case DisplayedUnit.Gram:
+        updatedUnit = Unit.Gram;
+        break;
+      case DisplayedUnit.Kilogram:
+        updatedUnit = Unit.Gram;
+        factor = 1000;
+        break;
+      case DisplayedUnit.Milliliter:
+        updatedUnit = Unit.Milliliter;
+        break;
+      case DisplayedUnit.Liter:
+        updatedUnit = Unit.Milliliter;
+        factor = 1000;
+        break;
+      case DisplayedUnit.Piece:
+        updatedUnit = Unit.Piece;
+        break;
+      case DisplayedUnit.Pieces:
+        updatedUnit = Unit.Piece;
+        break;
+    }
+
+    return {
+      description: item.description,
+      lowerLimit: item.lowerLimit,
+      amount: item.amount * factor,
+      unit: updatedUnit,
+    }
+  }
+
   addItem() {
     this.newLowerLimit = 0;
-    this.service.createItem(this.id, this.newItem).subscribe({
+    this.service.createItem(this.id, this.convertItemDto(this.newItem)).subscribe({
       next: res => {
-        console.log("Item created: ", res);
+        this.notification.success('Added ' + this.newItem.amount + ' ' + this.newItem.unit + ' ' + this.newItem.description);
         this.newItem.amount = 0;
-        this.newItem.unit = Unit.Piece;
+        this.newItem.unit = DisplayedUnit.Piece;
         this.newItem.description = '';
         this.getPantry(this.id);
       },
@@ -140,6 +198,7 @@ export class PantryComponent implements OnInit {
   editItem() {
     this.service.updateItem(this.itemToEdit, this.id).subscribe({
       next: dto => {
+        this.notification.success('Edited ' + dto.description);
         this.selectedItem = dto;
       },
       error: error => {
@@ -151,6 +210,7 @@ export class PantryComponent implements OnInit {
   mergeItems() {
     this.service.mergeItems(this.mergeItem, this.id).subscribe({
       next: dto => {
+        this.notification.success('Items merged');
         this.selectedItem = dto;
       },
       error: error => {
@@ -184,6 +244,7 @@ export class PantryComponent implements OnInit {
     } else {
       this.errorMessage = error.error;
     }
+    this.notification.error(this.errorMessage);
   }
 
   selectItem(item: PantryItemDetailDto) {
@@ -203,52 +264,44 @@ export class PantryComponent implements OnInit {
   }
 
   getUnitStep(item: PantryItemDetailDto, largeStep: boolean, positive: boolean): number {
-    let value: number = item.amount < 1000 ? 1 : 10;
+    let value: number = 1; //item.amount < 1000 ? 1 : 10;
     let prefixNum = positive ? 1 : -1;
     switch (item.unit) {
       case Unit.Piece:
-        value *= prefixNum;
+        value = item.amount < 100 ? value : value * 5;
         break
       case Unit.Gram:
-        value *= prefixNum * 10;
+        value = item.amount < 1000 ? value * 10 : value * 100;
         break;
       case Unit.Milliliter:
-        value *= prefixNum * 10;
+        value = item.amount < 1000 ? value * 10 : value * 100;
         break;
       default:
-        console.error("Undefined unit");
+        console.warn("Undefined unit");
     }
-
+    value *= prefixNum;
     return largeStep ? value * 10 : value;
   }
 
-  getUnitStepString(value: number, itemAmount: number): string {
+  getUnitStepString(value: number, item: PantryItemDetailDto): string {
+    if (item.unit === Unit.Piece) {
+      if (value > 0) {
+        return "+" + value;
+      } else {
+        return value.toString();
+      }
+    }
     if (value > 0) {
-      if (itemAmount < 1000) {
+      if (item.amount < 1000) {
         return "+" + value;
       } else {
         return "+" + value / 1000;
       }
-    } else return itemAmount < 1000 ? value.toString() : (value / 1000).toString();
-  }
-
-  getItemAmount(itemAmount: number): number {
-    return itemAmount >= 1000 ? itemAmount / 1000 : itemAmount;
-  }
-
-  getUnit(itemAmount: number, unit: Unit): string {
-    switch (unit) {
-      case Unit.Piece:
-        return itemAmount == 1 ? "Piece" : "Pieces";
-      case Unit.Gram:
-        return itemAmount >= 1000 ? "Kilogram" : "Gram";
-      case Unit.Milliliter:
-        return itemAmount >= 1000 ? "Milliliter" : "Liter";
-      default:
-        console.error("Undefined unit");
-    }
+    } else return item.amount < 1000 ? value.toString() : (value / 1000).toString();
   }
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly displayQuantity = displayQuantity;
+  protected readonly DisplayedUnit = DisplayedUnit;
 }

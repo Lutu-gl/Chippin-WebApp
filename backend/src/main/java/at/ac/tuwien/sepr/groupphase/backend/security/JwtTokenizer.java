@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.security;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,9 +14,11 @@ import java.util.List;
 public class JwtTokenizer {
 
     private final SecurityProperties securityProperties;
+    private final UserRepository userRepository;
 
-    public JwtTokenizer(SecurityProperties securityProperties) {
+    public JwtTokenizer(SecurityProperties securityProperties, UserRepository userRepository) {
         this.securityProperties = securityProperties;
+        this.userRepository = userRepository;
     }
 
     public String getAuthToken(String user, List<String> roles) {
@@ -26,6 +29,7 @@ public class JwtTokenizer {
             .setIssuer(securityProperties.getJwtIssuer())
             .setAudience(securityProperties.getJwtAudience())
             .setSubject(user)
+            .claim("userId", userRepository.findByEmail(user).getId())
             .setExpiration(new Date(System.currentTimeMillis() + securityProperties.getJwtExpirationTime()))
             .claim("rol", roles)
             .compact();

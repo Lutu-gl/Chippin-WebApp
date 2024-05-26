@@ -17,6 +17,11 @@ export enum ExpenseCreateEditMode {
   info
 }
 
+enum SplitMode {
+  percentage,
+  amount
+}
+
 interface ExpenseParticipant {
   name: string,
   isParticipating: boolean,
@@ -31,6 +36,7 @@ interface ExpenseParticipant {
 export class ExpenseCreateComponent implements OnInit {
 
   mode: ExpenseCreateEditMode = ExpenseCreateEditMode.create;
+  splitMode: SplitMode = SplitMode.percentage;
   expense: ExpenseCreateDto = {
     name: undefined,
     category: undefined,
@@ -173,6 +179,14 @@ export class ExpenseCreateComponent implements OnInit {
     return this.expenseDeleted === true;
   }
 
+  public splitModeIsPercentage(): boolean {
+    return this.splitMode === SplitMode.percentage;
+  }
+
+  public splitModeIsAmount(): boolean {
+    return this.splitMode === SplitMode.amount;
+  }
+
   public formatMember(member: UserSelection | null): string {
     return !member
       ? ""
@@ -183,6 +197,30 @@ export class ExpenseCreateComponent implements OnInit {
     return {
       'is-invalid': !input.valid && !input.pristine,
     };
+  }
+
+  public changeToPercentageMode(event: Event): void {
+    event.preventDefault();
+    if (this.splitModeIsPercentage()) {
+      return;
+    }
+    this.splitMode = SplitMode.percentage;
+    if (!this.expense.amount) {
+      return;
+    }
+    this.members.forEach(member => member.percentage = (member.percentage / this.expense.amount) * 100);
+  }
+
+  public changeToAmountMode(event: Event): void {
+    event.preventDefault();
+    if (this.splitModeIsAmount()) {
+      return;
+    }
+    this.splitMode = SplitMode.amount;
+    if (!this.expense.amount) {
+      return;
+    }
+    this.members.forEach(member => member.percentage = this.expense.amount * (member.percentage / 100));
   }
 
   public groupSelected(group: GroupDto) {
@@ -231,7 +269,11 @@ export class ExpenseCreateComponent implements OnInit {
   public onSubmit(form: NgForm): void {
 
     const participants = {};
-    this.members.filter(member => member.isParticipating).forEach(member => participants[member.name] = member.percentage / 100);
+    if (this.splitModeIsPercentage()) {
+      this.members.filter(member => member.isParticipating).forEach(member => participants[member.name] = member.percentage / 100);
+    } else if (this.splitModeIsAmount()) {
+      this.members.filter(member => member.isParticipating).forEach(member => participants[member.name] = member.percentage / this.expense.amount);
+    }
 
     const submitExpense: ExpenseCreateDto = {
       name: this.expense.name,

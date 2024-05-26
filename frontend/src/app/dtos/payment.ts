@@ -3,5 +3,6 @@ export interface PaymentDto {
   amount: number;
   payerEmail: string;
   receiverEmail: string;
+  deleted: boolean;
   groupId: number;
 }

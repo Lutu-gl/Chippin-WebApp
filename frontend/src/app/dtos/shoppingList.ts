@@ -1,26 +1,41 @@
 import {ItemDetailDto} from "./item";
+import {Category} from "./category";
+import {GroupDto} from "./group";
+import {UserSelection} from "./user";
 
 
-export interface ShoppingListCreateDto {
+export interface ShoppingListCreateEditDto {
+  owner?: UserSelection;
   name: string;
-  budget: number;
-}
-
-export interface ShoppingListEditDto {
-  name: string;
-  budget: number;
+  categories: Category[];
+  group: GroupDto;
 }
 
 export interface ShoppingListDetailDto {
   id: number;
   name: string;
-  budget: number;
-  groupId: number;
-  items: ItemDetailDto[];
+  owner: UserSelection;
+  categories: Category[];
+  group: GroupDto;
+  items: ShoppingListItemDto[];
+}
+
+export interface ShoppingListItemDto {
+  id: number;
+  item: ItemDetailDto;
+  checkedById: number;
+}
+
+export interface ShoppingListItemUpdateDto {
+  id: number;
+  item: ItemDetailDto;
+  checked: boolean;
 }
 
 export interface ShoppingListListDto {
   id: number;
   name: string;
-  budget: number;
+  groupId: number;
+  itemCount: number;
+  checkedItemCount: number;
 }

@@ -1,16 +1,28 @@
 import { Component } from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
+import {CurrencyPipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {FriendshipService} from "../../../services/friendship.service";
 import {ToastrService} from "ngx-toastr";
 import {AcceptFriendRequest} from "../../../dtos/friend-request";
+import { RouterLink } from '@angular/router';
+import { lastValueFrom } from 'rxjs';
+import { GroupService } from 'src/app/services/group.service';
+import { DebtService } from 'src/app/services/debt.service';
+
+interface FriendInfo {
+  email: string,
+  debt: number
+}
 
 @Component({
   selector: 'app-friends-info-card-content',
   standalone: true,
   imports: [
     NgForOf,
-    NgIf
+    NgIf,
+    RouterLink,
+    NgClass,
+    CurrencyPipe
   ],
   templateUrl: './friends-info-card-content.component.html',
   styleUrl: './friends-info-card-content.component.scss'
@@ -20,10 +32,12 @@ export class FriendsInfoCardContentComponent {
   constructor(
     public authService: AuthService,
     private friendshipService: FriendshipService,
+    private groupService: GroupService,
+    private debtService: DebtService,
     private notification: ToastrService,
   ) { }
   incomingFriendRequests: string[] = [];
-  friends: string[] = [];
+  friends: FriendInfo[] = [];
 
   ngOnInit(): void {
     if(this.authService.isLoggedIn()){
@@ -37,8 +51,18 @@ export class FriendsInfoCardContentComponent {
       });
 
       this.friendshipService.getFriends().subscribe({
-        next: data => {
-          this.friends = data;
+        next: async data => {
+          for (let friend of data) {
+            let totalDebt = 0.0;
+            const groups = await lastValueFrom(this.groupService.getGroups());
+            for (let group of groups) {
+              const detailedGroup = await lastValueFrom(this.groupService.getById(group.id))
+              if (detailedGroup.members.some(member => member.email === friend)) {
+                totalDebt += (await lastValueFrom(this.debtService.getDebtById(group.id))).membersDebts[friend];
+              }
+            }
+            this.friends.push({ email: friend, debt: totalDebt });
+          }
         },
         error: error => {
           this.printError(error);
@@ -72,7 +96,7 @@ export class FriendsInfoCardContentComponent {
       next: () => {
         this.notification.success("Accepted friend request successfully!");
         this.incomingFriendRequests = this.incomingFriendRequests.filter(senderEmail => senderEmail !== email);
-        this.friends.push(email);
+        this.friends.push({ email: email, debt: 0 })
       },
       error: (error) => {
         this.notification.error(error.error.detail);

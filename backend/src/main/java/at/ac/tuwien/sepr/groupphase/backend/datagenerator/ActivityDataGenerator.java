@@ -90,6 +90,17 @@ public class ActivityDataGenerator implements DataGenerator {
                 .user(payment.getPayer())
                 .build();
 
+            if (payment.isDeleted()) {
+                Activity activity2 = Activity.builder()
+                    .category(ActivityCategory.PAYMENT_DELETE)
+                    .timestamp(payment.getDate())
+                    .payment(payment)
+                    .group(payment.getGroup())
+                    .user(payment.getPayer())
+                    .build();
+                activityRepository.save(activity2);
+
+            }
 
             activityRepository.save(activity);
         }
