@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
@@ -12,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final ShoppingListItemRepository shoppingListItemRepository;
+    private final PantryService pantryService;
+    private final ItemMapper itemMapper;
 
 
     @Override
@@ -174,4 +178,57 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         log.debug("Item updated: {}", savedShoppingList);
         return updatedItem;
     }
+
+    @Override
+    @Transactional
+    public void moveItemToPantry(Long shoppingListId, Long itemId) {
+        log.debug("Moving item with id {} to pantry from group in shopping list with id {}", itemId, shoppingListId);
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
+            () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
+        );
+        var group = shoppingList.getGroup();
+        if (group == null) {
+            throw new NotFoundException(String.format("Shopping list with id %d does not belong to a group", shoppingListId));
+        }
+        var shoppingListItem = shoppingList.getItems().stream()
+            .filter(i -> i.getId().equals(itemId))
+            .findFirst()
+            .orElseThrow(
+                () -> new NotFoundException(String.format("Item with id %d not found in shopping list with id %d", itemId, shoppingListId))
+            );
+        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), group.getPantry());
+        log.debug("Adding item to pantry: {}", pantryItem);
+        pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
+        shoppingList.getItems().remove(shoppingListItem);
+        shoppingListRepository.save(shoppingList);
+        log.debug("Item moved to pantry");
+    }
+
+    @Override
+    @Transactional
+    public void moveItemsToPantry(Long shoppingListId) {
+        log.debug("Moving all checked items to pantry from shopping list with id {}", shoppingListId);
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
+            () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
+        );
+        var group = shoppingList.getGroup();
+        if (group == null) {
+            throw new NotFoundException(String.format("Shopping list with id %d does not belong to a group", shoppingListId));
+        }
+        var checkedItems = shoppingList.getItems().stream().filter(item -> item.getCheckedBy() != null);
+
+        // Add checked items to pantry
+        checkedItems.forEach(item -> {
+            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), group.getPantry());
+            log.debug("Adding item to pantry: {}", pantryItem);
+            pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
+        });
+        // Remove checked items from shopping list
+        shoppingList.getItems().removeIf(item -> item.getCheckedBy() != null);
+        shoppingListRepository.save(shoppingList);
+
+        log.debug("Items moved to pantry");
+    }
+
+
 }

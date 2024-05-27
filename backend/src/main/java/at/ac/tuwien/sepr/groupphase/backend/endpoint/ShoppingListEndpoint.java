@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -125,6 +126,22 @@ public class ShoppingListEndpoint {
         return shoppingListService.deleteItem(shoppingListId, itemId);
     }
 
+    // PUT /users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/groups/{groupId}/pantry
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PutMapping("/users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/groups/{groupId}/pantry")
+    public void moveItemToPantry(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId, @PathVariable Long groupId) {
+        log.debug("Moving item with id {} to pantry for group with id {}", itemId, groupId);
+        shoppingListService.moveItemToPantry(shoppingListId, itemId);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PutMapping("/users/{userId}/shopping-lists/{shoppingListId}/pantry")
+    public void moveItemsToPantry(@PathVariable Long userId, @PathVariable Long shoppingListId) {
+        log.debug("Moving all checked items to pantry for shopping list with id {}", shoppingListId);
+        shoppingListService.moveItemsToPantry(shoppingListId);
+    }
 
 }
 
