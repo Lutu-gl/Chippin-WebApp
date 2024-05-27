@@ -8,7 +8,7 @@
   <h1 class="display-1">{{heading}}</h1>
   <span *ngIf="expenseIsDeleted()" style="color: red;">This expense is marked as deleted!</span>
 </div>
-<form #form="ngForm" [class.was-validated]="form.submitted" (ngSubmit)="onSubmit(form)">
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
   <br>
 
   <div class="row">
@@ -31,7 +31,7 @@
           </div>
         </div>
       </div>
-    
+
       <!-- Start expense amount -->
       <div class="mb-2 col-lg-6">
         <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
@@ -89,7 +89,7 @@
           </div>
         </div>
       </div>
-    
+
       <!-- expense participants -->
       <div class="container mt-3">
         <div *ngIf="members && members.length > 0" class="mb-2 row align-items-center">
@@ -142,9 +142,9 @@
         </div>
 
       </div>
-    
+
     </div>
-    
+
     <!-- Create/Edit button -->
     <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row">
       <span class="flex-grow-1"></span>
@@ -161,10 +161,10 @@
         <!--
           TODO: Add this to button
           data-bs-toggle="modal"
-          data-bs-target="#confirmDeleteDialog" 
+          data-bs-target="#confirmDeleteDialog"
           TODO: Remove (click)="deleteExistingExpense()" from button
         -->
-        <button 
+        <button
           class="btn btn-danger"
           (click)="deleteExistingExpense()"
         >
@@ -172,7 +172,7 @@
           Delete expense
         </button>
       </div>
-    
+
       <!-- Go to edit mode button -->
       <div>
         <a [routerLink]="['/expenses', 'edit', expenseId]" class="btn btn-warning">
@@ -184,7 +184,7 @@
 
     <!-- Recover expense -->
     <div *ngIf="modeIsInfo() && expenseIsDeleted()" class="me-2">
-      <button 
+      <button
         class="btn btn-success"
         (click)="recoverDeletedExpense()"
       >
@@ -192,6 +192,6 @@
         Recover expense
       </button>
     </div>
-    
+
   </div>
 </form>
