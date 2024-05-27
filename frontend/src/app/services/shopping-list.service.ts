@@ -43,11 +43,10 @@ export class ShoppingListService {
   /**
    * Deletes a shopping list.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    */
-  deleteShoppingList(groupId: number, shoppingListId: number): Observable<ShoppingListDetailDto> {
-    return this.httpClient.delete<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`);
+  deleteShoppingList(shoppingListId: number): Observable<ShoppingListDetailDto> {
+    return this.httpClient.delete<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`);
   }
 
   /**
