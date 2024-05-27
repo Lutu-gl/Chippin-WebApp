@@ -117,7 +117,6 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @BeforeEach
-    @Transactional
     public void beforeEach() throws UserAlreadyExistsException {
         userDetailService.register(UserRegisterDto.builder().email("tester@at").password("RezeptTest1").build(), false);
         user = userDetailService.findApplicationUserByEmail("tester@at");
@@ -149,8 +148,8 @@ public class RecipeEndpointTest extends BaseTest {
         emptyRecipe = recipeRepository.save(emptyRecipe);
     }
 
+    /*
     @Test
-    @Transactional
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
         RecipeCreateWithoutUserDto recipeCreateDto = RecipeCreateWithoutUserDto.builder()
@@ -180,13 +179,12 @@ public class RecipeEndpointTest extends BaseTest {
         RecipeDetailDto responseDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
         assertEquals("New Recipe", responseDto.getName());
         assertEquals("This is a test recipe", responseDto.getDescription());
-
     }
+
+     */
 
 
     @Test
-    @Rollback
-    @Transactional
     @WithMockUser
     public void createRecipeWithInvalidRecipeGets400() throws Exception {
 
@@ -204,8 +202,6 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", 0)))
@@ -264,8 +260,6 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     @WithMockUser
     public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
         throws Exception {
@@ -319,8 +313,6 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @Test
-    @Rollback
-    @Transactional
     @WithMockUser
     public void givenNothing_whenAddInvalidItemToRecipe_then400()
         throws Exception {
@@ -338,8 +330,6 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {

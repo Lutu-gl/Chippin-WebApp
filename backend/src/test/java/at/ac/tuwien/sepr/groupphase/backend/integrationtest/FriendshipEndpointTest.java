@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
@@ -44,8 +45,6 @@ public class FriendshipEndpointTest extends BaseTest {
 
 
     @Test
-    @Rollback
-    @Transactional
     public void whenSendFriendRequest_withValidData_thenStatus202() throws Exception {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("testUser1@example.com");
@@ -71,8 +70,6 @@ public class FriendshipEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void sendFriendRequestAndAcceptItShouldWork() throws Exception {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("testUser1@example.com");
@@ -104,7 +101,6 @@ public class FriendshipEndpointTest extends BaseTest {
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("testUser2@example.com", ADMIN_ROLES))
             )
             .andExpect(status().isOk());
-
     }
 
     @Test

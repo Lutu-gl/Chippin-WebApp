@@ -53,7 +53,7 @@ public class BudgetDataGenerator implements DataGenerator {
                         .group(group)
                         .build();
 
-                    budgetRepository.save(budget);
+                    budgetRepository.saveAndFlush(budget);
                 }
             }
 

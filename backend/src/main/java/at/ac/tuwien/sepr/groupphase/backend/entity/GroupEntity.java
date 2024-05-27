@@ -38,7 +38,7 @@ public class GroupEntity {    // Do not call it group! It is a reserved word and
     private Long id;
 
     // When creating a group, don't forget to create a pantry for it
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn
     private Pantry pantry;
 
