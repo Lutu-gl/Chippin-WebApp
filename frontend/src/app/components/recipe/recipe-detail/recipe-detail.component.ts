@@ -83,7 +83,6 @@ export class RecipeDetailComponent implements OnInit {
     } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
       this.notification.error(`${error.error.message}`);
     } else {
-      window.alert(error);
       console.log(error);
       if(error.status !== 401) {
         const errorMessage = error.status === 0
@@ -127,7 +126,6 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   public dislike(id:number) {
-    window.alert("test");
     this.service.dislikeRecipe(id)
       .subscribe({
         next: data => {

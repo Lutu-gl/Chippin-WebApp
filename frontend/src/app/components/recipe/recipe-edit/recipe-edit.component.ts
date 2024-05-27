@@ -202,14 +202,7 @@ export class RecipeEditComponent implements OnInit {
     } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
       this.notification.error(`${error.error.message}`);
     } else {
-      window.alert(error);
       console.log(error);
-      if(error.status !== 401) {
-        const errorMessage = error.status === 0
-          ? 'Is the backend up?'
-          : error.message.message;
-        this.notification.error(errorMessage, 'Could not connect to the server.');
-      }
     }
   }
 
