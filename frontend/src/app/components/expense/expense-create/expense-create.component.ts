@@ -76,9 +76,9 @@ export class ExpenseCreateComponent implements OnInit {
       } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
         this.prepareWholeExpense();
       }
-    
+
     });
-    
+
   }
 
   private prepareGroupOnCreate(): void {
@@ -115,7 +115,7 @@ export class ExpenseCreateComponent implements OnInit {
           this.expense.payerEmail = data.payerEmail;
           this.expense.groupId = data.group.id;
           this.expense.participants = data.participants;
-          
+
           this.group = data.group;
 
           this.dummyCategorySelectionModel = data.category;
@@ -133,7 +133,7 @@ export class ExpenseCreateComponent implements OnInit {
           });
 
           this.expenseDeleted = data.deleted;
-          
+
         },
         error: error => {
           console.error(error);
@@ -208,7 +208,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => member.percentage = (member.percentage / this.expense.amount) * 100);
+    this.members.forEach(member => Math.round(member.percentage = (member.percentage / this.expense.amount) * 100));
   }
 
   public changeToAmountMode(event: Event): void {
@@ -220,7 +220,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => member.percentage = this.expense.amount * (member.percentage / 100));
+    this.members.forEach(member => Math.round(member.percentage = this.expense.amount * (member.percentage / 100)));
   }
 
   public groupSelected(group: GroupDto) {
@@ -289,7 +289,7 @@ export class ExpenseCreateComponent implements OnInit {
     } else if (this.mode === ExpenseCreateEditMode.edit) {
       this.editExistingExpense(this.expenseId, submitExpense);
     }
-    
+
   }
 
   private createNewExpense(expense: ExpenseCreateDto): void {
@@ -373,7 +373,7 @@ export class ExpenseCreateComponent implements OnInit {
     }
   }
 
-  groupSuggestions = (input: string): Observable<GroupDto[]> => 
+  groupSuggestions = (input: string): Observable<GroupDto[]> =>
     this.userService.getUserGroups();
 
   categorySuggestions = (input: string): Observable<Category[]> =>
@@ -381,7 +381,7 @@ export class ExpenseCreateComponent implements OnInit {
 
   payerSuggestions = (input: string): Observable<string[]> =>
     of(this.group.members.map(member => member.email));
-  
+
 
   public formatGroup(group: GroupDto | null): string {
     return !group
