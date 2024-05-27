@@ -143,7 +143,8 @@ public class PaymentValidator {
 
         List<String> validationErrors = new ArrayList<>();
 
-        checkCreatorEmailEqualsPayerEmail(paymentDto, creatorEmail, validationErrors);
+        //checkCreatorEmailEqualsPayerEmail(paymentDto, creatorEmail, validationErrors);
+        checkCreatorEmailEqualsPayerOrReceiverEmail(paymentDto, creatorEmail, validationErrors);
         checkReceiverNotEqualPalyerEmail(paymentDto, validationErrors);
         checkOnlyAmountChanged(paymentDto, existingPayment, validationErrors);
 
@@ -159,6 +160,14 @@ public class PaymentValidator {
 
         if (!conflictErrors.isEmpty()) {
             throw new ConflictException("expense creation failed because of conflict", conflictErrors);
+        }
+    }
+
+    private void checkCreatorEmailEqualsPayerOrReceiverEmail(PaymentDto paymentDto, String creatorEmail, List<String> validationErrors) {
+        LOGGER.trace("checkCreatorEmailEqualsPayerOrReceiverEmail({}, {})", paymentDto, creatorEmail);
+
+        if (!paymentDto.getPayerEmail().equals(creatorEmail) && !paymentDto.getReceiverEmail().equals(creatorEmail)) {
+            validationErrors.add("Creator email must be the same as payer or receiver email");
         }
     }
 

@@ -67,4 +67,5 @@ export class GroupInfoComponent implements OnInit {
   }
 
     protected readonly ActivityType = ActivityType;
+  protected readonly parseFloat = parseFloat;
 }
