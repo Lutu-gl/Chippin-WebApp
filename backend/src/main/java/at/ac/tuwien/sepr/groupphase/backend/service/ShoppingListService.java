@@ -92,4 +92,20 @@ public interface ShoppingListService {
      * @return the updated item
      */
     ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId);
+
+    /**
+     * Move an item from a shopping list to the pantry.
+     *
+     * @param shoppingListId the id of the shopping list
+     * @param itemId         the id of the item
+     */
+    void moveItemToPantry(Long shoppingListId, Long itemId);
+
+    /**
+     * Move all checked items from a shopping list to the pantry.
+     *
+     * @param shoppingListId the id of the shopping list
+     */
+    void moveItemsToPantry(Long shoppingListId);
+
 }
