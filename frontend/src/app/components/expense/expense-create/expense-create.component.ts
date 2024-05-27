@@ -299,8 +299,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(["/group", data.groupId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not create expense!");
+        this.printError(error);
       }
     });
   }
@@ -312,8 +311,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(['/expenses', 'info', expenseId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not edit expense!");
+        this.printError(error);
       }
     })
   }
@@ -325,8 +323,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(['/group', this.expense.groupId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not delete expense!");
+        this.printError(error);
       }
     })
   }
@@ -339,10 +336,41 @@ export class ExpenseCreateComponent implements OnInit {
         this.expenseDeleted = false;
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not recover expense!");
+        this.printError(error);
       }
     })
+  }
+
+  private printError(error): void {
+    console.log(error);
+    if (error && error.error && error.error.errors) {
+      //this.notification.error(`${error.error.errors.join('. \n')}`);
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.notification.error(`${error.error.errors[i]}`);
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error.detail) {
+      this.notification.error(`${error.error.detail}`);
+    } else if (error && error.error) {
+      this.notification.error(`${error.error}`);
+    } else {
+      switch (this.mode) {
+        case ExpenseCreateEditMode.create:
+          console.error('Error making expense', error);
+          this.notification.error(`Creation of expense did not work!`);
+          break;
+        case ExpenseCreateEditMode.edit:
+          console.error('Error editing expense', error);
+          this.notification.error(`Edit of expense did not work!`);
+          break;
+        case ExpenseCreateEditMode.info:
+          console.error('Error on expense', error);
+          this.notification.error('Operation on expense did not work!');
+        default:
+          console.error('Unknown ExpenseCreateEditMode. Operation did not work!', this.mode);
+      }
+    }
   }
 
   groupSuggestions = (input: string): Observable<GroupDto[]> => 

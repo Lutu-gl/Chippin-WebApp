@@ -32,7 +32,9 @@
         <a [routerLink]="['/expenses', 'info', activity.expenseId]" class="no-underline text-black">
           <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
         flex justify-between items-center
-        hover:bg-slate-100 hover:cursor-pointer">
+        hover:bg-slate-100 hover:cursor-pointer"
+          [ngStyle]="{ 'background-color': getBackgroundColor(activity.category) }"
+          >
             <div>{{activity.description}}</div>
           </div>
         </a>

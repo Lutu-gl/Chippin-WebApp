@@ -42,6 +42,7 @@ export class ExpenseListComponent implements OnChanges {
   fetchExpenses(): void {
     this.activityService.getExpenseActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
+        console.log(data);
         this.expenseList = data;
       },
       error: error => {
@@ -88,6 +89,15 @@ export class ExpenseListComponent implements OnChanges {
     });
   }
 
+  getBackgroundColor(color: string) {
+    switch(color) {
+      case "EXPENSE": return "#E0F7E0";
+      case "EXPENSE_UPDATE": return "#FFEB99";
+      case "EXPENSE_DELETE": return "#F7E0E0";
+      case "EXPENSE_RECOVER": return "#E0F7E0";
+      default: return "";
+    }
+  }
 
   expenseList: ActivityDetailDto[] = [];
 
