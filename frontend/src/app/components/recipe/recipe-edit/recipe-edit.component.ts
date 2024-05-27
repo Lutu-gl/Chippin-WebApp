@@ -37,7 +37,7 @@ export class RecipeEditComponent implements OnInit {
   selectedIdToDelete: number;
   selectedIndexToDelete:number;
   selectedIndexToEdit:number;
-  deleteWhatString: string;
+  deleteWhatString: String;
   recipeId:number;
 
 
@@ -175,7 +175,8 @@ export class RecipeEditComponent implements OnInit {
   selectIdToDelete(id:number, index:number): void {
     this.selectedIdToDelete=id;
     this.selectedIndexToDelete=index;
-    this.deleteWhatString=this.recipe.ingredients[id].description.toString();
+    //this.deleteWhatString=this.recipe.ingredients[id].description.toString();
+    this.deleteWhatString="Ingredient";
   }
 
   selectIndexToEdit(index:number):void {

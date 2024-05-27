@@ -63,22 +63,21 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe")
     public RecipeDetailDto getById(@PathVariable long recipeId) {
-        LOGGER.info("GET /api/v1/group/{}/recipe", recipeId);
+        LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
         return recipeService.getById(recipeId);
     }
 
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
     public ItemListListDto searchItemsInRecipe(@PathVariable long recipeId, RecipeSearchDto searchParams) {
-        LOGGER.info("GET /api/v1/recipe/{}/recipe/search", recipeId);
-        LOGGER.debug("request parameters: {}", searchParams);
+        LOGGER.trace("GET /api/v1/recipe/{}/recipe/search", recipeId);
         return new ItemListListDto(itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
     }
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/own")
     public List<RecipeListDto> searchOwnRecipe(RecipeSearchDto searchParams) {
-        LOGGER.info("GET /api/v1/recipe/search/own: {}", searchParams);
+        LOGGER.trace("GET /api/v1/recipe/search/own: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.searchOwnRecipe(owner, searchParams.getDetails());
@@ -87,7 +86,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/global")
     public List<RecipeGlobalListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
-        LOGGER.info("GET /api/v1/group/recipe/search/global: {}", searchParams);
+        LOGGER.trace("GET /api/v1/group/recipe/search/global: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.searchGlobalRecipe(user, searchParams.getDetails());
@@ -97,7 +96,7 @@ public class RecipeEndpoint {
     @PostMapping("/{recipeId}/recipe")
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItemToRecipe(@PathVariable long recipeId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
-        LOGGER.info("POST /api/v1/group/{}/recipe body: {}", recipeId, itemCreateDto);
+        LOGGER.trace("POST /api/v1/group/{}/recipe body: {}", recipeId, itemCreateDto);
         Item item = itemMapper.itemCreateDtoToItem(itemCreateDto);
         return itemMapper.itemToItemDto(recipeService.addItemToRecipe(item, recipeId));
     }
@@ -106,7 +105,7 @@ public class RecipeEndpoint {
     @DeleteMapping("/{recipeId}/recipe/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteItem(@PathVariable long recipeId, @PathVariable long itemId) {
-        LOGGER.info("DELETE /api/v1/group/{}/recipe/{}", recipeId, itemId);
+        LOGGER.trace("DELETE /api/v1/group/{}/recipe/{}", recipeId, itemId);
         recipeService.deleteItem(recipeId, itemId);
     }
 
@@ -115,7 +114,7 @@ public class RecipeEndpoint {
     @PostMapping("/recipe/create")
     @ResponseStatus(HttpStatus.CREATED)
     public RecipeDetailDto createRecipe(@Valid @RequestBody RecipeCreateWithoutUserDto recipeDto) {
-        LOGGER.info("POST /api/v1/group/recipe/create: {}", recipeDto);
+        LOGGER.trace("POST /api/v1/group/recipe/create: {}", recipeDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.createRecipe(recipeDto.addOwner(owner));
@@ -124,7 +123,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("recipe/list")
     public List<RecipeListDto> getRecipesFromUser() {
-        LOGGER.info("GET /api/v1/group/recipe/list");
+        LOGGER.trace("GET /api/v1/group/recipe/list");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeMapper.recipeEntityListToListOfRecipeListDto(userService.getRecipesByUserEmail(authentication.getName()));
@@ -133,7 +132,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("recipe/likedlist")
     public List<RecipeListDto> getLikedRecipesFromUser() {
-        LOGGER.info("GET /api/v1/group/recipe/likedlist");
+        LOGGER.trace("GET /api/v1/group/recipe/likedlist");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeMapper.recipeEntityListToListOfRecipeListDto(
@@ -143,7 +142,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PutMapping("recipe/update")
     public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
-        LOGGER.info("PUT /api/v1/group/recipe/update: {}", toUpdate);
+        LOGGER.trace("PUT /api/v1/group/recipe/update: {}", toUpdate);
 
         return recipeService.updateRecipe(toUpdate);
     }
@@ -151,7 +150,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PutMapping("recipe/{recipeId}/like")
     public RecipeDetailDto likeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
-        LOGGER.info("PUT /api/v1/group/recipe/{}/like", recipeId);
+        LOGGER.trace("PUT /api/v1/group/recipe/{}/like", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeService.likeRecipe(recipeId, userService.findApplicationUserByEmail(authentication.getName()));
@@ -160,7 +159,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PutMapping("recipe/{recipeId}/dislike")
     public RecipeDetailDto dislikeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
-        LOGGER.info("PUT /api/v1/group/recipe/{}/dislike", recipeId);
+        LOGGER.trace("PUT /api/v1/group/recipe/{}/dislike", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeService.dislikeRecipe(recipeId, userService.findApplicationUserByEmail(authentication.getName()));
@@ -169,7 +168,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("recipe/global")
     public List<RecipeGlobalListDto> getPublicRecipeOrderedByLikes() {
-        LOGGER.info("GET /api/v1/group/recipe/global");
+        LOGGER.trace("GET /api/v1/group/recipe/global");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return recipeService.getPublicRecipeOrderedByLikes(userService.findApplicationUserByEmail(authentication.getName()));
     }
@@ -178,7 +177,7 @@ public class RecipeEndpoint {
     @DeleteMapping("recipe/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRecipe(@PathVariable long id) {
-        LOGGER.info("DELETE /api/v1/group/recipe/{}", id);
+        LOGGER.trace("DELETE /api/v1/group/recipe/{}", id);
 
         recipeService.deleteRecipe(id);
     }
@@ -187,7 +186,7 @@ public class RecipeEndpoint {
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PutMapping("recipe/{recipeId}/pantry/{groupId}/{portion}")
     public List<String> removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId, @PathVariable int portion) {
-        LOGGER.info("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
+        LOGGER.trace("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
 
 
         return pantryService.removeRecipeIngredientsFromPantry(groupId, recipeId, portion);

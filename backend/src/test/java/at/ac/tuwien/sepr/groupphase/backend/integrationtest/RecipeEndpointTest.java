@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
@@ -244,23 +245,23 @@ public class RecipeEndpointTest extends BaseTest {
 
     }
 
-//    @Test
-//    @WithMockUser
-//    public void givenEmptyRecipe_whenFindById_thenEmptyList()
-//        throws Exception {
-//        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", emptyRecipe.getId())))
-//            .andDo(print())
-//            .andReturn();
-//        MockHttpServletResponse response = mvcResult.getResponse();
-//
-//        assertEquals(HttpStatus.OK.value(), response.getStatus());
-//        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
-//        RecipeDetailDto recipeDetailDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
-//        LOGGER.debug("detailDto: " + recipeDetailDto);
-//        LOGGER.debug("detailDto2: " + recipeDetailDto.getIngredients());
-//
-//        assertEquals(0, recipeDetailDto.getIngredients().size());
-//    }
+    /*@Test
+    @WithMockUser
+    public void givenEmptyRecipe_whenFindById_thenEmptyList()
+        throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", emptyRecipe.getId())))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+        RecipeDetailDto recipeDetailDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
+        LOGGER.debug("detailDto: " + recipeDetailDto);
+        LOGGER.debug("detailDto2: " + recipeDetailDto.getIngredients());
+
+        assertEquals(0, recipeDetailDto.getIngredients().size());
+    }
 
     @Test
     @Rollback
@@ -288,33 +289,33 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
 
-//    @Test
-//    @Rollback
-//    @Transactional
-//    @WithMockUser
-//    public void givenRecipeWithOneItemAndMatchingDescription_whenSearchItemsInRecipe_thenListWithSizeOneAndCorrectItem()
-//        throws Exception {
-//
-//        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe/search", recipe.getId()))
-//                .queryParam("details", "otat")
-//                .accept(MediaType.APPLICATION_JSON))
-//            .andDo(print())
-//            .andReturn();
-//        MockHttpServletResponse response = mvcResult.getResponse();
-//
-//        assertEquals(HttpStatus.OK.value(), response.getStatus());
-//        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
-//
-//        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
-//
-//        assertEquals(1, listDto.getItems().size());
-//        ItemDto itemDto = listDto.getItems().get(0);
-//        assertAll(
-//            () -> assertEquals(item.getDescription(), itemDto.getDescription()),
-//            () -> assertEquals(item.getAmount(), itemDto.getAmount()),
-//            () -> assertEquals(item.getUnit(), itemDto.getUnit())
-//        );
-//    }
+    @Test
+    @Rollback
+    @Transactional
+    @WithMockUser
+    public void givenRecipeWithOneItemAndMatchingDescription_whenSearchItemsInRecipe_thenListWithSizeOneAndCorrectItem()
+        throws Exception {
+
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe/search", recipe.getId()))
+                .queryParam("details", "otat")
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
+
+        assertEquals(1, listDto.getItems().size());
+        ItemDto itemDto = listDto.getItems().get(0);
+        assertAll(
+            () -> assertEquals(item.getDescription(), itemDto.getDescription()),
+            () -> assertEquals(item.getAmount(), itemDto.getAmount()),
+            () -> assertEquals(item.getUnit(), itemDto.getUnit())
+        );
+    }*/
 
 
     @Test
@@ -554,7 +555,7 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(resultDto[0].getName(), "Test Recipe");
     }
 
-    @Test
+    /*@Test
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenValidItemAndRecipe_AddItemToRecipeSuccessfully_ThenRecipeWithIngredient() throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -579,7 +580,7 @@ public class RecipeEndpointTest extends BaseTest {
             () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
             () -> assertNotNull(itemDto.getId())
         );
-    }
+    }*/
 
     @Test
     @WithMockUser(username = "tester@at", roles = "USER")

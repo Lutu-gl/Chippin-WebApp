@@ -156,36 +156,36 @@
 
 
           </a>
-          <a class="btn responsive-warning-button m-1"
+         <!-- <a class="btn responsive-warning-button m-1"
              (click)="selectIndexToEdit(i); selectEditItem(clone(ingredient))"
              data-bs-toggle="modal"
              data-bs-target="#edit-pantry-item-dialog-title"
              aria-label="Edit item">
             <i class="bi bi-pencil"></i>
-          </a>
+          </a>-->
         </div>
-        <div class="col-8 align-content-center">
+        <!--<div class="col-8 align-content-center">
           <div class="row">
-            <!--small-->
-            <a class="btn btn-sm responsive-success-button col m-1"
+            small-->
+            <!--<a class="btn btn-sm responsive-success-button col m-1"
                [text]="getUnitStepString(getUnitStep(ingredient.unit, false, true))"
                (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, true))"></a>
-            <!--large-->
-            <a class="btn btn-sm responsive-success-button col m-1"
+            large-->
+            <!--<a class="btn btn-sm responsive-success-button col m-1"
                [text]="getUnitStepString(getUnitStep(ingredient.unit, true, true))"
                (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, true))"></a>
           </div>
           <div class="row">
-            <!--small-->
-            <a class="btn btn-sm responsive-danger-button col m-1"
+            small-->
+            <!--<a class="btn btn-sm responsive-danger-button col m-1"
                [text]="getUnitStepString(getUnitStep(ingredient.unit, false, false))"
                (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, false))"></a>
-            <!--large-->
-            <a class="btn btn-sm responsive-danger-button col m-1"
+            large-->
+            <!--<a class="btn btn-sm responsive-danger-button col m-1"
                [text]="getUnitStepString(getUnitStep(ingredient.unit, true, false))"
                (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, false))"></a>
           </div>
-        </div>
+        </div>-->
       </td>
       <td>
         {{formatAmount(ingredient.amount)}}
