@@ -61,5 +61,14 @@ public interface BudgetService {
      */
     void deleteBudget(long groupId, long budgetId);
 
+    /**
+     * Find a specific Budget.
+     *
+     * @param groupId  the group of the budget
+     * @param budgetId the id of the budget
+     * @return the corresponding budget
+     */
+    Budget findByGroupIdAndBudgetId(long groupId, long budgetId);
+
     Budget resetBudget(Budget budget);
 }
