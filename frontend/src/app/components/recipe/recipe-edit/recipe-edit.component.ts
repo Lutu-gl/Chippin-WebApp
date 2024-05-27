@@ -26,7 +26,7 @@ export class RecipeEditComponent implements OnInit {
     isPublic: false,
     portionSize:1,
     likes:0,
-    dislikes:0
+    dislikes:0,
   };
   newIngredient: ItemCreateDto = {
     amount: 0,
@@ -34,9 +34,10 @@ export class RecipeEditComponent implements OnInit {
     description: ""
   };
   itemToEdit: ItemCreateDto = undefined;
-  selectedIndexToDelete: number;
+  selectedIdToDelete: number;
+  selectedIndexToDelete:number;
   selectedIndexToEdit:number;
-  deleteWhatString: string;
+  deleteWhatString: String;
   recipeId:number;
 
 
@@ -91,7 +92,7 @@ export class RecipeEditComponent implements OnInit {
 
   onIngredientSubmit(form: NgForm) {
     console.log('is form valid?', form.valid);
-    //if (form.valid) {
+    if (form.valid) {
     this.service.createItem(this.recipeId,this.newIngredient)
       .subscribe({
         next: data => {
@@ -106,13 +107,23 @@ export class RecipeEditComponent implements OnInit {
       unit: Unit.Piece,
       description: ""}
 
-    //}
+    }
   }
 
-  public removeIngredient(index: number) {
-    this.service.deleteIngredient(this.recipeId,this.recipe.ingredients[index].id);
-    this.recipe.ingredients.splice(index, 1);
-    this.selectedIndexToDelete=undefined;
+  public deleteIngredient(id: number, index:number) {
+    this.recipe.ingredients.splice(index,1)
+    this.service.deleteIngredient(this.recipeId,id).subscribe({
+      next: res => {
+        console.log('deleted recipe: ', res);
+
+      },
+      error: err => {
+        this.printError(err);
+      }
+    });
+
+
+
   }
 
 
@@ -161,9 +172,11 @@ export class RecipeEditComponent implements OnInit {
     }
   }
 
-  selectIndexToDelete(index:number): void {
+  selectIdToDelete(id:number, index:number): void {
+    this.selectedIdToDelete=id;
     this.selectedIndexToDelete=index;
-    this.deleteWhatString=this.recipe.ingredients[index].description.toString();
+    //this.deleteWhatString=this.recipe.ingredients[id].description.toString();
+    this.deleteWhatString="Ingredient";
   }
 
   selectIndexToEdit(index:number):void {
@@ -177,6 +190,29 @@ export class RecipeEditComponent implements OnInit {
     return parseFloat(fNumber.toFixed(1));
   }
 
+  deleteRecipe() {
+    this.service.deleteRecipe(this.recipe.id);
+    this.notification.success("Recipe successfully deleted");
+    this.router.navigate(['/recipe']);
+  }
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.notification.error(`${error.error.errors[i]}`);
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.notification.error(`${error.error.message}`);
+    } else {
+      window.alert(error);
+      console.log(error);
+      if(error.status !== 401) {
+        const errorMessage = error.status === 0
+          ? 'Is the backend up?'
+          : error.message.message;
+        this.notification.error(errorMessage, 'Could not connect to the server.');
+      }
+    }
+  }
 
 
 

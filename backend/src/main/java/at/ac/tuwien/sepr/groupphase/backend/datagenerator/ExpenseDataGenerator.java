@@ -129,7 +129,8 @@ public class ExpenseDataGenerator implements DataGenerator {
 
                 Map<ApplicationUser, Double> participants = new HashMap<>();
                 for (int j = 0; j < 3; j++) {
-                    participants.put(participantsList.get(j), splits[j]);
+                    double roundedSplit = roundToTwoDecimalPlaces(splits[j]);
+                    participants.put(participantsList.get(j), roundedSplit);
                 }
 
                 Expense expense = Expense.builder()
@@ -160,6 +161,9 @@ public class ExpenseDataGenerator implements DataGenerator {
         return new double[]{split1, split2, split3};
     }
 
+    private double roundToTwoDecimalPlaces(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
 
     @Override
     public void cleanData() {

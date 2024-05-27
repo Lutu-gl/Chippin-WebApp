@@ -4,7 +4,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto,
+  ShoppingListDetailDto, ShoppingListItemDto,
   ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
@@ -109,6 +109,29 @@ export class ShoppingListService {
    * @param itemToEdit the item to add
    */
   addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
-    return this.httpClient.post(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
+
+  /**
+   * Moves a shopping list item to the pantry.
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   * @param itemId the id of the item
+   */
+  moveShoppingListItemToPantry(userId: number, shoppingListId: number, itemId: number) {
+    return this.httpClient.put<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${itemId}/pantry`, null);
+  }
+
+  /**
+   * Moves all shopping list items to the pantry.
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   */
+  moveShoppingListItemsToPantry(userId: number, shoppingListId: number) {
+    return this.httpClient.put<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/pantry`, null);
+  }
+
+
 }

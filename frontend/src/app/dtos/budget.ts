@@ -5,5 +5,5 @@ export interface BudgetDto {
     name: string
     amount: number
     category: any
-    alreadySpend?: number
+    alreadySpent?: number
   }

@@ -4,45 +4,17 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 
 import java.util.List;
 
 public interface RecipeService {
 
-    /**
-     * Find all items in a recipe.
-     *
-     * @param recipeId the recipe id
-     * @return ordered list of all items in the recipe
-     */
-    List<Item> findAllIngredients(long recipeId);
-
-
-    /**
-     * Find the name for the corresponding id.
-     *
-     * @param recipeId the recipe id
-     * @return the name of the recipe
-     */
-    String getName(long recipeId);
-
-    /**
-     * Find the description for the corresponding id.
-     *
-     * @param recipeId the recipe id
-     * @return the description of the recipe
-     */
-    String getDescription(long recipeId);
-
-    /**
-     * Find the isPublic for the corresponding id.
-     *
-     * @param recipeId the recipe id
-     * @return the isPublic of the recipe
-     */
-    boolean getIsPublic(long recipeId);
 
     /**
      * Find all items in a recipe where {@code description} is a substring of the item description ordered by the item id.
@@ -70,14 +42,6 @@ public interface RecipeService {
      */
     void deleteItem(long recipeId, long itemId);
 
-    /**
-     * Updates an item in a recipe.
-     *
-     * @param item     the item to update
-     * @param recipeId the recipe id
-     * @return the updated item
-     */
-    Item updateItem(ItemDto item, long recipeId);
 
     /**
      * Create a new recipe.
@@ -117,5 +81,57 @@ public interface RecipeService {
      *
      * @return the list of all public recipes
      */
-    List<RecipeListDto> getPublicRecipeOrderedByLikes();
+    List<RecipeGlobalListDto> getPublicRecipeOrderedByLikes(ApplicationUser user);
+
+    /**
+     * Delete a recipe from the database.
+     *
+     * @param id the id of the recipe to delete
+     */
+    void deleteRecipe(long id);
+
+    /**
+     * Like a recipe.
+     * If a recipe is already disliked, remove the dislike
+     *
+     * @param recipeId Update the recipe to increase the like count
+     * @param user     the user who sent the like
+     */
+    RecipeDetailDto likeRecipe(long recipeId, ApplicationUser user) throws AlreadyRatedException;
+
+    /**
+     * Dislike a recipe.
+     * If a recipe is already liked, remove the like
+     *
+     * @param recipeId Update the recipe to increase the dislike count
+     * @param user     the user who sent the dislike
+     */
+    RecipeDetailDto dislikeRecipe(long recipeId, ApplicationUser user) throws AlreadyRatedException;
+
+    /**
+     * Return a list of recipes from user whose name matches the searchparams.
+     *
+     * @param owner        the owner whose recipes should be returned
+     * @param searchParams the string that should find a name
+     * @return a list of all matching recipes
+     */
+    List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams);
+
+
+    /**
+     * Return a list of recipes whose name matches the searchparams.
+     *
+     * @param searchParams the string that should find a name
+     * @return a list of all matching recipes
+     */
+    List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams);
+
+    /**
+     * Getting the recipes the user has liked.
+     *
+     * @param user the user
+     * @return List of recipes from the user
+     */
+    List<Recipe> getLikedRecipesByUserEmail(ApplicationUser user);
+
 }

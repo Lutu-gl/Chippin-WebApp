@@ -40,6 +40,7 @@ public class ExpenseEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public ExpenseDetailDto getById(@PathVariable long id) {
+        LOGGER.trace("getById({})", id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return expenseService.getById(id, authentication.getName());
     }
@@ -48,6 +49,7 @@ public class ExpenseEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public ExpenseCreateDto createExpense(@Valid @RequestBody ExpenseCreateDto expenseCreateDto) throws ValidationException, ConflictException { // TODO check if this correct
+        LOGGER.trace("createExpense({})", expenseCreateDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return expenseService.createExpense(expenseCreateDto, authentication.getName());
     }
@@ -56,6 +58,7 @@ public class ExpenseEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{id}")
     public ExpenseCreateDto updateExpense(@PathVariable(name = "id") Long expenseId, @Valid @RequestBody ExpenseCreateDto expenseCreateDto) throws ValidationException, ConflictException {
+        LOGGER.trace("updateExpense({})", expenseCreateDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return expenseService.updateExpense(expenseId, expenseCreateDto, authentication.getName());
     }
@@ -64,6 +67,7 @@ public class ExpenseEndpoint {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void deleteExpense(@PathVariable(name = "id") Long expenseId) throws ConflictException {
+        LOGGER.trace("deleteExpense({})", expenseId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         expenseService.deleteExpense(expenseId, authentication.getName());
     }
@@ -72,6 +76,7 @@ public class ExpenseEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/recover/{id}")
     public ExpenseCreateDto recoverExpense(@PathVariable(name = "id") Long expenseId) throws ConflictException {
+        LOGGER.trace("recoverExpense({})", expenseId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return expenseService.recoverExpense(expenseId, authentication.getName());
     }

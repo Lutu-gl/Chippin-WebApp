@@ -4,9 +4,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryI
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +36,7 @@ public class PantryServiceImpl implements PantryService {
     private final PantryRepository pantryRepository;
     private final ItemService itemService;
     private final RecipeRepository recipeRepository;
+    private final ItemMapper itemMapper;
     private final RecipeMapper recipeMapper;
 
     @Override
@@ -119,6 +123,33 @@ public class PantryServiceImpl implements PantryService {
     @Override
     public List<RecipeListDto> getRecipes(Long pantryId) {
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipeByPantry(pantryId));
+    }
+
+    @Override
+    @Transactional
+    public List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion) {
+        List<PantryItem> pantryItems = pantryItemRepository.findMatchingRecipeItemsInPantry(groupId, recipeId);
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
+        List<Item> recipeItems = optionalRecipe.get().getIngredients();
+        double ratio = (double) portion / optionalRecipe.get().getPortionSize();
+        List<String> changedItems = new ArrayList<>();
+        Item currentRecipeItem;
+        for (PantryItem pantryItem : pantryItems) {
+            Optional<Item> optional = recipeItems.stream()
+                .filter(o ->
+                    o.getDescription().equals(pantryItem.getDescription())
+                        && o.getUnit().equals(pantryItem.getUnit())).findFirst();
+            if (optional.isPresent()) {
+                currentRecipeItem = optional.get();
+                //If Amount would be negative set it to 0, otherwise reduce amount by recipe amount * ratio
+                pantryItem.setAmount(Math.max((int) Math.ceil(pantryItem.getAmount() - (currentRecipeItem.getAmount() * ratio)), 0));
+                changedItems.add(pantryItem.getDescription());
+                updateItem(itemMapper.pantryItemToPantryItemDto(pantryItem), groupId);
+
+            }
+        }
+
+        return changedItems;
     }
 
 }

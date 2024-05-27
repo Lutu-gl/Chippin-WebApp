@@ -4,11 +4,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
 import java.util.Set;
 
 public interface UserService extends UserDetailsService {
@@ -61,4 +63,14 @@ public interface UserService extends UserDetailsService {
      * @return Set of groups the user is part of
      */
     Set<GroupEntity> getGroupsByUserEmail(String email);
+
+    /**
+     * Getting the recipes the user has created.
+     *
+     * @param email email of the user
+     * @return List of recipes from the user
+     */
+    List<Recipe> getRecipesByUserEmail(String email);
+
+
 }

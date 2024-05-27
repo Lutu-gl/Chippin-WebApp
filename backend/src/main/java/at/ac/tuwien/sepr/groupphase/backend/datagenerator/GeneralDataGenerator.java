@@ -25,6 +25,7 @@ public class GeneralDataGenerator implements DataGenerator {
     private final ActivityDataGenerator activityDataGenerator;
     private final PaymentDataGenerator paymentDataGenerator;
     private final ShoppingListDataGenerator shoppingListDataGenerator;
+    private final BudgetDataGenerator budgetDataGenerator;
 
     @PostConstruct
     public void generateData() {
@@ -39,6 +40,7 @@ public class GeneralDataGenerator implements DataGenerator {
         expenseDataGenerator.generateData();
         paymentDataGenerator.generateData();
         activityDataGenerator.generateData();
+        budgetDataGenerator.generateData();
 
         shoppingListDataGenerator.generateData();
         LOGGER.debug("finished generating all data");
@@ -46,6 +48,7 @@ public class GeneralDataGenerator implements DataGenerator {
 
     public void cleanData() {
         LOGGER.debug("cleaning all data");
+        budgetDataGenerator.cleanData();
         activityDataGenerator.cleanData();
         paymentDataGenerator.cleanData();
         expenseDataGenerator.cleanData();
@@ -55,6 +58,7 @@ public class GeneralDataGenerator implements DataGenerator {
         itemDataGenerator.cleanData();
         friendshipDataGenerator.cleanData();
         groupDataGenerator.cleanData();
+
         userDataGenerator.cleanData();
         LOGGER.debug("finished cleaning all data");
     }

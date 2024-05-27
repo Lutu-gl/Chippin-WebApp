@@ -24,6 +24,9 @@ export class ExpenseListComponent implements OnChanges {
 
   onSearchChange(): void {
     this.fetchExpenses();
+  }
+
+  onSearchChange2(): void {
     this.fetchPayments();
   }
 
@@ -42,6 +45,7 @@ export class ExpenseListComponent implements OnChanges {
   fetchExpenses(): void {
     this.activityService.getExpenseActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
+        console.log(data);
         this.expenseList = data;
       },
       error: error => {
@@ -64,7 +68,7 @@ export class ExpenseListComponent implements OnChanges {
   }
 
   fetchPayments(): void {
-    this.activityService.getPaymentActivitiesFromGroup(this.groupId, null).subscribe({
+    this.activityService.getPaymentActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
         this.expenseList = data;
         console.log(data)
@@ -88,6 +92,19 @@ export class ExpenseListComponent implements OnChanges {
     });
   }
 
+  getBackgroundColor(color: string) {
+    switch(color) {
+      case "EXPENSE": return "#E0F7E0";
+      case "EXPENSE_UPDATE": return "#FFEB99";
+      case "EXPENSE_DELETE": return "#F7E0E0";
+      case "EXPENSE_RECOVER": return "#E0F7E0";
+      case "PAYMENT": return "#E0F7E0";
+      case "PAYMENT_UPDATE": return "#FFEB99";
+      case "PAYMENT_DELETE": return "#F7E0E0";
+      case "PAYMENT_RECOVER": return "#E0F7E0";
+      default: return "";
+    }
+  }
 
   expenseList: ActivityDetailDto[] = [];
 

@@ -38,13 +38,21 @@ export class AddFriendComponent implements OnInit {
         this.notification.success("Send friend request successfully!");
         this.router.navigate(["/"])
       },
-      error: (error) => {
-        if (error.status === 404) {
-          this.notification.error(error.error);
-        } else if (error.error.detail) {
-          this.notification.error(error.error.detail);
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          //this.notification.error(`${error.error.errors.join('. \n')}`);
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.notification.error(`${error.error.errors[i]}`);
+          }
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.notification.error(`${error.error.message}`);
+        } else if (error && error.error.detail) {
+          this.notification.error(`${error.error.detail}`);
+        } else if(error && error.error) {
+          this.notification.error(`${error.error}`);
         } else {
-          this.notification.error("Error occured!");
+          this.notification.error('Operation failed');
+          console.error('Operation failed');
         }
       }
     });

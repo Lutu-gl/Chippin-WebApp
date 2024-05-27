@@ -1,0 +1,21 @@
+button {
+  margin-right: 5px;
+  margin-left: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.liked {
+  background-color: green;
+  color: white;
+}
+
+.disliked {
+  background-color: red;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

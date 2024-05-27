@@ -8,15 +8,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.context.ApplicationContext;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class RecipeDetailDto {
 
     private long id;
@@ -35,12 +39,10 @@ public class RecipeDetailDto {
 
     private int dislikes = 0;
 
-    //private ApplicationUser owner;
+    private ApplicationUser owner;
 
+    private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
-    public int getScore() {
-        return likes - dislikes;
-    }
-
+    private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
 
 }

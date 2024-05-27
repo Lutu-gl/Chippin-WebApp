@@ -107,6 +107,7 @@ public class ShoppingListItemTest extends BaseTest {
         var itemCreateDto = ItemCreateDto.builder()
             .description("Test Item description")
             .unit(Unit.Piece)
+            .amount(1)
             .build();
 
         // Add the item to the shopping list

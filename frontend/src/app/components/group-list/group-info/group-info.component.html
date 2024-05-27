@@ -17,15 +17,15 @@
   <br>
   <div class="h-52 overflow-y-auto overflow-x-hidden">
     <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
-      <div *ngIf="debt.membersDebts[userEmail] > 0"
+      <div *ngIf="debt.membersDebts[userEmail] >= 0.01"
            class="debt-list-item positive-debt d-flex align-items-center justify-content-between">
         <span>{{ userEmail }} owes you {{ debt.membersDebts[userEmail] | number:'1.2-2' }} €</span>
         <button type="button" class="btn btn-secondary me-2 small-button invisible-button">Settle debts</button>
       </div>
-      <div *ngIf="debt.membersDebts[userEmail] < 0"
+      <div *ngIf="debt.membersDebts[userEmail] <= -0.01"
            class="debt-list-item negative-debt d-flex align-items-center justify-content-between">
         <span>You owe {{ userEmail }} {{ -debt.membersDebts[userEmail] | number:'1.2-2' }} €</span>
-        <button type="button" class="btn btn-secondary me-2 small-button" [routerLink]="['payment', 'create', userEmail, -debt.membersDebts[userEmail]]">Settle debts</button>
+        <button type="button" class="btn btn-secondary me-2 small-button" [routerLink]="['payment', 'create', userEmail, parseFloat((-debt.membersDebts[userEmail]).toFixed(2))]">Settle debts</button>
       </div>
     </ng-container>
   </div>

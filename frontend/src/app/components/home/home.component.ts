@@ -4,9 +4,10 @@ import {GroupListDto} from "../../dtos/group";
 import {GroupService} from "../../services/group.service";
 import {ToastrService} from "ngx-toastr";
 import {ItemListDetailDto} from "../../dtos/itemlist";
-import {RecipeDetailDto} from "../../dtos/recipe";
+import {RecipeDetailDto, RecipeListDto} from "../../dtos/recipe";
 import { FriendshipService } from 'src/app/services/friendship.service';
 import { AcceptFriendRequest } from 'src/app/dtos/friend-request';
+import {RecipeService} from "../../services/recipe.service";
 
 @Component({
   selector: 'app-home',
@@ -19,11 +20,13 @@ export class HomeComponent implements OnInit {
     public authService: AuthService,
     private groupService: GroupService,
     private friendshipService: FriendshipService,
+    private recipeService: RecipeService,
     private notification: ToastrService,
   ) { }
   groups: GroupListDto[] = [];
   incomingFriendRequests: string[] = [];
   friends: string[] = [];
+  recipes: RecipeListDto[] = [];
 
   ngOnInit(): void {
     console.log("logged in? ", this.authService.isLoggedIn());
@@ -54,6 +57,16 @@ export class HomeComponent implements OnInit {
           this.printError(error);
         }
       });
+      this.recipeService.getRecipesFromUser().subscribe({
+        next: data => {
+          this.recipes = data;
+        },
+        error: error => {
+          this.printError(error);
+        }
+      });
+
+
     }
   }
 

@@ -53,13 +53,13 @@ public class Item {
     @Column
     @NotNull
     private Unit unit;
-    
-    @ManyToOne(cascade = CascadeType.ALL)
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "item_list_id")
     @JsonIgnore
     private ItemList itemList;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "recipe_id")
     @JsonIgnore
     private Recipe recipe;

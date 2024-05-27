@@ -1,0 +1,36 @@
+<h1>Recipes that you have liked</h1>
+
+<div class="d-flex flex-row w-auto">
+  <!--<span style="flex: 1"></span>
+  <a class="btn btn-secondary" routerLink="create" aria-label="New recipe">
+    <i class="bi bi-plus-lg"></i>
+    New Recipe
+  </a> -->
+</div>
+
+<div class="mt-2">
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th class="min-width">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let recipe of recipes" class="center-td">
+      <td>{{recipe.name}}</td>
+      <td>
+
+
+        <div class="btn-group">
+          <a class="btn btn-sm responsive-info-button "
+             [routerLink]="['/recipe', 'viewer', recipe.id]"
+             aria-label="Show recipe details">
+            <i class="bi bi-info"></i>
+          </a>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
