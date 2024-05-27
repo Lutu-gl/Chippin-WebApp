@@ -20,7 +20,6 @@ export class GroupInfoComponent implements OnInit {
     members: []
   };
 
-  budgets: BudgetDto[] = []
   debt: DebtGroupDetailDto
 
   constructor(
@@ -35,7 +34,6 @@ export class GroupInfoComponent implements OnInit {
 
   ngOnInit(): void {
     this.getGroup();
-    this.getGroupBudgets();
     this.getDebt();
   }
 
@@ -45,14 +43,6 @@ export class GroupInfoComponent implements OnInit {
       .subscribe(pGroup => {
         this.group = pGroup;
       });
-  }
-
-  getGroupBudgets(): void{
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.service.getGroupBudgets(id)
-      .subscribe(budgets =>{
-        this.budgets = budgets;
-      })
   }
 
   getDebt(): void {

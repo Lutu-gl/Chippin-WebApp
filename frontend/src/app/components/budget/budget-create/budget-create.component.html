@@ -1,0 +1,56 @@
+<div class="container">
+    <h1 class="display-1">{{heading}}</h1>
+    <form #budgetForm="ngForm" (ngSubmit)="addBudget()">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Budget Name" name="name" [(ngModel)]="newBudget.name" class="form-control" required [disabled]="!modeIsCreate()">
+        </div>
+        <div class="form-group">
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" placeholder="Budget Amount" name="amount" [(ngModel)]="newBudget.amount" class="form-control" required [disabled]="!modeIsCreate()">
+        </div>
+        
+        <div *ngIf="!modeIsCreate()" class="form-group">
+          <label for="alreadySpent">Already Spent:</label>
+          <input type="number" id="alreadySpent" name="alreadySpent" [(ngModel)]="newBudget.alreadySpent" class="form-control" disabled>
+        </div>
+
+        <div class="mb-2 col-lg-6">
+          <label for="budgetCategory">
+            Category
+          </label>
+          <div class="col-md-9 col-lg-8">
+            <app-autocomplete name="categorySelection" textInputClass="form-control"
+              [suggestions]="categorySuggestions" [formatModel]="formatCategory"
+              [(ngModel)]="newBudget.category" (ngModelChange)="categorySelected($event)" [disabled]="!modeIsCreate()">
+            </app-autocomplete>
+          </div>
+        </div>
+        
+
+          
+        <button *ngIf="modeIsCreate()" type="submit" class="btn btn-primary" [disabled]="!budgetForm.valid">Add Budget</button>
+
+        <div *ngIf="modeIsInfo()" class="d-flex flex-row justify-content-start align-items-center mt-4">
+          <!-- Delete Budget -->
+          <div class="me-2">
+            <!--
+              TODO: Add this to button
+              data-bs-toggle="modal"
+              data-bs-target="#confirmDeleteDialog" 
+              TODO: Remove (click)="deleteExistingExpense()" from button
+            -->
+            <button 
+              type="button"
+              class="btn btn-danger"
+              (click)="deleteExistingExpense()"
+            >
+              <i class="bi bi-trash"></i>
+              Delete budget
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+</div>

@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Max;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 public class RecipeCreateWithoutUserDto {
 
 
@@ -56,7 +58,7 @@ public class RecipeCreateWithoutUserDto {
             .portionSize(portionSize)
             .build();
 
-        //toCreate.setOwner(user);
+        toCreate.setOwner(user);
         return toCreate;
     }
 }

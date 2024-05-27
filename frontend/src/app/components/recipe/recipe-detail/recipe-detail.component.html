@@ -57,32 +57,46 @@
   </div>
 </div>
   <div class="row">
-    <div class="mt-4 d-flex flex-row">
-      <button type="button"
-              class="btn btn-danger"
-              data-bs-toggle="modal"
-              data-bs-target="#confirm-delete-dialog-title"
-      >
-        <i class="bi bi-trash"></i>
-        Delete
-      </button>
+    <div class="mt-4 d-flex justify-content-between align-items-center">
 
-      <app-confirm-delete-dialog
-        id="confirm-delete-dialog-title"
-        aria-labelledby="confirm-delete-dialog-title"
-        tabindex="-1"
-        [deleteWhat]="recipe.name"
-        (confirm)="deleteRecipe()"
-      >
-      </app-confirm-delete-dialog>
+      <div class="d-flex">
+        <button *ngIf="mode === RecipeDetailMode.owner"
+                type="button"
+                class="btn btn-danger me-2"
+                data-bs-toggle="modal"
+                data-bs-target="#confirm-delete-dialog-title">
+          <i class="bi bi-trash"></i>
+          Delete
+        </button>
+        <app-confirm-delete-dialog
+          [deleteWhat]="recipe.name"
+          (confirm)="deleteRecipe()">
+        </app-confirm-delete-dialog>
 
+        <button *ngIf="mode === RecipeDetailMode.owner"
+                type="button"
+                class="btn btn-primary"
+                routerLink="/recipe/edit/{{recipeId}}">
+          Edit
+        </button>
+      </div>
 
-      <span class="flex-grow-1"></span>
-      <button type="button"
-              class="btn btn-primary"
-              routerLink="/recipe/{{recipeId}}/edit">
-        Edit
-      </button>
+      <div class="d-flex align-items-center">
+        <label for="portionSize" class="me-2">Which Pantry do you want to use:</label>
+        <app-autocomplete textInputClass="form-control"
+          [suggestions]="getGroupSuggestions"
+          [formatModel]="formatGroup"
+          [(ngModel)]="group">
+        </app-autocomplete>
+        <label for="portionSize" class="me-2">Portion Size:</label>
+        <input type="number" id="portionSize" [(ngModel)]="portion" (ngModelChange)="updatePortion()" class="form-control me-2" style="width: 100px;"/>
+        <button type="button"
+                class="btn btn-primary"
+                (click)="removeRecipeIngredientsFromPantry()">
+          Cook Recipe
+        </button>
+      </div>
+
     </div>
 <p></p>
     <table class="table table-hover">

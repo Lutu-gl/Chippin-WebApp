@@ -32,8 +32,6 @@ export class GroupCreateComponent implements OnInit {
   members: (UserSelection | null)[] = new Array(0);
   dummyMemberSelectionModel: unknown; // Just needed for the autocomplete
   budgets: BudgetDto[] = [];
-  newBudget: BudgetDto = {
-     name: '', amount: 0 };
 
   constructor(
       private service: GroupService,
@@ -164,21 +162,32 @@ export class GroupCreateComponent implements OnInit {
       })
   }
 
-  addBudget(): void {
-    console.log(this.newBudget.name)
-    console.log(this.newBudget.amount)
-    if (this.newBudget.name && this.newBudget.amount > 0) {
-      this.budgets.push(this.newBudget);
-      this.newBudget = { name: '', amount: 0 };
-    } else {
-      this.notification.error('Please provide a valid budget name and amount.');
-    }
-  }
+  // addBudget(): void {
+  //   console.log(this.newBudget.name)
+  //   console.log(this.newBudget.amount)
+  //   if (this.newBudget.name && this.newBudget.amount > 0) {
+  //     this.budgets.push(this.newBudget);
+  //     this.newBudget = { name: '', amount: 0 };
+  //   } else {
+  //     this.notification.error('Please provide a valid budget name and amount.');
+  //   }
+  // }
 
-  removeBudget(index: number): void {
-    //only in frontend
-    this.budgets.splice(index, 1);
-  }
+  // removeBudget(index: number): void {
+  //   //this.budgets.splice(index, 1);
+
+  //   this.service.deleteBudget(this.group.id, this.budgets[index].id).subscribe({
+  //     next: () => {
+  //       this.budgets.splice(index, 1);
+  //       this.notification.success('Budget successfully deleted.');
+  //     },
+  //     error: (err) => {
+  //       console.error('Error deleting budget', err);
+  //       this.notification.error('Failed to delete budget. Please try again.');
+  //     }
+  //   });
+
+  // }
 
 
   public dynamicCssClassesForInput(input: NgModel): any {

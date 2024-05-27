@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.BudgetDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.BudgetMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
@@ -40,17 +40,24 @@ public class BudgetEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/{groupId}/budgets")
     public List<BudgetDto> getAllBudgets(@PathVariable long groupId) {
-        LOGGER.info("GET /api/v1/group/{}/budgets", groupId);
+        LOGGER.trace("GET /api/v1/group/{}/budgets", groupId);
         List<Budget> budgets = budgetService.findAllByGroupId(groupId);
         return budgetMapper.budgetListToDtoList(budgets);
     }
 
+    @Secured("ROLE_USER")
+    @GetMapping("/{groupId}/budget/{budgetId}")
+    public BudgetDto getBudgetById(@PathVariable long groupId, @PathVariable long budgetId) {
+        LOGGER.trace("GET /api/v1/group/{}/budget/{}", groupId, budgetId);
+        Budget budget = budgetService.findByGroupIdAndBudgetId(groupId, budgetId);
+        return budgetMapper.budgetToDto(budget);
+    }
 
     @Secured("ROLE_USER")
     @PostMapping("/{groupId}/budget")
     @ResponseStatus(HttpStatus.CREATED)
     public BudgetDto createBudget(@PathVariable long groupId, @Valid @RequestBody BudgetCreateDto budgetCreateDto) {
-        LOGGER.info("POST /api/v1/group/{}/budget", groupId);
+        LOGGER.trace("POST /api/v1/group/{}/budget", groupId);
         //Budget budget = budgetMapper.budgetCreateDtoToBudget(budgetCreateDto);
         return budgetMapper.budgetToDto(budgetService.createBudget(budgetCreateDto, groupId));
     }
@@ -58,7 +65,7 @@ public class BudgetEndpoint {
     @Secured("ROLE_USER")
     @PutMapping("/{groupId}/budget/{budgetId}")
     public BudgetDto updateBudget(@PathVariable long groupId, @PathVariable long budgetId, @Valid @RequestBody BudgetDto budgetDto) {
-        LOGGER.info("PUT /api/v1/group/{}/budget/{}", groupId, budgetId);
+        LOGGER.trace("PUT /api/v1/group/{}/budget/{}", groupId, budgetId);
         return budgetMapper.budgetToDto(budgetService.updateBudget(budgetDto, groupId));
     }
 
@@ -66,7 +73,7 @@ public class BudgetEndpoint {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{groupId}/budget/{budgetId}")
     public void deleteBudget(@PathVariable long groupId, @PathVariable long budgetId) {
-        LOGGER.info("DELETE /api/v1/group/{}/budget/{}", groupId, budgetId);
+        LOGGER.trace("DELETE /api/v1/group/{}/budget/{}", groupId, budgetId);
         budgetService.deleteBudget(groupId, budgetId);
     }
 }
