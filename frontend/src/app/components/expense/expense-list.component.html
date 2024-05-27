@@ -23,6 +23,24 @@
       New Expense
     </a>
   </div>
+
+  <div class="d-flex flex-row w-auto align-items-center" *ngIf="activityType === ActivityType.payment">
+    <!-- Suchkriterien -->
+    <div class="d-flex flex-row align-items-center mr-3">
+      <div class="form-group mr-2 mb-0">
+        <div class="input-group mr-2">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchText2" class="form-control" [(ngModel)]="searchCriteria.search" placeholder="Search text" (change)="onSearchChange2()">
+        </div>
+      </div>
+      <div class="form-group mr-2 mb-0">
+        <input type="date" id="dateFrom2" class="form-control mr-2" [(ngModel)]="searchCriteria.from" (change)="onSearchChange2()">
+      </div>
+      <div class="form-group mr-2 mb-0">
+        <input type="date" id="dateTo2" class="form-control mr-2" [(ngModel)]="searchCriteria.to" (change)="onSearchChange2()">
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="d-flex flex-column h-full">
@@ -32,7 +50,9 @@
         <a [routerLink]="['/expenses', 'info', activity.expenseId]" class="no-underline text-black">
           <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
         flex justify-between items-center
-        hover:bg-slate-100 hover:cursor-pointer">
+        hover:bg-slate-100 hover:cursor-pointer"
+          [ngStyle]="{ 'background-color': getBackgroundColor(activity.category) }"
+          >
             <div>{{activity.description}}</div>
           </div>
         </a>
@@ -42,7 +62,9 @@
         <a [routerLink]="['payment', activity.paymentId, 'info']" class="no-underline text-black">
           <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
         flex justify-between items-center
-        hover:bg-slate-100 hover:cursor-pointer">
+        hover:bg-slate-100 hover:cursor-pointer"
+             [ngStyle]="{ 'background-color': getBackgroundColor(activity.category) }"
+          >
             <div>{{activity.description}}</div>
           </div>
         </a>
