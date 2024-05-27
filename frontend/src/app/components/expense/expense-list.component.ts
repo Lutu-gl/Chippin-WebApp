@@ -24,6 +24,9 @@ export class ExpenseListComponent implements OnChanges {
 
   onSearchChange(): void {
     this.fetchExpenses();
+  }
+
+  onSearchChange2(): void {
     this.fetchPayments();
   }
 
@@ -65,7 +68,7 @@ export class ExpenseListComponent implements OnChanges {
   }
 
   fetchPayments(): void {
-    this.activityService.getPaymentActivitiesFromGroup(this.groupId, null).subscribe({
+    this.activityService.getPaymentActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
         this.expenseList = data;
         console.log(data)
