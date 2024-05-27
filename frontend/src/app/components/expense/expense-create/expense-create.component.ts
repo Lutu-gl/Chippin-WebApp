@@ -76,9 +76,9 @@ export class ExpenseCreateComponent implements OnInit {
       } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
         this.prepareWholeExpense();
       }
-    
+
     });
-    
+
   }
 
   private prepareGroupOnCreate(): void {
@@ -115,7 +115,7 @@ export class ExpenseCreateComponent implements OnInit {
           this.expense.payerEmail = data.payerEmail;
           this.expense.groupId = data.group.id;
           this.expense.participants = data.participants;
-          
+
           this.group = data.group;
 
           this.dummyCategorySelectionModel = data.category;
@@ -133,7 +133,7 @@ export class ExpenseCreateComponent implements OnInit {
           });
 
           this.expenseDeleted = data.deleted;
-          
+
         },
         error: error => {
           console.error(error);
@@ -208,7 +208,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => member.percentage = (member.percentage / this.expense.amount) * 100);
+    this.members.forEach(member => Math.round(member.percentage = (member.percentage / this.expense.amount) * 100));
   }
 
   public changeToAmountMode(event: Event): void {
@@ -220,7 +220,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => member.percentage = this.expense.amount * (member.percentage / 100));
+    this.members.forEach(member => Math.round(member.percentage = this.expense.amount * (member.percentage / 100)));
   }
 
   public groupSelected(group: GroupDto) {
@@ -289,7 +289,7 @@ export class ExpenseCreateComponent implements OnInit {
     } else if (this.mode === ExpenseCreateEditMode.edit) {
       this.editExistingExpense(this.expenseId, submitExpense);
     }
-    
+
   }
 
   private createNewExpense(expense: ExpenseCreateDto): void {
@@ -299,8 +299,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(["/group", data.groupId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not create expense!");
+        this.printError(error);
       }
     });
   }
@@ -312,8 +311,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(['/expenses', 'info', expenseId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not edit expense!");
+        this.printError(error);
       }
     })
   }
@@ -325,8 +323,7 @@ export class ExpenseCreateComponent implements OnInit {
         this.router.navigate(['/group', this.expense.groupId]);
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not delete expense!");
+        this.printError(error);
       }
     })
   }
@@ -339,13 +336,44 @@ export class ExpenseCreateComponent implements OnInit {
         this.expenseDeleted = false;
       },
       error: error => {
-        console.error(error);
-        this.notification.error("Could not recover expense!");
+        this.printError(error);
       }
     })
   }
 
-  groupSuggestions = (input: string): Observable<GroupDto[]> => 
+  private printError(error): void {
+    console.log(error);
+    if (error && error.error && error.error.errors) {
+      //this.notification.error(`${error.error.errors.join('. \n')}`);
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.notification.error(`${error.error.errors[i]}`);
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error.detail) {
+      this.notification.error(`${error.error.detail}`);
+    } else if (error && error.error) {
+      this.notification.error(`${error.error}`);
+    } else {
+      switch (this.mode) {
+        case ExpenseCreateEditMode.create:
+          console.error('Error making expense', error);
+          this.notification.error(`Creation of expense did not work!`);
+          break;
+        case ExpenseCreateEditMode.edit:
+          console.error('Error editing expense', error);
+          this.notification.error(`Edit of expense did not work!`);
+          break;
+        case ExpenseCreateEditMode.info:
+          console.error('Error on expense', error);
+          this.notification.error('Operation on expense did not work!');
+        default:
+          console.error('Unknown ExpenseCreateEditMode. Operation did not work!', this.mode);
+      }
+    }
+  }
+
+  groupSuggestions = (input: string): Observable<GroupDto[]> =>
     this.userService.getUserGroups();
 
   categorySuggestions = (input: string): Observable<Category[]> =>
@@ -353,7 +381,7 @@ export class ExpenseCreateComponent implements OnInit {
 
   payerSuggestions = (input: string): Observable<string[]> =>
     of(this.group.members.map(member => member.email));
-  
+
 
   public formatGroup(group: GroupDto | null): string {
     return !group
