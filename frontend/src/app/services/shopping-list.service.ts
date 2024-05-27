@@ -4,7 +4,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto,
+  ShoppingListDetailDto, ShoppingListItemDto,
   ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
@@ -109,6 +109,6 @@ export class ShoppingListService {
    * @param itemToEdit the item to add
    */
   addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
-    return this.httpClient.post(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
 }
