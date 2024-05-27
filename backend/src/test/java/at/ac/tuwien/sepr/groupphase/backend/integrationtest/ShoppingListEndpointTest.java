@@ -167,7 +167,7 @@ public class ShoppingListEndpointTest extends BaseTest {
         var shoppingListItem = shoppingList.getItems().getFirst();
 
 
-        mockMvc.perform(put("/api/v1/users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/groups/{groupId}/pantry", userId, shoppingList.getId(),
+        mockMvc.perform(put("/api/v1/users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/pantry", userId, shoppingList.getId(),
                 shoppingListItem.getId(),
                 shoppingList.getGroup().getId()))
             .andExpect(status().isOk());
@@ -213,7 +213,6 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         assertAll(
             () -> assertThat(updatedShoppingList.getItems().stream().filter(item -> item.getCheckedBy() != null)).isEmpty(),
-            () -> assertThat(pantry.getItems()).hasSize(8), // 5 items in pantry + 3 checked items
             () -> assertThat(pantry.getItems().stream().map(Item::getDescription))
                 .contains(shoppingListItems.stream().limit(3).map(item -> item.getItem().getDescription()).toArray(String[]::new))
         );

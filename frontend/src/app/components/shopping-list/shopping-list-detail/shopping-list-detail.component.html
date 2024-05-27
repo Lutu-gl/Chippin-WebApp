@@ -38,12 +38,17 @@
 <div class="tw-pt-4">
   <div class="tw-flex tw-items-center tw-justify-between">
     <h2>Items</h2>
-    <a aria-label="Delete item"
-       class="btn btn-success m-1"
-       data-bs-target="#add-shopping-list-item-modal"
-       data-bs-toggle="modal">
-      Add new item
-    </a>
+    <div>
+      <button *ngIf="!!shoppingListDetailDto.group" (click)="addCheckedItemsToPantry()"
+              class="btn btn-info">Moved checked items to pantry
+      </button>
+      <a aria-label="Delete item"
+         class="btn btn-success m-1"
+         data-bs-target="#add-shopping-list-item-modal"
+         data-bs-toggle="modal">
+        Add new item
+      </a>
+    </div>
   </div>
   <div class="">
     <div *ngFor="let shoppingListItem of shoppingListDetailDto?.items" class="">
@@ -61,7 +66,9 @@
           </div>
         </div>
         <div class="tw-flex tw-gap-8 tw-items-center">
-          <button (click)="addItemToPantry(shoppingListItem.id)" class="btn btn-info">Add to pantry</button>
+          <button *ngIf="!!shoppingListDetailDto.group" (click)="addItemToPantry(shoppingListItem.id)"
+                  class="btn btn-info">Move to pantry
+          </button>
           <div class="tw-flex">
             <a (click)="selectItem(shoppingListItem)"
                aria-label="Edit item"

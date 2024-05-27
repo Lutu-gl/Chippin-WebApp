@@ -126,12 +126,11 @@ public class ShoppingListEndpoint {
         return shoppingListService.deleteItem(shoppingListId, itemId);
     }
 
-    // PUT /users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/groups/{groupId}/pantry
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
-    @PutMapping("/users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/groups/{groupId}/pantry")
-    public void moveItemToPantry(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId, @PathVariable Long groupId) {
-        log.debug("Moving item with id {} to pantry for group with id {}", itemId, groupId);
+    @PutMapping("/users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}/pantry")
+    public void moveItemToPantry(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId) {
+        log.debug("Moving item with id {} to pantry", itemId);
         shoppingListService.moveItemToPantry(shoppingListId, itemId);
     }
 
