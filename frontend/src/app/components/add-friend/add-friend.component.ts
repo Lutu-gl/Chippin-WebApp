@@ -25,6 +25,11 @@ export class AddFriendComponent implements OnInit {
   }
 
   addFriend(): void {
+    if (!this.receiverEmail) {
+      this.notification.warning("Please enter an email address");
+      return;
+    }
+
     const friendRequest: FriendRequest = new FriendRequest();
     friendRequest.receiverEmail = this.receiverEmail;
     console.log(friendRequest);
