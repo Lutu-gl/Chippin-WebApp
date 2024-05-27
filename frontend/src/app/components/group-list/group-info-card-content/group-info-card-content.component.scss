@@ -1,17 +1,17 @@
 .group-list {
   padding: 0;
-  list-style: none; // Entfernt die Bullet-Points
+  list-style: none;
   margin: 20px 0;
 
   li {
-    background-color: #f8f9fa; // Hintergrundfarbe für jedes Listenelement
-    border: 1px solid #dee2e6; // Rahmenfarbe
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
     padding: 8px 12px;
-    margin-bottom: 8px; // Abstand zwischen den Elementen
-    transition: background-color 0.3s; // Sanfter Übergang für den Hover-Effekt
+    margin-bottom: 8px;
+    transition: background-color 0.3s;
 
     &:hover {
-      background-color: #e9ecef; // Hintergrundfarbe beim Darüberfahren
+      background-color: #e9ecef;
     }
   }
 }

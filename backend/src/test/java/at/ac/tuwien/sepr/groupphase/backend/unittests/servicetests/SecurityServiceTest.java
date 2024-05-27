@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 import java.util.Set;
@@ -26,7 +27,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SecurityServiceTest extends BaseTest {
+@ActiveProfiles("test")
+public class SecurityServiceTest {
 
     @Mock
     private UserRepository userRepository;

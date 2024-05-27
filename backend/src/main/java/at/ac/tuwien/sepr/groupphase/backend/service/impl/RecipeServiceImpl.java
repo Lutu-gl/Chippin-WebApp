@@ -86,10 +86,8 @@ public class RecipeServiceImpl implements RecipeService {
             Recipe recipe = optionalRecipe.get();
             Item ingredient = itemRepository.getReferenceById(itemId);
             recipe.removeItem(ingredient);
-            //ingredient.setRecipe(null);
 
             recipeRepository.save(recipe);
-            //itemRepository.delete(ingredient);
 
         }
     }

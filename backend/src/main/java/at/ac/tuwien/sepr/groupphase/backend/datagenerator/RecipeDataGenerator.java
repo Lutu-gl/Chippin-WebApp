@@ -113,14 +113,14 @@ public class RecipeDataGenerator implements DataGenerator {
             "Coffee", "Tea", "Juice", "Water", "Soda", "Beer", "Wine", "Whiskey"
         };
         Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
-
+        ApplicationUser user = users.stream().filter(o -> o.getEmail().equals("user5@example.com")).findFirst().get();
         for (int i = 0; i < 30; i++) {
             Recipe recipe = Recipe.builder()
                 .name("Recipe " + (i + 2))
                 .description("This is a random recipe description.")
                 .isPublic(random.nextBoolean())
                 .portionSize(random.nextInt(10) + 1)
-                .owner(users.get(5))
+                .owner(user)
                 .build();
 
 

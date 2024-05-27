@@ -108,7 +108,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (expenseId) {
       this.expenseService.getExpenseById(expenseId).subscribe({
         next: data => {
-          console.log(data);
+          //console.log(data);
           this.expense.name = data.name;
           this.expense.category = data.category;
           this.expense.amount = data.amount;
@@ -208,7 +208,7 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => Math.round(member.percentage = (member.percentage / this.expense.amount) * 100));
+    this.members.forEach(member => member.percentage = parseFloat(((member.percentage / this.expense.amount) * 100).toFixed(2)));
   }
 
   public changeToAmountMode(event: Event): void {
@@ -220,7 +220,9 @@ export class ExpenseCreateComponent implements OnInit {
     if (!this.expense.amount) {
       return;
     }
-    this.members.forEach(member => Math.round(member.percentage = this.expense.amount * (member.percentage / 100)));
+    this.members.forEach(member => member.percentage = parseFloat((this.expense.amount * (member.percentage / 100)).toFixed(2)));
+    this.members[0].percentage = parseFloat((this.members[0].percentage + this.expense.amount - this.members.map(u => u.percentage).reduce((a,b) => a+b, 0)).toFixed(2));
+    
   }
 
   public groupSelected(group: GroupDto) {
@@ -240,8 +242,9 @@ export class ExpenseCreateComponent implements OnInit {
         this.members = this.group.members.map(member => ({
           name: member.email,
           isParticipating: true,
-          percentage: 100 / this.group.members.length
+          percentage: parseFloat((100 / this.group.members.length).toFixed(2))
         }));
+        this.members[0].percentage += 100 - this.members.map(u => u.percentage).reduce((a,b) => a+b, 0);
       },
       error: error => {
         console.error(error);

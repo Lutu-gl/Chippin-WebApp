@@ -45,7 +45,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional
     public ExpenseDetailDto getById(Long expenseId, String requesterEmail) throws NotFoundException {
-        LOGGER.debug("parameters {}, {}", expenseId, requesterEmail);
+        LOGGER.trace("getById({}, {})", expenseId, requesterEmail);
 
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("Expense not found"));
@@ -59,7 +59,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional
     public ExpenseCreateDto createExpense(ExpenseCreateDto expenseCreateDto, String creatorEmail) throws ValidationException, ConflictException, NotFoundException {
-        LOGGER.debug("parameters {}, {}", expenseCreateDto, creatorEmail);
+        LOGGER.trace("createExpense({}, {})", expenseCreateDto, creatorEmail);
         expenseValidator.validateForCreation(expenseCreateDto);
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
@@ -92,7 +92,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional
     public ExpenseCreateDto updateExpense(Long expenseId, ExpenseCreateDto expenseCreateDto, String updaterEmail) throws ValidationException, ConflictException, NotFoundException {
-        LOGGER.debug("parameters {}", expenseCreateDto);
+        LOGGER.trace("updateExpense({}, {})", expenseId, updaterEmail);
         Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
         expenseCreateDto.setGroupId(existingExpense.getGroup().getId());
         expenseValidator.validateForCreation(expenseCreateDto);
@@ -132,7 +132,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional
     public void deleteExpense(Long expenseId, String deleterEmail) throws NotFoundException, ConflictException {
-        LOGGER.debug("parameters {} {}", expenseId, deleterEmail);
+        LOGGER.trace("deleteExpense({}, {})", expenseId, deleterEmail);
+
         Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
         ApplicationUser user = userRepository.findByEmail(deleterEmail);
 
@@ -162,7 +163,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional
     public ExpenseCreateDto recoverExpense(Long expenseId, String recoverEmail) throws NotFoundException, ConflictException {
-        LOGGER.debug("parameters {} {}", expenseId, recoverEmail);
+        LOGGER.trace("recoverExpense({}, {})", expenseId, recoverEmail);
+
         Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
         GroupEntity existingGroup = existingExpense.getGroup();
         ApplicationUser user = userRepository.findByEmail(recoverEmail);

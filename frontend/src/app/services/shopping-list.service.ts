@@ -43,11 +43,10 @@ export class ShoppingListService {
   /**
    * Deletes a shopping list.
    *
-   * @param groupId the id of the group the shopping list belongs to
    * @param shoppingListId the id of the shopping list
    */
-  deleteShoppingList(groupId: number, shoppingListId: number): Observable<ShoppingListDetailDto> {
-    return this.httpClient.delete<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/${groupId}/shoppinglist/${shoppingListId}`);
+  deleteShoppingList(shoppingListId: number): Observable<ShoppingListDetailDto> {
+    return this.httpClient.delete<ShoppingListDetailDto>(`${this.shoppingListBaseUri}/shopping-lists/${shoppingListId}`);
   }
 
   /**
@@ -111,4 +110,27 @@ export class ShoppingListService {
   addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
     return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
+
+  /**
+   * Moves a shopping list item to the pantry.
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   * @param itemId the id of the item
+   */
+  moveShoppingListItemToPantry(userId: number, shoppingListId: number, itemId: number) {
+    return this.httpClient.put<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/${itemId}/pantry`, null);
+  }
+
+  /**
+   * Moves all shopping list items to the pantry.
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   */
+  moveShoppingListItemsToPantry(userId: number, shoppingListId: number) {
+    return this.httpClient.put<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/pantry`, null);
+  }
+
+
 }

@@ -71,10 +71,10 @@ export class ShoppingListDetailComponent implements OnInit{
   }
 
   deleteShoppingList() {
-    this.shoppingListService.deleteShoppingList(this.groupId, this.shoppingListId).subscribe({
+    this.shoppingListService.deleteShoppingList(this.shoppingListId).subscribe({
       next: () => {
         this.notification.success('Shopping list deleted');
-        this.router.navigate(['/', 'group', this.groupId]);
+        this.router.navigate(['/']);
       },
       error: err => {
         console.error(err);
@@ -99,7 +99,15 @@ export class ShoppingListDetailComponent implements OnInit{
   }
 
   addItemToPantry(itemId: number) {
-    this.notification.info("Not implemented yet")
+    this.shoppingListService.moveShoppingListItemToPantry(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
+      next: value => {
+        this.loadShoppingListDetailDto();
+        this.notification.success("Item moved to pantry");
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
   }
 
   toggleChecked(itemId: number) {
@@ -120,4 +128,15 @@ export class ShoppingListDetailComponent implements OnInit{
     })
   }
 
+  addCheckedItemsToPantry() {
+    this.shoppingListService.moveShoppingListItemsToPantry(this.authService.getUserId(), this.shoppingListId).subscribe({
+      next: value => {
+        this.loadShoppingListDetailDto();
+        this.notification.success("Checked items moved to pantry");
+      },
+      error: err => {
+        console.error(err);
+      }
+    })
+  }
 }

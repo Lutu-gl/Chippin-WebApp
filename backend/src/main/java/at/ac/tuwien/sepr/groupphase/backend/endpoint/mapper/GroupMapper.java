@@ -21,18 +21,6 @@ public interface GroupMapper {
     //@Mapping(target = "users", source = "members", qualifiedByName = "emailsToUsers")
     GroupEntity groupCreateDtoToGroupEntity(GroupCreateDto dto);
 
-    /*
-    @Named("emailsToUsers")
-    default Set<ApplicationUser> emailsToUsers(Set<String> members, @Context UserRepository userRepository) { // TODO> check again if @Context works. If not discard
-        if (members == null) {
-            return null;
-        }
-        return members.stream()
-            .map(member -> userRepository.findByEmail(member))  // Direkt ApplicationUser oder null
-            .filter(Objects::nonNull)  // Filtere Null-Werte heraus
-            .collect(Collectors.toSet());
-    }*/
-
     @Mapping(target = "members", source = "users", qualifiedByName = "usersToEmails")
     GroupCreateDto groupEntityToGroupCreateDto(GroupEntity entity);
 
