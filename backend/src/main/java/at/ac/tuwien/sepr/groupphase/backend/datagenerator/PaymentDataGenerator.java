@@ -41,9 +41,9 @@ public class PaymentDataGenerator implements DataGenerator {
         Random random = new Random();
 
         for (GroupEntity group : groups) {
-            if (group.getGroupName().equals("PantryTestGroup1") ||
-                group.getGroupName().equals("PantryTestGroup2") ||
-                group.getGroupName().equals("PantryTestGroup3")){
+            if (group.getGroupName().equals("PantryTestGroup1")
+                || group.getGroupName().equals("PantryTestGroup2")
+                || group.getGroupName().equals("PantryTestGroup3")) {
                 continue;
             }
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
@@ -51,13 +51,14 @@ public class PaymentDataGenerator implements DataGenerator {
             // spezial group where expenses are inserted manually to test (f.e. debt)
             if (group.getGroupName().equals("groupExample0")) {
 
-                Payment payment = Payment.builder()
-                    .payer(usersInGroup.get(1))
-                    .receiver(usersInGroup.get(0))
-                    .amount(20.0)
-                    .date(LocalDateTime.now())
-                    .group(group)
-                    .build();
+                Payment payment =
+                    Payment.builder()
+                        .payer(usersInGroup.get(1))
+                        .receiver(usersInGroup.get(0))
+                        .amount(20.0)
+                        .date(LocalDateTime.now())
+                        .group(group)
+                        .build();
 
                 Payment paymentDeleted = Payment.builder()
                     .payer(usersInGroup.get(0))

@@ -44,8 +44,6 @@ public class FriendshipEndpointTest extends BaseTest {
 
 
     @Test
-    @Rollback
-    @Transactional
     public void whenSendFriendRequest_withValidData_thenStatus202() throws Exception {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("testUser1@example.com");
@@ -71,8 +69,6 @@ public class FriendshipEndpointTest extends BaseTest {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void sendFriendRequestAndAcceptItShouldWork() throws Exception {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("testUser1@example.com");

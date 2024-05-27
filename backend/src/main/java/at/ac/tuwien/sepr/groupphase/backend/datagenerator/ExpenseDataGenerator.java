@@ -44,15 +44,15 @@ public class ExpenseDataGenerator implements DataGenerator {
         String[] expenseNames = {
             "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
             "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut"
-        };
+            };
         Category[] categories = {
             Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
         };
 
         for (GroupEntity group : groups) {
-            if (group.getGroupName().equals("PantryTestGroup1") ||
-                group.getGroupName().equals("PantryTestGroup2") ||
-                group.getGroupName().equals("PantryTestGroup3")){
+            if (group.getGroupName().equals("PantryTestGroup1")
+                || group.getGroupName().equals("PantryTestGroup2")
+                || group.getGroupName().equals("PantryTestGroup3")) {
                 continue;
             }
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());

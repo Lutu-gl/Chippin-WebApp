@@ -40,8 +40,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidUser_whenRegister_then201() throws Exception {
         String body = objectMapper.writeValueAsString(userRegisterDto);
 
@@ -81,8 +79,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenInvalidEmail_whenRegister_then400() throws Exception {
         // Set an invalid email
         userRegisterDto.setEmail("invalidEmail");
@@ -96,8 +92,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenInvalidPassword_whenRegister_then400() throws Exception {
         // Set an invalid password
         userRegisterDto.setPassword("invalid");
@@ -124,8 +118,6 @@ public class RegistrationEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenPasswordWithoutUppercase_whenRegister_then400() throws Exception {
         // Set a password without an uppercase letter
         userRegisterDto.setPassword("invalid1");

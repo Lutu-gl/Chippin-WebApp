@@ -48,8 +48,6 @@ public class SecurityServiceTest extends BaseTest {
 
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidUserId_whenHasCorrectId_thenReturnTrue() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(ApplicationUser.builder().id(1L).email("test@email.com").build()));
         Long id = 1L;
@@ -59,8 +57,6 @@ public class SecurityServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenInvalidUserId_whenHasCorrectId_thenReturnFalse() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         Long id = 1L;
@@ -70,8 +66,6 @@ public class SecurityServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenValidGroupId_whenIsGroupMember_thenReturnTrue() {
         when(userRepository.findByEmail("test@email.com"))
             .thenReturn(ApplicationUser.builder()
@@ -86,8 +80,6 @@ public class SecurityServiceTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void givenInvalidGroupId_whenIsGroupMember_thenReturnFalse() {
         when(userRepository.findByEmail("test@email.com"))
             .thenReturn(ApplicationUser.builder()
