@@ -41,6 +41,11 @@ public class PaymentDataGenerator implements DataGenerator {
         Random random = new Random();
 
         for (GroupEntity group : groups) {
+            if (group.getGroupName().equals("PantryTestGroup1") ||
+                group.getGroupName().equals("PantryTestGroup2") ||
+                group.getGroupName().equals("PantryTestGroup3")){
+                continue;
+            }
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
             // spezial group where expenses are inserted manually to test (f.e. debt)

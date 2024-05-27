@@ -37,6 +37,33 @@ public class GroupDataGenerator implements DataGenerator {
 
             groupRepository.save(group);
         }
+
+        GroupEntity pantryTestGroup1 = GroupEntity.builder()
+            .groupName("PantryTestGroup1")
+            .users(Set.of(
+                userRepository.findByEmail("user1@example.com"),
+                userRepository.findByEmail("user2@example.com")
+                ))
+            .build();
+        groupRepository.save(pantryTestGroup1);
+
+        GroupEntity pantryTestGroup2 = GroupEntity.builder()
+            .groupName("PantryTestGroup2")
+            .users(Set.of(
+                userRepository.findByEmail("user1@example.com"),
+                userRepository.findByEmail("user2@example.com")
+            ))
+            .build();
+        groupRepository.save(pantryTestGroup2);
+
+        GroupEntity pantryTestGroup3 = GroupEntity.builder()
+            .groupName("PantryTestGroup3")
+            .users(Set.of(
+                userRepository.findByEmail("user1@example.com"),
+                userRepository.findByEmail("user2@example.com")
+            ))
+            .build();
+        groupRepository.save(pantryTestGroup3);
     }
 
     @Override
