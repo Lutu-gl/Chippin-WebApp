@@ -127,7 +127,6 @@ public class PantryEndpointTest extends BaseTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
         PantryItem item = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup2").getPantry()).get(0);
 
-        var test = pantryItemRepository.findAll();
         PantryItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(1, detailDto.getItems().size()),
