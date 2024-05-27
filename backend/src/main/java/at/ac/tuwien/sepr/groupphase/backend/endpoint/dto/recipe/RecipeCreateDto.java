@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,6 +12,7 @@ import jakarta.validation.constraints.Max;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 public class RecipeCreateDto {
 
 
@@ -46,6 +49,7 @@ public class RecipeCreateDto {
     @Max(value = 1000, message = "Recipe cannot feed more than 1000 people")
     private int portionSize;
 
-    //@NotNull
-    //private ApplicationUser owner;
+    @NotNull
+    @JsonIgnore
+    private ApplicationUser owner;
 }

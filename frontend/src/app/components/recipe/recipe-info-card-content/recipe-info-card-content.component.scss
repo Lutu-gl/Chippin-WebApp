@@ -1,0 +1,20 @@
+.group-list {
+  padding: 0;
+  list-style: none; // Entfernt die Bullet-Points
+  margin: 20px 0;
+  max-height: 150px; /* Du kannst die Höhe anpassen */
+  overflow-y: auto;
+  padding-right: 15px; /* Optional: Platz für die Scrollbar */
+
+  li {
+    background-color: #f8f9fa; // Hintergrundfarbe für jedes Listenelement
+    border: 1px solid #dee2e6; // Rahmenfarbe
+    padding: 8px 12px;
+    margin-bottom: 8px; // Abstand zwischen den Elementen
+    transition: background-color 0.3s; // Sanfter Übergang für den Hover-Effekt
+
+    &:hover {
+      background-color: #e9ecef; // Hintergrundfarbe beim Darüberfahren
+    }
+  }
+}
