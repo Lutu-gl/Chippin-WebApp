@@ -30,6 +30,8 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Collection<String> getFriends(String email) {
+        LOGGER.trace("getFriends({})", email);
+
         ApplicationUser user = userService.findApplicationUserByEmail(email);
         return friendshipRepository
             .findFriendsOfUser(user)
@@ -40,6 +42,8 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Collection<String> getIncomingFriendRequest(String email) {
+        LOGGER.trace("getIncomingFriendRequest({})", email);
+
         ApplicationUser user = userService.findApplicationUserByEmail(email);
         return friendshipRepository
             .findIncomingFriendRequestsOfUser(user)
@@ -50,7 +54,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public void sendFriendRequest(String senderEmail, String receiverEmail) throws InvalidFriendRequest {
-        LOGGER.debug("Send friend request to {}", receiverEmail);
+        LOGGER.trace("sendFriendRequest({}, {})", senderEmail, receiverEmail);
 
         if (senderEmail.equals(receiverEmail)) {
             throw new InvalidFriendRequest("You can not send a friend request to yourself!");
@@ -88,6 +92,8 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public void acceptFriendRequest(String senderEmail, String receiverEmail) throws InvalidFriendRequest {
+        LOGGER.trace("acceptFriendRequest({}, {})", senderEmail, receiverEmail);
+
         ApplicationUser sender = userService.findApplicationUserByEmail(senderEmail);
         ApplicationUser receiver = userService.findApplicationUserByEmail(receiverEmail);
 
@@ -98,6 +104,8 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public void rejectFriendRequest(String senderEmail, String receiverEmail) throws InvalidFriendRequest {
+        LOGGER.trace("rejectFriendRequest({}, {})", senderEmail, receiverEmail);
+
         ApplicationUser sender = userService.findApplicationUserByEmail(senderEmail);
         ApplicationUser receiver = userService.findApplicationUserByEmail(receiverEmail);
 
