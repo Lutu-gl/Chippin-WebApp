@@ -71,10 +71,10 @@ export class ShoppingListDetailComponent implements OnInit{
   }
 
   deleteShoppingList() {
-    this.shoppingListService.deleteShoppingList(this.groupId, this.shoppingListId).subscribe({
+    this.shoppingListService.deleteShoppingList(this.shoppingListId).subscribe({
       next: () => {
         this.notification.success('Shopping list deleted');
-        this.router.navigate(['/', 'group', this.groupId]);
+        this.router.navigate(['/']);
       },
       error: err => {
         console.error(err);
