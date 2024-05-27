@@ -4,19 +4,34 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add to shopping list</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="reset()"></button>
       </div>
       <div class="modal-body">
         <div class="mt-2" *ngIf="shoppingLists !== null && shoppingLists !== undefined">
-          <div *ngIf="item" class="m-1">
-            Add {{displayQuantity(item.unit, item.amount)[1]}} {{displayQuantity(item.unit, item.amount)[0]}} {{item.description}}
-            to
+          <div class="row">
+            <div class="col-2">
+              Add
+            </div>
           </div>
-          <form #form="ngForm">
+          <div class="row pt-3" *ngIf="item">
+            <div class="col-2">
+              <input type="text" class="form-control" [value]="displayQuantity(item.unit, item.lowerLimit - item.amount)[1]" disabled>
+            </div>
+            <div class="col-2">
+              <input type="text" class="form-control" [value]="displayQuantity(item.unit, item.lowerLimit - item.amount)[0]" disabled>
+            </div>
+            <div class="col">
+              <input type="text" class="form-control" [value]="item.description" disabled>
+            </div>
+          </div>
+          <div class="row pt-3">
+            <div class="col-2">
+              to
+            </div>
+          </div>
             <select name="selectedList" class="form-select mt-3" [(ngModel)]="selectedList">
-              <option *ngFor="let shoppingList of shoppingLists" >{{shoppingList.name}}</option>
+              <option [ngValue]="shoppingList" *ngFor="let shoppingList of shoppingLists">{{shoppingList.name}}</option>
             </select>
-          </form>
         </div>
       </div>
       <div class="modal-footer">

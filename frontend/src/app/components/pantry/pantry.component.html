@@ -75,7 +75,7 @@
         <tr *ngFor="let item of items" class="center-td">
           <td>
             <button class="btn btn-danger" *ngIf="item.lowerLimit !== null && item.lowerLimit > item.amount"
-                    (click)="selectItem(item)"
+                    (click)="selectItem(item); "
                     data-bs-toggle="modal"
                     data-bs-target="#app-shopping-list-add-dialog-title"
                     aria-label="Add to shopping list">

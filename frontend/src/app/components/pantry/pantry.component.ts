@@ -21,6 +21,7 @@ import {ToastrService} from "ngx-toastr";
 import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
 import {RecipeListDto} from "../../dtos/recipe";
 import {ShoppingListAddDialogComponent} from "./shopping-list-add-dialog/shopping-list-add-dialog.component";
+import {ShoppingListListDto} from "../../dtos/shoppingList";
 
 @Component({
   selector: 'app-pantry',

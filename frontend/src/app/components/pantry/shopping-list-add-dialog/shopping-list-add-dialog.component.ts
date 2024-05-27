@@ -1,11 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {PantryItemDetailDto} from "../../../dtos/item";
-import {ShoppingListListDto} from "../../../dtos/shoppingList";
+import {ItemCreateDto, PantryItemDetailDto} from "../../../dtos/item";
+import {ShoppingListCreateEditDto, ShoppingListListDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {NgForOf, NgIf} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
 import {displayQuantity} from "../../../util/unit-helper";
 import {FormsModule} from "@angular/forms";
+import {Category} from "../../../dtos/category";
+import {AuthService} from "../../../services/auth.service";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-shopping-list-add-dialog',
@@ -21,10 +24,12 @@ import {FormsModule} from "@angular/forms";
 export class ShoppingListAddDialogComponent implements OnInit {
   @Input() item: PantryItemDetailDto;
   shoppingLists: ShoppingListListDto[];
-  selectedList: ShoppingListListDto;
+  selectedList: ShoppingListListDto = null;
 
   constructor(
     private route: ActivatedRoute,
+    private notifications: ToastrService,
+    private authService: AuthService,
     private shoppingListService: ShoppingListService
   ) {
   }
@@ -36,6 +41,9 @@ export class ShoppingListAddDialogComponent implements OnInit {
         this.shoppingListService.getShoppingListsForGroup(id).subscribe({
           next: res => {
             this.shoppingLists = res;
+            if(this.shoppingLists.length > 0) {
+              this.selectedList = this.shoppingLists[0];
+            }
           },
           error: err => {
             console.log(err);
@@ -48,9 +56,33 @@ export class ShoppingListAddDialogComponent implements OnInit {
     });
   }
 
+  reset() {
+    if(this.shoppingLists.length > 0) {
+      this.selectedList = this.shoppingLists[0];
+    } else {
+      this.selectedList = null;
+    }
+  }
+
   addToShoppingList() {
-    //this.shoppingListService.updateShoppingList()
+    let itemDto: ItemCreateDto = {
+      description: this.item.description,
+      amount: this.item.lowerLimit - this.item.amount,
+      unit: this.item.unit
+    }
+
+    this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.selectedList.id, itemDto).subscribe({
+      next: res => {
+        this.notifications.success(
+          `Added ${displayQuantity(res.item.unit, res.item.amount)[1]} ${displayQuantity(res.item.unit, res.item.amount)[0]} ${res.item.description} to ${this.selectedList.name}`);
+        this.reset();
+      }, error: err => {
+        this.notifications.error('Error adding item to shopping list');
+        this.reset();
+      }
+    })
   }
 
   protected readonly displayQuantity = displayQuantity;
+  protected readonly undefined = undefined;
 }
