@@ -78,7 +78,6 @@ public class PantryEndpointTest extends BaseTest {
     @WithMockUser(username = "user1@example.com")
     public void givenInvalidPantryId_whenFindAllInPantry_then403()
         throws Exception {
-
         Long id = userRepository.findByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
 
@@ -99,7 +98,7 @@ public class PantryEndpointTest extends BaseTest {
         Long groupId = groupRepository.findByGroupName("PantryTestGroup3").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupRepository.findByGroupName("PantryTestGroup3").getId())))
+        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupId)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -120,7 +119,7 @@ public class PantryEndpointTest extends BaseTest {
         Long groupId = groupRepository.findByGroupName("PantryTestGroup2").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupRepository.findByGroupName("PantryTestGroup2").getId())))
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/{groupId}/pantry", groupId))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -128,6 +127,7 @@ public class PantryEndpointTest extends BaseTest {
         PantryDetailDto detailDto = objectMapper.readValue(response.getContentAsByteArray(), PantryDetailDto.class);
         PantryItem item = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup2").getPantry()).get(0);
 
+        var test = pantryItemRepository.findAll();
         PantryItemDto itemDto = detailDto.getItems().get(0);
         assertAll(
             () -> assertEquals(1, detailDto.getItems().size()),
@@ -147,7 +147,7 @@ public class PantryEndpointTest extends BaseTest {
         Long groupId = groupRepository.findByGroupName("PantryTestGroup2").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry/search", groupRepository.findByGroupName("PantryTestGroup2").getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/{groupId}/pantry/search", groupId)
                 .queryParam("details", "otat")
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -179,7 +179,7 @@ public class PantryEndpointTest extends BaseTest {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupRepository.findByGroupName("PantryTestGroup3").getId()))
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -210,7 +210,7 @@ public class PantryEndpointTest extends BaseTest {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupRepository.findByGroupName("PantryTestGroup3").getId()))
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/group/{0}/pantry", groupId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -241,7 +241,7 @@ public class PantryEndpointTest extends BaseTest {
 
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupRepository.findByGroupName("PantryTestGroup3").getId()))
+        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -264,12 +264,12 @@ public class PantryEndpointTest extends BaseTest {
 
         PantryItem item = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup2").getPantry()).get(0);
 
-        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/pantry/%d", groupRepository.findByGroupName("PantryTestGroup2").getId(), item.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/pantry/%d", groupId, item.getId()))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
-        List<PantryItem> items = pantryRepository.findById(groupRepository.findByGroupName("PantryTestGroup2").getId()).get().getItems();
+        List<PantryItem> items = pantryRepository.findById(groupId).get().getItems();
 
         assertAll(
             () -> assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus()),
@@ -365,7 +365,7 @@ public class PantryEndpointTest extends BaseTest {
         PantryItemMergeDto mergeDto = PantryItemMergeDto.builder().itemToDeleteId(item2.getId()).result(itemDto).build();
         String body = objectMapper.writeValueAsString(mergeDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry/merged", groupRepository.findByGroupName("PantryTestGroup1").getId()))
+        MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/{0}/pantry/merged", groupId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))

@@ -149,6 +149,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
         RecipeCreateWithoutUserDto recipeCreateDto = RecipeCreateWithoutUserDto.builder()
@@ -183,6 +184,8 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser
     public void createRecipeWithInvalidRecipeGets400() throws Exception {
 
@@ -200,6 +203,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/recipe", 0)))
@@ -258,6 +263,8 @@ public class RecipeEndpointTest extends BaseTest {
 //    }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser
     public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
         throws Exception {
@@ -311,6 +318,8 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser
     public void givenNothing_whenAddInvalidItemToRecipe_then400()
         throws Exception {
@@ -328,6 +337,8 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {

@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
@@ -44,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class GroupEndpointTest extends BaseTest {
+public class GroupEndpointTest implements TestData {
     @Autowired
     private MockMvc mockMvc;
 
@@ -66,8 +65,23 @@ public class GroupEndpointTest extends BaseTest {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @AfterEach
+    public void afterEach() {
+        userRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        userRepository.deleteAll();
+    }
+
     @Test
+    @Rollback
+    @Transactional
     public void whenUpdateGroup_withValidData_thenStatus200() throws Exception {
+        userRepository.deleteAll();
+        groupRepository.deleteAll();
+
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("user1GE@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
@@ -108,7 +122,10 @@ public class GroupEndpointTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void whenCreateGroup_withValidData_thenCreatedPantryWithGroupId() throws Exception {
+        userRepository.deleteAll();
+
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("user1GE@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
@@ -139,7 +156,12 @@ public class GroupEndpointTest extends BaseTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void whenCreateGroup_withValidData_thenStatus201() throws Exception {
+        userRepository.deleteAll();
+        groupRepository.deleteAll();
+
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("user1GE@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
@@ -173,6 +195,8 @@ public class GroupEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser("user1GE@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus209ConflictMembersNotExist() throws Exception {
         GroupCreateDto groupCreateDto =
@@ -196,6 +220,8 @@ public class GroupEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser("admin@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus409ConflictOwnerNotMember() throws Exception {
         GroupCreateDto groupCreateDto =
@@ -218,6 +244,8 @@ public class GroupEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @Transactional
     @WithMockUser("user1E@example.com")
     public void whenCreateGroup_withInvalidData_thenStatus422Validation() throws Exception {
         GroupCreateDto groupCreateDto = GroupCreateDto.builder()
