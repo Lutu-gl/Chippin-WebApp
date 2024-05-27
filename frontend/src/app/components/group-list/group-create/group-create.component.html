@@ -44,7 +44,7 @@
                 <td>{{formatMember(member)}}</td>
                 <td class="min-width">
                   <!-- Make button just hidden, when no participant is present, to keep layout correct -->
-                  <button *ngIf="member.email !== userService.getUserEmail()" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
+                  <button *ngIf="member.email !== userService.getUserEmail() && modeIsCreate" type="button" class="btn btn-light ms-2" (click)="removeMember(i)"
                           [style.visibility]="member ? 'visible' : 'hidden'">
                     <i class="bi-trash"></i>
                   </button>

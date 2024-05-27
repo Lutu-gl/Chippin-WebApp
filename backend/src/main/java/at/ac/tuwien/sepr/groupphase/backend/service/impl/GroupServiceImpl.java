@@ -44,7 +44,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto create(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException {
-        LOGGER.debug("params: {}, {}", groupCreateDto, ownerEmail);
+        LOGGER.trace("create({}, {})", groupCreateDto, ownerEmail);
 
         validator.validateForCreation(groupCreateDto, ownerEmail);
 
@@ -78,7 +78,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto update(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException, NotFoundException {
-        LOGGER.debug("params: {}, {}", groupCreateDto, ownerEmail);
+        LOGGER.trace("update({}, {})", groupCreateDto, ownerEmail);
 
         validator.validateForUpdate(groupCreateDto, ownerEmail);
 
@@ -105,7 +105,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupCreateDto getById(long id) throws NotFoundException {
-        LOGGER.debug("params: {}", id);
+        LOGGER.trace("getById({})", id);
 
         GroupEntity groupEntity = groupRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("No group found with this id"));
@@ -114,6 +114,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private void makeFriendsWithEveryMember(GroupEntity group) {
+        LOGGER.trace("makeFriendsWithEveryMember({})", group);
+
         for (int i = 0; i < group.getUsers().size(); i++) {
             for (int j = i + 1; j < group.getUsers().size(); j++) {
                 ApplicationUser user = (ApplicationUser) group.getUsers().toArray()[i];
