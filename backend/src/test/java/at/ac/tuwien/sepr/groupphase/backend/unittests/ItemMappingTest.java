@@ -31,8 +31,6 @@ public class ItemMappingTest extends BaseTest {
     private ItemMapper itemMapper;
 
     @Test
-    @Transactional
-    @Rollback
     public void givenNothing_whenMapListWithOneItem_thenReturnListWithOneElementAndAllProperties() {
         List<ItemDto> dtoList = itemMapper.listOfItemsToListOfItemDto(items);
         assertEquals(1, dtoList.size());

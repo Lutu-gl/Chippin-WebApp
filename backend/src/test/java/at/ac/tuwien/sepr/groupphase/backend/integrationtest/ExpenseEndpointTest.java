@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
@@ -38,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ExpenseEndpointTest implements TestData {
+public class ExpenseEndpointTest extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -60,23 +61,7 @@ public class ExpenseEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
-    @AfterEach
-    public void afterEach() {
-        expenseRepository.deleteAll();
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        expenseRepository.deleteAll();
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @Test
-    @Rollback
-    @Transactional
     public void whenCreateExpense_withValidData_thenStatus201() throws Exception {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("EXuser1@example.com");
@@ -123,11 +108,7 @@ public class ExpenseEndpointTest implements TestData {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void whenCreateExpense_withInvalidData_thenStatus409() throws Exception {
-        expenseRepository.deleteAll();
-
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
@@ -166,11 +147,7 @@ public class ExpenseEndpointTest implements TestData {
     }
 
     @Test
-    @Rollback
-    @Transactional
     public void whenCreateExpense_withInvalidData_thenStatus400() throws Exception {
-        expenseRepository.deleteAll();
-
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");

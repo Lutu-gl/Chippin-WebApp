@@ -84,8 +84,6 @@ public class FriendshipEndpointTest extends BaseTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     @WithMockUser(username = TEST_EMAIL_1)
     public void testAcceptFriendRequestShouldReturn200() throws Exception {
 

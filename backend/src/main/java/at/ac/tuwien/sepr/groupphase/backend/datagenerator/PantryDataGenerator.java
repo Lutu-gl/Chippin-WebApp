@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,23 +48,58 @@ public class PantryDataGenerator implements DataGenerator {
                 .group(group)
                 .build();
             pantry.setGroup(group);
-
             group.setPantry(pantry);
 
-            for (int i = 0; i < 5; i++) {
-                String description = descriptions[random.nextInt(descriptions.length)];
-                Unit unit = units[random.nextInt(units.length)];
-                int amount = random.nextInt(500) + 1;
-
-                PantryItem item = PantryItem.builder()
-                    .description(description)
-                    .unit(unit)
-                    .amount(amount)
+            if (group.getGroupName().equals("PantryTestGroup1")) {
+                PantryItem item1 = PantryItem.builder()
+                    .description("PantryTest-Potato")
+                    .unit(Unit.Piece)
+                    .amount(2)
                     .build();
+                group.getPantry().addItem(item1);
 
-                group.getPantry().addItem(item);
+                PantryItem item2 = PantryItem.builder()
+                    .description("PantryTest-Milk")
+                    .unit(Unit.Milliliter)
+                    .amount(500)
+                    .build();
+                group.getPantry().addItem(item2);
+
+                PantryItem item3 = PantryItem.builder()
+                    .description("PantryTest-Tea")
+                    .unit(Unit.Gram)
+                    .amount(250)
+                    .build();
+                group.getPantry().addItem(item3);
+
+                PantryItem item4 = PantryItem.builder()
+                    .description("PantryTest-Bread")
+                    .unit(Unit.Gram)
+                    .amount(900)
+                    .build();
+                group.getPantry().addItem(item4);
+            } else if (group.getGroupName().equals("PantryTestGroup2")) {
+                PantryItem item5 = PantryItem.builder()
+                    .description("PantryTest-Potato")
+                    .unit(Unit.Piece)
+                    .amount(2)
+                    .build();
+                group.getPantry().addItem(item5);
+            } else if (!group.getGroupName().equals("PantryTestGroup3")) {
+                for (int i = 0; i < 5; i++) {
+                    String description = descriptions[random.nextInt(descriptions.length)];
+                    Unit unit = units[random.nextInt(units.length)];
+                    int amount = random.nextInt(500) + 1;
+
+                    PantryItem item = PantryItem.builder()
+                        .description(description)
+                        .unit(unit)
+                        .amount(amount)
+                        .build();
+
+                    group.getPantry().addItem(item);
+                }
             }
-
             groupRepository.save(group); // update groups
         }
     }
@@ -73,4 +109,5 @@ public class PantryDataGenerator implements DataGenerator {
         LOGGER.debug("cleaning data for pantry");
         pantryRepository.deleteAll();
     }
+
 }

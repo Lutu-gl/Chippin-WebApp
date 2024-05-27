@@ -133,6 +133,58 @@ public class RecipeDataGenerator implements DataGenerator {
             }
             recipeRepository.saveAndFlush(recipe);
         }
+
+        //Recipes for Pantry Tests
+        ApplicationUser user1 = userRepository.findByEmail("user1@example.com");
+        Recipe pantryTestRecipe1 = Recipe.builder()
+            .owner(user1)
+            .isPublic(false)
+            .portionSize(1)
+            .description("Test Description")
+            .name("Test 1").build();
+        pantryTestRecipe1.addIngredient(
+            Item.builder()
+                .description("PantryTest-Potato")
+                .amount(2)
+                .unit(Unit.Piece).build());
+        pantryTestRecipe1.addIngredient(
+            Item.builder()
+                .description("PantryTest-Milk")
+                .amount(200)
+                .unit(Unit.Milliliter).build());
+        user1.addRecipe(pantryTestRecipe1);
+        recipeRepository.saveAndFlush(pantryTestRecipe1);
+        userRepository.saveAndFlush(user1);
+
+        Recipe pantryTestRecipe2 = Recipe.builder()
+            .owner(user1)
+            .isPublic(false)
+            .portionSize(1)
+            .description("Test Description")
+            .name("Test 2").build();
+        pantryTestRecipe2.addIngredient(
+            Item.builder()
+                .description("PantryTest-Potato")
+                .amount(2)
+                .unit(Unit.Piece).build());
+        user1.addRecipe(pantryTestRecipe1);
+        recipeRepository.saveAndFlush(pantryTestRecipe2);
+        userRepository.saveAndFlush(user1);
+
+        Recipe pantryTestRecipe3 = Recipe.builder()
+            .owner(user1)
+            .isPublic(false)
+            .portionSize(1)
+            .description("Test Description")
+            .name("Test 3").build();
+        pantryTestRecipe3.addIngredient(
+            Item.builder()
+                .description("PantryTest-Honey")
+                .amount(2)
+                .unit(Unit.Piece).build());
+        user1.addRecipe(pantryTestRecipe1);
+        recipeRepository.saveAndFlush(pantryTestRecipe3);
+        userRepository.saveAndFlush(user1);
     }
 
     @Override

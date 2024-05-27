@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
@@ -48,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest extends BaseTest {
+public class ItemListEndpointTest implements TestData {
     @Autowired
     private MockMvc mockMvc;
 
