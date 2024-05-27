@@ -139,16 +139,12 @@ export class RecipeDetailComponent implements OnInit {
       });
   }
 
-  public getScore(recipe: RecipeGlobalListDto): number {
-    return recipe.likes-recipe.dislikes;
-  }
 
   public removeRecipeIngredientsFromPantry() {
     this.service.removeRecipeIngredientsFromPantry(this.group.id,this.recipe.id, this.portion).subscribe(
       {
         next: data => {
-            console.log("Es funktioniert");
-            console.log(data);
+            this.notification.success("Ingredients successfully removed from Pantry");
         },
         error: error => {
           this.printError(error)
