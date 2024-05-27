@@ -35,6 +35,8 @@ public class PaymentEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public PaymentDto getById(@PathVariable long id) {
+        LOGGER.trace("getById({})", id);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return paymentService.getById(id, authentication.getName());
     }
@@ -43,6 +45,8 @@ public class PaymentEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public PaymentDto createPayment(@Valid @RequestBody PaymentDto paymentDto) throws ValidationException, ConflictException {
+        LOGGER.trace("createPayment({})", paymentDto);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return paymentService.createPayment(paymentDto, authentication.getName());
     }
@@ -51,6 +55,8 @@ public class PaymentEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{id}")
     public PaymentDto updatePayment(@PathVariable(name = "id") Long paymentId, @Valid @RequestBody PaymentDto paymentDto) throws ValidationException, ConflictException {
+        LOGGER.trace("updatePayment({})", paymentDto);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return paymentService.updatePayment(paymentId, paymentDto, authentication.getName());
     }
@@ -59,6 +65,8 @@ public class PaymentEndpoint {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void deletePayment(@PathVariable(name = "id") Long paymentId) throws ConflictException {
+        LOGGER.trace("deletePayment({})", paymentId);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         paymentService.deletePayment(paymentId, authentication.getName());
     }
@@ -67,6 +75,8 @@ public class PaymentEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/recover/{id}")
     public PaymentDto recoverPayment(@PathVariable(name = "id") Long paymentId) throws ConflictException {
+        LOGGER.trace("recoverPayment({})", paymentId);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return paymentService.recoverPayment(paymentId, authentication.getName());
     }

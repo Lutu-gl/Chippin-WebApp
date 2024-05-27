@@ -27,8 +27,7 @@ public class DebtServiceImpl implements DebtService {
 
     @Override
     public DebtGroupDetailDto getById(String userEmail, Long groupId) throws NotFoundException {
-        LOGGER.debug("parameters {} {}", userEmail, groupId);
-
+        LOGGER.trace("getById({}, {})", userEmail, groupId);
 
         List<Object[]> rawResults = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(userEmail, groupId);
         if (rawResults.isEmpty()) {

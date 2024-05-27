@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.invoke.MethodHandles;
 
@@ -41,28 +40,16 @@ public class GroupEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("{id}")
-    public GroupCreateDto getById(@PathVariable("id") long id) {
-        LOGGER.info("GET " + BASE_PATH + "/{}", id);
-        LOGGER.debug("request parameters: {}", id);
-
-        GroupCreateDto res = null;
-        try {
-            res = groupService.getById(id);
-        } catch (NotFoundException e) {
-            HttpStatus status = HttpStatus.NOT_FOUND;
-            logClientError(status, "Group not found", e);
-            throw new ResponseStatusException(status, e.getMessage(), e);
-        }
-
-        return res;
+    public GroupCreateDto getById(@PathVariable("id") long id) throws NotFoundException {
+        LOGGER.trace("getById({})", id);
+        return groupService.getById(id);
     }
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public GroupCreateDto createGroup(@RequestBody GroupCreateDto groupCreateDto) throws ValidationException, ConflictException {
-        LOGGER.info("POST " + BASE_PATH);
-        LOGGER.debug("request parameters: {}", groupCreateDto);
+        LOGGER.trace("createGroup({})", groupCreateDto);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -73,8 +60,7 @@ public class GroupEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("{id}")
     public GroupCreateDto updateGroup(@PathVariable("id") long id, @RequestBody GroupCreateDto groupCreateDto) throws ValidationException, ConflictException {
-        LOGGER.info("PUT " + BASE_PATH + "/{}", id);
-        LOGGER.debug("request parameters: {}, {}", groupCreateDto, id);
+        LOGGER.trace("updateGroup({}, {})", id, groupCreateDto);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

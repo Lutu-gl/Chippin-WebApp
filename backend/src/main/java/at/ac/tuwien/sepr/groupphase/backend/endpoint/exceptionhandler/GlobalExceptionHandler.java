@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.error.UserAlreadyExistsErrorDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
+
     /**
      * Use the @ExceptionHandler annotation to write handler for custom exceptions.
      */
@@ -57,6 +58,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     protected String handleAccessDenied(RuntimeException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(value = {InvalidFriendRequest.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    protected String handleInvalidFriendRequest(Throwable ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         return ex.getMessage();
     }

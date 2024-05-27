@@ -1,12 +1,12 @@
 .container .row.align-items-center {
-  margin-left: 20px; /* Abstand von links für die Mitglieder-Zeilen */
+  margin-left: 20px;
 }
 
 .container .row.align-items-center .form-check-input {
-  margin-left: 10px; /* Abstand zwischen Checkbox und Name */
+  margin-left: 10px;
 }
 
 .container .row.align-items-center .form-control {
-  max-width: 70px; /* Begrenzung der Breite des Prozent-Eingabefelds */
-  margin-left: 10px; /* Abstand zwischen Prozent-Eingabefeld und Checkbox */
+  max-width: 150px;
+  margin-left: 10px;
 }
