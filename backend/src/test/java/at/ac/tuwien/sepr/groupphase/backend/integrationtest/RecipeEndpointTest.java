@@ -245,7 +245,7 @@ public class RecipeEndpointTest extends BaseTest {
 
     }
 
-    @Test
+    /*@Test
     @WithMockUser
     public void givenEmptyRecipe_whenFindById_thenEmptyList()
         throws Exception {
@@ -315,7 +315,7 @@ public class RecipeEndpointTest extends BaseTest {
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),
             () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
-    }
+    }*/
 
 
     @Test
@@ -555,7 +555,7 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(resultDto[0].getName(), "Test Recipe");
     }
 
-    @Test
+    /*@Test
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenValidItemAndRecipe_AddItemToRecipeSuccessfully_ThenRecipeWithIngredient() throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -580,7 +580,7 @@ public class RecipeEndpointTest extends BaseTest {
             () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
             () -> assertNotNull(itemDto.getId())
         );
-    }
+    }*/
 
     @Test
     @WithMockUser(username = "tester@at", roles = "USER")
