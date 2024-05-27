@@ -33,6 +33,10 @@ export class GroupService {
     return this.http.put<BudgetDto>(this.groupBaseUri + `/${groupId}/budget/${budgetId}`, budget);
   }
 
+  getByBudgetId(groupId: number, budgetId: number): Observable<BudgetDto> {
+    return this.http.get<BudgetDto>(`${this.groupBaseUri}/${groupId}/budget/${budgetId}`);
+  }
+
   create(group: GroupDto): Observable<GroupDto> {
     // Convert into a format that the backend expects
     const memberEmails: Set<string> = new Set();

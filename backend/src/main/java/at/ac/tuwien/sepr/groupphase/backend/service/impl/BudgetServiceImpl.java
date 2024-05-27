@@ -36,7 +36,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         budgets.forEach(budget -> {
             if (budget.getTimestamp().isBefore(oneMonthAgo)) {
-                LOGGER.info("Resetting budget ID {} as it is older than one month", budget.getId());
+                LOGGER.trace("Resetting budget ID {} as it is older than one month", budget.getId());
                 resetBudget(budget);
             }
         });
@@ -48,7 +48,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public Budget resetBudget(Budget budget) {
-        LOGGER.debug("Resetting budget ID {}", budget.getId());
+        LOGGER.trace("Resetting budget ID {}", budget.getId());
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime newTimestamp = budget.getTimestamp();
 
@@ -70,7 +70,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public Budget createBudget(BudgetCreateDto budget, long groupId) {
-        LOGGER.debug("Creating a new budget for group ID {}", groupId);
+        LOGGER.trace("Creating new budget for group ID {}", groupId);
         GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
@@ -91,7 +91,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public Budget updateBudget(BudgetDto budgetDto, long groupId) {
-        LOGGER.debug("Updating budget ID {} for group ID {}", budgetDto.getId(), groupId);
+        LOGGER.trace("Updating budget ID {} for group ID {}", budgetDto.getId(), groupId);
         Budget budget = budgetRepository.findByIdAndGroupId(budgetDto.getId(), groupId)
             .orElseThrow(() -> new NotFoundException("Budget not found with ID: " + budgetDto.getId() + " for group ID: " + groupId));
 
@@ -102,7 +102,7 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public void addUsedAmount(long groupId, double amount, Category category) {
-        LOGGER.debug("Adding used amount of {} to all budgets for group ID {} and category {}", amount, groupId, category);
+        LOGGER.trace("Adding used amount of {} to all budgets for group ID {} and category {}", amount, groupId, category);
 
         List<Budget> budgets = this.findAllByGroupId(groupId);
         if (budgets.isEmpty()) {
@@ -121,7 +121,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public void removeUsedAmount(long groupId, double amount, Category category) {
-        LOGGER.debug("Removing used amount of {} from all budgets for group ID {} and category {}", amount, groupId, category);
+        LOGGER.trace("Removing used amount of {} from all budgets for group ID {} and category {}", amount, groupId, category);
 
         List<Budget> budgets = this.findAllByGroupId(groupId);
         if (budgets.isEmpty()) {
@@ -142,10 +142,18 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public void deleteBudget(long groupId, long budgetId) {
-        LOGGER.debug("Deleting budget ID {} for group ID {}", budgetId, groupId);
+        LOGGER.trace("Deleting budget ID {} for group ID {}", budgetId, groupId);
         Budget budget = budgetRepository.findByIdAndGroupId(budgetId, groupId)
             .orElseThrow(() -> new NotFoundException("Budget not found with ID: " + budgetId + " for group ID: " + groupId));
 
         budgetRepository.delete(budget);
+    }
+
+    @Override
+    @Transactional
+    public Budget findByGroupIdAndBudgetId(long groupId, long budgetId) {
+        LOGGER.trace("Fetching budget ID {} for group ID {}", budgetId, groupId);
+        return budgetRepository.findByIdAndGroupId(budgetId, groupId)
+            .orElseThrow(() -> new NotFoundException("Budget not found with ID: " + budgetId + " for group ID: " + groupId));
     }
 }
