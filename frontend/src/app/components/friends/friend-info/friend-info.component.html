@@ -5,7 +5,7 @@
         </div>
         <div class="card-body">
             <div class="mb-3">
-                <h2>Total debt: <span [ngClass]="{'text-danger': totalDebt < 0, 'text-success': totalDebt >= 0}">{{ totalDebt }}€</span></h2>
+                <h2>Total debt: <span [ngClass]="{'text-danger': totalDebt < 0, 'text-success': totalDebt >= 0}">{{ totalDebt | currency:'EUR':'symbol':'1.2-2' }}</span></h2>
             </div>
             <div>
                 <h3>Common groups</h3>
@@ -18,7 +18,7 @@
                     >
                         <span>{{ group.groupName }}</span>
                         <span [ngClass]="{'text-danger': group.debt < 0, 'text-success': group.debt > 0}">
-                            {{ group.debt === 0 ? 'quitt' : group.debt + '€' }}
+                        {{ group.debt === 0 ? 'quitt' : group.debt | currency:'EUR':'symbol':'1.2-2' }}
                         </span>
                     </li>
                 </ul>

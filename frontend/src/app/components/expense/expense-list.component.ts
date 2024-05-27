@@ -95,6 +95,10 @@ export class ExpenseListComponent implements OnChanges {
       case "EXPENSE_UPDATE": return "#FFEB99";
       case "EXPENSE_DELETE": return "#F7E0E0";
       case "EXPENSE_RECOVER": return "#E0F7E0";
+      case "PAYMENT": return "#E0F7E0";
+      case "PAYMENT_UPDATE": return "#FFEB99";
+      case "PAYMENT_DELETE": return "#F7E0E0";
+      case "PAYMENT_RECOVER": return "#E0F7E0";
       default: return "";
     }
   }
