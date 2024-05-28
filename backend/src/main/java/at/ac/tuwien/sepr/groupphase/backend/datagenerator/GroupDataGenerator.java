@@ -4,14 +4,17 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import com.github.javafaker.Faker;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 @Component
@@ -26,12 +29,45 @@ public class GroupDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.debug("generating data for group");
         List<ApplicationUser> applicationUsers = userRepository.findAll();
+        Faker faker = new Faker();
+        Random random = new Random();
+
+        String[] groupNames = {
+            "Berlin Reise", "WG-Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
+            "WG-Neukölln", "Madrid Expedition", "WG-Kreuzberg", "Prag Besuch", "WG-Prenzlauer Berg",
+            "Amsterdam Reise", "WG-Charlottenburg", "Lissabon Trip", "WG-Schöneberg", "Barcelona Ausflug",
+            "WG-Friedrichshain", "Dublin Urlaub", "WG-Treptow", "Wien Expedition", "WG-Lichtenberg",
+            "Budapest Besuch", "WG-Marzahn", "Stockholm Reise", "WG-Hellersdorf", "Kopenhagen Trip",
+            "WG-Reinickendorf", "Oslo Ausflug", "WG-Spandau", "Helsinki Urlaub", "WG-Steglitz",
+            "Riga Expedition", "WG-Zehlendorf", "Tallinn Besuch"
+        };
+
+        ApplicationUser user1 = userRepository.findByEmail("luca@chippin.com");
+        ApplicationUser user2 = userRepository.findByEmail("max@chippin.com");
+        ApplicationUser user3 = userRepository.findByEmail("lukas@chippin.com");
+        ApplicationUser user4 = userRepository.findByEmail("rafael@chippin.com");
+        ApplicationUser user5 = userRepository.findByEmail("emil@chippin.com");
+        ApplicationUser user6 = userRepository.findByEmail("sebastian@chippin.com");
+
+        Set<ApplicationUser> users = new HashSet<>();
+        users.add(user1);
+        users.add(user2);
+        users.add(user3);
+        users.add(user4);
+        users.add(user5);
+        users.add(user6);
+
+        groupRepository.save(GroupEntity.builder()
+            .groupName("Chippin")
+            .users(users)
+            .build());
 
         for (int i = 0; i < 20; i++) {
-            Set<ApplicationUser> groupUsers = new HashSet<>(applicationUsers.subList(i % applicationUsers.size(), (i % applicationUsers.size()) + 6));
+            Collections.shuffle(applicationUsers);
+            Set<ApplicationUser> groupUsers = new HashSet<>(applicationUsers.subList(0, 6));
 
             GroupEntity group = GroupEntity.builder()
-                .groupName("groupExample" + i)
+                .groupName(groupNames[random.nextInt(groupNames.length)])
                 .users(groupUsers)
                 .build();
 
@@ -39,28 +75,28 @@ public class GroupDataGenerator implements DataGenerator {
         }
 
         GroupEntity pantryTestGroup1 = GroupEntity.builder()
-            .groupName("PantryTestGroup1")
+            .groupName(groupNames[random.nextInt(groupNames.length)])
             .users(Set.of(
-                userRepository.findByEmail("user1@example.com"),
-                userRepository.findByEmail("user2@example.com")
-                ))
+                userRepository.findByEmail("emil@chippin.com"),
+                userRepository.findByEmail("rafael@chippin.com")
+            ))
             .build();
         groupRepository.save(pantryTestGroup1);
 
         GroupEntity pantryTestGroup2 = GroupEntity.builder()
-            .groupName("PantryTestGroup2")
+            .groupName(groupNames[random.nextInt(groupNames.length)])
             .users(Set.of(
-                userRepository.findByEmail("user1@example.com"),
-                userRepository.findByEmail("user2@example.com")
+                userRepository.findByEmail("emil@chippin.com"),
+                userRepository.findByEmail("rafael@chippin.com")
             ))
             .build();
         groupRepository.save(pantryTestGroup2);
 
         GroupEntity pantryTestGroup3 = GroupEntity.builder()
-            .groupName("PantryTestGroup3")
+            .groupName(groupNames[random.nextInt(groupNames.length)])
             .users(Set.of(
-                userRepository.findByEmail("user1@example.com"),
-                userRepository.findByEmail("user2@example.com")
+                userRepository.findByEmail("emil@chippin.com"),
+                userRepository.findByEmail("rafael@chippin.com")
             ))
             .build();
         groupRepository.save(pantryTestGroup3);

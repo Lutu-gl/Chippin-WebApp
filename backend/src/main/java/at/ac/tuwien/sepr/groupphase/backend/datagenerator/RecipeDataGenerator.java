@@ -1,16 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
-import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -39,7 +37,7 @@ public class RecipeDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.debug("generating data for recipes");
         List<ApplicationUser> users = userRepository.findAll();
-
+        Faker faker = new Faker();
 
         Recipe recipe1 = Recipe.builder()
             .name("Lasagne Bolognese")
@@ -96,8 +94,8 @@ public class RecipeDataGenerator implements DataGenerator {
 
 
         recipeRepository.saveAndFlush(Recipe.builder()
-            .name("Empty Recipe")
-            .description("This Recipe has no Ingredients")
+            .name(faker.lorem().word())
+            .description(faker.lorem().paragraph())
             .isPublic(true)
             .portionSize(1)
             .owner(users.get(5))
@@ -113,11 +111,11 @@ public class RecipeDataGenerator implements DataGenerator {
             "Coffee", "Tea", "Juice", "Water", "Soda", "Beer", "Wine", "Whiskey"
         };
         Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
-        ApplicationUser user = users.stream().filter(o -> o.getEmail().equals("user5@example.com")).findFirst().get();
+        ApplicationUser user = users.stream().filter(o -> o.getEmail().equals("rafael@chippin.com")).findFirst().get();
         for (int i = 0; i < 30; i++) {
             Recipe recipe = Recipe.builder()
-                .name("Recipe " + (i + 2))
-                .description("This is a random recipe description.")
+                .name(faker.lorem().word())
+                .description(faker.lorem().paragraph())
                 .isPublic(random.nextBoolean())
                 .portionSize(random.nextInt(10) + 1)
                 .owner(user)
@@ -135,21 +133,21 @@ public class RecipeDataGenerator implements DataGenerator {
         }
 
         //Recipes for Pantry Tests
-        ApplicationUser user1 = userRepository.findByEmail("user1@example.com");
+        ApplicationUser user1 = userRepository.findByEmail("rafael@chippin.com");
         Recipe pantryTestRecipe1 = Recipe.builder()
             .owner(user1)
             .isPublic(false)
             .portionSize(1)
-            .description("Test Description")
-            .name("Test 1").build();
+            .description(faker.lorem().paragraph())
+            .name(faker.lorem().word()).build();
         pantryTestRecipe1.addIngredient(
             Item.builder()
-                .description("PantryTest-Potato")
+                .description(descriptions[random.nextInt(descriptions.length)])
                 .amount(2)
                 .unit(Unit.Piece).build());
         pantryTestRecipe1.addIngredient(
             Item.builder()
-                .description("PantryTest-Milk")
+                .description(descriptions[random.nextInt(descriptions.length)])
                 .amount(200)
                 .unit(Unit.Milliliter).build());
         user1.addRecipe(pantryTestRecipe1);
@@ -160,11 +158,11 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(false)
             .portionSize(1)
-            .description("Test Description")
-            .name("Test 2").build();
+            .description(faker.lorem().paragraph())
+            .name(faker.lorem().word()).build();
         pantryTestRecipe2.addIngredient(
             Item.builder()
-                .description("PantryTest-Potato")
+                .description(descriptions[random.nextInt(descriptions.length)])
                 .amount(2)
                 .unit(Unit.Piece).build());
         user1.addRecipe(pantryTestRecipe1);
@@ -175,11 +173,11 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(false)
             .portionSize(1)
-            .description("Test Description")
-            .name("Test 3").build();
+            .description(faker.lorem().paragraph())
+            .name(faker.lorem().word()).build();
         pantryTestRecipe3.addIngredient(
             Item.builder()
-                .description("PantryTest-Honey")
+                .description(descriptions[random.nextInt(descriptions.length)])
                 .amount(2)
                 .unit(Unit.Piece).build());
         user1.addRecipe(pantryTestRecipe1);
