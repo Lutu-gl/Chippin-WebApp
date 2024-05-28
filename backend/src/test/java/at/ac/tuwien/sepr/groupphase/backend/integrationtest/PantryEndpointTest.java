@@ -7,7 +7,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryI
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -16,7 +15,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,10 +32,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.text.MessageFormat;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -81,7 +82,7 @@ public class PantryEndpointTest extends BaseTest {
         Long id = userRepository.findByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", -1)))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/pantry", -1)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -98,7 +99,7 @@ public class PantryEndpointTest extends BaseTest {
         Long groupId = groupRepository.findByGroupName("PantryTestGroup3").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", groupId)))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/pantry", groupId)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -178,7 +179,7 @@ public class PantryEndpointTest extends BaseTest {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupId))
+        MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/pantry", groupId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -240,7 +241,7 @@ public class PantryEndpointTest extends BaseTest {
 
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MessageFormat.format("/api/v1/group/{0}/pantry", groupId))
+        MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/pantry", groupId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -293,7 +294,7 @@ public class PantryEndpointTest extends BaseTest {
         ItemDto dto = ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build();
         String body = objectMapper.writeValueAsString(dto);
 
-        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/pantry", group.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -326,7 +327,7 @@ public class PantryEndpointTest extends BaseTest {
         ItemDto dto = ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build();
         String body = objectMapper.writeValueAsString(dto);
 
-        MvcResult mvcResult = this.mockMvc.perform(put(MessageFormat.format("/api/v1/group/{0}/pantry", group.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/pantry", group.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .accept(MediaType.APPLICATION_JSON))
@@ -400,7 +401,8 @@ public class PantryEndpointTest extends BaseTest {
             .getResponse()
             .getContentAsByteArray();
 
-        List<RecipeListDto> recipes = objectMapper.readValue(body, new TypeReference<List<RecipeListDto>>() {});
+        List<RecipeListDto> recipes = objectMapper.readValue(body, new TypeReference<List<RecipeListDto>>() {
+        });
         assertAll(
             () -> assertEquals(2, recipes.size()),
             () -> assertEquals("Test 1", recipes.get(0).getName()),
