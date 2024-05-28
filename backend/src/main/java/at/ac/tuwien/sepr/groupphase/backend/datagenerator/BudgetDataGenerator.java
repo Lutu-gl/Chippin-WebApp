@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
+package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;

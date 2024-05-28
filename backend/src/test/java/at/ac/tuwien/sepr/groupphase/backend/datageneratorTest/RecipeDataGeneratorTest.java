@@ -1,12 +1,10 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
-import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -24,7 +22,7 @@ import java.util.Random;
 
 @Component
 @AllArgsConstructor
-public class RecipeDataGenerator implements DataGenerator {
+public class RecipeDataGeneratorTest implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     UserRepository userRepository;

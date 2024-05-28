@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
@@ -13,7 +14,7 @@ import java.util.Arrays;
 
 @Component
 @AllArgsConstructor
-public class ItemDataGenerator implements DataGenerator {
+public class ItemDataGeneratorTest implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final ItemRepository itemRepository;

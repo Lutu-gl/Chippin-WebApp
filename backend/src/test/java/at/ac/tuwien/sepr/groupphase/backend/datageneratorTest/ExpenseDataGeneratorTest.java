@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
@@ -27,7 +28,7 @@ import java.util.Set;
 
 @Component
 @AllArgsConstructor
-public class ExpenseDataGenerator implements DataGenerator {
+public class ExpenseDataGeneratorTest implements DataGenerator {
     ExpenseRepository expenseRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
@@ -44,7 +45,7 @@ public class ExpenseDataGenerator implements DataGenerator {
         String[] expenseNames = {
             "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
             "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut"
-            };
+        };
         Category[] categories = {
             Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
         };

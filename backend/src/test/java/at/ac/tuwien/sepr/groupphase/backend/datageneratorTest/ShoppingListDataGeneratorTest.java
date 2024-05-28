@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -22,7 +23,7 @@ import java.util.Random;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ShoppingListDataGenerator implements DataGenerator {
+public class ShoppingListDataGeneratorTest implements DataGenerator {
 
     private final ShoppingListRepository shoppingListRepository;
     private final GroupRepository groupRepository;

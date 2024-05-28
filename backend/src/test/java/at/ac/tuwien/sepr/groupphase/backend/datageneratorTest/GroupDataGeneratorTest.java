@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 @Component
 @AllArgsConstructor
-public class GroupDataGenerator implements DataGenerator {
+public class GroupDataGeneratorTest implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     UserRepository userRepository;
@@ -43,7 +44,7 @@ public class GroupDataGenerator implements DataGenerator {
             .users(Set.of(
                 userRepository.findByEmail("user1@example.com"),
                 userRepository.findByEmail("user2@example.com")
-                ))
+            ))
             .build();
         groupRepository.save(pantryTestGroup1);
 

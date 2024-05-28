@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -22,7 +23,7 @@ import java.util.Random;
 
 @Component
 @AllArgsConstructor
-public class ActivityDataGenerator implements DataGenerator {
+public class ActivityDataGeneratorTest implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 

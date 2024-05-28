@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
+package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;

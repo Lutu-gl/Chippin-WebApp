@@ -1,35 +1,31 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 
-@Profile("generateData")
 @Component
 @AllArgsConstructor
-public class GeneralDataGenerator implements DataGenerator {
+public class GeneralDataGeneratorTest implements DataGeneratorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final UserDataGenerator userDataGenerator;
-    private final GroupDataGenerator groupDataGenerator;
-    private final FriendshipDataGenerator friendshipDataGenerator;
-    private final PantryDataGenerator pantryDataGenerator;
-    private final ItemDataGenerator itemDataGenerator;
-    private final RecipeDataGenerator recipeDataGenerator;
-    private final ExpenseDataGenerator expenseDataGenerator;
-    private final ActivityDataGenerator activityDataGenerator;
-    private final PaymentDataGenerator paymentDataGenerator;
-    private final ShoppingListDataGenerator shoppingListDataGenerator;
-    private final BudgetDataGenerator budgetDataGenerator;
+    private final UserDataGeneratorTest userDataGenerator;
+    private final GroupDataGeneratorTest groupDataGenerator;
+    private final FriendshipDataGeneratorTest friendshipDataGenerator;
+    private final PantryDataGeneratorTest pantryDataGenerator;
+    private final ItemDataGeneratorTest itemDataGenerator;
+    private final RecipeDataGeneratorTest recipeDataGenerator;
+    private final ExpenseDataGeneratorTest expenseDataGenerator;
+    private final ActivityDataGeneratorTest activityDataGenerator;
+    private final PaymentDataGeneratorTest paymentDataGenerator;
+    private final ShoppingListDataGeneratorTest shoppingListDataGenerator;
+    private final BudgetDataGeneratorTest budgetDataGenerator;
 
-    @PostConstruct
     public void generateData() {
-        LOGGER.debug("generating all data");
+        LOGGER.debug("generating all data for test");
         cleanData();
         userDataGenerator.generateData();
         groupDataGenerator.generateData();
@@ -43,11 +39,11 @@ public class GeneralDataGenerator implements DataGenerator {
         budgetDataGenerator.generateData();
 
         shoppingListDataGenerator.generateData();
-        LOGGER.debug("finished generating all data");
+        LOGGER.debug("finished generating all data for test");
     }
 
     public void cleanData() {
-        LOGGER.debug("cleaning all data");
+        LOGGER.debug("cleaning all data for test");
         budgetDataGenerator.cleanData();
         activityDataGenerator.cleanData();
         paymentDataGenerator.cleanData();
@@ -60,7 +56,7 @@ public class GeneralDataGenerator implements DataGenerator {
         groupDataGenerator.cleanData();
 
         userDataGenerator.cleanData();
-        LOGGER.debug("finished cleaning all data");
+        LOGGER.debug("finished cleaning all data for test");
     }
 
 }
