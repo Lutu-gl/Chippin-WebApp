@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -131,7 +130,7 @@ public class SecurityTest extends BaseTest {
         group.setPantry(pantry);
         groupRepository.save(group);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
@@ -154,7 +153,7 @@ public class SecurityTest extends BaseTest {
         group.setPantry(pantry);
         groupRepository.save(group);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId()))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/pantry", pantry.getId()))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1TestSec@email.com", USER_ROLES)))
             .andDo(print())
             .andReturn();
@@ -171,7 +170,7 @@ public class SecurityTest extends BaseTest {
         group.setPantry(pantry);
         groupRepository.save(group);
 
-        MvcResult mvcResult = this.mockMvc.perform(get(MessageFormat.format("/api/v1/group/{0}/pantry", pantry.getId())))
+        MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/pantry", pantry.getId())))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
