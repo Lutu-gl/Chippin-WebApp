@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
+package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
