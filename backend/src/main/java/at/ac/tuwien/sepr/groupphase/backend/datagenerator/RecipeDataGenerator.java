@@ -37,7 +37,6 @@ public class RecipeDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.debug("generating data for recipes");
         List<ApplicationUser> users = userRepository.findAll();
-        Faker faker = new Faker();
 
         Recipe recipe1 = Recipe.builder()
             .name("Lasagne Bolognese")
@@ -92,7 +91,7 @@ public class RecipeDataGenerator implements DataGenerator {
         recipeRepository.saveAndFlush(recipe2);
         userRepository.saveAndFlush(users.getFirst());
 
-
+        Faker faker = new Faker();
         recipeRepository.saveAndFlush(Recipe.builder()
             .name(faker.lorem().word())
             .description(faker.lorem().paragraph())

@@ -28,7 +28,7 @@ public class GroupDataGeneratorTest implements DataGenerator {
         LOGGER.debug("generating data for group");
         List<ApplicationUser> applicationUsers = userRepository.findAll();
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             Set<ApplicationUser> groupUsers = new HashSet<>(applicationUsers.subList(i % applicationUsers.size(), (i % applicationUsers.size()) + 6));
 
             GroupEntity group = GroupEntity.builder()

@@ -4,7 +4,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
-import com.github.javafaker.Faker;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +27,8 @@ public class GroupDataGenerator implements DataGenerator {
     @Override
     public void generateData() {
         LOGGER.debug("generating data for group");
-        List<ApplicationUser> applicationUsers = userRepository.findAll();
-        Faker faker = new Faker();
-        Random random = new Random();
+        final Random random = new Random();
 
-        String[] groupNames = {
-            "Berlin Reise", "WG-Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
-            "WG-Neukölln", "Madrid Expedition", "WG-Kreuzberg", "Prag Besuch", "WG-Prenzlauer Berg",
-            "Amsterdam Reise", "WG-Charlottenburg", "Lissabon Trip", "WG-Schöneberg", "Barcelona Ausflug",
-            "WG-Friedrichshain", "Dublin Urlaub", "WG-Treptow", "Wien Expedition", "WG-Lichtenberg",
-            "Budapest Besuch", "WG-Marzahn", "Stockholm Reise", "WG-Hellersdorf", "Kopenhagen Trip",
-            "WG-Reinickendorf", "Oslo Ausflug", "WG-Spandau", "Helsinki Urlaub", "WG-Steglitz",
-            "Riga Expedition", "WG-Zehlendorf", "Tallinn Besuch"
-        };
 
         ApplicationUser user1 = userRepository.findByEmail("luca@chippin.com");
         ApplicationUser user2 = userRepository.findByEmail("max@chippin.com");
@@ -61,6 +49,17 @@ public class GroupDataGenerator implements DataGenerator {
             .groupName("Chippin")
             .users(users)
             .build());
+
+        final List<ApplicationUser> applicationUsers = userRepository.findAll();
+        final String[] groupNames = {
+            "Berlin Reise", "WG-Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
+            "WG-Neukölln", "Madrid Expedition", "WG-Kreuzberg", "Prag Besuch", "WG-Prenzlauer Berg",
+            "Amsterdam Reise", "WG-Charlottenburg", "Lissabon Trip", "WG-Schöneberg", "Barcelona Ausflug",
+            "WG-Friedrichshain", "Dublin Urlaub", "WG-Treptow", "Wien Expedition", "WG-Lichtenberg",
+            "Budapest Besuch", "WG-Marzahn", "Stockholm Reise", "WG-Hellersdorf", "Kopenhagen Trip",
+            "WG-Reinickendorf", "Oslo Ausflug", "WG-Spandau", "Helsinki Urlaub", "WG-Steglitz",
+            "Riga Expedition", "WG-Zehlendorf", "Tallinn Besuch"
+        };
 
         for (int i = 0; i < 20; i++) {
             Collections.shuffle(applicationUsers);

@@ -19,7 +19,7 @@ public class UserDataGeneratorTest implements DataGenerator {
     @Override
     public void generateData() {
         LOGGER.debug("generating data for user");
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 15; i++) {
             userRepository.save(ApplicationUser.builder()
                 .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
                 .email("user" + (i + 1) + "@example.com")

@@ -19,7 +19,7 @@ public class UserDataGenerator implements DataGenerator {
     @Override
     public void generateData() {
         LOGGER.debug("generating data for user");
-        Faker faker = new Faker();
+        final Faker faker = new Faker();
 
         userRepository.save(ApplicationUser.builder()
             .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
