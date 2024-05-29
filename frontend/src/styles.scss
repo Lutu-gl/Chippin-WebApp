@@ -1,8 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+//@tailwind base;
+//@tailwind components;
+//@tailwind utilities;
+//
+//@import "primeng/resources/themes/lara-light-blue/theme.css";
+//@import "primeng/resources/primeng.css";
+
+
+@layer tailwind-base, primeng, tailwind-utilities;
+
+@import "bootstrap/dist/css/bootstrap-reboot.css" layer(bootstrap-rebooot);
+
+@import "node_modules/bootstrap-icons/font/bootstrap-icons.css" layer(bootstrap-icons);
+@import "node_modules/bootstrap/dist/css/bootstrap.css" layer(bootstrap);
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
 
 /* You can add global styles to this file, and also import other style files */
 body {
   background-color: whitesmoke;
+}
+
+html {
+  font-size: 16px;
 }
