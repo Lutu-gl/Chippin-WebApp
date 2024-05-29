@@ -188,11 +188,11 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(true)
             .portionSize(4)
-            .description("A hearty and delicious homemade spaghetti bolognese. " +
-                "\n\nIngredients: \n- 400g Spaghetti \n- 500g Ground Beef \n- 2 cups Tomato Sauce " +
-                "\n\nInstructions: \n1. Cook the spaghetti according to the package instructions. " +
-                "\n2. In a pan, cook the ground beef until browned. \n3. Add the tomato sauce to the beef and simmer for 10 minutes. " +
-                "\n4. Serve the sauce over the spaghetti and enjoy.")
+            .description("A hearty and delicious homemade spaghetti bolognese. "
+                + "\n\nIngredients: \n- 400g Spaghetti \n- 500g Ground Beef \n- 2 cups Tomato Sauce "
+                + "\n\nInstructions: \n1. Cook the spaghetti according to the package instructions. "
+                + "\n2. In a pan, cook the ground beef until browned. \n3. Add the tomato sauce to the beef and simmer for 10 minutes. "
+                + "\n4. Serve the sauce over the spaghetti and enjoy.")
             .name("Spaghetti Bolognese")
             .build();
         newRecipe1.addIngredient(
@@ -221,10 +221,10 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(true)
             .portionSize(2)
-            .description("A quick and easy avocado toast, perfect for breakfast or a light lunch. " +
-                "\n\nIngredients: \n- 1 Avocado \n- 2 slices Whole Grain Bread \n- 1 tsp Salt \n- 0.5 tsp Pepper " +
-                "\n\nInstructions: \n1. Toast the bread slices. \n2. Mash the avocado and spread it on the toasted bread." +
-                " \n3. Sprinkle with salt and pepper. \n4. Serve immediately.")
+            .description("A quick and easy avocado toast, perfect for breakfast or a light lunch. "
+                + "\n\nIngredients: \n- 1 Avocado \n- 2 slices Whole Grain Bread \n- 1 tsp Salt \n- 0.5 tsp Pepper "
+                + "\n\nInstructions: \n1. Toast the bread slices. \n2. Mash the avocado and spread it on the toasted bread."
+                + " \n3. Sprinkle with salt and pepper. \n4. Serve immediately.")
             .name("Avocado Toast")
             .build();
         newRecipe2.addIngredient(
@@ -259,10 +259,10 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(false)
             .portionSize(1)
-            .description("A simple and refreshing cucumber salad, perfect as a side dish or a light snack. " +
-                "\n\nIngredients: \n- 1 Cucumber \n- 2 tbsp Vinegar \n- 1 tbsp Olive Oil \n- 0.5 tsp Salt \n- 0.5 tsp Pepper " +
-                "\n\nInstructions: \n1. Slice the cucumber thinly. \n2. Mix vinegar, olive oil, salt, and pepper in a bowl. " +
-                "\n3. Add the cucumber slices and toss to coat. \n4. Serve immediately or chill in the refrigerator before serving.")
+            .description("A simple and refreshing cucumber salad, perfect as a side dish or a light snack. "
+                + "\n\nIngredients: \n- 1 Cucumber \n- 2 tbsp Vinegar \n- 1 tbsp Olive Oil \n- 0.5 tsp Salt \n- 0.5 tsp Pepper "
+                + "\n\nInstructions: \n1. Slice the cucumber thinly. \n2. Mix vinegar, olive oil, salt, and pepper in a bowl. "
+                + "\n3. Add the cucumber slices and toss to coat. \n4. Serve immediately or chill in the refrigerator before serving.")
             .name("Cucumber Salad")
             .build();
         newRecipe3.addIngredient(
@@ -303,11 +303,11 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(true)
             .portionSize(2)
-            .description("A classic chicken Caesar salad that's both healthy and tasty. " +
-                "\n\nIngredients: \n- 2 Chicken Breasts \n- 1 head Romaine Lettuce \n- 1/2 cup Caesar Dressing " +
-                "\n- 1/4 cup Parmesan Cheese \n- 1 cup Croutons \n\nInstructions: \n1. Grill or cook the chicken breasts and slice them. " +
-                "\n2. Chop the romaine lettuce and place it in a large bowl. \n3. Add the Caesar dressing and toss to coat. " +
-                "\n4. Top with chicken slices, Parmesan cheese, and croutons. \n5. Serve immediately.")
+            .description("A classic chicken Caesar salad that's both healthy and tasty. "
+                + "\n\nIngredients: \n- 2 Chicken Breasts \n- 1 head Romaine Lettuce \n- 1/2 cup Caesar Dressing "
+                + "\n- 1/4 cup Parmesan Cheese \n- 1 cup Croutons \n\nInstructions: \n1. Grill or cook the chicken breasts and slice them. "
+                + "\n2. Chop the romaine lettuce and place it in a large bowl. \n3. Add the Caesar dressing and toss to coat. "
+                + "\n4. Top with chicken slices, Parmesan cheese, and croutons. \n5. Serve immediately.")
             .name("Chicken Caesar Salad")
             .build();
         newRecipe4.addIngredient(
@@ -348,13 +348,13 @@ public class RecipeDataGenerator implements DataGenerator {
             .owner(user1)
             .isPublic(true)
             .portionSize(12)
-            .description("Delicious homemade chocolate chip cookies, perfect for any occasion. " +
-                "\n\nIngredients: \n- 1 cup Butter \n- 1 cup Sugar \n- 1 cup Brown Sugar \n- 2 Eggs " +
-                "\n- 2 tsp Vanilla Extract \n- 3 cups Flour \n- 1 tsp Baking Soda \n- 1/2 tsp Salt \n- 2 cups Chocolate Chips " +
-                "\n\nInstructions: \n1. Preheat the oven to 350°F (175°C). \n2. Cream together the butter, sugar, and brown sugar. " +
-                "\n3. Beat in the eggs and vanilla extract. \n4. In a separate bowl, combine the flour, baking soda, and salt. " +
-                "\n5. Gradually add the dry ingredients to the wet ingredients. \n6. Stir in the chocolate chips. \n7. Drop by rounded spoonfuls onto a baking sheet. " +
-                "\n8. Bake for 10-12 minutes or until golden brown. \n9. Let cool on a wire rack.")
+            .description("Delicious homemade chocolate chip cookies, perfect for any occasion. "
+                + "\n\nIngredients: \n- 1 cup Butter \n- 1 cup Sugar \n- 1 cup Brown Sugar \n- 2 Eggs "
+                + "\n- 2 tsp Vanilla Extract \n- 3 cups Flour \n- 1 tsp Baking Soda \n- 1/2 tsp Salt \n- 2 cups Chocolate Chips "
+                + "\n\nInstructions: \n1. Preheat the oven to 350°F (175°C). \n2. Cream together the butter, sugar, and brown sugar. "
+                + "\n3. Beat in the eggs and vanilla extract. \n4. In a separate bowl, combine the flour, baking soda, and salt. "
+                + "\n5. Gradually add the dry ingredients to the wet ingredients. \n6. Stir in the chocolate chips. \n7. Drop by rounded spoonfuls onto a baking sheet. "
+                + "\n8. Bake for 10-12 minutes or until golden brown. \n9. Let cool on a wire rack.")
             .name("Chocolate Chip Cookies")
             .build();
         newRecipe5.addIngredient(
