@@ -182,6 +182,239 @@ public class RecipeDataGenerator implements DataGenerator {
         user1.addRecipe(pantryTestRecipe1);
         recipeRepository.saveAndFlush(pantryTestRecipe3);
         userRepository.saveAndFlush(user1);
+
+
+        Recipe newRecipe1 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(4)
+            .description("A hearty and delicious homemade spaghetti bolognese. " +
+                "\n\nIngredients: \n- 400g Spaghetti \n- 500g Ground Beef \n- 2 cups Tomato Sauce " +
+                "\n\nInstructions: \n1. Cook the spaghetti according to the package instructions. " +
+                "\n2. In a pan, cook the ground beef until browned. \n3. Add the tomato sauce to the beef and simmer for 10 minutes. " +
+                "\n4. Serve the sauce over the spaghetti and enjoy.")
+            .name("Spaghetti Bolognese")
+            .build();
+        newRecipe1.addIngredient(
+            Item.builder()
+                .description("Spaghetti")
+                .amount(400)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe1.addIngredient(
+            Item.builder()
+                .description("Ground Beef")
+                .amount(500)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe1.addIngredient(
+            Item.builder()
+                .description("Tomato Sauce")
+                .amount(2)
+                .unit(Unit.Milliliter)
+                .build());
+        user1.addRecipe(newRecipe1);
+        recipeRepository.saveAndFlush(newRecipe1);
+
+        // Recipe 2: Avocado Toast
+        Recipe newRecipe2 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(2)
+            .description("A quick and easy avocado toast, perfect for breakfast or a light lunch. " +
+                "\n\nIngredients: \n- 1 Avocado \n- 2 slices Whole Grain Bread \n- 1 tsp Salt \n- 0.5 tsp Pepper " +
+                "\n\nInstructions: \n1. Toast the bread slices. \n2. Mash the avocado and spread it on the toasted bread." +
+                " \n3. Sprinkle with salt and pepper. \n4. Serve immediately.")
+            .name("Avocado Toast")
+            .build();
+        newRecipe2.addIngredient(
+            Item.builder()
+                .description("Avocado")
+                .amount(1)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe2.addIngredient(
+            Item.builder()
+                .description("Whole Grain Bread")
+                .amount(2)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe2.addIngredient(
+            Item.builder()
+                .description("Salt")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe2.addIngredient(
+            Item.builder()
+                .description("Pepper")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        user1.addRecipe(newRecipe2);
+        recipeRepository.saveAndFlush(newRecipe2);
+
+        // Recipe 3: Cucumber Salad
+        Recipe newRecipe3 = Recipe.builder()
+            .owner(user1)
+            .isPublic(false)
+            .portionSize(1)
+            .description("A simple and refreshing cucumber salad, perfect as a side dish or a light snack. " +
+                "\n\nIngredients: \n- 1 Cucumber \n- 2 tbsp Vinegar \n- 1 tbsp Olive Oil \n- 0.5 tsp Salt \n- 0.5 tsp Pepper " +
+                "\n\nInstructions: \n1. Slice the cucumber thinly. \n2. Mix vinegar, olive oil, salt, and pepper in a bowl. " +
+                "\n3. Add the cucumber slices and toss to coat. \n4. Serve immediately or chill in the refrigerator before serving.")
+            .name("Cucumber Salad")
+            .build();
+        newRecipe3.addIngredient(
+            Item.builder()
+                .description("Cucumber")
+                .amount(1)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe3.addIngredient(
+            Item.builder()
+                .description("Vinegar")
+                .amount(2)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe3.addIngredient(
+            Item.builder()
+                .description("Olive Oil")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe3.addIngredient(
+            Item.builder()
+                .description("Salt")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe3.addIngredient(
+            Item.builder()
+                .description("Pepper")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        user1.addRecipe(newRecipe3);
+        recipeRepository.saveAndFlush(newRecipe3);
+
+        // Recipe 4: Chicken Caesar Salad
+        Recipe newRecipe4 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(2)
+            .description("A classic chicken Caesar salad that's both healthy and tasty. " +
+                "\n\nIngredients: \n- 2 Chicken Breasts \n- 1 head Romaine Lettuce \n- 1/2 cup Caesar Dressing " +
+                "\n- 1/4 cup Parmesan Cheese \n- 1 cup Croutons \n\nInstructions: \n1. Grill or cook the chicken breasts and slice them. " +
+                "\n2. Chop the romaine lettuce and place it in a large bowl. \n3. Add the Caesar dressing and toss to coat. " +
+                "\n4. Top with chicken slices, Parmesan cheese, and croutons. \n5. Serve immediately.")
+            .name("Chicken Caesar Salad")
+            .build();
+        newRecipe4.addIngredient(
+            Item.builder()
+                .description("Chicken Breasts")
+                .amount(2)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe4.addIngredient(
+            Item.builder()
+                .description("Romaine Lettuce")
+                .amount(1)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe4.addIngredient(
+            Item.builder()
+                .description("Caesar Dressing")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe4.addIngredient(
+            Item.builder()
+                .description("Parmesan Cheese")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe4.addIngredient(
+            Item.builder()
+                .description("Croutons")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        user1.addRecipe(newRecipe4);
+        recipeRepository.saveAndFlush(newRecipe4);
+
+        // Recipe 5: Chocolate Chip Cookies
+        Recipe newRecipe5 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(12)
+            .description("Delicious homemade chocolate chip cookies, perfect for any occasion. " +
+                "\n\nIngredients: \n- 1 cup Butter \n- 1 cup Sugar \n- 1 cup Brown Sugar \n- 2 Eggs " +
+                "\n- 2 tsp Vanilla Extract \n- 3 cups Flour \n- 1 tsp Baking Soda \n- 1/2 tsp Salt \n- 2 cups Chocolate Chips " +
+                "\n\nInstructions: \n1. Preheat the oven to 350°F (175°C). \n2. Cream together the butter, sugar, and brown sugar. " +
+                "\n3. Beat in the eggs and vanilla extract. \n4. In a separate bowl, combine the flour, baking soda, and salt. " +
+                "\n5. Gradually add the dry ingredients to the wet ingredients. \n6. Stir in the chocolate chips. \n7. Drop by rounded spoonfuls onto a baking sheet. " +
+                "\n8. Bake for 10-12 minutes or until golden brown. \n9. Let cool on a wire rack.")
+            .name("Chocolate Chip Cookies")
+            .build();
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Butter")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Sugar")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Brown Sugar")
+                .amount(1)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Eggs")
+                .amount(2)
+                .unit(Unit.Piece)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Vanilla Extract")
+                .amount(2)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Flour")
+                .amount(3)
+                .unit(Unit.Milliliter)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Baking Soda")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Salt")
+                .amount(1)
+                .unit(Unit.Gram)
+                .build());
+        newRecipe5.addIngredient(
+            Item.builder()
+                .description("Chocolate Chips")
+                .amount(2)
+                .unit(Unit.Milliliter)
+                .build());
+        user1.addRecipe(newRecipe5);
+        recipeRepository.saveAndFlush(newRecipe5);
+
+        userRepository.saveAndFlush(user1);
     }
 
     @Override
