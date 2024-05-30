@@ -100,23 +100,35 @@ public class Recipe {
     }
 
     public void addLiker(ApplicationUser user) {
-        likedByUsers.add(user);
-        user.getLikedRecipes().add(this);
-    }
-
-    public void addDisliker(ApplicationUser user) {
-        dislikedByUsers.add(user);
-        user.getDislikedRecipes().add(this);
+        if (!likedByUsers.contains(user)) {
+            likedByUsers.add(user);
+            user.getLikedRecipes().add(this);
+            likes = likedByUsers.size();
+        }
     }
 
     public void removeLiker(ApplicationUser user) {
-        this.likedByUsers.remove(user);
-        user.getLikedRecipes().remove(this);
+        if (likedByUsers.contains(user)) {
+            likedByUsers.remove(user);
+            user.getLikedRecipes().remove(this);
+            likes = likedByUsers.size();
+        }
+    }
+
+    public void addDisliker(ApplicationUser user) {
+        if (!dislikedByUsers.contains(user)) {
+            dislikedByUsers.add(user);
+            user.getDislikedRecipes().add(this);
+            dislikes = dislikedByUsers.size();
+        }
     }
 
     public void removeDisliker(ApplicationUser user) {
-        this.dislikedByUsers.remove(user);
-        user.getDislikedRecipes().remove(this);
+        if (dislikedByUsers.contains(user)) {
+            dislikedByUsers.remove(user);
+            user.getDislikedRecipes().remove(this);
+            dislikes = dislikedByUsers.size();
+        }
     }
 
     @PreRemove

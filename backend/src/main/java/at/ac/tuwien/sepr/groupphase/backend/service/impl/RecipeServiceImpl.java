@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -211,26 +212,28 @@ public class RecipeServiceImpl implements RecipeService {
             }
 
 
-            user.addRecipeLike(recipe);
-            recipe.addLiker(user);
             ApplicationUser owner = recipe.getOwner();
-            if (owner.getRecipes().contains(recipe)) {
-                owner.getRecipes().remove(recipe);
-                owner.addRecipe(recipe);
-            }
-            recipe.setLikes(recipe.getLikedByUsers().size());
-            if (user.getDislikedRecipes().contains(recipe)) {
-                recipe.removeDisliker(user);
 
+            // Remove dislike if it exists
+            //TODO
+            if (recipe.getDislikedByUsers().contains(user)) {
                 user.removeDisLike(recipe);
-                recipe.setDislikes(recipe.getDislikedByUsers().size());
             }
-            RecipeDetailDto result = recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
-            userRepository.save(owner);
-            userRepository.save(user);
-            return result;
+
+            // Add like if not already liked
+            if (!recipe.getLikedByUsers().contains(user)) {
+                recipe.addLiker(user);
+                user.addRecipeLike(recipe);
+            }
+
+
+            userRepository.saveAndFlush(user);
+            userRepository.saveAndFlush(owner); // Ensure the owner's state is updated
+
+
+            return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.saveAndFlush(recipe));
         } else {
-            throw new NotFoundException("Could not find recipe");
+            throw new NotFoundException("Could not find recipe to like");
         }
     }
 
@@ -241,31 +244,33 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> optional = recipeRepository.findById(recipeId);
         if (optional.isPresent()) {
             Recipe recipe = optional.get();
-            if (user.getDislikedRecipes().contains(recipe)) {
-                throw new AlreadyRatedException("User already disliked the recipe");
-            }
-
-
-            user.addRecipeDislike(recipe);
-            recipe.addDisliker(user);
-            ApplicationUser owner = recipe.getOwner();
-            if (owner.getRecipes().contains(recipe)) {
-                owner.getRecipes().remove(recipe);
-                owner.addRecipe(recipe);
-            }
-            recipe.setDislikes(recipe.getDislikedByUsers().size());
             if (user.getLikedRecipes().contains(recipe)) {
-                recipe.removeLiker(user);
-
-                user.removeLike(recipe);
-                recipe.setLikes(recipe.getLikedByUsers().size());
+                throw new AlreadyRatedException("User already liked the recipe");
             }
-            RecipeDetailDto result = recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
-            userRepository.save(owner);
-            userRepository.save(user);
-            return result;
+
+
+            ApplicationUser owner = recipe.getOwner();
+
+            // Remove like if it exists
+            if (recipe.getLikedByUsers().contains(user)) {
+                recipe.removeLiker(user);
+                user.removeLike(recipe);
+            }
+
+            // Add like if not already liked
+            if (!recipe.getDislikedByUsers().contains(user)) {
+                recipe.addDisliker(user);
+                user.addRecipeDislike(recipe);
+            }
+
+
+            userRepository.saveAndFlush(user);
+            userRepository.saveAndFlush(owner); // Ensure the owner's state is updated
+
+
+            return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.saveAndFlush(recipe));
         } else {
-            throw new NotFoundException("Could not find recipe");
+            throw new NotFoundException("Could not find recipe to like");
         }
     }
 

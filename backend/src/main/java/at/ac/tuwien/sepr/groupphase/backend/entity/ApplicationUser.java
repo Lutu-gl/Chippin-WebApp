@@ -58,7 +58,8 @@ public class ApplicationUser {
     @ToString.Exclude
     private Set<GroupEntity> groups = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    //, cascade = CascadeType.ALL
     @Builder.Default
     @JsonManagedReference
     private List<Recipe> recipes = new ArrayList<>();
@@ -96,29 +97,33 @@ public class ApplicationUser {
     }
 
     public ApplicationUser addRecipeLike(Recipe recipe) {
-        recipe.setLikes(recipe.getLikes() + 1);
-        likedRecipes.add(recipe);
-        recipe.addLiker(this);
+        if (!likedRecipes.contains(recipe)) {
+            likedRecipes.add(recipe);
+            recipe.addLiker(this);
+        }
         return this;
     }
 
     public void removeLike(Recipe recipe) {
-        recipe.setLikes(recipe.getLikes() - 1);
-        this.likedRecipes.remove(recipe);
-        recipe.getLikedByUsers().remove(this);
-    }
-
-    public void removeDisLike(Recipe recipe) {
-        recipe.setLikes(recipe.getDislikes() - 1);
-        this.dislikedRecipes.remove(recipe);
-        recipe.getDislikedByUsers().remove(this);
+        if (likedRecipes.contains(recipe)) {
+            likedRecipes.remove(recipe);
+            recipe.getLikedByUsers().remove(this);
+        }
     }
 
     public ApplicationUser addRecipeDislike(Recipe recipe) {
-        recipe.setLikes(recipe.getDislikes() + 1);
-        dislikedRecipes.add(recipe);
-        recipe.addDisliker(this);
+        if (!dislikedRecipes.contains(recipe)) {
+            dislikedRecipes.add(recipe);
+            recipe.addDisliker(this);
+        }
         return this;
+    }
+
+    public void removeDisLike(Recipe recipe) {
+        if (dislikedRecipes.contains(recipe)) {
+            dislikedRecipes.remove(recipe);
+            recipe.getDislikedByUsers().remove(this);
+        }
     }
 
 
