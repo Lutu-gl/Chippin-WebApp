@@ -18,8 +18,6 @@ export class LoginComponent implements OnInit {
   // After first submission attempt, form validation will start
   submitted = false;
   // Error flag
-  error = false;
-  errorMessage = '';
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private messageService: MessageService) {
     this.loginForm = this.formBuilder.group({
@@ -34,14 +32,12 @@ export class LoginComponent implements OnInit {
    */
   loginUser() {
     this.submitted = true;
-    console.log(this.loginForm)
     if (this.loginForm.valid) {
       const authRequest: AuthRequest = new AuthRequest(this.loginForm.controls.email.value, this.loginForm.controls.password.value);
       this.authenticateUser(authRequest);
     } else {
-      console.log("Kommen wir hier an?")
       this.messageService.add({severity: 'error', summary: 'Error', detail: 'Invalid input'})
-      console.error('Invalid input');
+      console.warn('Invalid input');
     }
   }
 
@@ -51,37 +47,19 @@ export class LoginComponent implements OnInit {
    * @param authRequest authentication data from the user login form
    */
   authenticateUser(authRequest: AuthRequest) {
-    console.log('Try to authenticate user: ' + authRequest.email);
     this.authService.loginUser(authRequest).subscribe({
       next: () => {
-        console.log('Successfully logged in user: ' + authRequest.email);
         localStorage.setItem('userEmail', authRequest.email);
         this.router.navigate(['/message']);
       },
       error: error => {
-        console.log('Could not log in due to:');
-        console.log(error);
-        this.error = true;
-        if (typeof error.error === 'object') {
-          this.errorMessage = error.error.error;
-        } else {
-          this.errorMessage = error.error;
-        }
+        console.error(error.error);
+        this.messageService.add({severity: 'error', summary: 'Login failed', detail: error.error});
+
       }
     });
   }
 
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
-  }
-
   ngOnInit() {
-  }
-
-  showToast() {
-    this.messageService.add({severity:'success', summary:'Success', detail:'Form Submitted'});
   }
 }
