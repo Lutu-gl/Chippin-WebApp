@@ -14,6 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,17 +42,22 @@ public class ShoppingList {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull
     private ApplicationUser owner;
 
     @Column
+    @NotNull
+    @Size(min = 2, max = 40, message = "The shopping list name must be between 2 and 40 characters long")
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Set<Category> categories = new LinkedHashSet<>();
 
     @JoinTable(name = "shopping_list_shopping_list_item")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @NotNull
     private List<ShoppingListItem> items = List.of();
 
     @JoinColumn
