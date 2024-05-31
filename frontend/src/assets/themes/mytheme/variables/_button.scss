@@ -16,7 +16,7 @@ $buttonBg: $primaryColor;
 
 /// Text color of a button
 /// @group button
-$buttonTextColor: $primaryTextColor;
+$buttonTextColor: $textColor;
 
 /// Border of a button
 /// @group button
@@ -28,7 +28,7 @@ $buttonHoverBg: $primaryDarkColor;
 
 /// Text color of a button in hover state
 /// @group button
-$buttonTextHoverColor: $primaryTextColor;
+$buttonTextHoverColor: $textColor;
 
 /// Border color of a button in hover state
 /// @group button
@@ -40,7 +40,7 @@ $buttonActiveBg: $primaryDarkerColor;
 
 /// Color of a button in pressed state
 /// @group button
-$buttonTextActiveColor: $primaryTextColor;
+$buttonTextActiveColor: $textColor;
 
 /// Border color of a button in pressed state
 /// @group button

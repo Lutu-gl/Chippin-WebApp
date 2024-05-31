@@ -58,6 +58,8 @@ import {
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
+import {SplitButtonModule} from "primeng/splitbutton";
+import {MenuModule} from "primeng/menu";
 
 @NgModule({
   declarations: [
@@ -106,7 +108,7 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
