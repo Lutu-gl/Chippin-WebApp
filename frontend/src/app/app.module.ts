@@ -67,6 +67,7 @@ import {DividerModule} from "primeng/divider";
 import {AutoFocusModule} from "primeng/autofocus";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {AutoCompleteModule} from "primeng/autocomplete";
 
 @NgModule({
   declarations: [
@@ -97,26 +98,26 @@ import {MessageService} from "primeng/api";
     PaymentCreateComponent,
     ShoppingListCreateComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(),
-    ShoppingListComponent,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    ShoppingListComponent,
-    MenuCardComponent,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(),
+        ShoppingListComponent,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
+        ShoppingListComponent,
+        MenuCardComponent,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, AutoCompleteModule
+    ],
   providers: [httpInterceptorProviders, MessageService],
   bootstrap: [AppComponent]
 })

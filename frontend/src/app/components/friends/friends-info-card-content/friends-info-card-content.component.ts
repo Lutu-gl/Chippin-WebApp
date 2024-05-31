@@ -57,7 +57,7 @@ export class FriendsInfoCardContentComponent {
             const groups = await lastValueFrom(this.groupService.getGroups());
             for (let group of groups) {
               const detailedGroup = await lastValueFrom(this.groupService.getById(group.id))
-              if (detailedGroup.members.some(member => member.email === friend)) {
+              if (detailedGroup.members.some(member => member === friend)) {
                 totalDebt += (await lastValueFrom(this.debtService.getDebtById(group.id))).membersDebts[friend];
               }
             }

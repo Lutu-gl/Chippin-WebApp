@@ -38,49 +38,14 @@ export class GroupService {
   }
 
   create(group: GroupDto): Observable<GroupDto> {
-    // Convert into a format that the backend expects
-    const memberEmails: Set<string> = new Set();
-
-    group.members.forEach(member => {
-      memberEmails.add(member.email);
-    });
-
-    const formattedGroup = {
-      groupName: group.groupName,
-      members: Array.from(memberEmails)
-    };
-    return this.http.post<GroupDto>(this.groupBaseUri, formattedGroup);
+    return this.http.post<GroupDto>(this.groupBaseUri, group);
   }
 
   getById(id: number): Observable<GroupDto> {
-    return this.http.get<any>(this.groupBaseUri + `/${id}`).pipe(
-      map(response => {
-        // Convert members from string (email) to UserSelection
-        const members: UserSelection[] = response.members.map(email => ({ email: email }));
-
-        // Return the transformed data
-        return {
-          id: response.id,
-          groupName: response.groupName,
-          members: members
-        };
-      })
-    );
+    return this.http.get<any>(this.groupBaseUri + `/${id}`)
   }
 
   update(group: GroupDto) {
-    // Convert into a format that the backend expects
-    const memberEmails: Set<string> = new Set();
-
-    group.members.forEach(member => {
-      memberEmails.add(member.email);
-    });
-
-    const formattedGroup = {
-      groupName: group.groupName,
-      members: Array.from(memberEmails)
-    };
-    return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, formattedGroup);
-
+    return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, group);
   }
 }
