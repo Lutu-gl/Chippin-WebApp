@@ -13,6 +13,7 @@ import {
 import {
   EditShoppingListItemModalComponent
 } from "../edit-shopping-list-item-modal/edit-shopping-list-item-modal.component";
+import {ButtonModule} from "primeng/button";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -26,6 +27,7 @@ import {
     ConfirmDeleteDialogComponent,
     AddShoppingListItemModalComponent,
     EditShoppingListItemModalComponent,
+    ButtonModule,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
