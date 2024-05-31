@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
@@ -10,18 +11,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
-import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
-import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
-import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -47,15 +44,15 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,6 +97,14 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Autowired
     private SecurityProperties securityProperties;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    @SpyBean
+    private SecurityService securityService;
+
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     List<String> ADMIN_ROLES = new ArrayList<>() {
         {
@@ -605,19 +610,31 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertEquals(recipe.getId(), listDto[0].getId());
     }
 
-    /*@Test
+    @Test
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void GivenUserRecipeAndPantry_WhenRemoveRecipeIngredientsFromPantry_ThenPantryChanges() throws Exception {
-        ApplicationUser testUser = userDetailService.findApplicationUserByEmail("user1@example.com");
+
+
         GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
         pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+
+        Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("Fortest").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+
         Recipe blueberryRecipe = recipeRepository.save(
             Recipe.builder()
                 .description("test")
                 .name("Blueberries")
                 .portionSize(1)
                 .owner(userDetailService.findApplicationUserByEmail("user1@example.com"))
-                .isPublic(true).ingredients(List.of(Item.builder().description("Blueberries").amount(100).unit(Unit.Piece).build())).build());
+                .isPublic(true).build());
+
+        recipeService.addItemToRecipe(Item.builder().description("Blueberries")
+                .amount(100).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
         MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/recipe/{0}/pantry/{1}/{2}", blueberryRecipe.getId(), group.getId(), 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -628,9 +645,50 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         String result = response.getContentAsString();
         PantryItem changedItem = pantryService.findItemsByDescription("Blueberries", group.getId()).getFirst();
         assertNotNull(result);
-        assertEquals("Blueberries", result);
+        assertTrue(result.contains("Blueberries"));
         assertEquals(100, changedItem.getAmount());
 
 
-    }*/
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com", roles = "USER")
+    public void GivenUserRecipeAndPantry_WhenRemoveTooManyRecipeIngredientsFromPantry_ThenPantryItemAmountEqualsZero() throws Exception {
+
+
+        GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
+        pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+
+        Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("Fortest").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+
+        Recipe blueberryRecipe = recipeRepository.save(
+            Recipe.builder()
+                .description("test")
+                .name("Blueberries")
+                .portionSize(1)
+                .owner(userDetailService.findApplicationUserByEmail("user1@example.com"))
+                .isPublic(true).build());
+
+        recipeService.addItemToRecipe(Item.builder().description("Blueberries")
+                .amount(100000).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
+        MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/recipe/{0}/pantry/{1}/{2}", blueberryRecipe.getId(), group.getId(), 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        String result = response.getContentAsString();
+        PantryItem changedItem = pantryService.findItemsByDescription("Blueberries", group.getId()).getFirst();
+        assertNotNull(result);
+        assertTrue(result.contains("Blueberries"));
+        assertEquals(0, changedItem.getAmount());
+
+
+    }
 }
