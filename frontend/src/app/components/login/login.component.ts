@@ -3,12 +3,14 @@ import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
+import {MessageService} from "primeng/api";
 
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  providers: [MessageService]
 })
 export class LoginComponent implements OnInit {
 
@@ -19,9 +21,10 @@ export class LoginComponent implements OnInit {
   error = false;
   errorMessage = '';
 
-  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private messageService: MessageService) {
     this.loginForm = this.formBuilder.group({
-      username: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      // Password must be at least 8 characters long, contain at least one number and one uppercase letter
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
@@ -31,11 +34,14 @@ export class LoginComponent implements OnInit {
    */
   loginUser() {
     this.submitted = true;
+    console.log(this.loginForm)
     if (this.loginForm.valid) {
-      const authRequest: AuthRequest = new AuthRequest(this.loginForm.controls.username.value, this.loginForm.controls.password.value);
+      const authRequest: AuthRequest = new AuthRequest(this.loginForm.controls.email.value, this.loginForm.controls.password.value);
       this.authenticateUser(authRequest);
     } else {
-      console.log('Invalid input');
+      console.log("Kommen wir hier an?")
+      this.messageService.add({severity: 'error', summary: 'Error', detail: 'Invalid input'})
+      console.error('Invalid input');
     }
   }
 
@@ -75,4 +81,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
+  showToast() {
+    this.messageService.add({severity:'success', summary:'Success', detail:'Form Submitted'});
+  }
 }

@@ -37,7 +37,7 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
 
 
 const routes: Routes = [
-  {path: '', component: HomeComponent},
+  {path: '', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
   {path: 'login', component: LoginComponent},
   {path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},

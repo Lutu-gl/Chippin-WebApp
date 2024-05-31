@@ -4,53 +4,97 @@
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
-
-<div class="pt-5">
-  <div class="row">
-    <div class="col-md-6 mx-auto">
-      <span class="anchor" id="formLogin"></span>
-
-      <div class="card rounded-0">
-        <div class="card-header">
-          <h3 class="mb-0">Login</h3>
+<p-toast></p-toast>
+<div class="w-full  pt-40 flex-1 flex items-center justify-center">
+  <div class="bg-blue-200 rounded-lg pt-12 px-12 pb-6 flex items-center flex-col min-w-96 shadow-2xl">
+    <h1 class="pt-8 text-2xl font-bold">Login</h1>
+    <form class="flex flex-col gap-4 pt-16" [formGroup]="loginForm">
+      <div class="flex flex-col gap-2">
+        <label for="inputEmail" class="font-medium">E-Mail</label>
+        <input pAutoFocus [autofocus]="true" type="text" pInputText name="email" id="inputEmail" formControlName="email" placeholder="max@chippin.com">
+        <div *ngIf="submitted && loginForm.controls.email.errors" class="error">
+          <small class="form-text text-warning" *ngIf="loginForm.controls.email.errors.required">E-mail
+            is
+            required!
+          </small>
+          <small class="form-text text-warning" *ngIf="loginForm.controls.email.errors.email">
+            E-mail must be a valid e-mail address
+          </small>
         </div>
-
-        <div class="card-body">
-          <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">
-
-            <div class="form-group">
-              <label for="inputUsername">Username</label>
-              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
-                     aria-describedby="usernameHelp" placeholder="Enter username">
-              <div *ngIf="submitted && loginForm.controls.username.errors" class="error">
-                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username is
-                  required!
-                </small>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" name="password" formControlName="password" class="form-control" id="password"
-                     placeholder="Password">
-              <div *ngIf="submitted && loginForm.controls.password.errors" class="error">
-                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Your password
-                  is
-                  required!
-                </small>
-                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.minlength">Your password
-                  must be at least 8 characters long!
-                </small>
-              </div>
-            </div>
-
-            <button type="button" (click)="loginUser()" class="btn btn-success float-right">Login</button>
-
-          </form>
-        </div>
-
       </div>
+      <div class="flex flex-col gap-2">
+        <label for="inputPassword" class="font-medium">Password</label>
+        <p-password [toggleMask]="true" [feedback]="false" id="inputPassword" formControlName="password" >
+        </p-password>
+        <div *ngIf="submitted && loginForm.controls.password.errors" class=" flex flex-col">
+          <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Password
+            is
+            required!
+          </small>
+          <small class="">Password must be at least 8 characters long</small>
+        </div>
+      </div>
+    </form>
 
+    <div class="pt-8">
+      <p-button label="Login" (click)="loginUser()"></p-button>
+    </div>
+
+    <div class="pt-8">
+      <a [routerLink]="['/register']" class="text-sm text-blue-800">Don't have an account? Register here</a>
     </div>
   </div>
+
 </div>
+
+
+<!--<div class="pt-5">-->
+<!--  <div class="row">-->
+<!--    <div class="col-md-6 mx-auto">-->
+<!--      <span class="anchor" id="formLogin"></span>-->
+
+<!--      <div class="card rounded-0">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="mb-0">Login</h3>-->
+<!--        </div>-->
+
+<!--        <div class="card-body">-->
+<!--          <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">-->
+
+<!--            <div class="form-group">-->
+<!--              <label for="inputUsername">Username</label>-->
+<!--              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"-->
+<!--                     aria-describedby="usernameHelp" placeholder="Enter username">-->
+<!--              <div *ngIf="submitted && loginForm.controls.username.errors" class="error">-->
+<!--                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username-->
+<!--                  is-->
+<!--                  required!-->
+<!--                </small>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <div class="form-group">-->
+<!--              <label for="password">Password</label>-->
+<!--              <input type="password" name="password" formControlName="password" class="form-control" id="password"-->
+<!--                     placeholder="Password">-->
+<!--              <div *ngIf="submitted && loginForm.controls.password.errors" class="error">-->
+<!--                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Your password-->
+<!--                  is-->
+<!--                  required!-->
+<!--                </small>-->
+<!--                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.minlength">Your password-->
+<!--                  must be at least 8 characters long!-->
+<!--                </small>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <button type="button" (click)="loginUser()" class="btn btn-success float-right">Login</button>-->
+
+<!--          </form>-->
+<!--        </div>-->
+
+<!--      </div>-->
+
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
