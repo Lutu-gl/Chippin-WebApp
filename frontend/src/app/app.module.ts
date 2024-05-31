@@ -67,6 +67,7 @@ import {DividerModule} from "primeng/divider";
 import {AutoFocusModule} from "primeng/autofocus";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {TabMenuModule} from 'primeng/tabmenu';
 
 @NgModule({
   declarations: [
@@ -115,7 +116,7 @@ import {MessageService} from "primeng/api";
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule
   ],
   providers: [httpInterceptorProviders, MessageService],
   bootstrap: [AppComponent]
