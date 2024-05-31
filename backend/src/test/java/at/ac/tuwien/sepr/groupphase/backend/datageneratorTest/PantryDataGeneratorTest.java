@@ -1,6 +1,7 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -18,7 +19,7 @@ import java.util.Random;
 
 @Component
 @AllArgsConstructor
-public class PantryDataGenerator implements DataGenerator {
+public class PantryDataGeneratorTest implements DataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 

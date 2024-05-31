@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
@@ -10,14 +9,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class FriendshipEndpointTest extends BaseTest {
+public class FriendshipEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -43,9 +41,8 @@ public class FriendshipEndpointTest extends BaseTest {
     @Autowired
     private SecurityProperties securityProperties;
 
-
-    @Test
-    public void whenSendFriendRequest_withValidData_thenStatus202() throws Exception {
+    @BeforeEach
+    public void beforeEach() {
         ApplicationUser user1 = new ApplicationUser();
         user1.setEmail("testUser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
@@ -56,7 +53,10 @@ public class FriendshipEndpointTest extends BaseTest {
 
         userRepository.save(user1);
         userRepository.save(user2);
+    }
 
+    @Test
+    public void whenSendFriendRequest_withValidData_thenStatus202() throws Exception {
         FriendRequestDto friendRequestDto = new FriendRequestDto();
         friendRequestDto.setReceiverEmail("testUser2@example.com");
 
@@ -71,17 +71,6 @@ public class FriendshipEndpointTest extends BaseTest {
 
     @Test
     public void sendFriendRequestAndAcceptItShouldWork() throws Exception {
-        ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("testUser1@example.com");
-        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("testUser2@example.com");
-        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        userRepository.save(user1);
-        userRepository.save(user2);
-
         FriendRequestDto friendRequestDto = new FriendRequestDto();
         friendRequestDto.setReceiverEmail("testUser2@example.com");
 
@@ -105,17 +94,6 @@ public class FriendshipEndpointTest extends BaseTest {
 
     @Test
     public void sendFriendRequestAndRejectItShouldWork() throws Exception {
-        ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("testUser1@example.com");
-        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("testUser2@example.com");
-        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        userRepository.save(user1);
-        userRepository.save(user2);
-
         FriendRequestDto friendRequestDto = new FriendRequestDto();
         friendRequestDto.setReceiverEmail("testUser2@example.com");
 
