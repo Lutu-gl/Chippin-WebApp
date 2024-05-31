@@ -1,12 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapKeyColumn;
-import jakarta.persistence.MapKeyJoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -21,9 +17,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Getter
