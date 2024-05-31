@@ -29,7 +29,7 @@ public class GroupDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.debug("generating data for group");
         final Random random = new Random();
-
+        random.setSeed(12345);
 
         ApplicationUser user1 = userRepository.findByEmail("luca@chippin.com");
         ApplicationUser user2 = userRepository.findByEmail("max@chippin.com");

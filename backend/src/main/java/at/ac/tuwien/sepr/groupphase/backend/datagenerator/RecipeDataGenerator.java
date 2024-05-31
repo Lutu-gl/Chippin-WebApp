@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 @Component
@@ -32,10 +33,12 @@ public class RecipeDataGenerator implements DataGenerator {
 
     private final Random random = new Random();
 
+
     @Override
     @Transactional
     public void generateData() {
         LOGGER.debug("generating data for recipes");
+        random.setSeed(12345);
         List<ApplicationUser> users = userRepository.findAll();
 
         Recipe recipe1 = Recipe.builder()
@@ -91,7 +94,10 @@ public class RecipeDataGenerator implements DataGenerator {
         recipeRepository.saveAndFlush(recipe2);
         userRepository.saveAndFlush(users.getFirst());
 
-        Faker faker = new Faker();
+        Random random = new Random();
+        random.setSeed(12345);
+        Faker faker = new Faker(Locale.getDefault(), random);
+
         recipeRepository.saveAndFlush(Recipe.builder()
             .name(faker.lorem().word())
             .description(faker.lorem().paragraph())
