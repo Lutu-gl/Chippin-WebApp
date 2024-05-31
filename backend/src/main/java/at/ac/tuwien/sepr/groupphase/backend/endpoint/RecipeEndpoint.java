@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateWithoutUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -69,9 +69,9 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
-    public ItemListListDto searchItemsInRecipe(@PathVariable long recipeId, RecipeSearchDto searchParams) {
+    public BlueprintListDto searchItemsInRecipe(@PathVariable long recipeId, RecipeSearchDto searchParams) {
         LOGGER.trace("GET /api/v1/recipe/{}/recipe/search", recipeId);
-        return new ItemListListDto(itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
+        return new BlueprintListDto(itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
     }
 
     @Secured("ROLE_USER")

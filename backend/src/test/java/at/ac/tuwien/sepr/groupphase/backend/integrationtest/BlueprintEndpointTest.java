@@ -1,35 +1,25 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Blueprint;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ItemList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ItemListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.BluePrintRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -49,12 +39,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class ItemListEndpointTest implements TestData {
+public class BlueprintEndpointTest implements TestData {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ItemListRepository itemListRepository;
+    private BluePrintRepository bluePrintRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -76,8 +66,8 @@ public class ItemListEndpointTest implements TestData {
         }
     };
 
-    private ItemList itemList;
-    private ItemList emptyItemList;
+    private Blueprint blueprint;
+    private Blueprint emptyBlueprint;
     private Item item;
 
     @BeforeEach
@@ -89,16 +79,16 @@ public class ItemListEndpointTest implements TestData {
             .unit(Unit.Gram)
             .build();
 
-        itemList = ItemList.builder()
+        blueprint = Blueprint.builder()
             .name("Test Item List")
             .build();
-        itemList.addItem(item);
-        itemListRepository.save(itemList);
+        blueprint.addItem(item);
+        bluePrintRepository.save(blueprint);
 
-        emptyItemList = ItemList.builder()
+        emptyBlueprint = Blueprint.builder()
             .name("Empty Item List")
             .build();
-        itemListRepository.save(emptyItemList);
+        bluePrintRepository.save(emptyBlueprint);
     }
 
     /*@Test
@@ -115,7 +105,7 @@ public class ItemListEndpointTest implements TestData {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
+        BlueprintListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), BlueprintListDto.class);
         LOGGER.debug("detailDto: " + listDto);
         LOGGER.debug("detailDto2: " + listDto.getItems());
 
@@ -135,7 +125,7 @@ public class ItemListEndpointTest implements TestData {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
+        BlueprintListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), BlueprintListDto.class);
 
         assertEquals(1, listDto.getItems().size());
         ItemDto itemDto = listDto.getItems().get(0);
@@ -162,7 +152,7 @@ public class ItemListEndpointTest implements TestData {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
+        BlueprintListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), BlueprintListDto.class);
 
         assertEquals(1, listDto.getItems().size());
         ItemDto itemDto = listDto.getItems().get(0);

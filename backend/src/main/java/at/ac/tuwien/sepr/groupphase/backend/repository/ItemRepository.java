@@ -1,8 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Blueprint;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ItemList;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,7 +16,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      *
      * @return ordered list of all items in the itemList where {@code description} is a substring of the item description
      */
-    List<Item> findByDescriptionContainingIgnoreCaseAndItemListIsOrderById(String description, ItemList itemList);
+    //List<Item> findByDescriptionContainingIgnoreCaseAndItemListIsOrderById(String description, Blueprint blueprint);
 
     /**
      * Find all ingredients in a recipe where {@code description} is a substring of the item description ordered by the item id.

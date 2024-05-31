@@ -1,5 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
-
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
@@ -16,7 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ItemListListDto {
+public class BlueprintDetailDto {
 
     private List<ItemDto> items;
+
+    String name;
 }
