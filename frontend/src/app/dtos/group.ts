@@ -8,5 +8,5 @@ export interface GroupListDto {
 export interface GroupDto {
   id?: number
   groupName: string
-  members: UserSelection[]
+  members: string[]
 }

@@ -1,10 +1,22 @@
 import {Component, OnInit} from '@angular/core';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators
+} from "@angular/forms";
 import {NgIf} from "@angular/common";
 import {AuthRequest} from "../../dtos/auth-request";
 import {AuthService} from "../../services/auth.service";
-import {Router} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
+import {Router, RouterLink} from "@angular/router";
+import {PasswordModule} from "primeng/password";
+import {ButtonModule} from "primeng/button";
+import {ToastModule} from "primeng/toast";
+import {DividerModule} from "primeng/divider";
+import {InputTextModule} from "primeng/inputtext";
+import {AutoFocusModule} from "primeng/autofocus";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-register',
@@ -12,59 +24,72 @@ import {ToastrService} from "ngx-toastr";
   imports: [
     FormsModule,
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    PasswordModule,
+    ButtonModule,
+    RouterLink,
+    ToastModule,
+    DividerModule,
+    InputTextModule,
+    AutoFocusModule
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent implements OnInit{
+export class RegisterComponent implements OnInit {
   registerForm: UntypedFormGroup;
   // After first submission attempt, for validation will start
   submitted = false;
-  error = false;
-  errorMessage = "";
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router,
-              private notification: ToastrService) {
+              private messageService: MessageService) {
     this.registerForm = this.formBuilder.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required,
+        Validators.minLength(8),
+        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$')]],
+      confirmPassword: ['', [Validators.required]]
     });
   }
 
+
+  confirmPasswordMatchesPassword(): boolean {
+    if (this.registerForm.controls.password.value != this.registerForm.controls.confirmPassword.value) {
+      this.registerForm.controls.confirmPassword.setErrors({notSame: true});
+      return false;
+    }
+    return true;
+  }
+
+
   submitRegisterForm() {
     this.submitted = true;
+
     if (this.registerForm.valid) {
-      const authRequest: AuthRequest = new AuthRequest(this.registerForm.controls.username.value, this.registerForm.controls.password.value);
+      if (!this.confirmPasswordMatchesPassword()) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Passwords do not match'});
+        console.warn("Passwords do not match");
+        return;
+      }
+      const authRequest: AuthRequest = new AuthRequest(this.registerForm.controls.email.value, this.registerForm.controls.password.value);
       this.registerUser(authRequest);
     } else {
-      console.log("Invalid input");
+      this.messageService.add({severity: 'error', summary: 'Error', detail: 'Invalid input'});
+      console.warn("Invalid input");
     }
   }
 
 
   registerUser(authRequest: AuthRequest) {
-    console.log("Try to register user: " + authRequest.email);
     this.authService.registerUser(authRequest).subscribe({
       next: () => {
-        console.log("Successfully registered user: " + authRequest.email);
         this.router.navigate([""]);
       },
       error: error => {
-        console.log("Could not register due to:");
-        console.log(error);
-        this.error = true;
-        if (typeof error.erro === "object") {
-          this.errorMessage = error.error.error;
-        } else {
-          this.errorMessage = error.error;
-        }
+        console.warn(error);
+        this.messageService.add({severity: 'error', summary: 'Registration failed', detail: error.error});
       }
     });
-  }
-
-  vanishError() {
-    this.error = false;
   }
 
   ngOnInit() {

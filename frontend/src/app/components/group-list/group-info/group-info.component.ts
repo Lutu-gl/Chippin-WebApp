@@ -59,7 +59,7 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getSortedMembers(): any[] {
-    return this.group.members.sort((a, b) => a.email.localeCompare(b.email));
+    return this.group.members.sort((a, b) => a.localeCompare(b));
   }
 
   getBorderColor(value: number): string {
