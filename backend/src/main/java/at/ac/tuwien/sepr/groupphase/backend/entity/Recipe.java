@@ -108,11 +108,11 @@ public class Recipe {
     }
 
     public void removeLiker(ApplicationUser user) {
-        if (likedByUsers.contains(user)) {
-            likedByUsers.remove(user);
-            user.getLikedRecipes().remove(this);
-            likes = likedByUsers.size();
-        }
+
+        ApplicationUser toRemove = likedByUsers.stream().filter(o -> o.getId().equals(user.getId())).findFirst().get();
+        likedByUsers.remove(toRemove);
+        likes = likedByUsers.size();
+
     }
 
     public void addDisliker(ApplicationUser user) {
@@ -124,11 +124,10 @@ public class Recipe {
     }
 
     public void removeDisliker(ApplicationUser user) {
-        if (dislikedByUsers.contains(user)) {
-            dislikedByUsers.remove(user);
-            user.getDislikedRecipes().remove(this);
-            dislikes = dislikedByUsers.size();
-        }
+        ApplicationUser toRemove = dislikedByUsers.stream().filter(o -> o.getId().equals(user.getId())).findFirst().get();
+        dislikedByUsers.remove(toRemove);
+        dislikes = dislikedByUsers.size();
+
     }
 
     @PreRemove

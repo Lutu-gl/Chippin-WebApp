@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -212,12 +211,15 @@ public class RecipeServiceImpl implements RecipeService {
             }
 
 
-            ApplicationUser owner = recipe.getOwner();
-
             // Remove dislike if it exists
-            //TODO
-            if (recipe.getDislikedByUsers().contains(user)) {
+
+            if (recipe.getDislikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
+                recipe.removeDisliker(user);
                 user.removeDisLike(recipe);
+
+                recipeRepository.save(recipe);
+                userRepository.save(user);
+
             }
 
             // Add like if not already liked
@@ -225,9 +227,10 @@ public class RecipeServiceImpl implements RecipeService {
                 recipe.addLiker(user);
                 user.addRecipeLike(recipe);
             }
-
+            ApplicationUser owner = recipe.getOwner();
 
             userRepository.saveAndFlush(user);
+            recipeRepository.save(recipe);
             userRepository.saveAndFlush(owner); // Ensure the owner's state is updated
 
 
@@ -249,10 +252,8 @@ public class RecipeServiceImpl implements RecipeService {
             }
 
 
-            ApplicationUser owner = recipe.getOwner();
-
             // Remove like if it exists
-            if (recipe.getLikedByUsers().contains(user)) {
+            if (recipe.getLikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
                 recipe.removeLiker(user);
                 user.removeLike(recipe);
             }
@@ -263,9 +264,7 @@ public class RecipeServiceImpl implements RecipeService {
                 user.addRecipeDislike(recipe);
             }
 
-
             userRepository.saveAndFlush(user);
-            userRepository.saveAndFlush(owner); // Ensure the owner's state is updated
 
 
             return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.saveAndFlush(recipe));

@@ -3,12 +3,11 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -24,6 +23,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -146,8 +146,8 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         emptyRecipe = recipeRepository.save(emptyRecipe);
     }
 
-    /*
-    @Test
+
+    /*@Test
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
         RecipeCreateWithoutUserDto recipeCreateDto = RecipeCreateWithoutUserDto.builder()
@@ -177,9 +177,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         RecipeDetailDto responseDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
         assertEquals("New Recipe", responseDto.getName());
         assertEquals("This is a test recipe", responseDto.getDescription());
-    }
-
-     */
+    }*/
 
 
     @Test
@@ -242,7 +240,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
 
     }
 
-    /*@Test
+    @Test
     @WithMockUser
     public void givenEmptyRecipe_whenFindById_thenEmptyList()
         throws Exception {
@@ -284,7 +282,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     }
 
 
-    @Test
+    /*@Test
     @Rollback
     @Transactional
     @WithMockUser
@@ -367,10 +365,12 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
+        ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
         assertEquals(1, result.getLikedByUsers().size());
+        assertTrue(resultUser.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getLikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getLikedByUsers().iterator().next().getId());
+        assertEquals(resultUser.getLikedRecipes().iterator().next().getId(), result.getId());
+        assertEquals(resultUser.getId(), result.getLikedByUsers().iterator().next().getId());
     }
 
     @Test
@@ -391,10 +391,12 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
-
+        ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
         assertEquals(1, result.getDislikedByUsers().size());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getDislikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getDislikedByUsers().iterator().next().getId());
+        assertTrue(resultUser.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
+
+        assertEquals(resultUser.getDislikedRecipes().iterator().next().getId(), result.getId());
+        assertEquals(resultUser.getId(), result.getDislikedByUsers().iterator().next().getId());
     }
 
     @Test

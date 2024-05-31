@@ -61,11 +61,9 @@ public class ApplicationUser {
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     //, cascade = CascadeType.ALL
     @Builder.Default
-    @JsonManagedReference
     private List<Recipe> recipes = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
     @JoinTable(
         name = "user_recipe_likes",
@@ -105,10 +103,10 @@ public class ApplicationUser {
     }
 
     public void removeLike(Recipe recipe) {
-        if (likedRecipes.contains(recipe)) {
-            likedRecipes.remove(recipe);
-            recipe.getLikedByUsers().remove(this);
-        }
+
+        Recipe toDelete = likedRecipes.stream().filter(o -> o.getId().equals(recipe.getId())).findFirst().get();
+        likedRecipes.remove(toDelete);
+
     }
 
     public ApplicationUser addRecipeDislike(Recipe recipe) {
@@ -120,10 +118,8 @@ public class ApplicationUser {
     }
 
     public void removeDisLike(Recipe recipe) {
-        if (dislikedRecipes.contains(recipe)) {
-            dislikedRecipes.remove(recipe);
-            recipe.getDislikedByUsers().remove(this);
-        }
+        Recipe toDelete = dislikedRecipes.stream().filter(o -> o.getId().equals(recipe.getId())).findFirst().get();
+        dislikedRecipes.remove(toDelete);
     }
 
 
