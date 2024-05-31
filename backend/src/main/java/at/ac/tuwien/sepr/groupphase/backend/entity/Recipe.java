@@ -23,7 +23,6 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.hibernate.annotations.Cascade;
 
 
 import java.util.ArrayList;
@@ -112,7 +111,6 @@ public class Recipe {
 
     public void removeLiker(ApplicationUser user) {
         this.likedByUsers.remove(user);
-        user.getDislikedRecipes().find
         user.getLikedRecipes().remove(this);
     }
 
