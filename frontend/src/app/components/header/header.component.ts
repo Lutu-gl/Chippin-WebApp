@@ -30,7 +30,9 @@ export class HeaderComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.email = this.authService.getEmail();
+    setTimeout(() => {
+      this.email = this.authService.getEmail();
+    }, 200)
   }
 
 }

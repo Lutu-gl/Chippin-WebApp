@@ -60,6 +60,13 @@ import { ExpenseInfoCardContentComponent } from './components/expense/expense-in
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
 import {SplitButtonModule} from "primeng/splitbutton";
 import {MenuModule} from "primeng/menu";
+import {ChipsModule} from "primeng/chips";
+import {FloatLabelModule} from "primeng/floatlabel";
+import {PasswordModule} from "primeng/password";
+import {DividerModule} from "primeng/divider";
+import {AutoFocusModule} from "primeng/autofocus";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @NgModule({
   declarations: [
@@ -108,9 +115,9 @@ import {MenuModule} from "primeng/menu";
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule
   ],
-  providers: [httpInterceptorProviders],
+  providers: [httpInterceptorProviders, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
