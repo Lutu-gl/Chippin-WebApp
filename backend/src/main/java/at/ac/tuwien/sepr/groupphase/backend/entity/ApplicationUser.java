@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
@@ -56,6 +57,7 @@ public class ApplicationUser {
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     @Builder.Default
     @ToString.Exclude
+    @JsonIgnore
     private Set<GroupEntity> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)

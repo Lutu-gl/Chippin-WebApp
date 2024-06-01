@@ -74,6 +74,7 @@ public class RecipeEndpoint {
         return recipeService.getById(recipeId);
     }
 
+    //TODO
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
     public BlueprintListDto searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {

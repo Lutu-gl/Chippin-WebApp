@@ -22,6 +22,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -160,7 +161,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     }
 
 
-    /*@Test
+    @Test
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
         RecipeCreateWithoutUserDto recipeCreateDto = RecipeCreateWithoutUserDto.builder()
@@ -190,7 +191,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         RecipeDetailDto responseDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeDetailDto.class);
         assertEquals("New Recipe", responseDto.getName());
         assertEquals("This is a test recipe", responseDto.getDescription());
-    }*/
+    }
 
 
     @Test
@@ -572,7 +573,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertEquals(resultDto[0].getName(), "Test Recipe");
     }
 
-    /*@Test
+    @Test
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenValidItemAndRecipe_AddItemToRecipeSuccessfully_ThenRecipeWithIngredient() throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -597,7 +598,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
             () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
             () -> assertNotNull(itemDto.getId())
         );
-    }*/
+    }
 
     @Test
     @Rollback
