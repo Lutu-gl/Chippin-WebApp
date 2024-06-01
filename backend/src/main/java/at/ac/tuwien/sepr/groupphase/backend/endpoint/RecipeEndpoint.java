@@ -68,6 +68,7 @@ public class RecipeEndpoint {
 
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @GetMapping("/{recipeId}/recipe")
     public RecipeDetailDto getById(@PathVariable long recipeId) {
         LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
@@ -101,6 +102,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#recipeId)")
     @PostMapping("/{recipeId}/recipe")
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItemToRecipe(@PathVariable long recipeId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
@@ -110,6 +112,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#recipeId)")
     @DeleteMapping("/{recipeId}/recipe/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteItem(@PathVariable long recipeId, @PathVariable long itemId) {
@@ -148,6 +151,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#toUpdate.getId())")
     @PutMapping("recipe/update")
     public RecipeDetailDto updateRecipe(@Valid @RequestBody RecipeDetailDto toUpdate) {
         LOGGER.trace("PUT /api/v1/group/recipe/update: {}", toUpdate);
@@ -156,6 +160,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @PutMapping("recipe/{recipeId}/like")
     public RecipeDetailDto likeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/like", recipeId);
@@ -165,6 +170,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @PutMapping("recipe/{recipeId}/dislike")
     public RecipeDetailDto dislikeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/dislike", recipeId);
@@ -182,10 +188,11 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#id)")
     @DeleteMapping("recipe/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRecipe(@PathVariable long id) {
-        LOGGER.trace("DELETE /api/v1/group/recipe/{}", id);
+        LOGGER.trace("DELETE /api/v1/group/recipe/{}/delete", id);
 
         recipeService.deleteRecipe(id);
     }
@@ -202,7 +209,9 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
     @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}")
+
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(@PathVariable long recipeId, @PathVariable long shoppingListId) {
         LOGGER.trace("GET recipe/{}/shoppinglist/{}", recipeId, shoppingListId);
 
@@ -211,7 +220,9 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId) && @securityService.isGroupMember(#pantryId)")
     @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}/pantry/{pantryId}")
+
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingListWithPantry(@PathVariable long recipeId, @PathVariable long shoppingListId, @PathVariable long pantryId) {
         LOGGER.trace("GET recipe/{}/shoppinglist/{}/pantry/{}", recipeId, shoppingListId, pantryId);
 

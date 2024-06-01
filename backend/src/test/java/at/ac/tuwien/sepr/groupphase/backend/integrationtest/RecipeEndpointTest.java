@@ -216,6 +216,8 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Rollback
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
+        when(securityService.canAccessRecipe(0L)).thenReturn(true);
+
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", 0)))
             .andDo(print())
             .andExpect(status().isNotFound())
@@ -230,6 +232,8 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         RecipeDetailDto newRecipe = RecipeDetailDto.builder().id(recipe.getId()).owner(recipe.getOwner()).portionSize(6)
             .description("for a test").name("differentName").ingredients(itemMapper.listOfItemsToListOfItemDto(recipe.getIngredients()))
             .isPublic(true).likes(0).dislikes(0).build();
+        when(securityService.canAccessRecipe(newRecipe.getId())).thenReturn(true);
+        when(securityService.canEditRecipe(newRecipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(newRecipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/update")
@@ -256,8 +260,10 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Test
     @WithMockUser
-    public void givenEmptyRecipe_whenFindById_thenEmptyList()
-        throws Exception {
+    public void givenEmptyRecipe_whenFindById_thenEmptyList() throws Exception {
+
+        when(securityService.canAccessRecipe(emptyRecipe.getId())).thenReturn(true);
+
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", emptyRecipe.getId())))
             .andDo(print())
             .andReturn();
@@ -274,8 +280,9 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Test
     @WithMockUser
-    public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
-        throws Exception {
+    public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem() throws Exception {
+
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", recipe.getId())))
             .andDo(print())
             .andReturn();
@@ -332,6 +339,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/recipe", recipe.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
@@ -348,6 +356,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -365,6 +374,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void likeRecipeSuccessfully() throws Exception {
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/like", recipe.getId())
@@ -391,6 +401,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void dislikeRecipeSuccessfully() throws Exception {
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/dislike", recipe.getId())
@@ -497,6 +508,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Rollback
     @WithMockUser
     public void givenNothing_DeleteExistingRecipe_returns204_RecipeDoesntExistAnymore() throws Exception {
+        when(securityService.canEditRecipe(-5L)).thenReturn(true);
         recipeRepository.save(Recipe.builder().id(-5L).isPublic(false).portionSize(0).name("test").owner(user).description("test").build());
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/recipe/%d/delete", -5L))
                 .accept(MediaType.APPLICATION_JSON))
@@ -579,6 +591,8 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
 
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
+
         MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/recipe", recipe.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
@@ -632,6 +646,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         when(securityService.hasCorrectId(id)).thenReturn(true);
         Long groupId = groupRepository.findByGroupName("Fortest").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
 
 
         Recipe blueberryRecipe = recipeRepository.save(
@@ -673,6 +688,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         when(securityService.hasCorrectId(id)).thenReturn(true);
         Long groupId = groupRepository.findByGroupName("Fortest").getId();
         when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
 
 
         Recipe blueberryRecipe = recipeRepository.save(
@@ -709,12 +725,18 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         pantryService.addItemToPantry(PantryItem.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
 
         Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+
         ShoppingList shoppingList = shoppingListRepository.findAll().stream()
             .filter(o -> o.getOwner().getId().equals(id)).toList().getFirst();
         assertNotNull(shoppingList);
         shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), id);
         shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), id);
 
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("Fortest").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.canAccessShoppingList(shoppingList.getId())).thenReturn(true);
+        when(securityService.canAccessRecipe(shoppingList.getId())).thenReturn(true);
 
         Recipe blueberryRecipe = recipeRepository.save(
             Recipe.builder()
