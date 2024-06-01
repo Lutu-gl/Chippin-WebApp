@@ -58,6 +58,8 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getUser().getEmail());
+            activityDetailDto.setAmount(activity.getExpense().getAmount());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -83,6 +85,8 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getUser().getEmail());
+            activityDetailDto.setAmount(activity.getExpense().getAmount());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -108,6 +112,9 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getPayment().getPayer().getEmail());
+            activityDetailDto.setAmount(activity.getPayment().getAmount());
+            activityDetailDto.setPaymentReceiverEmail(activity.getPayment().getReceiver().getEmail());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -121,13 +128,13 @@ public class ActivityServiceImpl implements ActivityService {
     private String giveDescriptionToActivity(Activity activity) {
         return switch (activity.getCategory()) {
             case ActivityCategory.EXPENSE ->
-                String.format("User %s created expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("created expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.EXPENSE_UPDATE ->
-                String.format("User %s updated expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("updated expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.EXPENSE_DELETE ->
-                String.format("User %s deleted expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("deleted expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.EXPENSE_RECOVER ->
-                String.format("User %s recovered expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("recovered expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
             case ActivityCategory.PAYMENT ->
                 String.format("%s payed %s in group %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail(), activity.getGroup().getGroupName());
             case ActivityCategory.PAYMENT_DELETE ->
