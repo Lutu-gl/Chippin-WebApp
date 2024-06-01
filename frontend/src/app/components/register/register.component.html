@@ -4,7 +4,7 @@
     <h1 class="pt-8 text-2xl font-bold">Register</h1>
     <form class="flex flex-col gap-4 pt-16" [formGroup]="registerForm">
       <div class="flex flex-col gap-2">
-        <label for="inputEmail" class="font-medium">Username</label>
+        <label for="inputEmail" class="font-medium">E-Mail</label>
         <input type="text" pInputText pAutoFocus [autofocus]="true" name="email" id="inputEmail" formControlName="email" placeholder="max@chippin.com">
         <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
           <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Email is required!</small>
@@ -28,6 +28,9 @@
         <div *ngIf="submitted && registerForm.controls.password.errors" class="flex flex-col">
           <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Password is required!</small>
           <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Password must be at least 8 characters long!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingLowerCase">Password must contain at least one lowercase letter!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingUpperCase">Password must contain at least one uppercase letter!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingNumber">Password must contain at least one number!</small>
         </div>
       </div>
       <div class="flex flex-col gap-2">

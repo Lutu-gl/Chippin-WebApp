@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {
+  AbstractControl,
   FormsModule,
   ReactiveFormsModule,
   UntypedFormBuilder,
-  UntypedFormGroup,
+  UntypedFormGroup, ValidatorFn,
   Validators
 } from "@angular/forms";
 import {NgIf} from "@angular/common";
@@ -47,11 +48,37 @@ export class RegisterComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required,
         Validators.minLength(8),
-        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$')]],
+        // Password must contain at least one uppercase letter, one lowercase letter, one number. It can contain special characters.
+        this.lowerCaseValidator(),
+        this.upperCaseValidator(),
+        this.numberValidator()]],
       confirmPassword: ['', [Validators.required]]
     });
   }
 
+  /**
+   * Custom validators for password
+   */
+  lowerCaseValidator(): ValidatorFn {
+    return (control:AbstractControl) => {
+      const hasLowerCase = /[a-z]/.test(control.value);
+      return hasLowerCase ? null : {missingLowerCase: true};
+    }
+  }
+
+  upperCaseValidator(): ValidatorFn {
+    return (control:AbstractControl) => {
+      const hasUpperCase = /[A-Z]/.test(control.value);
+      return hasUpperCase ? null : {missingUpperCase: true};
+    }
+  }
+
+  numberValidator(): ValidatorFn {
+    return (control:AbstractControl) => {
+      const hasNumber = /[0-9]/.test(control.value);
+      return hasNumber ? null : {missingNumber: true};
+    }
+  }
 
   confirmPasswordMatchesPassword(): boolean {
     if (this.registerForm.controls.password.value != this.registerForm.controls.confirmPassword.value) {
