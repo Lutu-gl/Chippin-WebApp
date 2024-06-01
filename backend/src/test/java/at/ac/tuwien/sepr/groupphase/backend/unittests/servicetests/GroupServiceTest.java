@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;

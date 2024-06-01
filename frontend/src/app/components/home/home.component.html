@@ -1,4 +1,29 @@
+<!-- <p-tabMenu [model]="tabMenuItems"></p-tabMenu> -->
 <div class="jumbotron mt-5">
+  <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
+    <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
+    <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
+    <a class="btn btn-primary btn-lg" routerLink="/register" role="button">Start now</a>
+  </div>
+  <div *ngIf="authService.isLoggedIn()" class="pt-5 flex justify-center">
+    <p-tabMenu
+      [model]="tabMenuItems"
+      [activeItem]="tabMenuActiveItem"
+      (activeItemChange)="onActiveItemChange($event)"
+    ></p-tabMenu>
+  </div>
+
+  <app-friends *ngIf="isFriendsSelected()"></app-friends>
+  <app-group-list *ngIf="isGroupsSelected()"></app-group-list>
+
+  <!-- <p >Friends</p>
+  <p *ngIf="isGroupsSelected()">Groups</p>
+  <p *ngIf="isShoppingListsSelected()">Shopping lists</p> -->
+
+</div>
+
+
+<!-- <div class="jumbotron mt-5">
   <div *ngIf="!authService.isLoggedIn()" class="col-5 pt-5">
     <h1 class="fw-bold fst-italic display-1">ChippIn</h1>
     <h5 class="fw-light pb-4">Your tool for managing group expenses</h5>
@@ -111,4 +136,4 @@
     </div>
 
   </div>
-</div>
+</div> -->

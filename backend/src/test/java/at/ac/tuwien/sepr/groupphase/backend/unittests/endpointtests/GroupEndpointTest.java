@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -68,7 +68,7 @@ public class GroupEndpointTest implements TestData {
     public void testCreateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
-            .members(Arrays.stream(new String[] {"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
+            .members(Arrays.stream(new String[]{"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
             .build();
         when(groupService.create(any(), anyString())).thenReturn(mockResponse);
 
@@ -98,7 +98,7 @@ public class GroupEndpointTest implements TestData {
     public void testUpdateGroupValid() throws Exception {
         GroupCreateDto mockResponse = GroupCreateDto.builder()
             .groupName("Test Group")
-            .members(Arrays.stream(new String[] {"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
+            .members(Arrays.stream(new String[]{"testUser1@example.com", "testUser2@example.com"}).collect(Collectors.toSet()))
             .build();
         when(groupService.update(any(), anyString())).thenReturn(mockResponse);
 

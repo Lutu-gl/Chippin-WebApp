@@ -67,6 +67,9 @@ import {DividerModule} from "primeng/divider";
 import {AutoFocusModule} from "primeng/autofocus";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {TabMenuModule} from 'primeng/tabmenu';
+import {AutoCompleteModule} from "primeng/autocomplete";
+import {CardModule} from "primeng/card";
 
 @NgModule({
   declarations: [
@@ -97,26 +100,28 @@ import {MessageService} from "primeng/api";
     PaymentCreateComponent,
     ShoppingListCreateComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(),
-    ShoppingListComponent,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    ShoppingListComponent,
-    MenuCardComponent,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule
-  ],
+
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(),
+        ShoppingListComponent,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
+        ShoppingListComponent,
+        MenuCardComponent,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule
+    ],
+
   providers: [httpInterceptorProviders, MessageService],
   bootstrap: [AppComponent]
 })

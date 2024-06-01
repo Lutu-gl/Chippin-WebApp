@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
