@@ -1,4 +1,46 @@
-<h1 class="display-1">{{ group?.groupName }}</h1>
+<div>
+  <!-- Header part with diagram -->
+  <div class="bg-blue-100">
+    <div class="p-4 flex">
+      <div class="w-2/3 flex justify-center">
+        <p-chart type="bar" [data]="data" [options]="options"></p-chart>
+      </div>
+      <div class="flex flex-col justify-between items-start ml-4">
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold">WG-Gruppe 1</h2>
+          <div class="text-sm">Transactions: 9</div>
+          <div class="text-sm">Members: 3</div>
+          <div class="text-sm">Total spent: €343</div>
+        </div>
+        <div class="flex space-x-2 mt-4">
+          <button class="bg-red-300 text-black font-bold py-2 px-4 rounded">Show charts</button>
+          <button class="bg-red-200 text-black font-bold py-2 px-4 rounded">More</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-5 flex justify-center">
+      <p-tabMenu
+        [model]="tabMenuItems"
+        [activeItem]="tabMenuActiveItem"
+        (activeItemChange)="onActiveItemChange($event)"
+      ></p-tabMenu>
+    </div>
+  </div>
+
+  <!-- Content part -->
+  <div *ngIf="isTransactionsSelected()">Transactions works</div>
+  <div *ngIf="isDebtsSelected()">Debts works</div>
+  <div *ngIf="isMembersSelected()">Members works</div>
+  <div *ngIf="isPantrySelected()">Pantry works</div>
+  <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>
+
+</div>
+
+
+
+
+<!-- <h1 class="display-1">{{ group?.groupName }}</h1>
 <div *ngIf="group">
   <div class="d-flex justify-content-between">
     <h3 class="members">Members</h3>
@@ -69,4 +111,4 @@
     </div>
   </div>
 </div>
-</div>
+</div> -->

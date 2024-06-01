@@ -21,6 +21,7 @@
     "@angular/router": "17.3.4",
     "@ng-bootstrap/ng-bootstrap": "16.0.0",
     "@popperjs/core": "2.11.8",
+    "chart.js": "^4.4.3",
     "core-js": "3.36.1",
     "jquery": "3.7.1",
     "jwt-decode": "4.0.0",
