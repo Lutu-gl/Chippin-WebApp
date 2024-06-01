@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -40,8 +41,10 @@ public class ExpenseDataGenerator implements DataGenerator {
         LOGGER.debug("generating data for expense");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
-        Faker faker = new Faker();
         Random random = new Random();
+        random.setSeed(12345);
+        Faker faker = new Faker(Locale.getDefault(), random);
+
         String[] expenseNames = {
             "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
             "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut",
@@ -161,6 +164,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
     private double[] generateRandomSplits() {
         Random random = new Random();
+        random.setSeed(12345);
         double r1 = random.nextDouble();
         double r2 = random.nextDouble();
         double total = r1 + r2 + 1.0;

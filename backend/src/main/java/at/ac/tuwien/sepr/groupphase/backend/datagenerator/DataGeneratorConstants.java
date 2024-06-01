@@ -299,3 +299,6 @@ public class DataGeneratorConstants {
         "Human Rights Advocates", "Legal Aid Workers", "Pro Bono Lawyers", "Public Defenders",
         "Civil Rights Activists", "Labor Rights Activists", "Gender Equality Advocates", "LGBTQ+ Activists"};
 }
+
+
+

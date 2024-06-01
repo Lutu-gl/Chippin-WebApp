@@ -1,34 +1,150 @@
-<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;">
-    <div *ngIf="incomingFriendRequests.length > 0">
-        <h2 style="margin-bottom: 15px;">Incoming Friend Requests</h2>
-        <div>
-            <div *ngFor="let email of incomingFriendRequests" class="friend-request" style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
-                <span style="font-weight: bold;">{{ email }}</span>
-                <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm" style="margin-left: 10px;">
-                    <i class="bi bi-check"></i> Accept
-                </button>
-                <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
-                    <i class="bi bi-x"></i> Reject
-                </button>
-            </div>
-        </div>
+<!-- Modal for adding new friend -->
+<p-dialog [(visible)]="isAddFriendDialogVisible" [modal]="true">
+  <p-header>
+    <h2>Send friend request</h2>
+  </p-header>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="email">Email</label>
+      <input id="email" [(ngModel)]="friendRequestEmail" type="text" pInputText placeholder="lisa@chippin.com">
     </div>
+  </div>
+  <p-footer>
+    <p-button label="Send"  (click)="sendFriendRequest()"></p-button>
+    <p-button label="Cancel" severity="secondary" (click)="closeAddFriendDialog()"></p-button>
+  </p-footer>
+</p-dialog>
 
+<!-- Modal for friend info -->
+<p-dialog
+  [(visible)]="isFriendInfoDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+  [style]="{ width: '50vw' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+
+  <p-header>
+    <h2>Friend info</h2>
+  </p-header>
+  <div class="bg-blue-100 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto space-y-4">
+    <!-- Freund Name und Gesamtschulden -->
     <div>
-        <h2 style="margin-bottom: 15px;">Friends</h2>
-        <div>
-            <div 
-                *ngFor="let friend of friends"
-                style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;"
-                [routerLink]="['/friends', friend.email]"
-            >
-                <span>{{ friend.email }}</span>
-                <span class="ms-6" [ngClass]="{'text-danger': friend.debt < 0, 'text-success': friend.debt > 0, 'badge bg-secondary rounded-pill': friend.debt === 0}">
-                    {{ friend.debt === 0 ? 'quitt' : friend.debt + '€' }}
-                </span>
-            </div>
-        </div>
+      <div class="text-xl font-bold">{{ this.friendInfoEmail }}</div>
+      <div class="text-sm text-gray-600">Total Debt: 
+        <span *ngIf="this.friendInfoTotalAmount < 0" class="font-bold text-red-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
+        <span *ngIf="this.friendInfoTotalAmount > 0" class="font-bold text-green-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
+        <span *ngIf="this.friendInfoTotalAmount === 0" class="font-bold text-gray-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
+      </div>
     </div>
+    
+    <!-- Gemeinsame Gruppen -->
+    <div class="space-y-4">
+      <div class="text-lg font-bold">Common Groups</div>
+      
+      <!-- Gruppe 1 -->
+      <div *ngFor="let group of friendInfoGroupAmounts" [routerLink]="['/group', group[0].id]" class="bg-gray-100 p-4 rounded mb-4 cursor-pointer">
+        <div class="font-bold">{{ group[0].groupName }}</div>
+        <div class="text-sm font-medium text-gray-500">Debt:
+          <span *ngIf="group[1] < 0" class="font-bold text-red-500">{{ group[1] | currency: 'EUR' }}</span>
+          <span *ngIf="group[1] > 0" class="font-bold text-green-500">{{ group[1] | currency: 'EUR' }}</span>
+          <span *ngIf="group[1] === 0" class="font-bold text-gray-500">{{ group[1] | currency: 'EUR' }}</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  <p-footer>
+    <p-button label="Close" (click)="closeFriendInfoDialog()"></p-button>
+  </p-footer>
+</p-dialog>
 
-    <a class="btn btn-primary btn-lg" routerLink="/add-friend" role="button" style="margin-top: 20px;">Add New Friend</a>
+
+
+<div class="flex flex-col items-center p-4">
+  <p-button (click)="openAddFriendDialog()" class="text-black font-bold py-2 px-4 rounded mt-4 mb-6">Send Friend Request</p-button>
+
+  <!-- Incoming friend requests -->
+  <div *ngIf="incomingFriendRequests.length > 0" class="mt-6 w-full max-w-md">
+    <h3 class="font-bold mb-2">Incoming friend requests</h3>
+    <div *ngFor="let email of incomingFriendRequests" class="flex items-center justify-between p-4 bg-gray-100 rounded">
+      <div>{{ email }}</div>
+      <div class="space-x-2">
+        <button (click)="acceptFriendRequest(email)" class="bg-green-500 text-white py-1 px-3 rounded">Accept</button>
+        <button (click)="rejectFriendRequest(email)" class="bg-red-500 text-white py-1 px-3 rounded">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outgoing friend requests -->
+  <div *ngIf="outgoingFriendRequests.length > 0" class="mt-6 w-full max-w-md">
+    <h3 class="font-bold mb-2">Outgoing friend requests</h3>
+    <div *ngFor="let email of outgoingFriendRequests" class="flex items-center justify-between p-4 bg-gray-100 rounded">
+      <div>{{ email }}</div>
+      <div>
+        <button (click)="retractFriendRequest(email)" class="bg-red-500 text-white py-1 px-3 rounded">Retract</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No friends yet message -->
+  <div *ngIf="friends.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>ChippIn works best, when you use it together with your friends. Add your friends by sending them a friend request. All you need is their Email Address.</p>
+  </div>
+
+  <!-- Friends -->
+  <div *ngIf="friends.length > 0" class="w-full max-w-md space-y-4 mt-6">
+    <h3 class="font-bold mb-2">Friends</h3>
+    <div *ngFor="let friend of friends" (click)="openFriendInfoDialog(friend.email)" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ friend.email[0] }}</div>
+        <div>
+          <div class="font-bold">{{ friend.email }}</div>
+        </div>
+      </div>
+      <div *ngIf="friend.totalAmount > 0" class="text-green-500 font-bold">{{ friend.totalAmount | currency: 'EUR' }}</div>
+      <div *ngIf="friend.totalAmount < 0" class="text-red-500 font-bold">{{ friend.totalAmount | currency: 'EUR' }}</div>
+      <div *ngIf="friend.totalAmount === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
+    </div>
+  </div>
+
 </div>
+
+
+<!-- 
+<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;">
+  <div *ngIf="incomingFriendRequests.length > 0">
+    <h2 style="margin-bottom: 15px;">Incoming Friend Requests</h2>
+    <div>
+      <div *ngFor="let email of incomingFriendRequests" class="friend-request" style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
+        <span style="font-weight: bold;">{{ email }}</span>
+        <button (click)="acceptFriendRequest(email)" type="button" class="btn btn-success btn-sm" style="margin-left: 10px;">
+          <i class="bi bi-check"></i> Accept
+        </button>
+        <button (click)="rejectFriendRequest(email)" type="button" class="btn btn-danger btn-sm" style="margin-left: 5px;">
+          <i class="bi bi-x"></i> Reject
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2 style="margin-bottom: 15px;">Friends</h2>
+    <div>
+      <div 
+        *ngFor="let friend of friends"
+        style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;"
+        [routerLink]="['/friends', friend.email]"
+      >
+        <span>{{ friend.email }}</span>
+        <span class="ms-6" [ngClass]="{'text-danger': friend.debt < 0, 'text-success': friend.debt > 0, 'badge bg-secondary rounded-pill': friend.debt === 0}">
+          {{ friend.debt === 0 ? 'quitt' : friend.debt + '€' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <a class="btn btn-primary btn-lg" routerLink="/add-friend" role="button" style="margin-top: 20px;">Add New Friend</a> -->
+<!-- </div> -->

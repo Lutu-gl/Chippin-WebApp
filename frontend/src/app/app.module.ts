@@ -58,6 +58,20 @@ import {
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
+import {SplitButtonModule} from "primeng/splitbutton";
+import {MenuModule} from "primeng/menu";
+import {ChipsModule} from "primeng/chips";
+import {FloatLabelModule} from "primeng/floatlabel";
+import {PasswordModule} from "primeng/password";
+import {DividerModule} from "primeng/divider";
+import {AutoFocusModule} from "primeng/autofocus";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {TabMenuModule} from 'primeng/tabmenu';
+import {AutoCompleteModule} from "primeng/autocomplete";
+import {CardModule} from "primeng/card";
+import {ChartModule} from 'primeng/chart';
+import {DialogModule} from 'primeng/dialog';
 
 @NgModule({
   declarations: [
@@ -88,27 +102,29 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
     PaymentCreateComponent,
     ShoppingListCreateComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(),
-    ShoppingListComponent,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    ShoppingListComponent,
-    MenuCardComponent,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
-  ],
-  providers: [httpInterceptorProviders],
+
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(),
+        ShoppingListComponent,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
+        ShoppingListComponent,
+        MenuCardComponent,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
+    ],
+
+  providers: [httpInterceptorProviders, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
