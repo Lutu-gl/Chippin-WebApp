@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from 'src/app/services/auth.service';
+import {ActivatedRoute} from "@angular/router";
+
 
 @Component({
   selector: 'app-home',
@@ -12,8 +14,9 @@ export class HomeComponent implements OnInit {
   tabMenuActiveItem: MenuItem | undefined;
 
   constructor(
-    public authService: AuthService
-  ){
+    public authService: AuthService,
+    private route: ActivatedRoute
+){
   }
 
   ngOnInit(): void {
@@ -23,7 +26,22 @@ export class HomeComponent implements OnInit {
       { label: 'Shopping lists', icon: 'pi pi-fw pi-shopping-cart' }
     ];
 
-    this.tabMenuActiveItem = this.tabMenuItems[0];
+    this.route.paramMap.subscribe(params => {
+      const tab = params.get('tab');
+      switch (tab) {
+        case '0':
+          this.tabMenuActiveItem = this.tabMenuItems[0];
+          break;
+        case '1':
+          this.tabMenuActiveItem = this.tabMenuItems[1];
+          break;
+        case '2':
+          this.tabMenuActiveItem = this.tabMenuItems[2];
+          break;
+        default:
+          this.tabMenuActiveItem = this.tabMenuItems[0];
+      }
+    });
   }
 
   onActiveItemChange(event: MenuItem) {

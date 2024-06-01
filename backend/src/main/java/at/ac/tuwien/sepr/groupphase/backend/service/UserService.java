@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -73,4 +74,11 @@ public interface UserService extends UserDetailsService {
     List<Recipe> getRecipesByUserEmail(String email);
 
 
+    /**
+     * Getting the groups the user is part of with debt information.
+     *
+     * @param email email of the user
+     * @return Set of groups the user is part of with debt information
+     */
+    Set<GroupListDto> getGroupsByUserEmailWithDebtInfos(String email);
 }
