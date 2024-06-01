@@ -71,6 +71,7 @@ import {TabMenuModule} from 'primeng/tabmenu';
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {CardModule} from "primeng/card";
 import {ChartModule} from 'primeng/chart';
+import {DialogModule} from 'primeng/dialog';
 
 @NgModule({
   declarations: [
@@ -120,7 +121,7 @@ import {ChartModule} from 'primeng/chart';
         ExpenseInfoCardContentComponent,
         ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
     ],
 
   providers: [httpInterceptorProviders, MessageService],

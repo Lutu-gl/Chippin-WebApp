@@ -77,7 +77,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
                     Double debt = debtsPerGroup.get(group.getId()).get(friend.getEmail());
                     friendInfoDto.setTotalAmount(friendInfoDto.getTotalAmount() + debt);
-                    friendInfoDto.getGroupAmounts().put(groupMapper.groupEntityToGroupDto(group), debt);
+                    friendInfoDto.getGroupAmounts().put(group.getId(), List.of(groupMapper.groupEntityToGroupDto(group), debt));
                 }
             }
             friendsInfos.add(friendInfoDto);
