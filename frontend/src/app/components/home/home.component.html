@@ -8,12 +8,13 @@
   <div *ngIf="authService.isLoggedIn()" class="pt-5 flex justify-center">
     <p-tabMenu
       [model]="tabMenuItems"
-      [activeItem]="tabMenuActiveItem" 
+      [activeItem]="tabMenuActiveItem"
       (activeItemChange)="onActiveItemChange($event)"
     ></p-tabMenu>
   </div>
-  
+
   <app-friends *ngIf="isFriendsSelected()"></app-friends>
+  <app-group-list *ngIf="isGroupsSelected()"></app-group-list>
 
   <!-- <p >Friends</p>
   <p *ngIf="isGroupsSelected()">Groups</p>

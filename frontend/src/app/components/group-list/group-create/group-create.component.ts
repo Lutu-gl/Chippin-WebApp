@@ -44,7 +44,6 @@ export class GroupCreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
-    private notification: ToastrService,
     protected authService: AuthService
   ) {
   }
@@ -180,9 +179,8 @@ export class GroupCreateComponent implements OnInit {
       }
       observable.subscribe({
         next: data => {
-          console.log('Group created!!!');
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
-          this.router.navigate(['/groups']);
+          this.router.navigate(['/1']);
         },
         error: error => {
           console.log(error);
@@ -276,6 +274,6 @@ export class GroupCreateComponent implements OnInit {
   currentlySelected: any;
 
   goBack() {
-      this.router.navigate(['/group']);
+      this.router.navigate([1]);
   }
 }

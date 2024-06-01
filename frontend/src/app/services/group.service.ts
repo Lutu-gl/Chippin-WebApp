@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {map, Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {GroupDto, GroupListDto} from "../dtos/group";
+import {GroupDto, GroupDetailDto, GroupListDto} from "../dtos/group";
 import {UserSelection} from "../dtos/user";
 import { BudgetDto } from '../dtos/budget';
 
@@ -13,8 +13,11 @@ export class GroupService {
   private groupBaseUri: string = this.globals.backendUri + '/group';
   constructor(private http: HttpClient, private globals: Globals) { }
 
-  getGroups(): Observable<GroupListDto[]> {
-    return this.http.get<GroupListDto[]>(this.globals.backendUri + '/users/groups');
+  getGroups(): Observable<GroupDetailDto[]> {
+    return this.http.get<GroupDetailDto[]>(this.globals.backendUri + '/users/groups');
+  }
+  getGroupsWithDebtInfos(): Observable<GroupListDto[]> {
+    return this.http.get<GroupListDto[]>(this.globals.backendUri + '/users/groups-with-debt-infos');
   }
 
   getGroupBudgets(groupId: number): Observable<BudgetDto[]> {
