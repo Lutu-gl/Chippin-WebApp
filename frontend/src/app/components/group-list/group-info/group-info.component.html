@@ -3,13 +3,31 @@
   <div class="bg-blue-100">
     <div class="p-4 flex">
       <div class="w-2/3 flex justify-center">
-        <p-chart type="bar" [data]="data" [options]="options"></p-chart>
+        <div class="bg-blue-100 p-4 max-w-3xl mx-auto">
+          <div class="flex items-end justify-around">
+            <div class="bg-blue-100 p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+              <div class="flex items-end justify-around space-x-4">
+                <div *ngFor="let entry of membersWithDebtsWithoutEven" class="flex flex-col items-center space-y-2">
+                  <div *ngIf="entry[1] > 0" class="bg-blue-300 p-4 rounded-t-lg shadow flex flex-col justify-between" [ngStyle]="{ height: calcChartHeight(entry[1]) }">
+                    <span class="font-bold self-end">{{ entry[1] | currency: 'EUR' }}</span>
+                  </div>
+                  <div *ngIf="entry[1] < 0" class="bg-red-300 p-4 rounded-t-lg shadow flex flex-col justify-between" [ngStyle]="{ height: calcChartHeight(entry[1]) }">
+                    <span class="font-bold self-end">{{ entry[1] | currency: 'EUR' }}</span>
+                  </div>
+                  <div class="mt-2 text-center">
+                    <span class="font-bold" style="font-size: xx-small;">{{ entry[0] }}</span>
+                  </div>
+                </div>                
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex flex-col justify-between items-start ml-4">
         <div class="mb-4">
-          <h2 class="text-2xl font-bold">WG-Gruppe 1</h2>
-          <div class="text-sm">Transactions: 9</div>
-          <div class="text-sm">Members: 3</div>
+          <h2 class="text-2xl font-bold">{{ group.groupName }}</h2>
+          <div class="text-sm">Transactions: {{ transactions.length }}</div>
+          <div class="text-sm">Members: {{ group.members.length }}</div>
           <div class="text-sm">Total spent: €343</div>
         </div>
         <div class="flex space-x-2 mt-4">
@@ -28,10 +46,68 @@
     </div>
   </div>
 
-  <!-- Content part -->
-  <div *ngIf="isTransactionsSelected()">Transactions works</div>
-  <div *ngIf="isDebtsSelected()">Debts works</div>
-  <div *ngIf="isMembersSelected()">Members works</div>
+  <!-- Transactions part -->
+  <div *ngIf="isTransactionsSelected()" class="p-4 max-w-lg mx-auto">
+    <div class="space-y-4">
+      <div *ngFor="let transaction of transactions" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+        <div class="flex items-center space-x-4">
+          <div>
+            <div class="font-normal text-sm">User <b>{{ transaction.userEmail }}</b> {{ transaction.description }}</div>
+            <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+          </div>
+        </div>
+        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debts tab -->
+  <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
+    <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
+      <span class="font-bold">{{ payment.userEmail }}</span>
+      <div class="flex flex-col justify-center align-items-center">
+        <span class="text-red-500 font-bold">{{ payment.amount | currency: 'EUR' }}</span>
+        <span class="text-black text-center font-bold">→</span>
+      </div>
+      <span class="font-bold">{{ payment.paymentReceiverEmail }}</span>
+    </div>
+
+  </div>
+  
+  <!-- Members tab -->
+  <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
+    <div class="flex justify-center mb-4">
+      <button class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add member
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+        <div class="flex items-center space-x-4">
+          <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ debt?.userEmail[0] || "" }}</div>
+          <div>
+            <div class="font-bold">{{ debt.userEmail }}</div>
+          </div>
+        </div>
+        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">You</div>
+      </div>
+
+      <div *ngFor="let entry of membersWithDebts" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+        <div class="flex items-center space-x-4">
+          <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ entry[0][0] }}</div>
+          <div>
+            <div class="font-bold">{{ entry[0] }}</div>
+          </div>
+        </div>
+        <div *ngIf="entry[1] > 0" class="text-green-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+        <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+        <div *ngIf="entry[1] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
+      </div>
+    </div>
+  </div>
+
+
+
   <div *ngIf="isPantrySelected()">Pantry works</div>
   <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>
 

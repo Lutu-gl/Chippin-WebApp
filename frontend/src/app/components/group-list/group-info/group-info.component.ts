@@ -1,5 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { GroupService } from 'src/app/services/group.service';
+import { MessageService } from "primeng/api";
+import { DebtService } from 'src/app/services/debt.service';
+import { GroupDto } from 'src/app/dtos/group';
+import { ActivityService } from 'src/app/services/activity.service';
+import { DebtGroupDetailDto } from 'src/app/dtos/debt';
+import { ActivityDetailDto } from 'src/app/dtos/activity';
 
 @Component({
   selector: 'app-group-info',
@@ -8,13 +16,27 @@ import { MenuItem } from 'primeng/api';
 })
 export class GroupInfoComponent implements OnInit {
   
-  data: any;
-  options: any;
+  chartData: any;
+  chartOptions: any;
   tabMenuItems: MenuItem[] | undefined;
   tabMenuActiveItem: MenuItem | undefined;
 
-  constructor(){
+  group: GroupDto = { id: undefined, groupName: '', members: [] };
+  debt: DebtGroupDetailDto = { userEmail: '', groupId: 0, membersDebts: {} };
+  membersWithDebts: any[] = [];
+  membersWithDebtsWithoutEven: any[] = [];
+  maxDebt: number = 0;
+  transactions: ActivityDetailDto[] = [];
+  payments: ActivityDetailDto[] = [];
 
+  constructor(
+    private groupService: GroupService,
+    private debtService: DebtService,
+    private activityService: ActivityService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private messageService: MessageService,
+  ){
   }
 
   ngOnInit(): void {
@@ -29,28 +51,57 @@ export class GroupInfoComponent implements OnInit {
     ];
     this.tabMenuActiveItem = this.tabMenuItems[0];
 
+    this.getGroup();
+    this.getDebt();
+    this.getTransactions();
+    this.getPayments();
+  }
 
-    // TODO: change this data
-    this.data = {
-      labels: ['Emil Hafner', 'Rafael Milchram', 'Markus Berling'],
-      datasets: [
-        {
-          label: 'Total Amount',
-          backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
-          data: [-29.99, 12.99, 17.00]
-        }
-      ]
-    };
-
-    this.options = {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
+  getGroup(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.groupService.getById(id).subscribe({
+      next: group => {
+        this.group = group;
+      },
+      error: error => {
+        console.error(error);
+        this.messageService.add({severity: 'error', summary: 'Login failed', detail: error.error});
+        this.router.navigate(['/1']);
       }
-    };
+    });
+  }
+
+  getDebt(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.debtService.getDebtById(id).subscribe(debt => {
+      this.debt = debt;
+      this.membersWithDebts = Object.entries(debt.membersDebts);
+      this.membersWithDebtsWithoutEven = this.membersWithDebts.filter(([_, amount]) => amount !== 0);
+      this.maxDebt = Math.max(...this.membersWithDebtsWithoutEven.map(([_, amount]) => amount));
+    });
+  }
+
+  getTransactions(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.activityService.getExpenseActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(transactions => {
+      this.transactions = transactions;
+    });
+  }
+
+  getPayments(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
+      console.log(payments);
+      this.payments = payments;
+    });
+  }
+
+  calcChartHeight(amount): string {
+    if (this.maxDebt === 0) {
+      return '100px';
+    }
+
+    return (Math.abs(amount) / this.maxDebt) * 100 + 'px';
   }
 
   onActiveItemChange(event: MenuItem) {
