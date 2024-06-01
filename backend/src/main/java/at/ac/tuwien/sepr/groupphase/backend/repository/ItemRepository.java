@@ -12,13 +12,6 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     /**
-     * Find all items in a itemList where {@code description} is a substring of the item description ordered by the item id.
-     *
-     * @return ordered list of all items in the itemList where {@code description} is a substring of the item description
-     */
-    //List<Item> findByDescriptionContainingIgnoreCaseAndItemListIsOrderById(String description, Blueprint blueprint);
-
-    /**
      * Find all ingredients in a recipe where {@code description} is a substring of the item description ordered by the item id.
      *
      * @return ordered list of all items in the recipe where {@code description} is a substring of the item description

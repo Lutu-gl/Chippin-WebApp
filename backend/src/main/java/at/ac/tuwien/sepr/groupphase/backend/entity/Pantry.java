@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -42,9 +43,11 @@ public class Pantry {
     @OneToOne
     @MapsId
     @JoinColumn(name = "group_id")
+    @JsonIgnore
     private GroupEntity group;
 
     @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private final List<PantryItem> items = new ArrayList<>();
 
     public void addItem(PantryItem item) {

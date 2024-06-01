@@ -44,7 +44,7 @@ public class BlueprintEndpoint {
     @GetMapping("/{itemListId}/itemlist")
     public BlueprintDetailDto getById(@PathVariable long itemListId) {
         LOGGER.info("GET /api/v1/group/{}/itemlist", itemListId);
-        return null;//new BlueprintDetailDto(itemMapper.listOfItemsToListOfItemDto(blueprintService.findAllItems(itemListId)), blueprintService.getName(itemListId));
+        return null;
     }
 
     @Secured("ROLE_USER")

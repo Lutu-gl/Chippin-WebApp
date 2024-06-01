@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 public class PantryItem extends Item {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pantry_id")
+    @JsonBackReference
     private Pantry pantry;
 
     @Column

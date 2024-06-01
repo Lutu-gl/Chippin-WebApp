@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
@@ -11,10 +12,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,6 +105,12 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
 
     @SpyBean
     private SecurityService securityService;
+
+    @Autowired
+    private ShoppingListRepository shoppingListRepository;
+
+    @Autowired
+    private ShoppingListService shoppingListService;
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -524,9 +534,10 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Test
     @Rollback
     @WithMockUser(username = "user1@example.com", roles = "USER")
-    public void givenWrongUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_Returns404() throws Exception {
+    public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsEmptyList() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
+                .queryParam("details", "Test Recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -686,7 +697,57 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertNotNull(result);
         assertTrue(result.contains("Blueberries"));
         assertEquals(0, changedItem.getAmount());
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com", roles = "USER")
+    @Rollback
+    public void GivenRecipePantryAndShoppingList_WhenSelectIngredientsForShoppingList_ReturnsCorrectDto() throws Exception {
+        GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
+        pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+        pantryService.addItemToPantry(PantryItem.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+
+        Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+        ShoppingList shoppingList = shoppingListRepository.findAll().stream()
+            .filter(o -> o.getOwner().getId().equals(id)).toList().getFirst();
+        assertNotNull(shoppingList);
+        shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), id);
+        shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), id);
 
 
+        Recipe blueberryRecipe = recipeRepository.save(
+            Recipe.builder()
+                .description("test")
+                .name("Blueberries")
+                .portionSize(1)
+                .owner(userDetailService.findApplicationUserByEmail("user1@example.com"))
+                .isPublic(true).build());
+
+        recipeService.addItemToRecipe(Item.builder().description("Blueberries")
+                .amount(100).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/{0}/shoppinglist/{1}/pantry/{2}",
+                blueberryRecipe.getId(), shoppingList.getId(), group.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AddRecipeItemToShoppingListDto result = objectMapper.readValue(response.getContentAsByteArray(), AddRecipeItemToShoppingListDto.class);
+
+        assertNotNull(result);
+
+        assertAll(
+            () -> assertEquals(1, result.getRecipeItems().size()),
+            () -> assertEquals(1, result.getShoppingListItems().size()),
+            () -> assertEquals(1, result.getPantryItems().size()),
+            () -> assertTrue(result.getRecipeItems().getFirst().getDescription().contains("Blueberries")),
+            () -> assertTrue(result.getPantryItems().getFirst().getDescription().contains("Blueberries")),
+            () -> assertTrue(result.getShoppingListItems().getFirst().getItem().getDescription().contains("Blueberries"))
+        );
     }
 }

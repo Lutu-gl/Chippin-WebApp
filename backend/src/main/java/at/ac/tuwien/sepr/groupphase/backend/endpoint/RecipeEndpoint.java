@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintListDto;
@@ -15,8 +16,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
+import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +52,18 @@ public class RecipeEndpoint {
     private final RecipeMapper recipeMapper;
     private final UserService userService;
     private final PantryService pantryService;
+    private final ShoppingListService shoppingListService;
 
 
     @Autowired
-    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService, RecipeMapper recipeMapper, PantryService pantryService) {
+    public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService,
+                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
         this.recipeMapper = recipeMapper;
         this.userService = userService;
         this.pantryService = pantryService;
+        this.shoppingListService = shoppingListService;
     }
 
 
@@ -69,14 +76,14 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
-    public BlueprintListDto searchItemsInRecipe(@PathVariable long recipeId, RecipeSearchDto searchParams) {
+    public BlueprintListDto searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
         LOGGER.trace("GET /api/v1/recipe/{}/recipe/search", recipeId);
         return new BlueprintListDto(itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
     }
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/own")
-    public List<RecipeListDto> searchOwnRecipe(RecipeSearchDto searchParams) {
+    public List<RecipeListDto> searchOwnRecipe(@Valid RecipeSearchDto searchParams) {
         LOGGER.trace("GET /api/v1/recipe/search/own: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser owner = userService.findApplicationUserByEmail(authentication.getName());
@@ -85,7 +92,7 @@ public class RecipeEndpoint {
 
     @Secured("ROLE_USER")
     @GetMapping("/recipe/search/global")
-    public List<RecipeGlobalListDto> searchGlobalRecipe(RecipeSearchDto searchParams) {
+    public List<RecipeGlobalListDto> searchGlobalRecipe(@Valid RecipeSearchDto searchParams) {
         LOGGER.trace("GET /api/v1/group/recipe/search/global: {}", searchParams);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
@@ -185,11 +192,30 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PutMapping("recipe/{recipeId}/pantry/{groupId}/{portion}")
-    public List<String> removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId, @PathVariable int portion) {
+    public List<String> removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId,
+                                                          @PathVariable @Max(value = 100) @Min(value = 1) int portion) {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
 
 
         return pantryService.removeRecipeIngredientsFromPantry(groupId, recipeId, portion);
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}")
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(@PathVariable long recipeId, @PathVariable long shoppingListId) {
+        LOGGER.trace("GET recipe/{}/shoppinglist/{}", recipeId, shoppingListId);
+
+        return shoppingListService.selectIngredientsForShoppingList(recipeId, shoppingListId, -1L);
+
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}/pantry/{pantryId}")
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingListWithPantry(@PathVariable long recipeId, @PathVariable long shoppingListId, @PathVariable long pantryId) {
+        LOGGER.trace("GET recipe/{}/shoppinglist/{}/pantry/{}", recipeId, shoppingListId, pantryId);
+
+        return shoppingListService.selectIngredientsForShoppingList(recipeId, shoppingListId, pantryId);
+
     }
 
 }

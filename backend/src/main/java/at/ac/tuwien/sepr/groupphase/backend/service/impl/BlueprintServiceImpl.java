@@ -59,7 +59,7 @@ public class BlueprintServiceImpl implements BlueprintService {
         Optional<Blueprint> itemList = bluePrintRepository.findById(blueprintId);
         if (itemList.isPresent()) {
             LOGGER.debug("Found itemList: {}", itemList.get());
-            return null;//itemRepository.findByDescriptionContainingIgnoreCaseAndItemListIsOrderById(description, itemList.get());
+            return null;
         } else {
             throw new NotFoundException(String.format("Could not find itemList with id %s", blueprintId));
         }
