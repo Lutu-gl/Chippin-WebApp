@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -13,5 +14,5 @@ import java.util.Map;
 public class FriendInfoDto {
     private String email;
     private Double totalAmount;
-    private Map<GroupDetailDto, Double> groupAmounts;
+    private Map<Long, List<Object>> groupAmounts;
 }
