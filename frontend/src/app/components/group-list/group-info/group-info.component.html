@@ -12,7 +12,6 @@
     <p>Perfect! Seems like you do not have open debts</p>
   </div>
 
-
   <div *ngIf="getMembersOnlyNegativeDebts().length > 0">
     <br>
     <span class="p-text-secondary block mb-5">Insert a payment to a user</span>
@@ -116,11 +115,11 @@
       <div *ngFor="let transaction of transactions" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
         <div class="flex items-center space-x-4">
           <div>
-            <div class="font-normal text-sm">User <b>{{ transaction.userEmail }}</b> {{ transaction.description }}</div>
+            <div class="font-normal text-sm">User <b></b> {{ transaction.description }}</div>
             <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
           </div>
         </div>
-        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm"></div>
       </div>
     </div>
   </div>
@@ -140,15 +139,15 @@
 
     <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
       <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
-        <span class="font-bold">{{ payment.userEmail }}</span>
+        <span class="font-bold">{{ payment }}</span>
         <div class="flex flex-col justify-center align-items-center">
-          <span class="text-red-500 font-bold">{{ payment.amount | currency: 'EUR' }}</span>
+          <span class="text-red-500 font-bold"></span>
           <span class="text-black text-center font-bold">→</span>
         </div>
-        <span class="font-bold">{{ payment.paymentReceiverEmail }}</span>
+        <span class="font-bold">{{ payment }}</span>
       </div>
 
-    </div>
+  </div>
 
   <!-- Members tab -->
   <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
@@ -183,8 +182,7 @@
   </div>
 
 
-
-  <div *ngIf="isPantrySelected()">Pantry works</div>
+  <app-pantry *ngIf="isPantrySelected()"></app-pantry>
   <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>
 
 </div>

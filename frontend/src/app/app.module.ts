@@ -75,6 +75,7 @@ import {CardModule} from "primeng/card";
 import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PantryComponent} from "./components/pantry/pantry.component";
 
 @NgModule({
   declarations: [
@@ -124,7 +125,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
     ExpenseInfoCardContentComponent,
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, ConfirmDialogModule
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, ConfirmDialogModule, PantryComponent
   ],
 
   providers: [httpInterceptorProviders, MessageService, ConfirmationService],
