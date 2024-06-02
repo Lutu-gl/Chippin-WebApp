@@ -17,7 +17,7 @@
                   <div class="mt-2 text-center">
                     <span class="font-bold" style="font-size: xx-small;">{{ entry[0] }}</span>
                   </div>
-                </div>                
+                </div>
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@
     </div>
 
   </div>
-  
+
   <!-- Members tab -->
   <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
     <div class="flex justify-center mb-4">
@@ -107,8 +107,7 @@
   </div>
 
 
-
-  <div *ngIf="isPantrySelected()">Pantry works</div>
+  <app-pantry *ngIf="isPantrySelected()"></app-pantry>
   <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>
 
 </div>
@@ -165,7 +164,7 @@
     <app-budget-list [groupId]="group.id"></app-budget-list>
   </div>
 
-  
+
   <div class="">
     <button type="button"
             class="btn btn-secondary"

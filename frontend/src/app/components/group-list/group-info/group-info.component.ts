@@ -15,7 +15,7 @@ import { ActivityDetailDto } from 'src/app/dtos/activity';
   styleUrl: './group-info.component.scss'
 })
 export class GroupInfoComponent implements OnInit {
-  
+
   chartData: any;
   chartOptions: any;
   tabMenuItems: MenuItem[] | undefined;

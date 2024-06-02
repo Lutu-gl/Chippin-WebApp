@@ -1,3 +1,208 @@
+<p-toast/>
+<p-confirmDialog [style]="{ width: '450px' }"/>
+<p-dialog
+  [(visible)]="newItemDialog"
+  [style]="{ width: '600px' }"
+  header="Create new Item"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="field">
+      <label for="name">Name</label>
+      <input
+        type="text"
+        pInputText
+        id="name"
+        [(ngModel)]="newItem.description"
+        required
+        autofocus/>
+      <small class="p-error" *ngIf="submitted && !newItem.description">
+        Name is required.
+      </small>
+    </div>
+    <div class="field">
+      <label for="unit">Unit</label>
+      <p-dropdown
+        [(ngModel)]="newItem.unit"
+        id="unit"
+        [options]="Object.values(DisplayedUnit)">
+      </p-dropdown>
+    </div>
+    <div class="field">
+      <label for="amount">Amount</label>
+      <p-inputNumber
+        id="amount"
+        [(ngModel)]="newItem.amount"
+        [min]="0"
+        [max]="1000000"
+        required/>
+      <small class="p-error" *ngIf="submitted && !newItem.amount">
+        Amount is required.
+      </small>
+    </div>
+    <div class="field">
+      <label for="lowerLimit">Amount</label>
+      <p-inputNumber
+        id="lowerLimit"
+        [(ngModel)]="newItem.lowerLimit"
+        [min]="0"
+        [max]="1000000"
+        required/>
+      <small class="p-error" *ngIf="submitted && !newItem.lowerLimit">
+        Amount is required.
+      </small>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (click)="hideDialog()"/>
+    <p-button
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      [text]="true"/>
+  </ng-template>
+</p-dialog>
+
+<div class="flex flex-col items-center p-4">
+  <div class="container mx-auto px-12 py-4 bg-gray-100 rounded text-center">
+    <div class="container mx-auto p-4">
+      <p-toolbar styleClass="mb-4 gap-2">
+        <ng-template pTemplate="left">
+          <p-button
+            pRipple
+            severity="success"
+            label="New"
+            icon="pi pi-plus"
+            class="mr-2"
+            (click)="openNew()"/>
+          <p-button
+            pRipple
+            severity="danger"
+            label="Delete"
+            icon="pi pi-trash"
+            (click)="deleteSelectedItems()"
+            [disabled]="!selectedItems || !selectedItems.length"/>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <p-button
+            pRipple
+            severity="secondary"
+            label="Find recipes"
+            [disabled]="!selectedItems || !selectedItems.length"/>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table
+        #dt
+        [rows]="10"
+        [value]="items"
+        [paginator]="true"
+        [globalFilterFields]="['description', 'amount', 'min']"
+        [(selection)]="selectedItems"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="caption">
+          <div class="flex align-items-center justify-between">
+            <h5 class="m-0">Items</h5>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input
+                  pInputText
+                  type="text"
+                  (input)="dt.filterGlobal($event.target.value, 'contains')"
+                  placeholder="Search..."/>
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 4rem">
+              <p-tableHeaderCheckbox/>
+            </th>
+            <th pSortableColumn="description" style="min-width:10rem">
+              Name
+              <p-sortIcon field="description"/>
+            </th>
+            <th pSortableColumn="amount" style="min-width:8rem">
+              Amount
+              <p-sortIcon field="amount"/>
+            </th>
+            <th pSortableColumn="minimum" style="min-width:8rem">
+              Minimum
+              <p-sortIcon field="minimum"/>
+            </th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="item"/>
+            </td>
+            <td>
+              {{ item.description }}
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-minus"
+                severity="danger"
+                [disabled]="item.amount === 0"
+                (click)="decrement(item)"
+              ></p-button>
+              <p-inputNumber
+                readonly="true"
+                [(ngModel)]="item.amount"
+                [step]="getStepSize(item)"
+                [suffix]="getSuffix(item)"
+                [min]="0"
+                [max]="1000000"
+                locale="en-US"
+                [buttonLayout]=""/>
+              <p-button
+                icon="pi pi-plus"
+                severity="success"
+                [disabled]="item.amount === 1000000"
+                (click)="increment(item)"
+              ></p-button>
+            </td>
+            <td>
+              {{ item.min }}
+            </td>
+            <td>
+              <p-button
+                pRipple
+                icon="pi pi-pencil"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                severity="success"/>
+              <p-button
+                pRipple
+                icon="pi pi-trash"
+                severity="danger"
+                (click)="deleteItem(item)"
+                [rounded]="true"
+                [outlined]="true"/>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+  </div>
+</div>
+
+
+<!--
 <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
   <strong>Error! </strong> {{ errorMessage }}
   <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
@@ -103,21 +308,17 @@
           <td>
             <div class="col-8 align-content-center">
               <div class="row">
-                <!--small-->
                 <a class="btn btn-sm responsive-success-button col m-1"
                    [text]="getUnitStepString(getUnitStep(item, false, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, true))"></a>
-                <!--large-->
                 <a class="btn btn-sm responsive-success-button col m-1"
                    [text]="getUnitStepString(getUnitStep(item, true, true), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, true))"></a>
               </div>
               <div class="row">
-                <!--small-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
                    [text]="getUnitStepString(getUnitStep(item, false, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, false, false))"></a>
-                <!--large-->
                 <a class="btn btn-sm responsive-danger-button col m-1"
                    [text]="getUnitStepString(getUnitStep(item, true, false), item)"
                    (click)="changeAmount(item, getUnitStep(item, true, false))"></a>
@@ -164,3 +365,4 @@
                              (confirmMerge)="mergeItems(); searchChanged()"></app-edit-pantry-item-dialog>
 <app-display-recipes-dialog [recipes]="recipes"></app-display-recipes-dialog>
 <app-shopping-list-add-dialog [item]="selectedItem"></app-shopping-list-add-dialog>
+-->
