@@ -1,11 +1,33 @@
+<!-- Modal for delete confirmation -->
+<p-dialog
+  header="Delete Expense"
+  [modal]="true"
+  [(visible)]="isDeleteDialogVisible"
+  [style]="{ width: '25rem' }"
+>
+  <span class="p-text-secondary block mb-5">Do you really want to delete this expense?</span>
+  <div class="flex justify-content-end gap-2">
+    <p-button label="No" severity="secondary" (click)="closeDeleteDialog()" />
+    <p-button label="Yes" (click)="deleteExistingExpense()"/>
+  </div>
+</p-dialog>
+
 <div class="bg-blue-100 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto space-y-6 mt-2">
+
+  <label *ngIf="expenseIsDeleted()" class="flex items-center text-red-500 font-bold">
+    <i class="pi pi-exclamation-triangle mr-2"></i>
+    This Expense is marked as deleted!
+  </label>
 
   <!-- Input fields -->
   <div class="space-y-4">
     <!-- Expense name -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Expense Name</label>
-      <input [(ngModel)]="expenseName" type="text" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+      <input type="text" pInputText
+        [(ngModel)]="expenseName"
+        [readonly]="modeIsInfo()"
+      />
     </div>
     <!-- Expense amount -->
     <div>
@@ -13,6 +35,7 @@
       <p-inputNumber 
         [(ngModel)]="expenseAmount"
         (onInput)="expenseAmountChange($event)"
+        [readonly]="modeIsInfo()"
         mode="currency"
         inputId="currency-germany"
         currency="EUR" 
@@ -24,7 +47,12 @@
     <!-- Expense category -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Category</label>
-      <p-autoComplete 
+      <input type="text" pInputText
+        *ngIf="modeIsInfo()"
+        [(ngModel)]="selectedCategory.name"
+        [readonly]="modeIsInfo()" />
+      <p-autoComplete
+        *ngIf="!modeIsInfo()"
         [(ngModel)]="selectedCategory" 
         [dropdown]="true"
         [suggestions]="filteredCategories" 
@@ -36,7 +64,12 @@
     <!-- Expense payer -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Payer</label>
-      <p-autoComplete 
+      <input type="text" pInputText
+        *ngIf="modeIsInfo()"
+        [(ngModel)]="selectedPayer.name"
+        [readonly]="modeIsInfo()" />
+      <p-autoComplete
+        *ngIf="!modeIsInfo()"
         [(ngModel)]="selectedPayer" 
         [dropdown]="true"
         [suggestions]="filteredPayers" 
@@ -51,10 +84,10 @@
   <div>
     <div class="text-lg font-bold mb-2">Group Members</div>
     <div class="space-y-4">
-      <!-- Mitglied 1 -->
       <div *ngFor="let member of members" class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
-          <p-checkbox 
+          <p-checkbox
+            [readonly]="modeIsInfo()"
             [(ngModel)]="member.isParticipating"
             (onChange)="expenseAmountChange($event)" 
             [binary]="true" 
@@ -62,7 +95,8 @@
           />
           <label class="block text-sm font-medium text-gray-700">{{ member.email }}</label>
         </div>
-        <p-inputNumber 
+        <p-inputNumber
+          [readonly]="modeIsInfo()"
           [(ngModel)]="member.amount" 
           mode="currency"
           currency="EUR" 
@@ -75,8 +109,38 @@
     </div>
   </div>
 
-  <!-- Schaltfläche zum Erstellen der Expense -->
-  <div class="flex justify-end">
-    <button (click)="onSubmit()" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Create Expense</button>
+  <!-- Buttons -->
+  <div *ngIf="modeIsCreate() && !expenseIsDeleted()" class="flex justify-end">
+    <p-button (click)="onSubmit()"> Create Expense</p-button>
+  </div>
+  <div *ngIf="modeIsEdit() && !expenseIsDeleted()" class="flex justify-end">
+    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
+      <i class="pi pi-trash mr-2"></i> Delete Expense
+    </button>
+    <p-button
+      label="Save Changes"
+      icon = "pi pi-check"
+      iconPos="left"
+      (click)="onSubmit()"
+    ></p-button>
+  </div>
+  <div *ngIf="modeIsInfo() && !expenseIsDeleted()" class="flex justify-end">
+    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
+      <i class="pi pi-trash mr-2"></i> Delete Expense
+    </button>
+    <p-button 
+      label="Edit Expense" 
+      icon="pi pi-pencil" 
+      iconPos="left"
+      (click)="switchToEditMode()"
+    ></p-button>
+  </div>
+  <div *ngIf="expenseIsDeleted()" class="flex justify-end">
+    <p-button
+      label="Recover Expense"
+      icon="pi pi-undo"
+      iconPos="left"
+      (click)="recoverDeletedExpense()"
+    ></p-button>
   </div>
 </div>

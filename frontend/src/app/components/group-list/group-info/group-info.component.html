@@ -14,6 +14,8 @@
   
   <app-expense-create
     [groupId]="group.id"
+    [mode]="expenseDialogMode"
+    [expenseId]="expenseDialogExpenseId"
     (closeDialog)="closeCreateExpenseDialog()"
   ></app-expense-create>
 
@@ -77,7 +79,7 @@
       </button>
     </div>
     <div class="space-y-4">
-      <div *ngFor="let transaction of transactions" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+      <div *ngFor="let transaction of transactions" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getExpenseColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
         <div class="flex items-center space-x-4">
           <div>
             <div class="font-normal text-sm">User <b>{{ transaction.userEmail }}</b> {{ transaction.description }}</div>

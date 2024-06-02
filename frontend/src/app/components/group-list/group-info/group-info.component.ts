@@ -8,6 +8,7 @@ import { GroupDto } from 'src/app/dtos/group';
 import { ActivityService } from 'src/app/services/activity.service';
 import { DebtGroupDetailDto } from 'src/app/dtos/debt';
 import { ActivityDetailDto } from 'src/app/dtos/activity';
+import { ExpenseCreateEditMode } from '../../expense/expense-create/expense-create.component';
 
 @Component({
   selector: 'app-group-info',
@@ -30,6 +31,8 @@ export class GroupInfoComponent implements OnInit {
   payments: ActivityDetailDto[] = [];
 
   isExpenseDialogVisible: boolean = false;
+  expenseDialogMode: ExpenseCreateEditMode;
+  expenseDialogExpenseId: number;
 
   constructor(
     private groupService: GroupService,
@@ -42,12 +45,20 @@ export class GroupInfoComponent implements OnInit {
   }
 
   openCreateExpenseDialog(): void {
+    this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.isExpenseDialogVisible = true;
   }
 
   closeCreateExpenseDialog(): void {
     this.isExpenseDialogVisible = false;
     this.ngOnInit();
+  }
+
+  openInfoExpenseDialog(expenseId: number): void {
+    this.expenseDialogMode = ExpenseCreateEditMode.info;
+    console.log(this.expenseDialogMode);
+    this.expenseDialogExpenseId = expenseId;
+    this.isExpenseDialogVisible = true;
   }
 
   ngOnInit(): void {
@@ -85,16 +96,18 @@ export class GroupInfoComponent implements OnInit {
   getDebt(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.debtService.getDebtById(id).subscribe(debt => {
+      console.log(debt);
       this.debt = debt;
       this.membersWithDebts = Object.entries(debt.membersDebts);
       this.membersWithDebtsWithoutEven = this.membersWithDebts.filter(([_, amount]) => amount !== 0);
-      this.maxDebt = Math.max(...this.membersWithDebtsWithoutEven.map(([_, amount]) => amount));
+      this.maxDebt = Math.max(...this.membersWithDebtsWithoutEven.map(([_, amount]) => Math.abs(amount)));
     });
   }
 
   getTransactions(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.activityService.getExpenseActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(transactions => {
+      console.log(transactions);
       this.transactions = transactions;
     });
   }
@@ -102,7 +115,6 @@ export class GroupInfoComponent implements OnInit {
   getPayments(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
-      console.log(payments);
       this.payments = payments;
     });
   }
@@ -111,8 +123,7 @@ export class GroupInfoComponent implements OnInit {
     if (this.maxDebt === 0) {
       return '100px';
     }
-
-    return (Math.abs(amount) / this.maxDebt) * 100 + 'px';
+    return Math.min((Math.abs(amount) / this.maxDebt) * 100, 100) + 'px';
   }
 
   onActiveItemChange(event: MenuItem) {
@@ -137,6 +148,21 @@ export class GroupInfoComponent implements OnInit {
 
   isShoppingListsSelected(): boolean {
     return this.tabMenuActiveItem === this.tabMenuItems[4];
+  }
+
+  getExpenseColor(expenseCategory: string) {
+    switch (expenseCategory) {
+      case 'EXPENSE':
+        return 'bg-blue-50';
+      case 'EXPENSE_UPDATE':
+        return 'bg-yellow-50';
+      case 'EXPENSE_DELETE':
+        return 'bg-red-50';
+      case 'EXPENSE_RECOVER':
+        return 'bg-green-50';
+      default:
+        return '';
+    }
   }
 
 }
