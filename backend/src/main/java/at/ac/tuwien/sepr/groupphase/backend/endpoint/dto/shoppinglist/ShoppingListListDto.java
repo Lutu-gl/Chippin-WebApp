@@ -19,7 +19,7 @@ public class ShoppingListListDto {
     @NotNull
     private Long id;
     @NotNull
-    @Size(min = 2, max = 40, message = "The shopping list name must be between 2 and 40 characters long")
+    @Size(min = 2, max = 60, message = "The shopping list name must be between 2 and 60 characters long")
     private String name;
     @NotNull
     private Long groupId;

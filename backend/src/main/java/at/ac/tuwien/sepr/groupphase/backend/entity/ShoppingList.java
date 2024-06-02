@@ -47,16 +47,18 @@ public class ShoppingList {
 
     @Column
     @NotNull
-    @Size(min = 2, max = 40, message = "The shopping list name must be between 2 and 40 characters long")
+    @Size(min = 2, max = 60, message = "The shopping list name must be between 2 and 60 characters long")
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @NotNull
     private Set<Category> categories = new LinkedHashSet<>();
 
     @JoinTable(name = "shopping_list_shopping_list_item")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Builder.Default
     @NotNull
     private List<ShoppingListItem> items = List.of();
 
