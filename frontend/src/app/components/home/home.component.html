@@ -12,9 +12,17 @@
       (activeItemChange)="onActiveItemChange($event)"
     ></p-tabMenu>
   </div>
+  <p-tieredMenu #recipeMenu [model]="recipeMenuItems" [popup]="true"></p-tieredMenu>
 
   <app-friends *ngIf="isFriendsSelected()"></app-friends>
   <app-group-list *ngIf="isGroupsSelected()"></app-group-list>
+
+  <div *ngIf="isRecipeSelected()">
+     <recipe *ngIf=isYourRecipeSelect()></recipe>
+     <recipe-like *ngIf="isLikedRecipeSelect()"></recipe-like>
+     <recipe-global *ngIf="isGlobalRecipeSelect()"></recipe-global>
+  </div>
+  <!-- <app-recipe *ngIf="isRecipeSelected()"></app-recipe> -->
 
   <!-- <p >Friends</p>
   <p *ngIf="isGroupsSelected()">Groups</p>

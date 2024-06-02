@@ -144,6 +144,16 @@ export class RecipeService {
   }
 
   /**
+   * Search for all public recipes with a search string
+   * @param searchParam the string to search for
+   */
+  searchLikedRecipes(searchParam: RecipeSearch): Observable<RecipeListDto[]> {
+    let params = new HttpParams();
+    params = params.append('details', searchParam.details);
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/liked`, {params});
+  }
+
+  /**
    * Search for all owned recipes with a search string
    * @param searchParam the string to search for
    */

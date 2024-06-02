@@ -7,7 +7,7 @@ import {debounceTime, Subject} from "rxjs";
 
 
 @Component({
-  selector: 'app-recipe-global',
+  selector: 'recipe-global',
   templateUrl: './recipe-global.component.html',
   styleUrl: './recipe-global.component.scss'
 })
@@ -59,8 +59,7 @@ export class RecipeGlobalComponent implements OnInit {
         }
       });
 
-    this.router.navigate(['/recipe/global']);
-
+    this.filterRecipe();
   }
 
   public dislike(id:number) {
@@ -73,9 +72,8 @@ export class RecipeGlobalComponent implements OnInit {
           this.defaultServiceErrorHandling(error)
         }
       });
-    this.router.navigate(['/recipe/global']);
 
-
+this.filterRecipe();
   }
 
   public getScore(recipe: RecipeGlobalListDto): number {
