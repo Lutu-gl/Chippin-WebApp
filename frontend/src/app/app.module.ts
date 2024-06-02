@@ -74,6 +74,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {CardModule} from "primeng/card";
 import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @NgModule({
   declarations: [
@@ -105,26 +106,26 @@ import {DialogModule} from 'primeng/dialog';
     ShoppingListCreateComponent
   ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, ConfirmDialogModule
+  ],
 
   providers: [httpInterceptorProviders, MessageService, ConfirmationService],
   bootstrap: [AppComponent]
