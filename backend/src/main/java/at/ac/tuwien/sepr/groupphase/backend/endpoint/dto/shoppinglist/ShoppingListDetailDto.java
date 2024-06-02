@@ -33,8 +33,7 @@ public class ShoppingListDetailDto {
     @Valid
     private GroupDetailDto group;
     @NotNull
-    @Valid //TODO: Does this work?
+    @Valid
     private List<ShoppingListItemDto> items;
-    @NotNull
     private Set<Category> categories;
 }
