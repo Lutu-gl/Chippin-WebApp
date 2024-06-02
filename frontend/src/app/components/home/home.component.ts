@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {MenuItem, MenuItemCommandEvent} from 'primeng/api';
 import { AuthService } from 'src/app/services/auth.service';
-import {ActivatedRoute} from "@angular/router";
 import {Menu} from "primeng/menu";
 import {TieredMenu} from "primeng/tieredmenu";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -52,7 +51,7 @@ export class HomeComponent implements OnInit {
         case 'shopping-lists':
           this.tabMenuActiveItem = this.tabMenuItems[2];
           break;
-        case '3':
+        case 'recipes':
           this.tabMenuActiveItem = this.tabMenuItems[3];
         default:
           this.tabMenuActiveItem = this.tabMenuItems[0];

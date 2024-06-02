@@ -38,19 +38,20 @@ export class RecipeDetailComponent implements OnInit {
     dislikedByUser:false
   };
   portion:number = 1;
-  group: GroupDto = {
+  /*group: GroupDto = {
     id: 0,
     members: [],
     groupName: ''
   }
   shoppingList: ShoppingListDetailDto = {
+    createdAt: undefined, updatedAt: undefined,
     id:0,
     categories: [],
     group: undefined,
     items: [],
     name: "",
     owner: undefined
-  }
+  } */
   recipeId: number;
   error = false;
   errorMessage = '';
@@ -184,7 +185,7 @@ export class RecipeDetailComponent implements OnInit {
 
 
 
-  public removeRecipeIngredientsFromPantry() {
+  /*public removeRecipeIngredientsFromPantry() {
     this.service.removeRecipeIngredientsFromPantry(this.group.id,this.recipe.id, this.portion).subscribe(
       {
         next: data => {
@@ -195,7 +196,7 @@ export class RecipeDetailComponent implements OnInit {
         }
       }
     );
-  }
+  } */
 
   get formattedDescription(): string {
     return this.recipe.description.replace(/\n/g, '<br>');
