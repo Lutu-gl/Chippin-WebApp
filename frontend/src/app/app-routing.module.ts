@@ -89,9 +89,9 @@ const routes: Routes = [
   {path: 'expenses/info/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.info}},
   {path: 'expenses/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.edit}},
   {path: 'payments', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
-  {path: ':tab', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
-  {path: '', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
-  {path: '**', redirectTo: ''},
+  {path: 'home/:tab', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
+  {path: 'home', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
+  {path: '**', redirectTo: '/home'},
 ];
 
 @NgModule({
