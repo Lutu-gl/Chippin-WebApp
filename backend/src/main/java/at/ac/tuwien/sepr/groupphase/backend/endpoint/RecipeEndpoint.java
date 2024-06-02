@@ -102,6 +102,15 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @GetMapping("/recipe/search/liked")
+    public List<RecipeListDto> searchLikedRecipe(@Valid RecipeSearchDto searchParams) {
+        LOGGER.trace("GET /api/v1/group/recipe/search/global: {}", searchParams);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.searchLikedRecipe(user, searchParams.getDetails());
+    }
+
+    @Secured("ROLE_USER")
     @PreAuthorize("@securityService.canEditRecipe(#recipeId)")
     @PostMapping("/{recipeId}/recipe")
     @ResponseStatus(HttpStatus.CREATED)

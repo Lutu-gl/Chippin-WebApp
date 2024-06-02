@@ -117,6 +117,15 @@ public interface RecipeService {
      */
     List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams);
 
+    /**
+     * Return a list of recipes the user liked whose name matches the searchparams.
+     *
+     * @param owner        the owner whose recipes should be returned
+     * @param searchParams the string that should find a name
+     * @return a list of all matching recipes
+     */
+    List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams);
+
 
     /**
      * Return a list of recipes whose name matches the searchparams.

@@ -283,6 +283,14 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams) {
+        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams, owner);
+
+        recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
+    }
+
+    @Override
     public List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams) {
         List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams);
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();

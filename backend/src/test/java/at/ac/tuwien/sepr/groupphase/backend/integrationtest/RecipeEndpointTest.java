@@ -4,7 +4,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
@@ -529,6 +529,28 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
+                .queryParam("details", "Test Recipe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        RecipeListDto[] resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeListDto[].class);
+
+        assertNotNull(resultDto);
+        assertEquals(resultDto.length, 1);
+        assertEquals(resultDto[0].getName(), "Test Recipe");
+    }
+
+    @Test
+    @Rollback
+    @WithMockUser(username = "tester@at", roles = "USER")
+    public void givenUserEmailAndSearchString_SearchLikedRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
+        recipeService.likeRecipe(recipe.getId(), user);
+        String groupJson = objectMapper.writeValueAsString("Test Recipe");
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/liked")
                 .queryParam("details", "Test Recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
