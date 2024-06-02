@@ -17,6 +17,7 @@
   <app-friends *ngIf="isFriendsSelected()"></app-friends>
   <app-group-list *ngIf="isGroupsSelected()"></app-group-list>
 
+  <app-shopping-list *ngIf="isShoppingListsSelected()"></app-shopping-list>
   <div *ngIf="isRecipeSelected()">
      <recipe *ngIf=isYourRecipeSelect()></recipe>
      <recipe-like *ngIf="isLikedRecipeSelect()"></recipe-like>

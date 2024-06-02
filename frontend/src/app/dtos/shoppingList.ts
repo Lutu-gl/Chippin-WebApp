@@ -18,12 +18,16 @@ export interface ShoppingListDetailDto {
   categories: Category[];
   group: GroupDto;
   items: ShoppingListItemDto[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ShoppingListItemDto {
   id: number;
   item: ItemDetailDto;
   checkedById: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ShoppingListItemUpdateDto {

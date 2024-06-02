@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import {ActivatedRoute} from "@angular/router";
 import {Menu} from "primeng/menu";
 import {TieredMenu} from "primeng/tieredmenu";
+import {ActivatedRoute, Router} from "@angular/router";
 
 
 @Component({
@@ -20,7 +21,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
 ){
   }
 
@@ -39,16 +41,15 @@ export class HomeComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       const tab = params.get('tab');
+      console.log(params)
       switch (tab) {
-        case '0':
-
+        case 'friends':
           this.tabMenuActiveItem = this.tabMenuItems[0];
           break;
-        case '1':
-
+        case 'groups':
           this.tabMenuActiveItem = this.tabMenuItems[1];
           break;
-        case '2':
+        case 'shopping-lists':
           this.tabMenuActiveItem = this.tabMenuItems[2];
           break;
         case '3':
@@ -60,6 +61,19 @@ export class HomeComponent implements OnInit {
   }
 
   onActiveItemChange(event: MenuItem) {
+    // Change route to match the selected tab
+    switch (event.label) {
+      case 'My friends':
+        this.router.navigate(['home','friends']);
+        break;
+      case 'My groups':
+        this.router.navigate(['home', 'groups']);
+        break;
+      case 'Shopping lists':
+        this.router.navigate(['home', 'shopping-lists']);
+        break;
+    }
+
     this.tabMenuActiveItem = event;
   }
 
