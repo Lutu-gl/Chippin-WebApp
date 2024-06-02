@@ -1,103 +1,114 @@
-<div class="tw-pt-4 tw-flex tw-items-center tw-justify-between">
-  <h1>{{ shoppingListDetailDto?.name }}</h1>
-  <div class="tw-flex tw-gap-4 tw-items-center">
-    <div>
-      <a class="btn btn-secondary" [routerLink]="['edit']">
-        <i class="bi bi-pencil"></i>
-        Edit
-      </a>
+<div *ngIf="shoppingListDetailDto?.id" class="px-28 flex flex-col gap-2 items-center">
+  <div class="flex justify-between pt-8 w-full">
+    <div class="flex flex-col gap-2">
+
+      <h1 class="text-4xl font-medium">{{ shoppingListDetailDto?.name }}</h1>
+      <!-- Categories -->
+      <div *ngIf="shoppingListDetailDto?.categories.length > 0" class="flex gap-2 items-center">
+        <h2>Categories: </h2>
+        <p-tag *ngFor="let category of shoppingListDetailDto.categories" severity="info" value="{{category}}"></p-tag>
+      </div>
+      <!-- Group -->
+      <div *ngIf="shoppingListDetailDto?.group" class="flex gap-2 items-center">
+        <h2>Group: </h2>
+        <p-tag severity="success" value="{{ shoppingListDetailDto?.group.groupName }}"></p-tag>
+      </div>
     </div>
-    <div>
-      <a aria-label="Delete shopping list"
-         class="btn btn-danger responsive-danger-button m-1"
-         data-bs-target="#deleteShoppingList #confirm-delete-dialog-title"
-         data-bs-toggle="modal">
-        <i class="bi bi-trash"></i>
-        Delete
-      </a>
-    </div>
-  </div>
-</div>
-<div *ngIf="shoppingListDetailDto?.categories.length > 0" class="tw-flex tw-gap-2 tw-items-center">
-  <h3 class="tw-pr-2">Categories</h3>
-  <div class="tw-bg-amber-100 tw-px-2 tw-rounded-xl tw-outline-1 tw-outline tw-outline-amber-400"
-       *ngFor="let category of shoppingListDetailDto?.categories">
-    <div class="">
-      {{ category }}
+    <div class="flex flex-col gap-1 items-end justify-center pr-6">
+      <p-button label="Edit" icon="pi pi-pencil" severity="info" [routerLink]="['edit']"></p-button>
+      <p-confirmDialog></p-confirmDialog>
+      <p-button label="Delete" icon="pi pi-trash" severity="danger" (click)="confirmDelete()"></p-button>
     </div>
   </div>
-</div>
-<div *ngIf="shoppingListDetailDto?.group" class="tw-flex tw-items-center gap-2">
-  <div class="tw-text-xl">Group:</div>
-  <a [routerLink]="['/group/', shoppingListDetailDto?.group.id]" class="tw-text-black tw-no-underline">
-    <div
-      class="tw-outline tw-outline-1 tw-px-2 tw-rounded-xl tw-outline-gray-300 hover:tw-shadow-xl">{{ shoppingListDetailDto?.group.groupName }}
-    </div>
-  </a>
-</div>
-<div class="tw-pt-4">
-  <div class="tw-flex tw-items-center tw-justify-between">
-    <h2>Items</h2>
-    <div>
-      <button *ngIf="!!shoppingListDetailDto.group" (click)="addCheckedItemsToPantry()"
-              class="btn btn-info">Moved checked items to pantry
-      </button>
-      <a aria-label="Delete item"
-         class="btn btn-success m-1"
-         data-bs-target="#add-shopping-list-item-modal"
-         data-bs-toggle="modal">
-        Add new item
-      </a>
-    </div>
+
+  <div class="w-full">
+    <p-divider></p-divider>
   </div>
-  <div class="">
-    <div *ngFor="let shoppingListItem of shoppingListDetailDto?.items" class="">
-      <div [ngClass]="{'tw-bg-gray-300': !!shoppingListItem.checkedById}"
-           class="tw-p-2 tw-m-2 tw-rounded-md tw-outline tw-outline-1 tw-outline-slate-300 tw-flex tw-justify-between tw-items-center tw-hover:bg-slate-100 tw-hover:cursor-pointer">
-        <div class="tw-flex tw-gap-4 tw-items-center">
-          <input
-            class="tw-relative before:tw-absolute tw-size-5 tw-cursor-pointer tw-rounded-md tw-border tw-border-blue-200 transition-all checked:tw-border-gray-900 checked:tw-bg-gray-900 hover:tw-border-amber-300"
-            type="checkbox" [ngModel]="!!shoppingListItem.checkedById" (click)="toggleChecked(shoppingListItem.id)">
-          <div class="tw-grid tw-grid-cols-2 tw-gap-6">
-            <div
-              class="tw-text-xl tw-font-medium tw-min-w-60 tw-truncate tw-overflow-hidden">{{ shoppingListItem.item.description }}
-            </div>
-            <div>{{ shoppingListItem.item.amount }} {{ shoppingListItem.item.unit }}</div>
-          </div>
+
+  <!-- Shopping list items and shopping cart -->
+  <div class="grid grid-cols-5 w-full">
+    <div class="flex flex-col gap-4 py-4 px-8 col-span-3" pDroppable (onDrop)="dropToShoppingList()">
+      <div class="flex justify-between items-center">
+        <h3 pTooltip="asdf" class="w-fit pr-2">Shopping List</h3>
+        <div class="pr-8">
+          <p-button label="Add new item" icon="pi pi-plus" size="small" severity="primary"
+                    (click)="openAddItemDialog()"></p-button>
         </div>
-        <div class="tw-flex tw-gap-8 tw-items-center">
-          <button *ngIf="!!shoppingListDetailDto.group" (click)="addItemToPantry(shoppingListItem.id)"
-                  class="btn btn-info">Move to pantry
-          </button>
-          <div class="tw-flex">
-            <a (click)="selectItem(shoppingListItem)"
-               aria-label="Edit item"
-               class="btn btn-secondary responsive-info-button m-1"
-               data-bs-target="#edit-shopping-list-item-modal"
-               data-bs-toggle="modal"
-            >
-              <i class="bi bi-pencil"></i>
-            </a>
-            <a (click)="selectItem(shoppingListItem)"
-               aria-label="Delete item"
-               class="btn btn-danger responsive-danger-button m-1"
-               data-bs-target="#deleteItem #confirm-delete-dialog-title"
-               data-bs-toggle="modal">
-              <i class="bi bi-trash"></i>
-            </a>
-          </div>
+      </div>
+      <div *ngIf="getShoppingListItems().length === 0" class="flex justify-center items-center w-full h-32">
+        <!-- Nothing in shopping list -->
+        <p class="text-gray-500">Your shopping list is empty</p>
+      </div>
+      <div
+        class="flex justify-between items-center w-full bg-sky-100 px-6 py-4 gap-4 shadow-md shadow-gray-200 rounded-lg cursor-move"
+        *ngFor="let item of getShoppingListItems()" pDraggable (onDragStart)="dragStart(item)" (onDragEnd)="dragEnd()">
+        <div class="flex flex-col gap-1">
+          <h3 class="font-medium">{{ item.item.description }}</h3>
+          <p class="text-sm">{{displayQuantity(item.item.unit, item.item.amount)[1]}} {{displayQuantity(item.item.unit, item.item.amount)[0]}}</p>
+        </div>
+        <div class="flex gap-8">
+          <p-button label="Move to cart" size="small" icon="pi pi-shopping-cart" severity="info" [text]="true"
+                    [outlined]="true"
+                    (click)="toggleChecked(item.id)"></p-button>
+          <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
+                    (click)="shoppingListItemMenu.show($event)"></p-button>
+          <p-menu #shoppingListItemMenu [model]="shoppingListItemMenuItems" [popup]="true"></p-menu>
         </div>
       </div>
     </div>
+    <div class="flex flex-col gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
+      <div class="flex gap-2 justify-between items-center">
+        <h3>Shopping Cart</h3>
+        <p-button label="Move all to pantry" icon="pi pi-check-square" severity="primary" [outlined]="true"
+                  [text]="true"
+                  (click)="moveItemsInCartToPantry()"></p-button>
+
+      </div>
+      <div class="flex flex-col gap-2">
+        <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
+          <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg">Drag items here</p>
+        </div>
+        <div *ngFor="let item of getShoppingCartItems()" pDraggable (onDragStart)="dragStart(item)"
+             (onDragEnd)="dragEnd()"
+             class="flex bg-gray-200 justify-between rounded-md cursor-move w-full px-2 py-1  shadow-md items-center">
+          <div class="flex gap-2">
+            <h3 class="font-medium">{{ item.item.description }}</h3>
+            <p class="text-sm">{{displayQuantity(item.item.unit, item.item.amount)[1]}} {{displayQuantity(item.item.unit, item.item.amount)[0]}}</p>
+          </div>
+          <div>
+            <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
+                      (click)="shoppingCartItemMenu.show($event)"></p-button>
+            <p-menu #shoppingCartItemMenu [model]="shoppingCartItemMenuItems" [popup]="true"></p-menu>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+
 </div>
 
-<app-confirm-delete-dialog (confirm)="deleteItem(selectedItem.id)" [deleteWhat]="selectedItem?.item.description"
-                           id="deleteItem"></app-confirm-delete-dialog>
-<app-confirm-delete-dialog (confirm)="deleteShoppingList()" [deleteWhat]="shoppingListDetailDto?.name"
-                           id="deleteShoppingList"></app-confirm-delete-dialog>
-<app-add-shopping-list-item-modal (onAdd)="loadShoppingListDetailDto()"
-                                  [shoppingListId]="shoppingListDetailDto?.id"></app-add-shopping-list-item-modal>
-<app-edit-shopping-list-item-modal (onEdit)="loadShoppingListDetailDto()" [shoppingListId]="shoppingListDetailDto?.id"
-                                   [shoppingListItem]="selectedItem"></app-edit-shopping-list-item-modal>
+<p-dialog header="Add new item" [(visible)]="displayAddItemDialog" [modal]="true" [style]="{width: '35rem'}">
+  <!-- Add new item (name, amount, unit) -->
+  <div class="flex flex-col gap-4 p-4">
+    <form  [formGroup]="addItemForm">
+    <div class="flex flex-col gap-2">
+      <label for="description">Name</label>
+      <input id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk">
+    </div>
+      <div class="pb-8">
+        <label for="amount">Amount</label>
+        <div class="flex pb-4">
+          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" [min]="1" [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit" [scrollHeight]="'120px'"
+                      optionValue="value"></p-dropdown>
+        </div>
+      </div>
+      <div class="flex justify-end gap-4 pb-8">
+        <p-button label="Cancel" icon="pi pi-times" (click)="displayAddItemDialog = false" severity="secondary"></p-button>
+        <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
+      </div>
+    </form>
+  </div>
 
+</p-dialog>
