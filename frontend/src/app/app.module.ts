@@ -11,8 +11,8 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
-import { FriendsComponent } from './components/friends/friends.component';
-import { AddFriendComponent } from './components/add-friend/add-friend.component';
+import {FriendsComponent} from './components/friends/friends.component';
+import {AddFriendComponent} from './components/add-friend/add-friend.component';
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent} from "./components/group-list/group-create/group-create.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -27,11 +27,11 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
-import { BudgetListComponent } from './components/budget/budget-list.component';
-import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
-import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
-import { ExpenseListComponent } from './components/expense/expense-list.component';
-import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
+import {BudgetListComponent} from './components/budget/budget-list.component';
+import {BudgetCreateComponent} from './components/budget/budget-create/budget-create.component';
+import {ExpenseCreateComponent} from './components/expense/expense-create/expense-create.component';
+import {ExpenseListComponent} from './components/expense/expense-list.component';
+import {ConfirmDeleteDialogComponent} from './components/confirm-delete-dialog/confirm-delete-dialog.component';
 import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
 import {
   GroupInfoCardContentComponent
@@ -55,8 +55,10 @@ import {
 import {
   ShoppingListInfoCardContentComponent
 } from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
-import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
-import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
+import {FriendInfoComponent} from './components/friends/friend-info/friend-info.component';
+import {
+  ExpenseInfoCardContentComponent
+} from './components/expense/expense-info-card-content/expense-info-card-content.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
 import {SplitButtonModule} from "primeng/splitbutton";
 import {MenuModule} from "primeng/menu";
@@ -66,10 +68,11 @@ import {PasswordModule} from "primeng/password";
 import {DividerModule} from "primeng/divider";
 import {AutoFocusModule} from "primeng/autofocus";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {TabMenuModule} from 'primeng/tabmenu';
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {CardModule} from "primeng/card";
+import {DialogModule} from "primeng/dialog";
 
 @NgModule({
   declarations: [
@@ -101,28 +104,28 @@ import {CardModule} from "primeng/card";
     ShoppingListCreateComponent
   ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, DialogModule
+  ],
 
-  providers: [httpInterceptorProviders, MessageService],
+  providers: [httpInterceptorProviders, MessageService, ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
