@@ -107,26 +107,26 @@ import {PantryComponent} from "./components/pantry/pantry.component";
     ShoppingListCreateComponent
   ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, ConfirmDialogModule, PantryComponent
+  ],
 
   providers: [httpInterceptorProviders, MessageService, ConfirmationService],
   bootstrap: [AppComponent]
