@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,4 +29,6 @@ public class ShoppingListItemDto {
     private Long addedById;
     @NotNull
     private Long checkedById;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

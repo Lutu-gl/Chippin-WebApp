@@ -1,12 +1,50 @@
-<h1>Recipes that you have liked</h1>
+<div class="flex flex-col items-center p-4">
+
+
+   <p-floatLabel>
+    <input pInputText id="recipe"  [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
+    <label for="recipe">Search</label>
+  </p-floatLabel>
+
+
+  <!-- No recipes yet message -->
+  <div *ngIf="noRecipes()" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>You have not liked any recipes yet, check out the Popular Recipes page and find your favourites</p>
+  </div>
+
+  <div *ngIf="recipes.length === 0 && !noRecipes()" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>Looks like there aren't any matches, maybe try something else?</p>
+  </div>
+
+  <!-- Recipes -->
+  <div *ngIf="recipes.length > 0" class="w-full max-w-md space-y-4 mt-6">
+    <h3 class="font-bold mb-2">Your liked Recipes</h3>
+    <div *ngFor="let recipe of recipes" [routerLink]="['/recipe', 'viewer', recipe.id]" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div> <!-- TODO Add picture later -->
+        <div>
+          <div class="font-bold">{{ recipe.name }}</div>
+        </div>
+      </div>
+
+    </div>
+    <p>
+    You can find more Recipes, that you like from the Popular Recipe page!
+    </p>
+  </div>
+
+</div>
+
+
+<!-- <h1>Recipes that you have liked</h1>
 
 <div class="d-flex flex-row w-auto">
-  <!--<span style="flex: 1"></span>
+  <span style="flex: 1"></span>
   <a class="btn btn-secondary" routerLink="create" aria-label="New recipe">
     <i class="bi bi-plus-lg"></i>
     New Recipe
   </a> -->
-</div>
+<!--</div>
 
 <div class="mt-2">
   <table class="table table-hover">
@@ -33,4 +71,4 @@
     </tr>
     </tbody>
   </table>
-</div>
+</div> -->

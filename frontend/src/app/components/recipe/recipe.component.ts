@@ -6,6 +6,7 @@ import {debounceTime, Subject} from "rxjs";
 
 
 @Component({
+  selector:'./recipe',
   templateUrl: './recipe.component.html',
   styleUrl: './recipe.component.scss'
 })
@@ -16,6 +17,8 @@ export class RecipeComponent implements OnInit {
   errorMessage = '';
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
+  isRecipeInfoDialogVisible: boolean = false;
+  hasRecipes = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,10 +27,14 @@ export class RecipeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log("Your");
     this.service.getRecipesFromUser()
       .subscribe({
         next: data => {
           this.recipes = data;
+          if(data.length!=0) {
+            this.hasRecipes=true;
+          }
         },
         error: error => {
           this.defaultServiceErrorHandling(error)
@@ -36,6 +43,8 @@ export class RecipeComponent implements OnInit {
     this.searchChangedObservable
       .pipe(debounceTime(300))
       .subscribe({next: () => this.filterRecipe()});
+
+
   }
 
   searchChanged() {
@@ -56,6 +65,11 @@ export class RecipeComponent implements OnInit {
       }
     });
   }
+
+
+  noRecipes(): boolean {
+    return !this.hasRecipes;
+}
 
 
   private defaultServiceErrorHandling(error: any) {

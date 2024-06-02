@@ -16,6 +16,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,5 +68,22 @@ public class ShoppingList {
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private GroupEntity group;
+
+    @Column
+    private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }

@@ -1,5 +1,6 @@
 <h1 class="text-6xl pl-6">{{heading}}</h1>
 <p-toast></p-toast>
+<p-confirmDialog />
 
 <form #form="ngForm" class="flex flex-col gap-4 pt-16" (ngSubmit)="onSubmit(form)" name = "formOfGroupCreation">
   <div class="flex flex-col gap-2 pl-6">
@@ -44,7 +45,7 @@
     <br>
     <br>
     <div class=" flex flex-row">
-      <p-button severity="secondary" (click)="goBack()">Back to Group List</p-button>
+      <p-button severity="secondary" (click)="goBack($event)">Cancel</p-button>
       <span class="flex-grow"></span>
 
       <p-button severity="info" [disabled]="(!form.valid || membersEmails.length <= 1 || group === undefined) && mode !== GroupCreateEditMode.info" (click)="onSubmit(form)">Save</p-button>

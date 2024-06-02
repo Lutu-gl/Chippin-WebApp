@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
@@ -8,9 +9,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
@@ -20,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -32,6 +39,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private final ShoppingListRepository shoppingListRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final RecipeRepository recipeRepository;
+    private final PantryItemRepository pantryItemRepository;
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final PantryService pantryService;
     private final ItemMapper itemMapper;
@@ -228,6 +237,35 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingListRepository.save(shoppingList);
 
         log.debug("Items moved to pantry");
+    }
+
+    @Override
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId) {
+        //Get Recipe
+        List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
+
+        //Get Pantry
+        List<PantryItem> pantry = new ArrayList<>();
+        if (pantryId != -1L) {
+            pantry = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
+        }
+        //Get Shopping List
+        Optional<ShoppingList> optional = shoppingListRepository.findById(shoppingListId);
+        if (optional.isEmpty()) {
+            throw new NotFoundException("Could not find shoppinglist");
+        }
+        //If shoppingListItem is in recipe, return it to the result dto
+        List<ShoppingListItem> shoppingList = new ArrayList<>();
+        for (ShoppingListItem item : optional.get().getItems()) {
+            if (recipe.stream().anyMatch(o -> item.getItem().getDescription().equals(o.getDescription())
+                && item.getItem().getUnit().equals(o.getUnit()))) {
+
+                shoppingList.add(item);
+            }
+        }
+
+
+        return AddRecipeItemToShoppingListDto.builder().recipeItems(recipe).pantryItems(pantry).shoppingListItems(shoppingList).build();
     }
 
 

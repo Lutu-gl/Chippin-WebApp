@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -36,4 +37,6 @@ public class ShoppingListDetailDto {
     @Valid
     private List<ShoppingListItemDto> items;
     private Set<Category> categories;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
