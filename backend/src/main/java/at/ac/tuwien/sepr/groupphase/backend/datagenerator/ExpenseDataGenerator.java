@@ -46,13 +46,14 @@ public class ExpenseDataGenerator implements DataGenerator {
         Faker faker = new Faker(Locale.getDefault(), random);
 
         String[] expenseNames = {
-            "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
-            "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut",
-            "Tankstelle", "Kino", "Einkaufszentrum", "Miete", "Stromrechnung", "Handyrechnung",
-            "Internetrechnung", "Fitnessstudio", "Versicherung", "Auto Reparatur", "Bücher",
-            "Kleidung", "Elektronik", "Geschenke", "Reise", "Hotel", "Zugticket", "Flugticket",
-            "Busfahrt", "Taxi", "Essen gehen", "Supermarkt", "Apotheke", "Arztbesuch", "Krankenhaus"
+            "To Engel Hotel", "Larcher Restaurant", "BurgerNKings Snack Bar", "Kebab House",
+            "Pizzeria Restaurant", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut",
+            "Gas Station", "Cinema", "Shopping Mall", "Rent", "Electricity Bill", "Mobile Phone Bill",
+            "Internet Bill", "Gym", "Insurance", "Car Repair", "Books",
+            "Clothing", "Electronics", "Gifts", "Travel", "Hotel", "Train Ticket", "Flight Ticket",
+            "Bus Ride", "Taxi", "Dining Out", "Supermarket", "Pharmacy", "Doctor Visit", "Hospital"
         };
+
 
         Category[] categories = {
             Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
