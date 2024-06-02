@@ -1,3 +1,26 @@
+<!-- Modal for creating new expense -->
+<p-dialog
+  [(visible)]="isExpenseDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+  [style]="{ width: '50vw' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Create Expense for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
+  </p-header>
+  
+  <app-expense-create
+    [groupId]="group.id"
+    (closeDialog)="closeCreateExpenseDialog()"
+  ></app-expense-create>
+
+  <p-footer></p-footer>
+</p-dialog>
+
+
 <div>
   <!-- Header part with diagram -->
   <div class="bg-blue-100">
@@ -48,6 +71,11 @@
 
   <!-- Transactions part -->
   <div *ngIf="isTransactionsSelected()" class="p-4 max-w-lg mx-auto">
+    <div class="flex justify-center mb-4">
+      <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add Expense
+      </button>
+    </div>
     <div class="space-y-4">
       <div *ngFor="let transaction of transactions" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
         <div class="flex items-center space-x-4">

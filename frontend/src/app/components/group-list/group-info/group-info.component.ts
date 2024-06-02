@@ -29,6 +29,8 @@ export class GroupInfoComponent implements OnInit {
   transactions: ActivityDetailDto[] = [];
   payments: ActivityDetailDto[] = [];
 
+  isExpenseDialogVisible: boolean = false;
+
   constructor(
     private groupService: GroupService,
     private debtService: DebtService,
@@ -37,6 +39,15 @@ export class GroupInfoComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
   ){
+  }
+
+  openCreateExpenseDialog(): void {
+    this.isExpenseDialogVisible = true;
+  }
+
+  closeCreateExpenseDialog(): void {
+    this.isExpenseDialogVisible = false;
+    this.ngOnInit();
   }
 
   ngOnInit(): void {
@@ -65,8 +76,8 @@ export class GroupInfoComponent implements OnInit {
       },
       error: error => {
         console.error(error);
-        this.messageService.add({severity: 'error', summary: 'Login failed', detail: error.error});
-        this.router.navigate(['/1']);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: error.error});
+        this.router.navigate(['/home', 'groups']);
       }
     });
   }

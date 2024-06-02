@@ -1,197 +1,82 @@
-<app-confirm-delete-dialog
-  id="confirmDeleteDialog"
-  [deleteWhat]="expense.name"
-  (confirm)="deleteExistingExpense()"
-></app-confirm-delete-dialog>
+<div class="bg-blue-100 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto space-y-6 mt-2">
 
-<div>
-  <h1 class="display-1">{{heading}}</h1>
-  <span *ngIf="expenseIsDeleted()" style="color: red;">This expense is marked as deleted!</span>
-</div>
-<form #form="ngForm" (ngSubmit)="onSubmit(form)">
-  <br>
-
-  <div class="row">
-    <!-- Start expense name -->
-    <div class="container">
-      <div class="mb-2 col-lg-6">
-        <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
-        <div class="row">
-          <label for="expenseName" class="col-form-label text-md-end text-muted col-md-3 col-lg-2">
-            Expense
-          </label>
-          <div class="col-md-9 col-lg-8">
-            <input type="text" id="expenseName" name="expenseName" placeholder="Expense name" class="form-control"
-              [class]="dynamicCssClassesForInput(expenseNameModel)" [(ngModel)]="expense.name"
-              #expenseNameModel="ngModel" required [disabled]="modeIsInfo()">
-            <div class="invalid-feedback">
-              <!-- This is shown, when the form validation deems the name input to be invalid -->
-              Expense name is required
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start expense amount -->
-      <div class="mb-2 col-lg-6">
-        <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
-        <div class="row">
-          <label for="expenseAmount" class="col-form-label text-md-end text-muted col-md-3 col-lg-2">
-            Amount
-          </label>
-          <div class="col-md-9 col-lg-8">
-            <input type="number" min="0.01" step="0.01" id="expenseAmount" name="expenseAmount" placeholder="Expense amount" class="form-control"
-              [class]="dynamicCssClassesForInput(expenseAmountModel)" [(ngModel)]="expense.amount"
-              #expenseAmountModel="ngModel" required [disabled]="modeIsInfo()">
-            <div class="invalid-feedback">
-              <!-- This is shown, when the form validation deems the amount input to be invalid -->
-              Expense amount must be a positive number
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start expense category -->
-      <div class="mb-2 col-lg-6">
-        <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
-        <div class="row">
-          <label for="expenseCategory" class="col-form-label text-md-end text-muted col-md-3 col-lg-2">
-            Category
-          </label>
-          <div class="col-md-9 col-lg-8">
-            <app-autocomplete name="categorySelection" textInputClass="form-control"
-              [suggestions]="categorySuggestions" [formatModel]="formatCategory" valueNeedsToMatchSuggestion="true"
-              [(ngModel)]="dummyCategorySelectionModel" (ngModelChange)="categorySelected($event)" [disabled]="modeIsInfo()">
-            </app-autocomplete>
-          </div>
-        </div>
-      </div>
-
+  <!-- Input fields -->
+  <div class="space-y-4">
+    <!-- Expense name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Expense Name</label>
+      <input [(ngModel)]="expenseName" type="text" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
     </div>
-
-    <!-- Start group selection -->
-    <div class="container">
-      <div class="mb-2 col-lg-6">
-        <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
-        <div class="row">
-          <label for="groupName" class="col-form-label text-md-end text-muted col-md-3 col-lg-2">
-            Group
-          </label>
-          <div class="col-md-9 col-lg-8">
-            <app-autocomplete name="groupSelection" textInputClass="form-control"
-              [suggestions]="groupSuggestions" [formatModel]="formatGroup" valueNeedsToMatchSuggestion="true"
-              [(ngModel)]="dummyGroupSelectionModel" (ngModelChange)="groupSelected($event)" [disabled]="!modeIsCreate()">
-            </app-autocomplete>
-            <div class="invalid-feedback">
-              <!-- This is shown, when the form validation deems the name input to be invalid -->
-              Group is required
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- expense participants -->
-      <div class="container mt-3">
-        <div *ngIf="members && members.length > 0" class="mb-2 row align-items-center">
-          <div class="col-md-3">
-            <label for="payerEmail" class="col-form-label text-md-end text-muted mb-0">Payed by</label>
-          </div>
-          <div class="col-md-9">
-            <div class="row">
-              <div class="col">
-                <app-autocomplete name="payerSelection" textInputClass="form-control"
-                  [suggestions]="payerSuggestions" [formatModel]="formatPayer" valueNeedsToMatchSuggestion="true"
-                  [(ngModel)]="dummyPayerSelectionModel" (ngModelChange)="payerSelected($event)" [disabled]="modeIsInfo()">
-                </app-autocomplete>
-              </div>
-              <div class="col">
-                <div class="invalid-feedback">
-                  <!-- This is shown, when the form validation deems the name input to be invalid -->
-                  Payer is required
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div *ngIf="expense.amount">
-          <div class="row mb-3">
-            <div class="col-md-5 offset-md-3 text-right">
-              <button class="mr-2" (click)="changeToPercentageMode($event)" [ngClass]="{'text-decoration-underline': splitModeIsPercentage()}">By Percentage</button>
-              <button (click)="changeToAmountMode($event)" [ngClass]="{'text-decoration-underline': splitModeIsAmount()}">By Amount</button>
-            </div>
-          </div>
-          <div *ngFor="let member of members; let i = index" class="mb-2 row align-items-center">
-            <div class="col-md-3">
-              <span>{{ member.name }}</span>
-            </div>
-            <div class="col-md-3">
-              <input type="checkbox" [(ngModel)]="member.isParticipating" class="form-check-input" name="isParticipating{{i}}" [disabled]="modeIsInfo()">
-            </div>
-            <div class="col-md-3">
-              <div class="input-group">
-                <input type="number" [(ngModel)]="member.percentage" class="form-control" placeholder="%" min="0" step="0.01" name="percentage{{i}}" [disabled]="modeIsInfo()">
-                <div class="input-group-append">
-                  <span *ngIf="splitModeIsPercentage()" class="input-group-text">%</span>
-                  <span *ngIf="splitModeIsAmount()" class="input-group-text">€</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
+    <!-- Expense amount -->
+    <div>
+      <label for="currency-germany" class="block text-sm font-medium text-gray-700">Total Amount (€)</label>
+      <p-inputNumber 
+        [(ngModel)]="expenseAmount"
+        (onInput)="expenseAmountChange($event)"
+        mode="currency"
+        inputId="currency-germany"
+        currency="EUR" 
+        locale="de-DE"
+        [min]="0.01"
+        [max]="9999999.99"
+      /> 
     </div>
-
-    <!-- Create/Edit button -->
-    <div *ngIf="!modeIsInfo()" class="mt-4 d-flex flex-row">
-      <span class="flex-grow-1"></span>
-      <button type="submit" class="btn btn-primary"
-        [disabled]="(!form.valid || !members || members.length === 0)" type="submit">
-        {{submitButtonText}}
-      </button>
+    <!-- Expense category -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Category</label>
+      <p-autoComplete 
+        [(ngModel)]="selectedCategory" 
+        [dropdown]="true"
+        [suggestions]="filteredCategories" 
+        (completeMethod)="filterCategory($event)" 
+        [forceSelection]="true"
+        field="name" 
+      />
     </div>
-
-
-    <div *ngIf="modeIsInfo() && !expenseIsDeleted()" class="d-flex flex-row justify-content-start align-items-center mt-4">
-      <!-- Delete expense -->
-      <div class="me-2">
-        <!--
-          TODO: Add this to button
-          data-bs-toggle="modal"
-          data-bs-target="#confirmDeleteDialog"
-          TODO: Remove (click)="deleteExistingExpense()" from button
-        -->
-        <button
-          class="btn btn-danger"
-          (click)="deleteExistingExpense()"
-        >
-          <i class="bi bi-trash"></i>
-          Delete expense
-        </button>
-      </div>
-
-      <!-- Go to edit mode button -->
-      <div>
-        <a [routerLink]="['/expenses', 'edit', expenseId]" class="btn btn-warning">
-          <i class="bi bi-pencil"></i>
-          Go to Edit
-        </a>
-      </div>
+    <!-- Expense payer -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Payer</label>
+      <p-autoComplete 
+        [(ngModel)]="selectedPayer" 
+        [dropdown]="true"
+        [suggestions]="filteredPayers" 
+        (completeMethod)="filterPayer($event)"
+        [forceSelection]="true"
+        field="name" 
+      />
     </div>
-
-    <!-- Recover expense -->
-    <div *ngIf="modeIsInfo() && expenseIsDeleted()" class="me-2">
-      <button
-        class="btn btn-success"
-        (click)="recoverDeletedExpense()"
-      >
-        <i class="bi bi-arrow-clockwise"></i>
-        Recover expense
-      </button>
-    </div>
-
   </div>
-</form>
+
+  <!-- Mitglieder der Gruppe -->
+  <div>
+    <div class="text-lg font-bold mb-2">Group Members</div>
+    <div class="space-y-4">
+      <!-- Mitglied 1 -->
+      <div *ngFor="let member of members" class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <p-checkbox 
+            [(ngModel)]="member.isParticipating"
+            (onChange)="expenseAmountChange($event)" 
+            [binary]="true" 
+            type="binary"
+          />
+          <label class="block text-sm font-medium text-gray-700">{{ member.email }}</label>
+        </div>
+        <p-inputNumber 
+          [(ngModel)]="member.amount" 
+          mode="currency"
+          currency="EUR" 
+          locale="de-DE"
+          [min]="0.01"
+          [max]="9999999.99"
+          placeholder="Amount (€)"
+        /> 
+      </div>
+    </div>
+  </div>
+
+  <!-- Schaltfläche zum Erstellen der Expense -->
+  <div class="flex justify-end">
+    <button (click)="onSubmit()" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Create Expense</button>
+  </div>
+</div>
