@@ -27,13 +27,13 @@
         <p-button *ngIf="!recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true" severity="info" (click)="like(recipe.id)" [disabled]="recipe.likedByUser"></p-button>
         <p-button *ngIf="recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true" [raised]="true" severity="info"></p-button>
 
-        <div class="ml-auto flex items-center space-x-4">
+        <div class="score-container">
         {{ getScore(recipe) }}
         </div>
-        <div class="ml-auto flex items-center space-x-4">
+
           <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true" [raised]="true" severity="danger" (click)="dislike(recipe.id)" [disabled]="recipe.dislikedByUser"></p-button>
           <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true" [raised]="true" severity="danger"></p-button>
-        </div>
+
       </div>
     </div>
   </div>

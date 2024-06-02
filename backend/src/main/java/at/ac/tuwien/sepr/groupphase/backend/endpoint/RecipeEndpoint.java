@@ -4,9 +4,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShopping
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateWithoutUserDto;
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateWithoutUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
@@ -73,6 +75,16 @@ public class RecipeEndpoint {
     public RecipeDetailDto getById(@PathVariable long recipeId) {
         LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
         return recipeService.getById(recipeId);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
+    @GetMapping("/{recipeId}/recipe/info")
+    public RecipeDetailWithUserInfoDto getByIdWithUserInfo(@PathVariable long recipeId) {
+        LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
+        return recipeService.getByIdWithInfo(recipeId, user);
     }
 
     //TODO

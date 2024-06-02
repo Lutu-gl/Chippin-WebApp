@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {
   RecipeCreateWithoutUserDto,
-  RecipeDetailDto,
+  RecipeDetailDto, RecipeDetailWithUserInfoDto,
   RecipeGlobalListDto,
   RecipeListDto,
   RecipeSearch
@@ -38,6 +38,16 @@ export class RecipeService {
   getRecipeById(id: number): Observable<RecipeDetailDto> {
     return this.httpClient.get<RecipeDetailDto>(`${this.recipeBaseUri}/${id}/recipe`);
   }
+
+
+/**
+ * Loads a recipe by its id.
+ *
+ * @param id id of the recipe to load
+ */
+getRecipeWithInfoById(id: number): Observable<RecipeDetailWithUserInfoDto> {
+  return this.httpClient.get<RecipeDetailWithUserInfoDto>(`${this.recipeBaseUri}/${id}/recipe/info`);
+}
 
   /**
    * Filters for items in a recipe.

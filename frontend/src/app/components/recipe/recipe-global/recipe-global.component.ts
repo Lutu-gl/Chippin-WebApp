@@ -59,7 +59,19 @@ export class RecipeGlobalComponent implements OnInit {
         }
       });
 
-    this.filterRecipe();
+    let likeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    likeRecipe.likes++;
+    if(likeRecipe.dislikedByUser) {
+      likeRecipe.dislikes--;
+    }
+    likeRecipe.likedByUser=true;
+    likeRecipe.dislikedByUser=false;
+
+    this.recipes[index] =likeRecipe;
+
+
   }
 
   public dislike(id:number) {
@@ -73,8 +85,21 @@ export class RecipeGlobalComponent implements OnInit {
         }
       });
 
-this.filterRecipe();
+
+    let dislikeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    dislikeRecipe.dislikes++;
+    if(dislikeRecipe.likedByUser) {
+      dislikeRecipe.likes--;
+    }
+    dislikeRecipe.dislikedByUser=true;
+    dislikeRecipe.likedByUser=false;
+
+    this.recipes[index] =dislikeRecipe;
+
   }
+
 
   public getScore(recipe: RecipeGlobalListDto): number {
     return recipe.likes-recipe.dislikes;

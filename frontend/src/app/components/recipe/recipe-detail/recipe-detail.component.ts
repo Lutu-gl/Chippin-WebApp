@@ -1,6 +1,11 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute, Router} from "@angular/router";
-import {RecipeCreateWithoutUserDto, RecipeDetailDto, RecipeGlobalListDto} from "../../../dtos/recipe";
+import {
+  RecipeCreateWithoutUserDto,
+  RecipeDetailDto,
+  RecipeDetailWithUserInfoDto,
+  RecipeGlobalListDto
+} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
 import {Unit} from "../../../dtos/item";
 import {clone} from "lodash";
@@ -8,6 +13,7 @@ import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
 import {Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
+import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
 
 export enum RecipeDetailMode {
   owner,
@@ -20,14 +26,16 @@ export enum RecipeDetailMode {
 })
 export class RecipeDetailComponent implements OnInit {
   mode: RecipeDetailMode = RecipeDetailMode.owner;
-  recipe: RecipeDetailDto = {
+  recipe: RecipeDetailWithUserInfoDto = {
     name: '',
     ingredients: [],
     description: '',
     isPublic: false,
     portionSize:1,
     likes:0,
-    dislikes:0
+    dislikes:0,
+    likedByUser:false,
+    dislikedByUser:false
   };
   portion:number = 1;
   group: GroupDto = {
@@ -35,10 +43,20 @@ export class RecipeDetailComponent implements OnInit {
     members: [],
     groupName: ''
   }
+  shoppingList: ShoppingListDetailDto = {
+    id:0,
+    categories: [],
+    group: undefined,
+    items: [],
+    name: "",
+    owner: undefined
+  }
   recipeId: number;
   error = false;
   errorMessage = '';
   groups: GroupDto[] = [];
+  isPantryDialogVisible = false;
+  isShoppingListDialogVisible = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -55,7 +73,7 @@ export class RecipeDetailComponent implements OnInit {
     });
     const recipeIdparam = this.route.snapshot.paramMap.get('id');
     this.recipeId = recipeIdparam ? +recipeIdparam : Number(recipeIdparam);
-    this.service.getRecipeById(this.recipeId)
+    this.service.getRecipeWithInfoById(this.recipeId)
       .subscribe({
         next: data => {
           this.recipe = data;
@@ -73,6 +91,18 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(error);
       }
     });
+  }
+
+  getRecipe() {
+    this.service.getRecipeWithInfoById(this.recipeId)
+      .subscribe({
+        next: data => {
+          this.recipe = data;
+        },
+        error: error => {
+          this.printError(error);
+        }
+      });
   }
 
   printError(error): void {
@@ -108,8 +138,8 @@ export class RecipeDetailComponent implements OnInit {
   }
 
 
-  public like(id: number) {
-    this.service.likeRecipe(id)
+  public like() {
+    this.service.likeRecipe(this.recipe.id)
       .subscribe({
         next: data => {
 
@@ -118,15 +148,23 @@ export class RecipeDetailComponent implements OnInit {
           this.printError(error);
         }
       });
-
+    if(this.recipe.dislikedByUser) {
+      this.recipe.dislikes--;
+    }
+    this.recipe.dislikedByUser=false;
+    this.recipe.likedByUser=true;
+    this.recipe.likes++;
   }
 
   public updatePortion() {
 
   }
+  public isOwner(): boolean {
+  return this.mode === RecipeDetailMode.owner;
+}
 
-  public dislike(id:number) {
-    this.service.dislikeRecipe(id)
+  public dislike() {
+    this.service.dislikeRecipe(this.recipe.id)
       .subscribe({
         next: data => {
 
@@ -135,7 +173,15 @@ export class RecipeDetailComponent implements OnInit {
           this.printError(error);
         }
       });
+    if(this.recipe.likedByUser) {
+      this.recipe.likes--;
+    }
+    this.recipe.likedByUser=false;
+    this.recipe.dislikedByUser=true;
+    this.recipe.dislikes++;
+
   }
+
 
 
   public removeRecipeIngredientsFromPantry() {
@@ -151,17 +197,50 @@ export class RecipeDetailComponent implements OnInit {
     );
   }
 
-  getGroupSuggestions = (input: string): Observable<GroupDto[]> => {
-    if (!input) {
-      return of([]);
-    }
-    const filterValue = input.toLowerCase();
-    return of(this.groups.filter(group => group.groupName.toLowerCase().includes(filterValue)));
+  get formattedDescription(): string {
+    return this.recipe.description.replace(/\n/g, '<br>');
   }
 
-  formatGroup = (group: GroupDto | null): string => {
-    return group ? group.groupName : '';
+  public getScore(recipe: RecipeDetailWithUserInfoDto): number {
+    return recipe.likes-recipe.dislikes;
   }
+
+  public unitDisplayer(unit: Unit, amount:number): string {
+    switch (unit) {
+      case Unit.Gram:
+        if(amount > 1000) {
+          return amount/1000+ " kg";
+        }
+        return amount+ " g";
+      case Unit.Milliliter:
+        if(amount > 1000) {
+          return amount/1000 + " l";
+        }
+        return amount +  " ml";
+      case Unit.Piece:
+        return amount +" pcs";
+    }
+  }
+
+  openUsePantryDialog() {
+    this.isPantryDialogVisible = true;
+  }
+
+  closeUsePantryDialog() {
+    this.isPantryDialogVisible = false;
+  }
+
+  openUseShoppingListDialog() {
+
+    this.isShoppingListDialogVisible = true;
+  }
+
+  closeUseShoppingListDialog() {
+    this.isShoppingListDialogVisible = false;
+  }
+
+
+
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;

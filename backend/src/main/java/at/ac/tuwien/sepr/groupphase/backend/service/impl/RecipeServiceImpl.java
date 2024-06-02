@@ -1,9 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
@@ -120,6 +121,30 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
             return recipeMapper.recipeEntityToRecipeDetailDto(optionalRecipe.get());
+        } else {
+            throw new NotFoundException(String.format("Could not find recipe with id %s", id));
+        }
+    }
+
+    @Override
+    public RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
+        if (optionalRecipe.isPresent()) {
+            Recipe result = optionalRecipe.get();
+            return RecipeDetailWithUserInfoDto.builder()
+                .id(result.getId())
+                .name(result.getName())
+                .description(result.getDescription())
+                .isPublic(result.getIsPublic())
+                .likes(result.getLikes())
+                .dislikes(result.getDislikes())
+                .portionSize(result.getPortionSize())
+                .owner(result.getOwner())
+                .ingredients(itemMapper.listOfItemsToListOfItemDto(result.getIngredients()))
+                .likedByUser(result.getLikedByUsers().contains(user))
+                .dislikedByUser(result.getDislikedByUsers().contains(user))
+                .build();
+
         } else {
             throw new NotFoundException(String.format("Could not find recipe with id %s", id));
         }
