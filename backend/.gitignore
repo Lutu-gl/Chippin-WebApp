@@ -54,3 +54,5 @@ buildNumber.properties
 
 ### htmlReports ###
 htmlReport/
+### Test with limited API Usage should only be tested manually ###
+/src/test/java/at.ac.tuwien.sepr.groupphase.backend.integrationtest.ExchangeRateTest.java

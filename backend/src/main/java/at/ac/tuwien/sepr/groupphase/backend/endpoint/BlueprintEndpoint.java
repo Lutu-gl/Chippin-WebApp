@@ -2,12 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ItemListSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.service.ItemListService;
+import at.ac.tuwien.sepr.groupphase.backend.service.BlueprintService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,31 +28,31 @@ import java.lang.invoke.MethodHandles;
 
 @RestController
 @RequestMapping(value = "/api/v1/group")
-public class ItemListEndpoint {
+public class BlueprintEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final ItemListService itemListService;
+    private final BlueprintService blueprintService;
     private final ItemMapper itemMapper;
 
     @Autowired
-    public ItemListEndpoint(ItemListService itemListService, ItemMapper itemMapper) {
-        this.itemListService = itemListService;
+    public BlueprintEndpoint(BlueprintService blueprintService, ItemMapper itemMapper) {
+        this.blueprintService = blueprintService;
         this.itemMapper = itemMapper;
     }
 
 
     @Secured("ROLE_USER")
     @GetMapping("/{itemListId}/itemlist")
-    public ItemListDetailDto getById(@PathVariable long itemListId) {
+    public BlueprintDetailDto getById(@PathVariable long itemListId) {
         LOGGER.info("GET /api/v1/group/{}/itemlist", itemListId);
-        return new ItemListDetailDto(itemMapper.listOfItemsToListOfItemDto(itemListService.findAllItems(itemListId)), itemListService.getName(itemListId));
+        return null;
     }
 
     @Secured("ROLE_USER")
     @GetMapping("/{itemListId}/itemlist/search")
-    public ItemListListDto searchItemsInItemList(@PathVariable long itemListId, ItemListSearchDto searchParams) {
+    public BlueprintListDto searchItemsInItemList(@PathVariable long itemListId, BlueprintSearchDto searchParams) {
         LOGGER.info("GET /api/v1/itemlist/{}/itemlist/search", itemListId);
         LOGGER.debug("request parameters: {}", searchParams);
-        return new ItemListListDto(itemMapper.listOfItemsToListOfItemDto(itemListService.findItemsByDescription(searchParams.getDetails(), itemListId)));
+        return new BlueprintListDto(itemMapper.listOfItemsToListOfItemDto(blueprintService.findItemsByDescription(searchParams.getDetails(), itemListId)));
     }
 
     @Secured("ROLE_USER")
@@ -61,7 +61,7 @@ public class ItemListEndpoint {
     public ItemDto addItemToPantry(@PathVariable long itemListId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
         LOGGER.info("POST /api/v1/group/{}/itemlist body: {}", itemListId, itemCreateDto);
         Item item = itemMapper.itemCreateDtoToItem(itemCreateDto);
-        return itemMapper.itemToItemDto(itemListService.addItemToItemList(item, itemListId));
+        return itemMapper.itemToItemDto(blueprintService.addItemToBlueprint(item, itemListId));
     }
 
     @Secured("ROLE_USER")
@@ -69,13 +69,13 @@ public class ItemListEndpoint {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteItem(@PathVariable long itemListId, @PathVariable long itemId) {
         LOGGER.info("DELETE /api/v1/group/{}/pantry/{}", itemListId, itemId);
-        itemListService.deleteItem(itemListId, itemId);
+        blueprintService.deleteItem(itemListId, itemId);
     }
 
     @Secured("ROLE_USER")
     @PutMapping("/{itemListId}/itemlist")
     public ItemDto updateItem(@PathVariable long itemListId, @Valid @RequestBody ItemDto itemDto) {
         LOGGER.info("PUT /api/v1/group/{}/itemlist body: {}", itemListId, itemDto);
-        return itemMapper.itemToItemDto(itemListService.updateItem(itemDto, itemListId));
+        return itemMapper.itemToItemDto(blueprintService.updateItem(itemDto, itemListId));
     }
 }

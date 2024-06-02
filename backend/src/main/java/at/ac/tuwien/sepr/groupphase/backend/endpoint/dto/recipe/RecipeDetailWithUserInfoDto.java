@@ -15,9 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,7 +23,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @ToString
-public class RecipeDetailDto {
+public class RecipeDetailWithUserInfoDto {
 
     private long id;
 
@@ -53,13 +51,11 @@ public class RecipeDetailDto {
 
     private int dislikes = 0;
 
+    private boolean likedByUser;
+
+    private boolean dislikedByUser;
+
     @NotNull
     private ApplicationUser owner;
-
-    @Builder.Default
-    private Set<ApplicationUser> likedByUsers = new HashSet<>();
-
-    @Builder.Default
-    private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
 
 }

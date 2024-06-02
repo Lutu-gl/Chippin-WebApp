@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
@@ -107,5 +109,16 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      */
     void moveItemsToPantry(Long shoppingListId);
+
+    /**
+     * Return a suggestion for the user what items he can add to his shopping list.
+     * This function takes into account what already is in the selected shopping list and the optional pantry
+     *
+     * @param recipeId       the recipe with the ingredients
+     * @param shoppingListId the shopping list to add
+     * @param pantryId       the pantry the user wants to be considered
+     * @return a list of items with
+     */
+    AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId);
 
 }

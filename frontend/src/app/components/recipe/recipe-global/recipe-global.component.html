@@ -1,4 +1,47 @@
-<h1>Popular Recipes</h1>
+<div class="flex flex-col items-center p-4">
+
+   <p-floatLabel>
+    <input pInputText id="recipe"  [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
+    <label for="recipe">Search</label>
+  </p-floatLabel>
+
+<!-- TODO Preview with picture -->
+
+
+  <div *ngIf="recipes.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>Looks like there aren't any matches, maybe try something else?</p>
+  </div>
+
+  <!-- Recipes -->
+  <div *ngIf="recipes.length > 0" class="w-full max-w-md space-y-4 mt-6">
+    <h3 class="font-bold mb-2">Most popular Recipes</h3>
+    <div *ngFor="let recipe of recipes"  class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold" [routerLink]="['/recipe', 'viewer', recipe.id]">{{ recipe.name[0] }}</div> <!-- TODO Add picture later -->
+        <div [routerLink]="['/recipe', 'viewer', recipe.id]">
+          <div class="font-bold">{{ recipe.name }}</div>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center space-x-4">
+
+        <p-button *ngIf="!recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true" severity="info" (click)="like(recipe.id)" [disabled]="recipe.likedByUser"></p-button>
+        <p-button *ngIf="recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true" [raised]="true" severity="info"></p-button>
+
+        <div class="score-container">
+        {{ getScore(recipe) }}
+        </div>
+
+          <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true" [raised]="true" severity="danger" (click)="dislike(recipe.id)" [disabled]="recipe.dislikedByUser"></p-button>
+          <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true" [raised]="true" severity="danger"></p-button>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- <h1>Popular Recipes</h1>
 
 <div class="d-flex flex-row w-auto">
   <span style="flex: 1"></span>
@@ -59,7 +102,7 @@
     </tr>
     </tbody>
   </table>
-</div>
+</div> -->
 
 
 
