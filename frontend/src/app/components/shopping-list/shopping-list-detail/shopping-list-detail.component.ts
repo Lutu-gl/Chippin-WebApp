@@ -83,10 +83,14 @@ export class ShoppingListDetailComponent implements OnInit {
               private confirmationService: ConfirmationService,
               private messageService: MessageService) {
     this.addItemForm = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]),
+      name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]),
       amount: new FormControl('', [Validators.required, Validators.min(1), Validators.max(100000)]),
       unit: new FormControl('', Validators.required)
-
+    })
+    this.editItemForm = new FormGroup({
+      name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]),
+      amount: new FormControl('', [Validators.required, Validators.min(1), Validators.max(100000)]),
+      unit: new FormControl('', Validators.required)
     })
   }
 
@@ -98,9 +102,12 @@ export class ShoppingListDetailComponent implements OnInit {
   shoppingListItemMenuItems: MenuItem[] | undefined;
   shoppingCartItemMenuItems: MenuItem[] | undefined;
   displayAddItemDialog: boolean = false;
+  displayEditItemDialog: boolean = false;
   selectedUnit: any;
   units: any[]
   addItemForm: FormGroup = new FormGroup({});
+  editItemForm: FormGroup = new FormGroup({});
+  itemToEdit: ShoppingListItemDto | undefined;
 
   ngOnInit(): void {
     this.route.params.subscribe({
@@ -127,7 +134,7 @@ export class ShoppingListDetailComponent implements OnInit {
         icon: "pi pi-pencil",
         command: () => {
           // Open edit modal
-
+          this.openEditItemDialog(this.selectedItem);
         }
       },
       {
@@ -135,6 +142,23 @@ export class ShoppingListDetailComponent implements OnInit {
         icon: "pi pi-trash",
         command: () => {
           // Delete item
+          this.confirmationService.confirm({
+            header: "Delete Item",
+            message: "Are you sure you want to delete this item?",
+            acceptLabel: "Delete",
+            acceptIcon: "pi pi-trash",
+            acceptButtonStyleClass: "p-button-danger p-button-text",
+            rejectLabel: "Cancel",
+            rejectIcon: "pi pi-times",
+            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            accept: () => {
+              this.deleteItem(this.selectedItem.id);
+              this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item deleted'});
+            },
+            reject: () => {
+              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
+            }
+          })
         }
       }
     ]
@@ -145,6 +169,29 @@ export class ShoppingListDetailComponent implements OnInit {
         icon: "pi pi-check",
         command: () => {
           // Move item to pantry
+          this.confirmationService.confirm({
+            header: `Move "${this.selectedItem.item.description}" to pantry?`,
+            message: `Are you sure you want to move "${this.selectedItem.item.description}" to the pantry?`,
+            acceptLabel: "Move",
+            acceptButtonStyleClass: "p-button-primary p-button-text",
+            rejectLabel: "Cancel",
+            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            accept: () => {
+              this.addItemToPantry(this.selectedItem.id);
+              this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item moved to pantry'});
+            },
+            reject: () => {
+              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Move canceled'})
+            }
+          })
+        }
+      },
+      {
+        label: "Edit",
+        icon: "pi pi-pencil",
+        command: () => {
+          // Open edit modal
+          this.openEditItemDialog(this.selectedItem);
         }
       },
       {
@@ -152,6 +199,23 @@ export class ShoppingListDetailComponent implements OnInit {
         icon: "pi pi-trash",
         command: () => {
           // Delete item
+          this.confirmationService.confirm({
+            header: "Delete Item",
+            message: "Are you sure you want to delete this item?",
+            acceptLabel: "Delete",
+            acceptIcon: "pi pi-trash",
+            acceptButtonStyleClass: "p-button-danger p-button-text",
+            rejectLabel: "Cancel",
+            rejectIcon: "pi pi-times",
+            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            accept: () => {
+              this.deleteItem(this.selectedItem.id);
+              this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item deleted'});
+            },
+            reject: () => {
+              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
+            }
+          })
         }
       },
       {
@@ -159,6 +223,7 @@ export class ShoppingListDetailComponent implements OnInit {
         icon: "pi pi-undo",
         command: () => {
           // Move item back to shopping list
+          this.toggleChecked(this.selectedItem.id);
         }
       }
 
@@ -203,12 +268,13 @@ export class ShoppingListDetailComponent implements OnInit {
   }
 
   selectItem(item: ShoppingListItemDto) {
+    console.log(item)
     this.selectedItem = item;
   }
 
   deleteItem(itemId: number) {
     this.shoppingListService.deleteShoppingListItem(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
-      next: value => {
+      next: () => {
         this.loadShoppingListDetailDto();
       },
       error: err => {
@@ -219,7 +285,7 @@ export class ShoppingListDetailComponent implements OnInit {
 
   addItemToPantry(itemId: number) {
     this.shoppingListService.moveShoppingListItemToPantry(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
-      next: value => {
+      next: () => {
         this.loadShoppingListDetailDto();
         this.notification.success("Item moved to pantry");
       },
@@ -238,7 +304,7 @@ export class ShoppingListDetailComponent implements OnInit {
     }
 
     this.shoppingListService.updateShoppingListItem(this.authService.getUserId(), this.shoppingListId, shoppingListItemUpdateDto).subscribe({
-      next: value => {
+      next: () => {
         this.loadShoppingListDetailDto();
       },
       error: err => {
@@ -247,13 +313,32 @@ export class ShoppingListDetailComponent implements OnInit {
     })
   }
 
-  moveItemsInCartToPantry() {
+  confirmMoveAllItemsInCartToPantry() {
     if (this.getShoppingCartItems().length < 1) {
       this.messageService.add({severity: 'warn', summary: 'Info', detail: 'No items in shopping cart'});
       return;
     }
+    this.confirmationService.confirm({
+      header: "Move items to the pantry",
+      message: `Are you sure you want to move all items in the shopping cart to the pantry?`,
+      acceptLabel: "Move",
+      acceptButtonStyleClass: "p-button-primary p-button-text",
+      rejectLabel: "Cancel",
+      rejectButtonStyleClass: "p-button-secondary p-button-text",
+      accept: () => {
+        this.moveAllItemsInCartToPantry();
+      },
+      reject: () => {
+        this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Move canceled'})
+      }
+    })
+  }
+
+
+
+  moveAllItemsInCartToPantry() {
     this.shoppingListService.moveShoppingListItemsToPantry(this.authService.getUserId(), this.shoppingListId).subscribe({
-      next: value => {
+      next: () => {
         this.loadShoppingListDetailDto();
         this.messageService.add({
           severity: 'success',
@@ -266,6 +351,7 @@ export class ShoppingListDetailComponent implements OnInit {
       }
     })
   }
+
 
   confirmDelete() {
     this.confirmationService.confirm({
@@ -288,10 +374,6 @@ export class ShoppingListDetailComponent implements OnInit {
 
   dragStart(item: ShoppingListItemDto) {
     this.draggedItem = item;
-  }
-
-  drop() {
-    this.toggleChecked(this.draggedItem.id);
   }
 
   dropToShoppingList() {
@@ -330,7 +412,7 @@ export class ShoppingListDetailComponent implements OnInit {
     }
 
     this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.shoppingListId, item).subscribe({
-      next: value => {
+      next: () => {
         this.loadShoppingListDetailDto();
         this.displayAddItemDialog = false;
         this.notification.success("Item added to shopping list");
@@ -350,7 +432,7 @@ export class ShoppingListDetailComponent implements OnInit {
         errors.push("Name is required");
       }
       if (this.addItemForm.controls.name.errors.minlength) {
-        errors.push("Name must be at least 1 character long");
+        errors.push("Name must be at least 2 character long");
       }
       if (this.addItemForm.controls.name.errors.maxlength) {
         errors.push("Name must be at most 255 characters long");
@@ -375,9 +457,84 @@ export class ShoppingListDetailComponent implements OnInit {
     return errors;
   }
 
+  getEditItemFormErrors() {
+    let errors = [];
+    if (this.editItemForm.controls.name.errors) {
+      if (this.editItemForm.controls.name.errors.required) {
+        errors.push("Name is required");
+      }
+      if (this.editItemForm.controls.name.errors.minlength) {
+        errors.push("Name must be at least 2 character long");
+      }
+      if (this.editItemForm.controls.name.errors.maxlength) {
+        errors.push("Name must be at most 255 characters long");
+      }
+    }
+    if (this.editItemForm.controls.amount.errors) {
+      if (this.editItemForm.controls.amount.errors.required) {
+        errors.push("Amount is required");
+      }
+      if (this.editItemForm.controls.amount.errors.min) {
+        errors.push("Amount must be at least 1");
+      }
+      if (this.editItemForm.controls.amount.errors.max) {
+        errors.push("Amount must be at most 100000");
+      }
+    }
+    if (this.editItemForm.controls.unit.errors) {
+      if (this.editItemForm.controls.unit.errors.required) {
+        errors.push("Unit is required");
+      }
+    }
+    return errors;
+  }
+
   openAddItemDialog() {
     this.addItemForm.reset();
     this.displayAddItemDialog = true;
+
+  }
+
+  openEditItemDialog(itemToEdit: ShoppingListItemDto) {
+    this.itemToEdit = itemToEdit;
+    this.editItemForm.reset();
+    this.editItemForm.controls.name.setValue(itemToEdit.item.description);
+    this.editItemForm.controls.amount.setValue(itemToEdit.item.amount);
+    this.editItemForm.controls.unit.setValue(itemToEdit.item.unit);
+    this.displayEditItemDialog = true;
+  }
+
+  editItem() {
+    if (this.editItemForm.invalid) {
+      let errors = this.getEditItemFormErrors();
+      this.messageService.addAll(errors.map(error => {
+        return {severity: 'error', summary: 'Invalid input', detail: error}
+      }));
+      return;
+    }
+    const [unit, amount] = convertQuantity(this.editItemForm.controls.unit.value, this.editItemForm.controls.amount.value)
+    let itemUpdateDto: ShoppingListItemUpdateDto = {
+      id: this.itemToEdit.id,
+      item: {
+        id: this.itemToEdit.item.id,
+        description: this.editItemForm.controls.name.value,
+        amount: amount,
+        unit: unit
+      },
+      checked: !!this.itemToEdit.checkedById
+    }
+
+    this.shoppingListService.updateShoppingListItem(this.authService.getUserId(), this.shoppingListId, itemUpdateDto).subscribe({
+      next: () => {
+        this.loadShoppingListDetailDto();
+        this.displayEditItemDialog = false;
+        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item updated'});
+      },
+      error: err => {
+        console.error(err);
+        this.messageService.add({severity: 'error', summary: 'Error updating item', detail: err.error});
+      }
+    })
 
   }
 

@@ -11,7 +11,11 @@
       <!-- Group -->
       <div *ngIf="shoppingListDetailDto?.group" class="flex gap-2 items-center">
         <h2>Group: </h2>
-        <p-tag severity="success" value="{{ shoppingListDetailDto?.group.groupName }}"></p-tag>
+        <button type="button" [routerLink]="['/group', shoppingListDetailDto?.group?.id]">
+          <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
+                 severity="success" value="{{ shoppingListDetailDto?.group.groupName }}">
+          </p-tag>
+        </button>
       </div>
     </div>
     <div class="flex flex-col gap-1 items-end justify-center pr-6">
@@ -26,10 +30,10 @@
   </div>
 
   <!-- Shopping list items and shopping cart -->
-  <div class="grid grid-cols-5 w-full">
+  <div class="grid grid-cols-5 w-full 2xl:px-20">
     <div class="flex flex-col gap-4 py-4 px-8 col-span-3" pDroppable (onDrop)="dropToShoppingList()">
       <div class="flex justify-between items-center">
-        <h3 pTooltip="asdf" class="w-fit pr-2">Shopping List</h3>
+        <h3 class="w-fit pr-2">Shopping List</h3>
         <div class="pr-8">
           <p-button label="Add new item" icon="pi pi-plus" size="small" severity="primary"
                     (click)="openAddItemDialog()"></p-button>
@@ -40,28 +44,32 @@
         <p class="text-gray-500">Your shopping list is empty</p>
       </div>
       <div
-        class="flex justify-between items-center w-full bg-sky-100 px-6 py-4 gap-4 shadow-md shadow-gray-200 rounded-lg cursor-move"
+        class="flex justify-between items-center hover:outline outline-1 outline-slate-300 w-full bg-sky-100 px-6 py-4 gap-4 shadow-md shadow-gray-200 rounded-lg cursor-move"
         *ngFor="let item of getShoppingListItems()" pDraggable (onDragStart)="dragStart(item)" (onDragEnd)="dragEnd()">
-        <div class="flex flex-col gap-1">
-          <h3 class="font-medium">{{ item.item.description }}</h3>
-          <p class="text-sm">{{displayQuantity(item.item.unit, item.item.amount)[1]}} {{displayQuantity(item.item.unit, item.item.amount)[0]}}</p>
+        <div class="flex flex-col gap-1 w-1/3">
+          <h3 class="font-medium truncate" pTooltip="{{item.item.description}}" tooltipPosition="left"
+              showDelay="400">{{ item.item.description }}</h3>
+          <p
+            class="text-sm">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
         </div>
-        <div class="flex gap-8">
+        <div class="flex gap-8 justify-between items-center">
           <p-button label="Move to cart" size="small" icon="pi pi-shopping-cart" severity="info" [text]="true"
                     [outlined]="true"
                     (click)="toggleChecked(item.id)"></p-button>
-          <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
-                    (click)="shoppingListItemMenu.show($event)"></p-button>
-          <p-menu #shoppingListItemMenu [model]="shoppingListItemMenuItems" [popup]="true"></p-menu>
+          <div>
+            <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
+                      (click)="selectItem(item); shoppingListItemMenu.show($event)"></p-button>
+            <p-menu #shoppingListItemMenu [model]="shoppingListItemMenuItems" [popup]="true"></p-menu>
+          </div>
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
+    <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
       <div class="flex gap-2 justify-between items-center">
         <h3>Shopping Cart</h3>
         <p-button label="Move all to pantry" icon="pi pi-check-square" severity="primary" [outlined]="true"
                   [text]="true"
-                  (click)="moveItemsInCartToPantry()"></p-button>
+                  (click)="confirmMoveAllItemsInCartToPantry()"></p-button>
 
       </div>
       <div class="flex flex-col gap-2">
@@ -70,14 +78,16 @@
         </div>
         <div *ngFor="let item of getShoppingCartItems()" pDraggable (onDragStart)="dragStart(item)"
              (onDragEnd)="dragEnd()"
-             class="flex bg-gray-200 justify-between rounded-md cursor-move w-full px-2 py-1  shadow-md items-center">
-          <div class="flex gap-2">
-            <h3 class="font-medium">{{ item.item.description }}</h3>
-            <p class="text-sm">{{displayQuantity(item.item.unit, item.item.amount)[1]}} {{displayQuantity(item.item.unit, item.item.amount)[0]}}</p>
+             class="flex bg-gray-200 hover:outline outline-1 outline-slate-300 justify-between rounded-md cursor-move w-full px-2 py-1  shadow-md items-center">
+          <div class="flex gap-2 w-2/3">
+            <p
+              class="text-sm w-1/4">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
+            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}" showDelay="400"
+                tooltipPosition="left">{{ item.item.description }}</h3>
           </div>
           <div>
             <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
-                      (click)="shoppingCartItemMenu.show($event)"></p-button>
+                      (click)="selectItem(item); shoppingCartItemMenu.show($event)"></p-button>
             <p-menu #shoppingCartItemMenu [model]="shoppingCartItemMenuItems" [popup]="true"></p-menu>
           </div>
         </div>
@@ -88,25 +98,60 @@
 
 </div>
 
+<!-- Add new item dialog -->
 <p-dialog header="Add new item" [(visible)]="displayAddItemDialog" [modal]="true" [style]="{width: '35rem'}">
   <!-- Add new item (name, amount, unit) -->
   <div class="flex flex-col gap-4 p-4">
-    <form  [formGroup]="addItemForm">
-    <div class="flex flex-col gap-2">
-      <label for="description">Name</label>
-      <input id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk">
-    </div>
+    <form [formGroup]="addItemForm">
+      <div class="flex flex-col gap-2">
+        <label for="description">Name</label>
+        <input id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
+               [maxLength]="60">
+      </div>
       <div class="pb-8">
         <label for="amount">Amount</label>
         <div class="flex pb-4">
-          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" [min]="1" [max]="100000" placeholder="e.g. 1"></p-inputNumber>
-          <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit" [scrollHeight]="'120px'"
+          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
+                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
+                      [scrollHeight]="'120px'"
                       optionValue="value"></p-dropdown>
         </div>
       </div>
       <div class="flex justify-end gap-4 pb-8">
-        <p-button label="Cancel" icon="pi pi-times" (click)="displayAddItemDialog = false" severity="secondary"></p-button>
+        <p-button label="Cancel" icon="pi pi-times" (click)="displayAddItemDialog = false"
+                  severity="secondary"></p-button>
         <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
+      </div>
+    </form>
+  </div>
+
+</p-dialog>
+
+<!-- Edit item dialog -->
+<p-dialog header="Edit item" [(visible)]="displayEditItemDialog" [modal]="true" [style]="{width: '35rem'}">
+  <!-- Edit item (name, amount, unit) -->
+  <div class="flex flex-col gap-4 p-4">
+    <form [formGroup]="editItemForm">
+      <div class="flex flex-col gap-2">
+        <label for="editDescription">Name</label>
+        <input id="editDescription" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
+               [maxLength]="60">
+      </div>
+      <div class="pb-8">
+        <label for="editAmount">Amount</label>
+        <div class="flex pb-4">
+          <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" inputId="amount" [min]="1"
+                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
+                      [scrollHeight]="'120px'"
+                      optionValue="value"></p-dropdown>
+        </div>
+      </div>
+      <div class="flex justify-end gap-4 pb-8">
+        <p-button label="Cancel" icon="pi pi-times" (click)="displayEditItemDialog = false"
+                  severity="secondary"></p-button>
+        <p-button label="Save" icon="pi pi-check" (click)="editItem()"></p-button>
       </div>
     </form>
   </div>
