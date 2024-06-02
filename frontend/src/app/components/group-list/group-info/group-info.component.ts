@@ -12,6 +12,7 @@ import {AutoCompleteCompleteEvent, AutoCompleteSelectEvent} from "primeng/autoco
 import {PaymentDto} from "../../../dtos/payment";
 import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
+import {NgForm} from "@angular/forms";
 
 @Component({
   selector: 'app-group-info',
@@ -32,6 +33,8 @@ export class GroupInfoComponent implements OnInit {
   maxDebt: number = 0;
   transactions: ActivityDetailDto[] = [];
   payments: ActivityDetailDto[] = [];
+  menuitemsButtonMore: MenuItem[] | undefined;
+
 
   constructor(
     private groupService: GroupService,
@@ -47,7 +50,29 @@ export class GroupInfoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.menuitemsButtonMore = [
+      {
+        label: 'Edit Group',
+        icon: 'pi pi-cog',
+        routerLink: 'edit'
+      },
+      {
+        label: 'Import Data',
+        icon: 'pi pi-file-import',
+        command: () => {
+          this.authService.logoutUser()
+          this.router.navigate(['/login'])
+        }
+      },
+      {
+        label: 'Export Data',
+        icon: 'pi pi-file-export',
+        command: () => {
+          this.authService.logoutUser()
+          this.router.navigate(['/login'])
+        }
+      }
+    ]
     // tab Menu
     this.tabMenuItems = [
       { label: 'Transactions', icon: 'pi pi-fw pi-dollar' },
@@ -223,7 +248,12 @@ export class GroupInfoComponent implements OnInit {
     });
   }
 
-  paymentCreationSave() {
+  paymentCreationSave(form: NgForm) {
+    if(form.invalid) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Please fill in all required fields`});
+      return;
+    }
+
     let payment: PaymentDto = {
       amount: this.amountOfSelectedDebtMember,
       payerEmail: this.authService.getEmail(),

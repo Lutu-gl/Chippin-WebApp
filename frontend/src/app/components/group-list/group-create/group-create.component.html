@@ -45,7 +45,7 @@
     <br>
     <br>
     <div class=" flex flex-row">
-      <p-button severity="secondary" (click)="goBack($event)">Back to Group List</p-button>
+      <p-button severity="secondary" (click)="goBack($event)">Cancel</p-button>
       <span class="flex-grow"></span>
 
       <p-button severity="info" [disabled]="(!form.valid || membersEmails.length <= 1 || group === undefined) && mode !== GroupCreateEditMode.info" (click)="onSubmit(form)">Save</p-button>

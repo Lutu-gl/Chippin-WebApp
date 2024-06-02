@@ -1,5 +1,6 @@
 <div class="flex flex-col items-center p-4"> <!-- TODO: Make the link better -->
-  <button [routerLink]="['/group/create']" class="bg-red-300 text-black py-2 px-4 rounded mt-4 mb-6">Create new group</button>
+  <br>
+  <p-button [routerLink]="['/group/create']">Create new group</p-button>
 
   <!-- No groups yet message -->
   <div *ngIf="groups.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center">
@@ -7,17 +8,19 @@
   </div>
 
   <!-- Groups -->
-  <div *ngIf="groups.length > 0" class="w-full max-w-md space-y-4">
-    <div *ngFor="let group of groups" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer" [routerLink]="['/group', group.id]">
-      <div class="flex items-center space-x-4">
-        <div>
-          <div class="font-bold">{{ group.groupName }}</div>
-          <span class="text-sm font-medium text-gray-500"> {{ group.membersCount }} Members</span>
+    <div *ngIf="groups.length > 0" class="w-full max-w-md space-y-4">
+      <br><br>
+      <h3 class="font-bold mb-2">Groups</h3>
+      <div *ngFor="let group of groups" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer" [routerLink]="['/group', group.id]">
+        <div class="flex items-center space-x-4">
+          <div>
+            <div class="font-bold">{{ group.groupName }}</div>
+            <span class="text-sm font-medium text-gray-500"> {{ group.membersCount }} Members</span>
+          </div>
         </div>
+        <div *ngIf="this.groupBalanceSummaries[group.id] > 0" class="text-green-500 font-bold">You are owed €{{ this.groupBalanceSummaries[group.id] | number:'1.2-2' }}</div>
+        <div *ngIf="this.groupBalanceSummaries[group.id] < 0" class="text-red-500 font-bold">You owe €{{ -this.groupBalanceSummaries[group.id] | number:'1.2-2' }}</div>
+        <div *ngIf="this.groupBalanceSummaries[group.id] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
       </div>
-      <div *ngIf="this.groupBalanceSummaries[group.id] > 0" class="text-green-500 font-bold">You are owed €{{ this.groupBalanceSummaries[group.id] | number:'1.2-2' }}</div>
-      <div *ngIf="this.groupBalanceSummaries[group.id] < 0" class="text-red-500 font-bold">You owe €{{ -this.groupBalanceSummaries[group.id] | number:'1.2-2' }}</div>
-      <div *ngIf="this.groupBalanceSummaries[group.id] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
     </div>
-  </div>
 </div>

@@ -29,6 +29,7 @@
       </div>
 
     <br>
+    <form #form="ngForm" (ngSubmit)="paymentCreationSave(form)" name="formOfSettleDebt">
     <div class="flex flex-col align-items-center gap-3 mb-3">
       <label for="debtMemberSelection" class="font-semibold w-6rem">To User</label>
       <p-autoComplete
@@ -40,18 +41,20 @@
         [dropdown]="true"
         [forceSelection]="debtMembers"
         id = "debtMemberSelection"
+        [required]="true"
       />
     </div>
     <div class="flex flex-col align-items-center gap-3 mb-5">
       <label for="amount" class="font-semibold w-6rem">Amount</label>
-      <input pInputText [(ngModel)]="amountOfSelectedDebtMember" id="amount" type="number" min="1" max="1000000" class="flex-auto" autocomplete="off" />
+      <input pInputText placeholder="30"  [(ngModel)]="amountOfSelectedDebtMember" name="amountOfSelectedDebtMember" id="amount" type="number" min="1" max="1000000" class="flex-auto" autocomplete="off" [required]="true" required/>
     </div>
     <br>
     <br>
     <div class="flex justify-content-end gap-2">
       <p-button label="Cancel" severity="secondary" (click)="goBackFromSettleDebts($event)" />
-      <p-button label="Save" (click)="paymentCreationSave()" />
+      <p-button label="Save" [disabled]="(!form.valid || !selectedDebtMemberVar)" (click)="paymentCreationSave(form)" />
     </div>
+    </form>
   </div>
 
 </p-dialog>
@@ -89,9 +92,11 @@
           <div class="text-sm">Total spent: €343</div>
         </div>
         <div class="flex space-x-2 mt-4">
-          <button class="bg-red-300 text-black font-bold py-2 px-4 rounded">Show charts</button>
-          <button class="bg-red-300 text-black font-bold py-2 px-4 rounded" (click) ="showDialogSettleDebts()">Settle debts</button>
-          <button class="bg-red-200 text-black font-bold py-2 px-4 rounded">More</button>
+          <p-button label="Show charts"></p-button>
+          <p-button label="Settle debts" (click) ="showDialogSettleDebts()"></p-button>
+          <p-menu #menu [model]="menuitemsButtonMore" [popup]="true" ></p-menu>
+          <p-button label="More" icon="pi pi-angle-down" severity="secondary" iconPos="right" (click)="menu.show($event)"></p-button>
+
         </div>
       </div>
     </div>
