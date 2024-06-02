@@ -15,6 +15,18 @@ export interface RecipeDetailDto {
   likes: number
   dislikes: number
 }
+export interface RecipeDetailWithUserInfoDto {
+  id?: number
+  ingredients: ItemDetailDto[]
+  name: String
+  description: String
+  isPublic: boolean
+  portionSize: number
+  likes: number
+  dislikes: number
+  likedByUser:boolean
+  dislikedByUser:boolean
+}
 export interface RecipeListDto {
   id: number
   name: String

@@ -7,7 +7,7 @@ import {debounceTime, Subject} from "rxjs";
 
 
 @Component({
-  selector: 'app-recipe-global',
+  selector: 'recipe-global',
   templateUrl: './recipe-global.component.html',
   styleUrl: './recipe-global.component.scss'
 })
@@ -59,7 +59,18 @@ export class RecipeGlobalComponent implements OnInit {
         }
       });
 
-    this.router.navigate(['/recipe/global']);
+    let likeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    likeRecipe.likes++;
+    if(likeRecipe.dislikedByUser) {
+      likeRecipe.dislikes--;
+    }
+    likeRecipe.likedByUser=true;
+    likeRecipe.dislikedByUser=false;
+
+    this.recipes[index] =likeRecipe;
+
 
   }
 
@@ -73,10 +84,22 @@ export class RecipeGlobalComponent implements OnInit {
           this.defaultServiceErrorHandling(error)
         }
       });
-    this.router.navigate(['/recipe/global']);
 
+
+    let dislikeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    dislikeRecipe.dislikes++;
+    if(dislikeRecipe.likedByUser) {
+      dislikeRecipe.likes--;
+    }
+    dislikeRecipe.dislikedByUser=true;
+    dislikeRecipe.likedByUser=false;
+
+    this.recipes[index] =dislikeRecipe;
 
   }
+
 
   public getScore(recipe: RecipeGlobalListDto): number {
     return recipe.likes-recipe.dislikes;

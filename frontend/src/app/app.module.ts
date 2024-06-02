@@ -76,6 +76,9 @@ import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {CheckboxModule} from 'primeng/checkbox';
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PantryComponent} from "./components/pantry/pantry.component";
+
 
 @NgModule({
   declarations: [
@@ -107,26 +110,26 @@ import {CheckboxModule} from 'primeng/checkbox';
     ShoppingListCreateComponent
   ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent
+  ],
 
   providers: [httpInterceptorProviders, MessageService, ConfirmationService],
   bootstrap: [AppComponent]

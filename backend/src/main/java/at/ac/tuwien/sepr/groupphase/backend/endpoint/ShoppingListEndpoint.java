@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
@@ -31,17 +32,15 @@ import java.util.List;
 @Slf4j
 public class ShoppingListEndpoint {
 
-
     private final ShoppingListMapper shoppingListMapper;
     private final ShoppingListService shoppingListService;
-
 
     // POST /users/{userId}/shopping-lists (with an optional groupId in the request body)
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && (#shoppingListCreateDto.group == null "
         + "|| @securityService.isGroupMember(#shoppingListCreateDto.group.id))")
     @PostMapping("/users/{userId}/shopping-lists")
-    public ShoppingListDetailDto createShoppingList(@PathVariable Long userId, @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
+    public ShoppingListDetailDto createShoppingList(@PathVariable Long userId, @Valid @RequestBody ShoppingListCreateDto shoppingListCreateDto) {
         log.debug("request body: {}", shoppingListCreateDto);
         var shoppingList = shoppingListService.createShoppingList(shoppingListCreateDto, userId);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
@@ -89,7 +88,7 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PatchMapping("/shopping-lists/{shoppingListId}")
     @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
-    public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
+    public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @Valid @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
         log.debug("request body: {}", shoppingListUpdateDto);
         var shoppingList = shoppingListService.updateShoppingList(shoppingListId, shoppingListUpdateDto);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
@@ -101,7 +100,7 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
     @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items")
-    public ShoppingListItemDto addItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @RequestBody ItemCreateDto itemCreateDto) {
+    public ShoppingListItemDto addItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
         log.debug("request body: {}", itemCreateDto);
         var item = shoppingListService.addItemForUser(shoppingListId, itemCreateDto, userId);
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
@@ -112,7 +111,7 @@ public class ShoppingListEndpoint {
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
     @PatchMapping("users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}")
     public ShoppingListItemDto updateItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId,
-                                          @RequestBody ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
+                                          @Valid @RequestBody ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
         log.debug("request body: {}", shoppingListItemUpdateDto);
         var item = shoppingListService.updateItemForUser(shoppingListId, itemId, shoppingListItemUpdateDto, userId);
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);

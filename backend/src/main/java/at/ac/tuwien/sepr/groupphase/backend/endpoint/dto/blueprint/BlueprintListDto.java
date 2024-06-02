@@ -1,5 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
-
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
@@ -8,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Builder;
+
 import java.util.List;
 
 @Getter
@@ -15,9 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ItemListDetailDto {
+public class BlueprintListDto {
 
     private List<ItemDto> items;
-
-    String name;
 }

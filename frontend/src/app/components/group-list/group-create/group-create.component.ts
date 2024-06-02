@@ -10,7 +10,7 @@ import {map, Observable} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {FriendshipService} from "../../../services/friendship.service";
 import {AutoCompleteCompleteEvent, AutoCompleteSelectEvent} from "primeng/autocomplete";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {AuthService} from "../../../services/auth.service";
 
 
@@ -44,7 +44,8 @@ export class GroupCreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
-    protected authService: AuthService
+    protected authService: AuthService,
+    private confirmationService: ConfirmationService,
   ) {
   }
 
@@ -61,14 +62,24 @@ export class GroupCreateComponent implements OnInit {
     }
   }
 
-  public get submitButtonText(): string {
+  public get modalButtonText(): string {
     switch (this.mode) {
       case GroupCreateEditMode.create:
-        return 'Create';
+        return 'Do you want to cancel the creation of the group?';
       case GroupCreateEditMode.edit:
-        return 'Edit';
+        return 'Do you want to remove your changes?';
       case GroupCreateEditMode.info:
-        return 'Edit this Group';
+        return '?';
+      default:
+        return '?';
+    }
+  }
+  private get modalButtonCanceledText(): string {
+    switch (this.mode) {
+      case GroupCreateEditMode.create:
+        return 'Group creation canceled';
+      case GroupCreateEditMode.edit:
+        return 'Edit of group canceled';
       default:
         return '?';
     }
@@ -180,7 +191,7 @@ export class GroupCreateComponent implements OnInit {
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
-          this.router.navigate(['/1']);
+          this.router.navigate(['/group/' + this.group.id]);
         },
         error: error => {
           console.log(error);
@@ -273,7 +284,29 @@ export class GroupCreateComponent implements OnInit {
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
   currentlySelected: any;
 
-  goBack() {
-      this.router.navigate([1]);
+  goBack($event: MouseEvent) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: this.modalButtonText,
+      header: 'Cancel Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass:"p-button-danger p-button-text",
+      rejectButtonStyleClass:"p-button-text p-button-text",
+      acceptIcon:"none",
+      rejectIcon:"none",
+
+      accept: () => {
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: this.modalButtonCanceledText });
+        //this.router.navigate(['/group', this.group.id]);
+        if(this.mode === GroupCreateEditMode.create) {
+          this.router.navigate(['/home/groups']);
+          return;
+        }
+        this.router.navigate(['/group/' + this.group.id]);
+      },
+      reject: () => {
+        // this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'You have rejected' });
+      }
+    });
   }
 }

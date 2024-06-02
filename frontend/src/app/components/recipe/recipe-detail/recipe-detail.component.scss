@@ -1,0 +1,77 @@
+.members {
+  font-weight: normal;
+}
+
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.member-list-item {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.debt {
+  font-weight: normal;
+}
+
+.debt-list {
+  gap: 20px;
+}
+
+.debt-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.invisible-button {
+  visibility: hidden;
+}
+
+.positive-debt {
+  background-color: #e0f7e0;
+  border-color: #c8e6c9;
+}
+
+.negative-debt {
+  background-color: #f7e0e0;
+  border-color: #e6c9c9;
+}
+.small-button {
+  white-space: nowrap;
+}
+
+.budgets {
+  font-weight: normal;
+}
+
+.budget-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.budget-list-item {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+.recipe-description {
+  background: #e6fce7;
+  white-space: pre-line; /* This ensures that \n characters are rendered as line breaks */
+  margin:20px;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+.leftbuttons {
+
+}

@@ -1,4 +1,4 @@
-import {DisplayedUnit, Unit} from "../dtos/item";
+import {DisplayedUnit, PantryItemDetailDto, Unit} from "../dtos/item";
 
 export function displayQuantity(unit: Unit, amount: number): [DisplayedUnit, number] {
   switch (unit) {
@@ -55,5 +55,51 @@ export function unitToDisplayedUnit(unit: Unit): DisplayedUnit {
       return DisplayedUnit.Milliliter;
     case Unit.Gram:
       return DisplayedUnit.Gram;
+  }
+}
+
+export function getStepSize(item: PantryItemDetailDto): number {
+  switch (item.unit) {
+    case Unit.Piece:
+      return item.amount > 100 ? 10 : 1;
+    case Unit.Gram:
+      switch (true) {
+        case (item.amount < 100):
+          return 10;
+        case (item.amount < 1000):
+          return 100;
+        case (item.amount < 10000):
+          return 250;
+        default:
+          return 1000;
+      }
+    case Unit.Milliliter:
+      switch (true) {
+        case (item.amount < 100):
+          return 10;
+        case (item.amount < 1000):
+          return 100;
+        case (item.amount < 10000):
+          return 250;
+        default:
+          return 1000;
+      }
+    default:
+      console.error("Unknown Unit");
+      return 1;
+  }
+}
+
+export function getSuffix(item: PantryItemDetailDto): String {
+  switch (item.unit) {
+    case Unit.Piece:
+      return item.amount == 1 ? " Piece" : " Pieces";
+    case Unit.Gram:
+      return item.amount < 1000 ? "g" : "kg";
+    case Unit.Milliliter:
+      return item.amount < 1000 ? "ml" : "l";
+    default:
+      console.error("Unknown Unit");
+      return "";
   }
 }
