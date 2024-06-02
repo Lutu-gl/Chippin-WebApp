@@ -15,7 +15,7 @@ import { ActivityDetailDto } from 'src/app/dtos/activity';
   styleUrl: './group-info.component.scss'
 })
 export class GroupInfoComponent implements OnInit {
-  
+
   chartData: any;
   chartOptions: any;
   tabMenuItems: MenuItem[] | undefined;
@@ -128,6 +128,25 @@ export class GroupInfoComponent implements OnInit {
     return this.tabMenuActiveItem === this.tabMenuItems[4];
   }
 
+  // Sorts the members with debts by the amount of debt
+  // First the members you own are shown, then the members that own you
+  // Lastly the members that have no debt are shown
+  // If members cant be sorted by debt, then they are sorted by name
+  getMembersWithDebtsSorted() {
+    return this.membersWithDebts.sort((a, b) => {
+      if (a[1] < 0 && b[1] > 0) {
+        return -1;
+      } else if (a[1] > 0 && b[1] < 0) {
+        return 1;
+      } else if (a[1] === 0 && b[1] !== 0) {
+        return 1;
+      } else if (a[1] !== 0 && b[1] === 0) {
+        return -1;
+      } else {
+        return a[0].localeCompare(b[0]);
+      }
+    });
+  }
 }
 
 // import {Component, OnInit} from '@angular/core';

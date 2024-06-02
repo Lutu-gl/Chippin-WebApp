@@ -17,7 +17,7 @@
                   <div class="mt-2 text-center">
                     <span class="font-bold" style="font-size: xx-small;">{{ entry[0] }}</span>
                   </div>
-                </div>                
+                </div>
               </div>
             </div>
           </div>
@@ -61,19 +61,31 @@
     </div>
   </div>
 
-  <!-- Debts tab -->
-  <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
-    <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
-      <span class="font-bold">{{ payment.userEmail }}</span>
-      <div class="flex flex-col justify-center align-items-center">
-        <span class="text-red-500 font-bold">{{ payment.amount | currency: 'EUR' }}</span>
-        <span class="text-black text-center font-bold">→</span>
+  <!-- Old Debts tab - Is in reality the payments tab -->
+<!--  <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">-->
+<!--    <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">-->
+<!--      <span class="font-bold">{{ payment.userEmail }}</span>-->
+<!--      <div class="flex flex-col justify-center align-items-center">-->
+<!--        <span class="text-red-500 font-bold">{{ payment.amount | currency: 'EUR' }}</span>-->
+<!--        <span class="text-black text-center font-bold">→</span>-->
+<!--      </div>-->
+<!--      <span class="font-bold">{{ payment.paymentReceiverEmail }}</span>-->
+<!--    </div>-->
+
+<!--  </div>-->
+
+    <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
+      <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
+        <span class="font-bold">{{ payment.userEmail }}</span>
+        <div class="flex flex-col justify-center align-items-center">
+          <span class="text-red-500 font-bold">{{ payment.amount | currency: 'EUR' }}</span>
+          <span class="text-black text-center font-bold">→</span>
+        </div>
+        <span class="font-bold">{{ payment.paymentReceiverEmail }}</span>
       </div>
-      <span class="font-bold">{{ payment.paymentReceiverEmail }}</span>
+
     </div>
 
-  </div>
-  
   <!-- Members tab -->
   <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
     <div class="flex justify-center mb-4">
@@ -92,7 +104,7 @@
         <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">You</div>
       </div>
 
-      <div *ngFor="let entry of membersWithDebts" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+      <div *ngFor="let entry of getMembersWithDebtsSorted()" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
         <div class="flex items-center space-x-4">
           <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ entry[0][0] }}</div>
           <div>
@@ -100,7 +112,9 @@
           </div>
         </div>
         <div *ngIf="entry[1] > 0" class="text-green-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
-        <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+        <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">
+          <a [routerLink]="['/debt-settlement', entry[0]]" [style.pointer-events]="entry[1] >= 0 ? 'none' : 'auto'" title="Settle Debts">{{ entry[1] | currency: 'EUR' }}</a>
+        </div>
         <div *ngIf="entry[1] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
       </div>
     </div>
@@ -165,7 +179,7 @@
     <app-budget-list [groupId]="group.id"></app-budget-list>
   </div>
 
-  
+
   <div class="">
     <button type="button"
             class="btn btn-secondary"
