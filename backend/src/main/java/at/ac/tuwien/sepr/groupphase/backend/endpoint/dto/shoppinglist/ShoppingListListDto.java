@@ -17,6 +17,7 @@ public class ShoppingListListDto {
     private Long id;
     private String name;
     private Long groupId;
+    private String groupName;
     private int itemCount;
     private int checkedItemCount;
     private LocalDateTime createdAt;
