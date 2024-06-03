@@ -43,4 +43,6 @@ export interface ShoppingListListDto {
   groupName: string;
   itemCount: number;
   checkedItemCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

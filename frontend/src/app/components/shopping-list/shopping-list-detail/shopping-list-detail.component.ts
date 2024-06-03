@@ -36,6 +36,7 @@ import {InputGroupModule} from "primeng/inputgroup";
 import {PaginatorModule} from "primeng/paginator";
 import {InputGroupAddonModule} from "primeng/inputgroupaddon";
 import {convertQuantity, displayQuantity} from "../../../util/unit-helper";
+import {ShoppingListEditModalComponent} from "../shopping-list-edit-modal/shopping-list-edit-modal.component";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -69,6 +70,7 @@ import {convertQuantity, displayQuantity} from "../../../util/unit-helper";
     PaginatorModule,
     InputGroupAddonModule,
     ReactiveFormsModule,
+    ShoppingListEditModalComponent,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
@@ -77,7 +79,6 @@ export class ShoppingListDetailComponent implements OnInit {
 
   constructor(private shoppingListService: ShoppingListService,
               private route: ActivatedRoute,
-              private notification: ToastrService,
               private router: Router,
               private authService: AuthService,
               private confirmationService: ConfirmationService,
@@ -103,11 +104,11 @@ export class ShoppingListDetailComponent implements OnInit {
   shoppingCartItemMenuItems: MenuItem[] | undefined;
   displayAddItemDialog: boolean = false;
   displayEditItemDialog: boolean = false;
-  selectedUnit: any;
   units: any[]
   addItemForm: FormGroup = new FormGroup({});
   editItemForm: FormGroup = new FormGroup({});
   itemToEdit: ShoppingListItemDto | undefined;
+  showEditModal: boolean = false;
 
   ngOnInit(): void {
     this.route.params.subscribe({
@@ -116,7 +117,7 @@ export class ShoppingListDetailComponent implements OnInit {
         this.shoppingListId = +params['shoppingListId'];
       },
       error: err => {
-        this.notification.error('Error loading shopping list');
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Error loading shopping list'});
         this.router.navigate(['/group', this.groupId]);
         console.error(err);
       }
@@ -287,7 +288,7 @@ export class ShoppingListDetailComponent implements OnInit {
     this.shoppingListService.moveShoppingListItemToPantry(this.authService.getUserId(), this.shoppingListId, itemId).subscribe({
       next: () => {
         this.loadShoppingListDetailDto();
-        this.notification.success("Item moved to pantry");
+        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item moved to pantry'});
       },
       error: err => {
         console.error(err);
@@ -415,7 +416,7 @@ export class ShoppingListDetailComponent implements OnInit {
       next: () => {
         this.loadShoppingListDetailDto();
         this.displayAddItemDialog = false;
-        this.notification.success("Item added to shopping list");
+        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item added'});
       },
       error: err => {
         console.error(err);

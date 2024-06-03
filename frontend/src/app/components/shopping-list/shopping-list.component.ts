@@ -6,6 +6,8 @@ import {RouterLink} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
 import {MessageService} from "primeng/api";
 import {ButtonModule} from "primeng/button";
+import {DialogModule} from "primeng/dialog";
+import {ShoppingListCreateModalComponent} from "./shopping-list-create-modal/shopping-list-create-modal.component";
 
 @Component({
   selector: 'app-shopping-list',
@@ -15,7 +17,9 @@ import {ButtonModule} from "primeng/button";
     RouterLink,
     DecimalPipe,
     NgIf,
-    ButtonModule
+    ButtonModule,
+    DialogModule,
+    ShoppingListCreateModalComponent,
   ],
   templateUrl: './shopping-list.component.html',
   styleUrl: './shopping-list.component.scss'
@@ -25,6 +29,7 @@ export class ShoppingListComponent implements OnInit {
   shoppingLists: ShoppingListListDto[] = [];
 
   shoppingListsGrouped: { groupName: string, shoppingLists: ShoppingListListDto[] }[] = [];
+  showCreateModal: boolean = false;
 
 
   constructor(private shoppingListService: ShoppingListService,
@@ -33,6 +38,10 @@ export class ShoppingListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadShoppingLists();
+  }
+
+  loadShoppingLists() {
     // Get all shopping lists for the user
     this.shoppingListService.getShoppingListsForUser(this.authService.getUserId()).subscribe({
       next: shoppingLists => {
@@ -44,7 +53,6 @@ export class ShoppingListComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load shopping lists'});
       }
     });
-
   }
 
   groupShoppingLists() {
@@ -73,6 +81,12 @@ export class ShoppingListComponent implements OnInit {
       } else {
         return a.groupName.localeCompare(b.groupName);
       }
+    });
+    // Sort the shopping lists within each group by date
+    this.shoppingListsGrouped.forEach(group => {
+      group.shoppingLists.sort((a, b) => {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
     });
   }
 

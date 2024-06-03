@@ -76,34 +76,34 @@ import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    FooterComponent,
-    HomeComponent,
-    AutocompleteComponent,
-    LoginComponent,
-    FriendsComponent,
-    FriendInfoComponent,
-    AddFriendComponent,
-    GroupListComponent,
-    GroupCreateComponent,
-    GroupInfoComponent,
-    ItemListComponent,
-    ItemListCreateEditComponent,
-    RecipeComponent,
-    ExpenseCreateComponent,
-    ExpenseListComponent,
-    BudgetListComponent,
-    BudgetCreateComponent,
-    RecipeCreateComponent,
-    RecipeDetailComponent,
-    RecipeEditComponent,
-    RecipeGlobalComponent,
-    RecipeLikedComponent,
-    PaymentCreateComponent,
-    ShoppingListCreateComponent
-  ],
+    declarations: [
+        AppComponent,
+        HeaderComponent,
+        FooterComponent,
+        HomeComponent,
+        AutocompleteComponent,
+        LoginComponent,
+        FriendsComponent,
+        FriendInfoComponent,
+        AddFriendComponent,
+        GroupListComponent,
+        GroupCreateComponent,
+        GroupInfoComponent,
+        ItemListComponent,
+        ItemListCreateEditComponent,
+        RecipeComponent,
+        ExpenseCreateComponent,
+        ExpenseListComponent,
+        BudgetListComponent,
+        BudgetCreateComponent,
+        RecipeCreateComponent,
+        RecipeDetailComponent,
+        RecipeEditComponent,
+        RecipeGlobalComponent,
+        RecipeLikedComponent,
+        PaymentCreateComponent,
+        ShoppingListCreateComponent
+    ],
 
     imports: [
         BrowserModule,
@@ -126,8 +126,11 @@ import {DialogModule} from 'primeng/dialog';
         ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
     ],
 
-  providers: [httpInterceptorProviders, MessageService, ConfirmationService],
-  bootstrap: [AppComponent]
+    providers: [httpInterceptorProviders, MessageService, ConfirmationService],
+    exports: [
+        ShoppingListCreateComponent
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

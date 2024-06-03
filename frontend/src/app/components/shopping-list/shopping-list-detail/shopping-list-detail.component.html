@@ -19,11 +19,13 @@
       </div>
     </div>
     <div class="flex flex-col gap-1 items-end justify-center pr-6">
-      <p-button label="Edit" icon="pi pi-pencil" severity="info" [routerLink]="['edit']"></p-button>
+      <p-button label="Edit" icon="pi pi-pencil" severity="info" (click)="this.showEditModal = true"></p-button>
       <p-confirmDialog></p-confirmDialog>
       <p-button label="Delete" icon="pi pi-trash" severity="danger" (click)="confirmDelete()"></p-button>
     </div>
   </div>
+
+  <app-shopping-list-edit-modal [(visible)]="showEditModal" (update)="loadShoppingListDetailDto()" [shoppingList]="shoppingListDetailDto"></app-shopping-list-edit-modal>
 
   <div class="w-full">
     <p-divider></p-divider>
