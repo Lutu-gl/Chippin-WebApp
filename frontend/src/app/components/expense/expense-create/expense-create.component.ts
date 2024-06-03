@@ -270,9 +270,11 @@ export class ExpenseCreateComponent implements OnChanges {
       next: data => {
         this.messageService.add({severity:'success', summary:'Success', detail:'Deleted expense successfully!'});
         this.expenseDeleted = true;
+        this.closeDeleteDialog();
         this.closeDialog.emit();
       },
       error: error => {
+        this.closeDeleteDialog();
         this.printError(error);
       }
     })

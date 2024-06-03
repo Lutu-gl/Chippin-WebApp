@@ -11,9 +11,11 @@ import { ActivityDetailDto } from 'src/app/dtos/activity';
 import { ExpenseCreateEditMode } from '../../expense/expense-create/expense-create.component';
 import {AutoCompleteCompleteEvent, AutoCompleteSelectEvent} from "primeng/autocomplete";
 import {PaymentDto} from "../../../dtos/payment";
+import { BudgetDto } from '../../../dtos/budget';
 import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
+import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
 
 @Component({
   selector: 'app-group-info',
@@ -26,6 +28,7 @@ export class GroupInfoComponent implements OnInit {
   chartOptions: any;
   tabMenuItems: MenuItem[] | undefined;
   tabMenuActiveItem: MenuItem | undefined;
+  budgets: BudgetDto[] = [];
 
   group: GroupDto = { id: undefined, groupName: '', members: [] };
   debt: DebtGroupDetailDto = { userEmail: '', groupId: 0, membersDebts: {} };
@@ -41,6 +44,10 @@ export class GroupInfoComponent implements OnInit {
   expenseDialogMode: ExpenseCreateEditMode;
   expenseDialogExpenseId: number;
 
+  isBudgetDialogVisible: boolean = false;
+  budgetDialogMode: BudgetCreateEditMode;
+  budgetDialogBudgetId: number;
+
   constructor(
     private groupService: GroupService,
     private debtService: DebtService,
@@ -52,6 +59,17 @@ export class GroupInfoComponent implements OnInit {
     private authService: AuthService,
     private paymentService: PaymentService,
   ){
+  }
+
+  openCreateBudgetDialog(): void {
+    this.budgetDialogMode = BudgetCreateEditMode.create;
+    this.isBudgetDialogVisible = true;
+  }
+
+  closeCreateBudgetDialog(): void {
+    console.log("closeCreateBudgetDialog")
+    this.isBudgetDialogVisible = false;
+    this.ngOnInit();
   }
 
   openCreateExpenseDialog(): void {
@@ -69,6 +87,20 @@ export class GroupInfoComponent implements OnInit {
     console.log(this.expenseDialogMode);
     this.expenseDialogExpenseId = expenseId;
     this.isExpenseDialogVisible = true;
+  }
+
+  
+  openInfoBudgetDialog(budgetId: number): void {
+    console.log(this.budgetDialogMode)
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+        console.log(this.budgetDialogMode)
+    this.budgetDialogBudgetId = budgetId;
+    console.log(budgetId)
+    this.isBudgetDialogVisible = true;
+  }
+
+  public budgetModeIsCreate(): boolean {
+    return this.budgetDialogMode === BudgetCreateEditMode.create;
   }
 
   ngOnInit(): void {
@@ -101,7 +133,8 @@ export class GroupInfoComponent implements OnInit {
       { label: 'Debts', icon: 'pi pi-fw pi-money-bill' },
       { label: 'Members', icon: 'pi pi-fw pi-users' },
       { label: 'Pantry', icon: 'pi pi-fw pi-shopping-cart' },
-      { label: 'Shopping lists', icon: 'pi pi-fw pi-shopping-cart' }
+      { label: 'Shopping lists', icon: 'pi pi-fw pi-shopping-cart' },
+      { label: 'Budgets', icon: 'pi pi-fw pi-wallet' }
     ];
     this.tabMenuActiveItem = this.tabMenuItems[0];
 
@@ -109,6 +142,7 @@ export class GroupInfoComponent implements OnInit {
     this.getDebt();
     this.getTransactions();
     this.getPayments();
+    this.getGroupBudgets();
   }
 
   getGroup(): void {
@@ -153,6 +187,17 @@ export class GroupInfoComponent implements OnInit {
     this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
       this.payments = payments;
     });
+  }
+
+  getGroupBudgets(): void {
+
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.groupService.getGroupBudgets(id)
+      .subscribe(budgets => {
+        this.budgets = budgets;
+      }, error => {
+        console.error('Failed to load budgets', error);
+      });
   }
 
   getMembersWithDebtsSorted() {
@@ -204,6 +249,9 @@ export class GroupInfoComponent implements OnInit {
 
   isShoppingListsSelected(): boolean {
     return this.tabMenuActiveItem === this.tabMenuItems[4];
+  }
+  isBudgetSelected(): boolean {
+    return this.tabMenuActiveItem === this.tabMenuItems[5];
   }
 
 
