@@ -53,6 +53,12 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new AccessDeniedException("You do not have permission to access this expense");
         }
 
+        for (ApplicationUser member : expense.getGroup().getUsers()) {
+            if (!expense.getParticipants().containsKey(member)) {
+                expense.getParticipants().put(member, 0.0);
+            }
+        }
+
         return expenseMapper.expenseEntityToExpenseDetailDto(expense);
     }
 

@@ -1,3 +1,27 @@
+<!-- Modal for creating new expense -->
+<p-dialog
+  [(visible)]="isExpenseDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+  [style]="{ width: '50vw' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Create Expense for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
+  </p-header>
+  
+  <app-expense-create
+    [groupId]="group.id"
+    [mode]="expenseDialogMode"
+    [expenseId]="expenseDialogExpenseId"
+    (closeDialog)="closeCreateExpenseDialog()"
+  ></app-expense-create>
+
+  <p-footer></p-footer>
+</p-dialog>
+
 <!--Modal to settle debts in the top right corner -->
 <p-dialog header="Settle Debt"
           [(visible)]="visibleModalSettleDebts"
@@ -58,6 +82,7 @@
 
 </p-dialog>
 
+
 <div>
   <!-- Header part with diagram -->
   <div class="bg-blue-100">
@@ -111,15 +136,20 @@
 
   <!-- Transactions part -->
   <div *ngIf="isTransactionsSelected()" class="p-4 max-w-lg mx-auto">
+    <div class="flex justify-center mb-4">
+      <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add Expense
+      </button>
+    </div>
     <div class="space-y-4">
-      <div *ngFor="let transaction of transactions" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+      <div *ngFor="let transaction of transactions" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getExpenseColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
         <div class="flex items-center space-x-4">
           <div>
             <div class="font-normal text-sm">User <b></b> {{ transaction.description }}</div>
             <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
           </div>
         </div>
-        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm"></div>
+        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
       </div>
     </div>
   </div>
