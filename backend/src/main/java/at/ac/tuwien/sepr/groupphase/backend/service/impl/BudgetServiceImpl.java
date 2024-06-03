@@ -97,6 +97,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         budget.setName(budgetDto.getName());
         budget.setAmount(budgetDto.getAmount());
+        budget.setCategory(budgetDto.getCategory());
         return budgetRepository.save(budget);
     }
 

@@ -71,7 +71,9 @@ import {ToastModule} from "primeng/toast";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {TabMenuModule} from 'primeng/tabmenu';
 import {AutoCompleteModule} from "primeng/autocomplete";
+import { DropdownModule } from 'primeng/dropdown';
 import {CardModule} from "primeng/card";
+import { InputTextModule } from 'primeng/inputtext';
 import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -123,11 +125,14 @@ import {PantryComponent} from "./components/pantry/pantry.component";
     ToastrModule.forRoot(),
     ShoppingListComponent,
     MenuCardComponent,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
+    InputTextModule,
+        InputNumberModule,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        DropdownModule,
     ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent
   ],
 

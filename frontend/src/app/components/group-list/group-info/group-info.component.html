@@ -22,6 +22,33 @@
   <p-footer></p-footer>
 </p-dialog>
 
+
+<!-- Modal for creating new budget -->
+<p-dialog
+  [(visible)]="isBudgetDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+  [style]="{ width: '50vw' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+<p-header>
+  <div
+  *ngIf="budgetModeIsCreate()" 
+  class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
+</p-header>
+  
+  <app-budget-create
+  [groupId]="group.id"
+  [mode]="budgetDialogMode"
+  [budgetId]="budgetDialogBudgetId"
+  (closeDialog)="closeCreateBudgetDialog()"
+  ></app-budget-create>
+
+  <p-footer></p-footer>
+</p-dialog>
+
 <!--Modal to settle debts in the top right corner -->
 <p-dialog header="Settle Debt"
           [(visible)]="visibleModalSettleDebts"
@@ -179,6 +206,9 @@
 
   </div>
 
+
+
+
   <!-- Members tab -->
   <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
 <!--    <div class="flex justify-center mb-4">-->
@@ -208,6 +238,28 @@
           <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
           <div *ngIf="entry[1] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
         </div>
+    </div>
+  </div>
+
+
+
+    <!-- Budget tab -->
+  <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+    <div class="flex justify-center mb-4">
+      <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add Budget
+      </button>
+    </div>
+    <div class="h-96 overflow-y-auto overflow-x-hidden">
+      <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+        <a class="no-underline text-black">
+          <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
+          flex justify-between items-center
+          hover:bg-slate-100 hover:cursor-pointer">
+            <div>{{ budget.name }} [{{budget.category}}]: {{budget.alreadySpent}} / {{ budget.amount }}€</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 
