@@ -176,12 +176,12 @@ function getLowerLimit(item: PantryItemDetailDto): number {
 }
 
 export function formatAmount(item: PantryItemDetailDto): String {
-  return getAmount(item).toString() + getSuffix(item);
+  return getAmount(item).toLocaleString('de-DE') + getSuffix(item);
 }
 
 export function formatLowerLimit(item: PantryItemDetailDto): String {
   if(!item.lowerLimit) {
     return "-";
   }
-  return getLowerLimit(item).toString() + getLimitSuffix(item);
+  return getLowerLimit(item).toLocaleString('de-DE') + getLimitSuffix(item);
 }

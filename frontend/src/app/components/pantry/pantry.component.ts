@@ -4,8 +4,8 @@ import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
   PantryItemCreateDisplayDto,
-  pantryItemCreateDisplayDtoToPantryItemCreateDto,
-  PantryItemDetailDto,
+  pantryItemCreateDisplayDtoToPantryItemCreateDto, pantryItemCreateDisplayDtoToPantryItemDetailDto,
+  PantryItemDetailDto, pantryItemDetailDtoToPantryItemCreateDisplayDto,
 } from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -73,12 +73,12 @@ import {inRange} from "lodash";
 })
 export class PantryComponent implements OnInit {
   itemDialog: boolean = false;
-  newItemDialog: boolean = false;
   items!: PantryItemDetailDto[];
-  item!: PantryItemDetailDto;
-  selectedItems!: PantryItemDetailDto[] | null;
+  createEditItem!: PantryItemCreateDisplayDto;
+  itemToEditId: number;
   submitted: boolean = false;
-  newItem: PantryItemCreateDisplayDto;
+  edit: boolean = false;
+  selectedItems!: PantryItemDetailDto[] | null;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -120,29 +120,40 @@ export class PantryComponent implements OnInit {
 
   hideDialog() {
     this.itemDialog = false;
-    this.newItemDialog = false;
     this.submitted = false;
   }
 
   openNew() {
-    this.newItem = {
+    this.createEditItem = {
       description: "",
       amount: 0,
       unit: DisplayedUnit.Piece,
       lowerLimit: null,
     };
+    this.edit = false;
+    this.itemToEditId = null;
     this.submitted = false;
-    this.newItemDialog = true;
+    this.itemDialog = true;
+  }
+
+  openEdit(item: PantryItemDetailDto) {
+    this.createEditItem = pantryItemDetailDtoToPantryItemCreateDisplayDto(item);
+    console.log(item);
+    console.log(this.createEditItem);
+    this.edit = true;
+    this.itemToEditId = item.id;
+    this.submitted = false;
+    this.itemDialog = true;
   }
 
   saveNewItem() {
     this.submitted = true;
 
-    if (this.newItem.description?.trim()
-      && inRange(this.newItem.amount, 0, 1000001)
-      && (!this.newItem.lowerLimit || inRange(this.newItem.lowerLimit, 0, 1000001))) {
+    if (this.createEditItem.description?.trim()
+      && inRange(this.createEditItem.amount, 0, 1000001)
+      && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
 
-      this.service.createItem(this.id, pantryItemCreateDisplayDtoToPantryItemCreateDto(this.newItem)).subscribe({
+      this.service.createItem(this.id, pantryItemCreateDisplayDtoToPantryItemCreateDto(this.createEditItem)).subscribe({
         next: dto => {
           console.log("Created new item: ", dto);
           this.messageService.add({
@@ -167,7 +178,45 @@ export class PantryComponent implements OnInit {
           }
         }
       })
-      this.newItemDialog = false;
+      this.itemDialog = false;
+    }
+  }
+
+  editItem() {
+    this.submitted = true;
+
+    if (this.createEditItem.description?.trim()
+      && inRange(this.createEditItem.amount, 0, 1000001)
+      && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
+
+      this.service.updateItem(pantryItemCreateDisplayDtoToPantryItemDetailDto(this.createEditItem, this.itemToEditId), this.id).subscribe({
+        next: dto => {
+          console.log("Updated item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `${dto.description} updated`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not update item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+          }
+        }
+      })
+
+      this.itemDialog = false;
     }
   }
 
