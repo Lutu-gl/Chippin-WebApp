@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,6 +17,9 @@ public class ShoppingListListDto {
     private Long id;
     private String name;
     private Long groupId;
+    private String groupName;
     private int itemCount;
     private int checkedItemCount;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

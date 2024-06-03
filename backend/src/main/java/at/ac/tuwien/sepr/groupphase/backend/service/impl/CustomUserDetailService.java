@@ -2,19 +2,21 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.DebtService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -25,24 +27,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
-
+@RequiredArgsConstructor
 public class CustomUserDetailService implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
+    private final DebtService debtService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
 
-    @Autowired
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenizer = jwtTokenizer;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -112,6 +110,26 @@ public class CustomUserDetailService implements UserService {
     public Set<GroupEntity> getGroupsByUserEmail(String email) {
         LOGGER.trace("getGroupsByUserEmail({})", email);
         return userRepository.findGroupsByUserEmail(email);
+    }
+
+    @Override
+    public Set<GroupListDto> getGroupsByUserEmailWithDebtInfos(String email) {
+        LOGGER.trace("getGroupsByUserEmailWithDebtInfos({})", email);
+        Set<GroupListDto> groupsByUserEmailWithDebtInfos = new HashSet<>();
+
+        Set<GroupEntity> groupsByUserEmail = userRepository.findGroupsByUserEmail(email);
+        for (GroupEntity group : groupsByUserEmail) {
+            DebtGroupDetailDto byId = debtService.getById(email, group.getId());
+
+            groupsByUserEmailWithDebtInfos.add(GroupListDto.builder()
+                .id(group.getId())
+                .groupName(group.getGroupName())
+                .membersCount((long) group.getUsers().size())
+                .membersDebts(byId.getMembersDebts())
+                .build());
+        }
+
+        return groupsByUserEmailWithDebtInfos;
     }
 
     @Override

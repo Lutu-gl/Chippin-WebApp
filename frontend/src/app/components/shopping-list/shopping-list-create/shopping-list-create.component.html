@@ -76,3 +76,23 @@
   </div>
 
 </form>
+
+<p-dialog [(visible)]="visible" [modal]="true">
+  <p-header>
+    <h2>Shopping List</h2>
+  </p-header>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="name">Name</label>
+      <input id="name" type="text" pInputText [(ngModel)]="shoppingListDto.name" required>
+    </div>
+    <div class="p-field">
+      <label for="budget">Budget</label>
+      <input id="budget" type="number" pInputNumber [(ngModel)]="shoppingListDto" required>
+    </div>
+  </div>
+  <p-footer>
+    <button type="button" pButton  label="Save"></button>
+    <button type="button" pButton  label="Cancel"></button>
+  </p-footer>
+</p-dialog>

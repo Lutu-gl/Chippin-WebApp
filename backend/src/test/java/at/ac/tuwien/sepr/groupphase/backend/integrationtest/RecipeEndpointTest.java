@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
@@ -36,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class RecipeEndpointTest extends BaseTest {
+public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     @Autowired
     private MockMvc mockMvc;
 
@@ -182,6 +183,7 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @Test
+    @Rollback
     @WithMockUser
     public void createRecipeWithInvalidRecipeGets400() throws Exception {
 
@@ -199,6 +201,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", 0)))
@@ -208,6 +211,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void updateExistingRecipe_ChangesSuccessfully_Then200() throws Exception {
 
@@ -310,6 +314,7 @@ public class RecipeEndpointTest extends BaseTest {
 
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_whenAddInvalidItemToRecipe_then400()
         throws Exception {
@@ -327,6 +332,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
@@ -344,6 +350,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void likeRecipeSuccessfully() throws Exception {
         String groupJson = objectMapper.writeValueAsString(recipe);
@@ -367,6 +374,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void dislikeRecipeSuccessfully() throws Exception {
         String groupJson = objectMapper.writeValueAsString(recipe);
@@ -390,6 +398,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUser_findRecipesByUser_returnsListOfRecipesByUserThen200() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -425,6 +434,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void getPublicRecipeOrderedByLikes_returnsAllPublicRecipesOrderedSuccessfully() throws Exception {
 
@@ -468,6 +478,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_DeleteExistingRecipe_returns204_RecipeDoesntExistAnymore() throws Exception {
         recipeRepository.save(Recipe.builder().id(-5L).isPublic(false).portionSize(0).name("test").owner(user).description("test").build());
@@ -485,6 +496,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
@@ -505,6 +517,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void givenWrongUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_Returns404() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
@@ -523,6 +536,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "user5@example.com", roles = "USER")
     public void givenSearchString_SearchGlobalRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
@@ -570,6 +584,7 @@ public class RecipeEndpointTest extends BaseTest {
     }*/
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUserAndRecipe_LikeRecipeSuccessfully_ThenGetLikedRecipeFromUserReturnsLikedRecipeCorrectly() throws Exception {
         recipeService.likeRecipe(recipe.getId(), user);

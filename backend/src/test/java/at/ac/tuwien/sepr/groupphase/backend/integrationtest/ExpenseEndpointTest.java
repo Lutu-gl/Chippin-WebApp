@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -12,9 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,19 +58,26 @@ public class ExpenseEndpointTest extends BaseTest {
     @Autowired
     private SecurityProperties securityProperties;
 
-    @Test
-    public void whenCreateExpense_withValidData_thenStatus201() throws Exception {
-        ApplicationUser user1 = new ApplicationUser();
+    ApplicationUser user1;
+    ApplicationUser user2;
+
+    @BeforeAll
+    public void beforeAll() {
+        user1 = new ApplicationUser();
         user1.setEmail("EXuser1@example.com");
         user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
-        ApplicationUser user2 = new ApplicationUser();
+        user2 = new ApplicationUser();
         user2.setEmail("EXuser2@example.com");
         user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
 
         userRepository.save(user1);
         userRepository.save(user2);
+    }
 
+    @Test
+    @Rollback
+    public void whenCreateExpense_withValidData_thenStatus201() throws Exception {
         GroupEntity group = GroupEntity.builder()
             .groupName("EXTestGroup")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
@@ -108,20 +112,10 @@ public class ExpenseEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     public void whenCreateExpense_withInvalidData_thenStatus409() throws Exception {
-        ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("EXuser1@example.com");
-        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("EXuser2@example.com");
-        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        userRepository.save(user1);
-        userRepository.save(user2);
-
         GroupEntity group = GroupEntity.builder()
-            .groupName("EXTestGroup")
+            .groupName("EXTestGroup2")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
             .build();
 
@@ -147,20 +141,10 @@ public class ExpenseEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     public void whenCreateExpense_withInvalidData_thenStatus400() throws Exception {
-        ApplicationUser user1 = new ApplicationUser();
-        user1.setEmail("EXuser1@example.com");
-        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        ApplicationUser user2 = new ApplicationUser();
-        user2.setEmail("EXuser2@example.com");
-        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
-
-        userRepository.save(user1);
-        userRepository.save(user2);
-
         GroupEntity group = GroupEntity.builder()
-            .groupName("EXTestGroup")
+            .groupName("EXTestGroup3")
             .users(new HashSet<>(Arrays.asList(user1, user2)))
             .build();
 

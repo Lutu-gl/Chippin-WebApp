@@ -94,7 +94,7 @@ public class ActivityServiceTest {
 
         ActivityDetailDto activityDetailDto = activityService.getById(1L, "test@email.com");
         assertNotNull(activityDetailDto);
-        assertEquals("User test@email.com created expense TestExpense in group TestGroup", activityDetailDto.getDescription());
+        assertEquals("created expense TestExpense in group TestGroup", activityDetailDto.getDescription());
     }
 
     @Test
@@ -193,10 +193,10 @@ public class ActivityServiceTest {
 
         assertEquals(4, activities.size());
         List<String> descriptions = activities.stream().map(ActivityDetailDto::getDescription).toList();
-        assertTrue(descriptions.contains("User test@email.com created expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com deleted expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com recovered expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com updated expense TestExpense in group TestGroup"));
+        assertTrue(descriptions.contains("created expense TestExpense in group TestGroup"));
+        assertTrue(descriptions.contains("deleted expense TestExpense in group TestGroup"));
+        assertTrue(descriptions.contains("recovered expense TestExpense in group TestGroup"));
+        assertTrue(descriptions.contains("updated expense TestExpense in group TestGroup"));
 
     }
 

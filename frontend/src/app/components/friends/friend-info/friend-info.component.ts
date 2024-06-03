@@ -17,7 +17,7 @@ interface FriendInfoDescription {
   styleUrl: './friend-info.component.scss'
 })
 export class FriendInfoComponent implements OnInit {
-  
+
   friendEmail: string;
   totalDebt: number = 0;
   detailedGroups: FriendInfoDescription[]
@@ -30,7 +30,7 @@ export class FriendInfoComponent implements OnInit {
     private notification: ToastrService,
   ) {
   }
-  
+
   async ngOnInit() {
     // todo check if actually friend
     this.friendEmail = this.route.snapshot.paramMap.get('email');
@@ -39,7 +39,7 @@ export class FriendInfoComponent implements OnInit {
       const detailedGroups = [];
       for (let group of groups) {
         const detailedGroup = await lastValueFrom(this.groupService.getById(group.id));
-        if (detailedGroup.members.some(member => member.email === this.friendEmail)) {
+        if (detailedGroup.members.some(member => member === this.friendEmail)) {
           const debt = await lastValueFrom(this.debtService.getDebtById(group.id));
           detailedGroups.push({
             groupId: detailedGroup.id,
@@ -54,7 +54,7 @@ export class FriendInfoComponent implements OnInit {
       console.error(error);
       this.notification.error("Could not get debts!");
     }
-    
+
   }
 
 }
