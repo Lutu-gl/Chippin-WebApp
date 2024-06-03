@@ -35,7 +35,7 @@ export class ExpenseCreateComponent implements OnChanges {
   allCategories: any[] = Object.values(Category).map(category => ({name: category}));
   selectedCategory: any = { name: '' };
   filteredCategories: any[] = this.allCategories;
-  
+
   allPayers: any[] = [];
   selectedPayer: any = { name: '' };
   filteredPayers: any[] = this.allPayers;
@@ -93,7 +93,7 @@ export class ExpenseCreateComponent implements OnChanges {
     if (amountActiveMembers === 0 || !this.expenseAmount) {
       return;
     }
-    
+
     if (this.expenseAmount > 9999999) {
       this.expenseAmount = 9999999.99;
     }
@@ -149,9 +149,11 @@ export class ExpenseCreateComponent implements OnChanges {
     if (!this.expenseId) {
       return;
     }
-    
+
     this.expenseService.getExpenseById(this.expenseId).subscribe({
       next: data => {
+        console.log(data)
+
         this.group = data.group;
         this.expenseName = data.name;
         this.expenseAmount = data.amount;
@@ -172,7 +174,7 @@ export class ExpenseCreateComponent implements OnChanges {
         this.closeDialog.emit();
       }
     })
-  
+
   }
 
   submitValidation(): boolean {
