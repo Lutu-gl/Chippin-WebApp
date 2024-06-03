@@ -29,15 +29,16 @@ import {DropdownModule} from "primeng/dropdown";
 import {RadioButtonModule} from "primeng/radiobutton";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {
   getAmountForCreateEdit,
   formatAmount,
   getStepSize,
   getSuffix,
-  getSuffixForCreateEdit, formatLowerLimit
+  getSuffixForCreateEdit, formatLowerLimit, getLimitSuffix
 } from "../../util/unit-helper";
 import {inRange} from "lodash";
+import {TabMenuModule} from "primeng/tabmenu";
 
 @Component({
   selector: 'app-pantry',
@@ -65,13 +66,17 @@ import {inRange} from "lodash";
     DropdownModule,
     RadioButtonModule,
     InputNumberModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TabMenuModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
 })
 export class PantryComponent implements OnInit {
+  tabMenuItems: MenuItem[] | undefined;
+  tabMenuActiveItem: MenuItem | undefined;
+
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
@@ -92,7 +97,26 @@ export class PantryComponent implements OnInit {
   ) {
   }
 
+  onActiveItemChange(event: MenuItem) {
+    this.tabMenuActiveItem = event;
+  }
+
+  isEditSelected(): boolean {
+    return this.tabMenuActiveItem === this.tabMenuItems[0];
+  }
+
+  isMergeSelected(): boolean {
+    return this.tabMenuActiveItem === this.tabMenuItems[1];
+  }
+
   ngOnInit(): void {
+    //tab menu in Edit/Merge dialog
+    this.tabMenuItems = [
+      {label: 'Edit'},
+      {label: 'Merge'}
+    ];
+    this.tabMenuActiveItem = this.tabMenuItems[0];
+
     this.route.params.subscribe({
       next: params => {
         this.id = +params['id'];
@@ -375,4 +399,5 @@ export class PantryComponent implements OnInit {
   protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
   protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
   protected readonly formatLowerLimit = formatLowerLimit;
+  protected readonly getLimitSuffix = getLimitSuffix;
 }

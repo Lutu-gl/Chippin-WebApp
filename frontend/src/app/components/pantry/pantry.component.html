@@ -6,51 +6,95 @@
   [header]="edit ? 'Edit Item' : 'Create new Item'"
   [modal]="true"
   styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <div *ngIf="edit">
+      <p-tabMenu
+        [model]="tabMenuItems"
+        [activeItem]="tabMenuActiveItem"
+        (activeItemChange)="onActiveItemChange($event)"
+      ></p-tabMenu>
+    </div>
+    <div *ngIf="!edit">
+      <span class="font-bold whitespace-nowrap">Create Item</span>
+    </div>
+  </ng-template>
   <ng-template pTemplate="content">
-    <div class="field pt-5">
-      <label for="name">Name</label>
-      <input
-        type="text"
-        pInputText
-        id="name"
-        [(ngModel)]="createEditItem.description"
-        minlength="2"
-        maxlength="60"
-        required
-        autofocus/>
-      <small class="p-error" *ngIf="submitted && !createEditItem.description">
-        Name is required.
-      </small>
+    <div *ngIf="isEditSelected() || !edit">
+      <div class="field pt-5">
+        <label for="name">Name</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          [(ngModel)]="createEditItem.description"
+          minlength="2"
+          maxlength="60"
+          required
+          autofocus/>
+        <small class="p-error" *ngIf="submitted && !createEditItem.description">
+          Name is required.
+        </small>
+      </div>
+      <div class="field pt-5">
+        <label for="unit">Unit</label>
+        <p-dropdown
+          [(ngModel)]="createEditItem.unit"
+          id="unit"
+          [options]="Object.values(DisplayedUnit)"
+          (onChange)="getAmountForCreateEdit(createEditItem)">
+        </p-dropdown>
+      </div>
+      <div class="field pt-5">
+        <label for="amount">Amount</label>
+        <p-inputNumber
+          id="amount"
+          [(ngModel)]="createEditItem.amount"
+          [min]="0"
+          [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+          [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
+          [suffix]="getSuffixForCreateEdit(createEditItem)"
+          required/>
+      </div>
+      <div class="field pt-5">
+        <label for="lowerLimit">Minimum</label>
+        <p-inputNumber
+          id="lowerLimit"
+          [(ngModel)]="createEditItem.lowerLimit"
+          [min]="0"
+          [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+          [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
+          [suffix]="getSuffixForCreateEdit(createEditItem)"/>
+      </div>
     </div>
-    <div class="field pt-5">
-      <label for="unit">Unit</label>
-      <p-dropdown
-        [(ngModel)]="createEditItem.unit"
-        id="unit"
-        [options]="Object.values(DisplayedUnit)"
-        (onChange)="getAmountForCreateEdit(createEditItem)">
-      </p-dropdown>
-    </div>
-    <div class="field pt-5">
-      <label for="amount">Amount</label>
-      <p-inputNumber
-        id="amount"
-        [(ngModel)]="createEditItem.amount"
-        [min]="0"
-        [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
-        [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
-        [suffix]="getSuffixForCreateEdit(createEditItem)"
-        required/>
-    </div>
-    <div class="field pt-5">
-      <label for="lowerLimit">Lower Limit</label>
-      <p-inputNumber
-        id="lowerLimit"
-        [(ngModel)]="createEditItem.lowerLimit"
-        [min]="0"
-        [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
-        [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
-        [suffix]="getSuffixForCreateEdit(createEditItem)"/>
+    <div *ngIf="isMergeSelected()">
+      <div class="field">
+        <div class="grid grid-cols-3">
+          <div class="field p-4">
+            <label for="descriptionMergeItem">Name</label>
+            <input
+              pInputText
+              id="descriptionMergeItem"
+              [(ngModel)]="createEditItem.description"
+              disabled="true"/>
+          </div>
+          <div class="field p-4">
+            <label for="amountMergeItem">Amount</label>
+            <p-inputNumber
+              id="amountMergeItem"
+              [(ngModel)]="createEditItem.amount"
+              [suffix]="getSuffixForCreateEdit(createEditItem)"
+              disabled="true"/>
+          </div>
+          <div class="field p-4">
+            <label for="lowerLimitMergeItem">Minimum</label>
+            <p-inputNumber
+              id="lowerLimitMergeItem"
+              [(ngModel)]="createEditItem.lowerLimit"
+              [suffix]="getSuffixForCreateEdit(createEditItem)"
+              disabled="true"/>
+          </div>
+        </div>
+      </div>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
