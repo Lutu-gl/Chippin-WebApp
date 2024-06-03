@@ -7,50 +7,50 @@
   [modal]="true"
   styleClass="p-fluid">
   <ng-template pTemplate="content">
-    <div class="field">
+    <div class="field pt-5">
       <label for="name">Name</label>
       <input
         type="text"
         pInputText
         id="name"
         [(ngModel)]="newItem.description"
+        minlength="2"
+        maxlength="60"
         required
         autofocus/>
       <small class="p-error" *ngIf="submitted && !newItem.description">
         Name is required.
       </small>
     </div>
-    <div class="field">
+    <div class="field pt-5">
       <label for="unit">Unit</label>
       <p-dropdown
         [(ngModel)]="newItem.unit"
         id="unit"
-        [options]="Object.values(DisplayedUnit)">
+        [options]="Object.values(DisplayedUnit)"
+        (onChange)="getAmountForCreateEdit(newItem)">
       </p-dropdown>
     </div>
-    <div class="field">
+    <div class="field pt-5">
       <label for="amount">Amount</label>
       <p-inputNumber
         id="amount"
         [(ngModel)]="newItem.amount"
         [min]="0"
-        [max]="1000000"
+        [max]="newItem.unit === DisplayedUnit.Kilogram || newItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+        [minFractionDigits]="newItem.unit === DisplayedUnit.Kilogram || newItem.unit === DisplayedUnit.Liter ? 2 : 0"
+        [suffix]="getSuffixForCreateEdit(newItem)"
         required/>
-      <small class="p-error" *ngIf="submitted && !newItem.amount">
-        Amount is required.
-      </small>
     </div>
-    <div class="field">
-      <label for="lowerLimit">Amount</label>
+    <div class="field pt-5">
+      <label for="lowerLimit">Lower Limit</label>
       <p-inputNumber
         id="lowerLimit"
         [(ngModel)]="newItem.lowerLimit"
         [min]="0"
-        [max]="1000000"
-        required/>
-      <small class="p-error" *ngIf="submitted && !newItem.lowerLimit">
-        Amount is required.
-      </small>
+        [max]="newItem.unit === DisplayedUnit.Kilogram || newItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+        [minFractionDigits]="newItem.unit === DisplayedUnit.Kilogram || newItem.unit === DisplayedUnit.Liter ? 2 : 0"
+        [suffix]="getSuffixForCreateEdit(newItem)"/>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
@@ -64,7 +64,8 @@
       pRipple
       label="Save"
       icon="pi pi-check"
-      [text]="true"/>
+      [text]="true"
+      (click)="saveNewItem()"/>
   </ng-template>
 </p-dialog>
 
@@ -102,7 +103,7 @@
         [rows]="10"
         [value]="items"
         [paginator]="true"
-        [globalFilterFields]="['description', 'amount', 'min']"
+        [globalFilterFields]="['description', 'amount', 'lowerLimit']"
         [(selection)]="selectedItems"
         [tableStyle]="{ 'min-width': '75rem' }"
         [rowHover]="true"
@@ -136,9 +137,9 @@
               Amount
               <p-sortIcon field="amount"/>
             </th>
-            <th pSortableColumn="minimum" style="min-width:8rem">
+            <th pSortableColumn="lowerLimit" style="min-width:8rem">
               Minimum
-              <p-sortIcon field="minimum"/>
+              <p-sortIcon field="lowerLimit"/>
             </th>
             <th></th>
           </tr>
@@ -160,12 +161,9 @@
               ></p-button>
               <p-inputNumber
                 readonly="true"
-                [(ngModel)]="item.amount"
-                [step]="getStepSize(item)"
-                [suffix]="getSuffix(item)"
+                [placeholder]="getQuantity(item)"
                 [min]="0"
                 [max]="1000000"
-                locale="en-US"
                 [buttonLayout]=""/>
               <p-button
                 icon="pi pi-plus"
@@ -175,7 +173,7 @@
               ></p-button>
             </td>
             <td>
-              {{ item.min }}
+              {{ formatLowerLimit(item) }}
             </td>
             <td>
               <p-button

@@ -52,3 +52,42 @@ export enum DisplayedUnit {
   Milliliter = "Milliliter",
   Liter = "Liter"
 }
+
+export function pantryItemCreateDisplayDtoToPantryItemCreateDto(item: PantryItemCreateDisplayDto): PantryItemCreateDto {
+
+  let returnItem: PantryItemCreateDto = {
+    description: item.description,
+    unit: Unit.Piece,
+    amount: item.amount,
+    lowerLimit: item.lowerLimit
+  }
+
+  switch(item.unit) {
+    case DisplayedUnit.Piece:
+      returnItem.unit = Unit.Piece;
+      break;
+    case DisplayedUnit.Pieces:
+      returnItem.unit = Unit.Piece;
+      break;
+    case DisplayedUnit.Gram:
+      returnItem.unit = Unit.Gram;
+      break;
+    case DisplayedUnit.Kilogram:
+      returnItem.unit = Unit.Gram;
+      returnItem.amount *= 1000;
+      returnItem.lowerLimit *= 1000;
+      break;
+    case DisplayedUnit.Milliliter:
+      returnItem.unit = Unit.Milliliter;
+      break;
+    case DisplayedUnit.Liter:
+      returnItem.unit = Unit.Milliliter;
+      returnItem.amount *= 1000;
+      returnItem.lowerLimit *= 1000;
+      break;
+    default:
+      console.error("Unknown unit");
+  }
+
+  return returnItem;
+}

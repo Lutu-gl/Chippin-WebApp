@@ -1,4 +1,4 @@
-import {DisplayedUnit, PantryItemDetailDto, Unit} from "../dtos/item";
+import {DisplayedUnit, PantryItemCreateDisplayDto, PantryItemDetailDto, Unit} from "../dtos/item";
 
 export function displayQuantity(unit: Unit, amount: number): [DisplayedUnit, number] {
   switch (unit) {
@@ -90,6 +90,35 @@ export function getStepSize(item: PantryItemDetailDto): number {
   }
 }
 
+export function getAmountForCreateEdit(item: PantryItemCreateDisplayDto) {
+  if(item.unit === DisplayedUnit.Liter || item.unit === DisplayedUnit.Kilogram) {
+    if(item.amount > 1000) {
+      item.amount = 1000;
+    }
+    if(item.lowerLimit > 1000) {
+      item.lowerLimit = 1000;
+    }
+  }
+}
+export function getSuffixForCreateEdit(item: PantryItemCreateDisplayDto): String {
+  switch (item.unit) {
+    case DisplayedUnit.Piece:
+      return item.amount == 1 ? " Piece" : " Pieces";
+    case DisplayedUnit.Pieces:
+      return item.amount == 1 ? " Piece" : " Pieces";
+    case DisplayedUnit.Gram:
+      return "g";
+    case DisplayedUnit.Kilogram:
+      return "kg";
+    case DisplayedUnit.Milliliter:
+      return "ml";
+    case DisplayedUnit.Liter:
+      return "l";
+    default:
+      console.error("Unknown Unit");
+      return "";
+  }
+}
 export function getSuffix(item: PantryItemDetailDto): String {
   switch (item.unit) {
     case Unit.Piece:
@@ -102,4 +131,57 @@ export function getSuffix(item: PantryItemDetailDto): String {
       console.error("Unknown Unit");
       return "";
   }
+}
+
+export function getLimitSuffix(item: PantryItemDetailDto): String {
+  switch (item.unit) {
+    case Unit.Piece:
+      return item.lowerLimit == 1 ? " Piece" : " Pieces";
+    case Unit.Gram:
+      return item.lowerLimit < 1000 ? "g" : "kg";
+    case Unit.Milliliter:
+      return item.lowerLimit < 1000 ? "ml" : "l";
+    default:
+      console.error("Unknown Unit");
+      return "";
+  }
+}
+
+function getAmount(item: PantryItemDetailDto): number {
+  switch (item.unit) {
+    case Unit.Piece:
+      return item.amount;
+    case Unit.Gram:
+      return item.amount < 1000 ? item.amount : item.amount/1000;
+    case Unit.Milliliter:
+      return item.amount < 1000 ? item.amount : item.amount/1000;
+    default:
+      console.error("Unknown Unit");
+      return item.amount;
+  }
+}
+
+function getLowerLimit(item: PantryItemDetailDto): number {
+  switch (item.unit) {
+    case Unit.Piece:
+      return item.lowerLimit;
+    case Unit.Gram:
+      return item.lowerLimit < 1000 ? item.lowerLimit : item.lowerLimit/1000;
+    case Unit.Milliliter:
+      return item.lowerLimit < 1000 ? item.lowerLimit : item.lowerLimit/1000;
+    default:
+      console.error("Unknown Unit");
+      return item.lowerLimit;
+  }
+}
+
+export function formatAmount(item: PantryItemDetailDto): String {
+  return getAmount(item).toString() + getSuffix(item);
+}
+
+export function formatLowerLimit(item: PantryItemDetailDto): String {
+  if(!item.lowerLimit) {
+    return "-";
+  }
+  return getLowerLimit(item).toString() + getLimitSuffix(item);
 }

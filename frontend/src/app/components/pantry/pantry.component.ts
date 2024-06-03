@@ -1,7 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {DisplayedUnit, PantryItemCreateDisplayDto, PantryItemDetailDto, Unit,} from "../../dtos/item";
+import {
+  DisplayedUnit,
+  PantryItemCreateDisplayDto,
+  pantryItemCreateDisplayDtoToPantryItemCreateDto,
+  PantryItemDetailDto,
+} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -25,7 +30,14 @@ import {RadioButtonModule} from "primeng/radiobutton";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ConfirmationService, MessageService} from "primeng/api";
-import {getStepSize, getSuffix} from "../../util/unit-helper";
+import {
+  getAmountForCreateEdit,
+  formatAmount,
+  getStepSize,
+  getSuffix,
+  getSuffixForCreateEdit, formatLowerLimit
+} from "../../util/unit-helper";
+import {inRange} from "lodash";
 
 @Component({
   selector: 'app-pantry',
@@ -111,6 +123,7 @@ export class PantryComponent implements OnInit {
     this.newItemDialog = false;
     this.submitted = false;
   }
+
   openNew() {
     this.newItem = {
       description: "",
@@ -120,6 +133,42 @@ export class PantryComponent implements OnInit {
     };
     this.submitted = false;
     this.newItemDialog = true;
+  }
+
+  saveNewItem() {
+    this.submitted = true;
+
+    if (this.newItem.description?.trim()
+      && inRange(this.newItem.amount, 0, 1000001)
+      && (!this.newItem.lowerLimit || inRange(this.newItem.lowerLimit, 0, 1000001))) {
+
+      this.service.createItem(this.id, pantryItemCreateDisplayDtoToPantryItemCreateDto(this.newItem)).subscribe({
+        next: dto => {
+          console.log("Created new item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `${dto.description} created`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        }, error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not create item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not create item!`});
+          }
+        }
+      })
+      this.newItemDialog = false;
+    }
   }
 
   getPantry(id: number) {
@@ -182,7 +231,7 @@ export class PantryComponent implements OnInit {
 
   decrement(item: PantryItemDetailDto) {
     item.amount -= getStepSize(item);
-    if(item.amount < 0) {
+    if (item.amount < 0) {
       item.amount = 0;
     }
     this.service.updateItem(item, this.id).subscribe({
@@ -198,7 +247,7 @@ export class PantryComponent implements OnInit {
 
   increment(item: PantryItemDetailDto) {
     item.amount += getStepSize(item);
-    if(item.amount > 1000000) {
+    if (item.amount > 1000000) {
       item.amount = 1000000;
     }
     this.service.updateItem(item, this.id).subscribe({
@@ -270,7 +319,11 @@ export class PantryComponent implements OnInit {
   }
 
   protected readonly getStepSize = getStepSize;
-  protected readonly getSuffix = getSuffix;
   protected readonly DisplayedUnit = DisplayedUnit;
   protected readonly Object = Object;
+  protected readonly getQuantity = formatAmount;
+  protected readonly getSuffix = getSuffix;
+  protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
+  protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
+  protected readonly formatLowerLimit = formatLowerLimit;
 }
