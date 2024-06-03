@@ -20,9 +20,9 @@
   [(visible)]="isFriendInfoDialogVisible"
   [modal]="true"
   [style]="{with: '5000px'}"
-  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-  [style]="{ width: '50vw' }" 
-  [draggable]="false" 
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
   [resizable]="false"
 >
 
@@ -33,17 +33,17 @@
     <!-- Freund Name und Gesamtschulden -->
     <div>
       <div class="text-xl font-bold">{{ this.friendInfoEmail }}</div>
-      <div class="text-sm text-gray-600">Total Debt: 
+      <div class="text-sm text-gray-600">Total Debt:
         <span *ngIf="this.friendInfoTotalAmount < 0" class="font-bold text-red-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
         <span *ngIf="this.friendInfoTotalAmount > 0" class="font-bold text-green-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
         <span *ngIf="this.friendInfoTotalAmount === 0" class="font-bold text-gray-500">{{ this.friendInfoTotalAmount | currency: 'EUR' }}</span>
       </div>
     </div>
-    
+
     <!-- Gemeinsame Gruppen -->
     <div class="space-y-4">
       <div class="text-lg font-bold">Common Groups</div>
-      
+
       <!-- Gruppe 1 -->
       <div *ngFor="let group of friendInfoGroupAmounts" [routerLink]="['/group', group[0].id]" class="bg-gray-100 p-4 rounded mb-4 cursor-pointer">
         <div class="font-bold">{{ group[0].groupName }}</div>
@@ -53,7 +53,7 @@
           <span *ngIf="group[1] === 0" class="font-bold text-gray-500">{{ group[1] | currency: 'EUR' }}</span>
         </div>
       </div>
-      
+
     </div>
   </div>
   <p-footer>
@@ -113,7 +113,7 @@
 </div>
 
 
-<!-- 
+<!--
 <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;">
   <div *ngIf="incomingFriendRequests.length > 0">
     <h2 style="margin-bottom: 15px;">Incoming Friend Requests</h2>
@@ -133,7 +133,7 @@
   <div>
     <h2 style="margin-bottom: 15px;">Friends</h2>
     <div>
-      <div 
+      <div
         *ngFor="let friend of friends"
         style="border: 1px solid #eee; border-radius: 5px; padding: 10px; margin-bottom: 10px;"
         [routerLink]="['/friends', friend.email]"

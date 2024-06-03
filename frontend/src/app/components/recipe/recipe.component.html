@@ -1,4 +1,43 @@
-<h1>Your Recipe Overview</h1>
+<div class="flex flex-col items-center p-4">
+  <p-button [routerLink]="['/recipe/create']" class="text-black font-bold py-2 px-4 rounded mt-4 mb-6">Create a new Recipe</p-button>
+
+  <p-floatLabel>
+    <input pInputText id="recipe"  [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
+    <label for="recipe">Search</label>
+  </p-floatLabel>
+
+
+  <!-- No recipes yet message -->
+  <div *ngIf="noRecipes()" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>You don't have any recipes yet, why don't you create one?</p>
+  </div>
+
+  <div *ngIf="recipes.length === 0 && !noRecipes()" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>Looks like there aren't any matches, maybe try something else?</p>
+  </div>
+
+  <!-- Recipes -->
+  <div *ngIf="recipes.length > 0" class="w-full max-w-md space-y-4 mt-6">
+    <h3 class="font-bold mb-2">Recipes</h3>
+    <div *ngFor="let recipe of recipes" [routerLink]="['/recipe', 'owner', recipe.id]" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div> <!-- TODO Add picture later -->
+        <div>
+          <div class="font-bold">{{ recipe.name }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+ </div>
+
+
+
+
+
+
+<!--<h1>Your Recipe Overview</h1>
 
 <div class="d-flex flex-row w-auto">
   <span style="flex: 1"></span>
@@ -46,4 +85,4 @@
     </tr>
     </tbody>
   </table>
-</div>
+</div> -->

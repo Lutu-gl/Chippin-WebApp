@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class ExpenseServiceTest {
             .users(Set.of(mockUserEntity))
             .build();
 
-        Expense mockExpenseEntity = Expense.builder().group(mockGroupEntity).build();
+        Expense mockExpenseEntity = Expense.builder().group(mockGroupEntity).participants(new HashMap<>()).build();
 
         when(expenseRepository.findById(1L)).thenReturn(Optional.of(mockExpenseEntity));
         when(userRepository.findByEmail(anyString())).thenReturn(mockUserEntity);

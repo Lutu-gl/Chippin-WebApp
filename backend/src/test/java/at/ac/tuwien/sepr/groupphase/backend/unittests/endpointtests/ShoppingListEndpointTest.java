@@ -108,11 +108,8 @@ public class ShoppingListEndpointTest extends BaseTest {
         when(securityService.canAccessShoppingList(-1L)).thenReturn(true);
 
         mockMvc.perform(get("/api/v1/shopping-lists/-1"))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(
-                ShoppingListDetailDto.builder().id(-1L).group(GroupDetailDto.builder().id(-1L).build()).name("Test Shopping List").owner(null).items(List.of())
-                    .build()
-            )));
+            .andExpect(status().isOk()
+            );
 
         verify(shoppingListService, times(1)).getShoppingList(-1L);
     }

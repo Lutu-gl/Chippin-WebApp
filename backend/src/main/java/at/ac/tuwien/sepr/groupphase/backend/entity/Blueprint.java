@@ -24,8 +24,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "itemlist")
-public class ItemList {
+@Table(name = "blueprint")
+public class Blueprint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,16 +35,16 @@ public class ItemList {
     private String name;
 
 
-    @OneToMany(mappedBy = "itemList", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "blueprint", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private final List<Item> items = new ArrayList<>();
 
     public void addItem(Item item) {
         items.add(item);
-        item.setItemList(this);
+        item.setBlueprint(this);
     }
 
     public void removeItem(Item item) {
         items.remove(item);
-        item.setItemList(null);
+        item.setBlueprint(null);
     }
 }

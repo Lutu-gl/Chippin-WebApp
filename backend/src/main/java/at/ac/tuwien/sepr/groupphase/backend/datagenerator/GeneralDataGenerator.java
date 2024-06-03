@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class GeneralDataGenerator implements DataGenerator {
     private final PaymentDataGenerator paymentDataGenerator;
     private final ShoppingListDataGenerator shoppingListDataGenerator;
     private final BudgetDataGenerator budgetDataGenerator;
+    private final ExchangeRateDataGenerator exchangeRateDataGenerator;
 
     @PostConstruct
     public void generateData() {
@@ -41,6 +43,7 @@ public class GeneralDataGenerator implements DataGenerator {
         paymentDataGenerator.generateData();
         activityDataGenerator.generateData();
         budgetDataGenerator.generateData();
+        exchangeRateDataGenerator.generateData();
 
         shoppingListDataGenerator.generateData();
         LOGGER.debug("finished generating all data");
@@ -58,6 +61,7 @@ public class GeneralDataGenerator implements DataGenerator {
         itemDataGenerator.cleanData();
         friendshipDataGenerator.cleanData();
         groupDataGenerator.cleanData();
+        exchangeRateDataGenerator.cleanData();
 
         userDataGenerator.cleanData();
         LOGGER.debug("finished cleaning all data");

@@ -1,9 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
@@ -126,6 +127,30 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
+        if (optionalRecipe.isPresent()) {
+            Recipe result = optionalRecipe.get();
+            return RecipeDetailWithUserInfoDto.builder()
+                .id(result.getId())
+                .name(result.getName())
+                .description(result.getDescription())
+                .isPublic(result.getIsPublic())
+                .likes(result.getLikes())
+                .dislikes(result.getDislikes())
+                .portionSize(result.getPortionSize())
+                .owner(result.getOwner())
+                .ingredients(itemMapper.listOfItemsToListOfItemDto(result.getIngredients()))
+                .likedByUser(result.getLikedByUsers().contains(user))
+                .dislikedByUser(result.getDislikedByUsers().contains(user))
+                .build();
+
+        } else {
+            throw new NotFoundException(String.format("Could not find recipe with id %s", id));
+        }
+    }
+
+    @Override
     @Transactional
     public List<RecipeListDto> getRecipesFromUser() {
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findAll());
@@ -211,26 +236,32 @@ public class RecipeServiceImpl implements RecipeService {
             }
 
 
-            user.addRecipeLike(recipe);
-            recipe.addLiker(user);
-            ApplicationUser owner = recipe.getOwner();
-            if (owner.getRecipes().contains(recipe)) {
-                owner.getRecipes().remove(recipe);
-                owner.addRecipe(recipe);
-            }
-            recipe.setLikes(recipe.getLikedByUsers().size());
-            if (user.getDislikedRecipes().contains(recipe)) {
-                recipe.removeDisliker(user);
+            // Remove dislike if it exists
 
+            if (recipe.getDislikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
+                recipe.removeDisliker(user);
                 user.removeDisLike(recipe);
-                recipe.setDislikes(recipe.getDislikedByUsers().size());
+
+                recipeRepository.save(recipe);
+                userRepository.save(user);
+
             }
-            RecipeDetailDto result = recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
-            userRepository.save(owner);
-            userRepository.save(user);
-            return result;
+
+            // Add like if not already liked
+            if (!recipe.getLikedByUsers().contains(user)) {
+                recipe.addLiker(user);
+                user.addRecipeLike(recipe);
+            }
+            ApplicationUser owner = recipe.getOwner();
+
+            userRepository.saveAndFlush(user);
+            recipeRepository.save(recipe);
+            userRepository.saveAndFlush(owner); // Ensure the owner's state is updated
+
+
+            return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.saveAndFlush(recipe));
         } else {
-            throw new NotFoundException("Could not find recipe");
+            throw new NotFoundException("Could not find recipe to like");
         }
     }
 
@@ -241,31 +272,29 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> optional = recipeRepository.findById(recipeId);
         if (optional.isPresent()) {
             Recipe recipe = optional.get();
-            if (user.getDislikedRecipes().contains(recipe)) {
-                throw new AlreadyRatedException("User already disliked the recipe");
-            }
-
-
-            user.addRecipeDislike(recipe);
-            recipe.addDisliker(user);
-            ApplicationUser owner = recipe.getOwner();
-            if (owner.getRecipes().contains(recipe)) {
-                owner.getRecipes().remove(recipe);
-                owner.addRecipe(recipe);
-            }
-            recipe.setDislikes(recipe.getDislikedByUsers().size());
             if (user.getLikedRecipes().contains(recipe)) {
-                recipe.removeLiker(user);
-
-                user.removeLike(recipe);
-                recipe.setLikes(recipe.getLikedByUsers().size());
+                throw new AlreadyRatedException("User already liked the recipe");
             }
-            RecipeDetailDto result = recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.save(recipe));
-            userRepository.save(owner);
-            userRepository.save(user);
-            return result;
+
+
+            // Remove like if it exists
+            if (recipe.getLikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
+                recipe.removeLiker(user);
+                user.removeLike(recipe);
+            }
+
+            // Add like if not already liked
+            if (!recipe.getDislikedByUsers().contains(user)) {
+                recipe.addDisliker(user);
+                user.addRecipeDislike(recipe);
+            }
+
+            userRepository.saveAndFlush(user);
+
+
+            return recipeMapper.recipeEntityToRecipeDetailDto(recipeRepository.saveAndFlush(recipe));
         } else {
-            throw new NotFoundException("Could not find recipe");
+            throw new NotFoundException("Could not find recipe to like");
         }
     }
 
@@ -273,6 +302,14 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams) {
         List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams, owner);
+
+        recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
+    }
+
+    @Override
+    public List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams) {
+        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams, owner);
 
         recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);

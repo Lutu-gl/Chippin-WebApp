@@ -35,29 +35,24 @@ public class BudgetDataGenerator implements DataGenerator {
             "Club"
         };
 
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
+            for (int i = 0; i < 3; i++) {
+                double amount = 1 + random.nextDouble() * 900;
+                amount = Math.round(amount * 100.0) / 100.0;
+                double alreadySpent = Math.round(random.nextDouble() * amount * 100.0) / 100.0;
+                Budget budget = Budget.builder()
+                    .name(budgetNames[random.nextInt(budgetNames.length)])
+                    .amount(amount)
+                    .category(categories[random.nextInt(categories.length)])
+                    .alreadySpent(alreadySpent)
+                    .timestamp(LocalDateTime.now())
+                    .group(group)
+                    .build();
 
-            if (group.getGroupName().equals("groupExample0") || group.getGroupName().equals("groupExample1")) {
-                for (int i = 0; i < 3; i++) {
-                    double amount = 1 + random.nextDouble() * 900;
-                    amount = Math.round(amount * 100.0) / 100.0;
-                    Budget budget = Budget.builder()
-                        .name(budgetNames[random.nextInt(budgetNames.length)])
-                        .amount(amount)
-                        .category(categories[random.nextInt(categories.length)])
-                        .alreadySpent(0)
-                        .timestamp(LocalDateTime.now())
-                        .group(group)
-                        .build();
-
-                    budgetRepository.saveAndFlush(budget);
-                }
+                budgetRepository.saveAndFlush(budget);
             }
-
         }
     }
 

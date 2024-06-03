@@ -71,9 +71,16 @@ import {ToastModule} from "primeng/toast";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {TabMenuModule} from 'primeng/tabmenu';
 import {AutoCompleteModule} from "primeng/autocomplete";
+import { DropdownModule } from 'primeng/dropdown';
 import {CardModule} from "primeng/card";
+import { InputTextModule } from 'primeng/inputtext';
 import {ChartModule} from 'primeng/chart';
 import {DialogModule} from 'primeng/dialog';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {CheckboxModule} from 'primeng/checkbox';
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PantryComponent} from "./components/pantry/pantry.component";
+
 
 @NgModule({
     declarations: [
@@ -105,26 +112,29 @@ import {DialogModule} from 'primeng/dialog';
         ShoppingListCreateComponent
     ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    InputTextModule,
+        InputNumberModule,
         GroupInfoCardContentComponent,
         FriendsInfoCardContentComponent,
         ExpenseInfoCardContentComponent,
         ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule
-    ],
+        DropdownModule,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent
+  ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
     exports: [

@@ -5,42 +5,42 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 
 import java.util.List;
 
-public interface ItemListService {
+public interface BlueprintService {
 
-    /**
+    /*/**
      * Find all items in a itemList.
      *
      * @param itemListId the itemList id
      * @return ordered list of all items in the itemList
-     */
-    List<Item> findAllItems(long itemListId);
+
+    List<Item> findAllItems(long itemListId);*/
 
 
-    /**
+    /*
      * Find the name for the corresponding id.
      *
      * @param itemListId the itemList id
      * @return the name of the itemList
-     */
-    String getName(long itemListId);
+
+    String getName(long itemListId);*/
 
     /**
-     * Find all items in a itemList where {@code description} is a substring of the item description ordered by the item id.
+     * Find all items in a blueprint where {@code description} is a substring of the item description ordered by the item id.
      *
      * @param description the description
-     * @param itemListId  the itemList id
-     * @return ordered list of all items in the itemList where {@code description} is a substring of the item description
+     * @param blueprintId the blueprint id
+     * @return ordered list of all items in the blueprint where {@code description} is a substring of the item description
      */
-    List<Item> findItemsByDescription(String description, long itemListId);
+    List<Item> findItemsByDescription(String description, long blueprintId);
 
     /**
-     * Saves an item that belongs into a itemList.
+     * Saves an item that belongs into a blueprint.
      *
-     * @param item       the item to save
-     * @param itemListId the id of the corresponding itemList
+     * @param item        the item to save
+     * @param blueprintId the id of the corresponding blueprint
      * @return the saved item
      */
-    Item addItemToItemList(Item item, long itemListId);
+    Item addItemToBlueprint(Item item, long blueprintId);
 
     /**
      * Deletes an item in a itemList.
