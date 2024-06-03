@@ -1,7 +1,5 @@
 <!-- Create a ngFor for each shoppingList in shoppingLists -->
 
-<p-button label="Save" severity="warning"></p-button>
-<p-autoComplete [suggestions]="suggestions" (completeMethod)="search($event)" [dropdown]="true" ></p-autoComplete>
 <div class="tw-h-40 tw-overflow-y-auto">
   <ul class="tw-p-0 tw-list-none tw-mx-[20px]" *ngIf="shoppingLists.length > 0">
       <li class="tw-cursor-pointer tw-bg-gray-50 tw-flex tw-justify-between tw-gap-2 tw-justify-betweenn tw-border tw-px-1 tw-py-2 tw-mb-1 tw-transition-[0.3s] hover:tw-bg-gray-100"

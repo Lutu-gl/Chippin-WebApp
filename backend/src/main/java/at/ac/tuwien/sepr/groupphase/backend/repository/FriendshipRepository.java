@@ -65,20 +65,6 @@ public class FriendshipRepository {
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
-    public List<ApplicationUser> findOutgoingFriendRequestsOfUser(ApplicationUser user) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ApplicationUser> criteriaQuery = criteriaBuilder.createQuery(ApplicationUser.class);
-        Root<Friendship> root = criteriaQuery.from(Friendship.class);
-
-        Predicate senderEqualsUserPredicate = criteriaBuilder.equal(root.get("sender"), user);
-        Predicate friendshipStatusIsPendingPredicate = criteriaBuilder.equal(root.get("friendshipStatus"), FriendshipStatus.PENDING);
-
-        criteriaQuery.select(root.get("receiver"))
-            .where(criteriaBuilder.and(senderEqualsUserPredicate, friendshipStatusIsPendingPredicate));
-
-        return entityManager.createQuery(criteriaQuery).getResultList();
-    }
-
     public boolean pendingFriendRequestExists(ApplicationUser sender, ApplicationUser receiver) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Friendship> criteriaQuery = criteriaBuilder.createQuery(Friendship.class);

@@ -44,7 +44,6 @@ public class ActivityDataGenerator implements DataGenerator {
         ActivityCategory[] activityCategories = {ActivityCategory.EXPENSE_UPDATE};
 
         Random random = new Random();
-        random.setSeed(12345);
         int counter = 0;
 
         for (Expense expense : expenses) {

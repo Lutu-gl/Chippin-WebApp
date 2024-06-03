@@ -29,7 +29,6 @@ public class BudgetDataGenerator implements DataGenerator {
 
         List<GroupEntity> groups = groupRepository.findAll();
         Random random = new Random();
-        random.setSeed(12345);
         String[] budgetNames = {
             "Lebensmittel", "Restaurantbesuche", "Freizeit", "Klamotten",
             "Club"

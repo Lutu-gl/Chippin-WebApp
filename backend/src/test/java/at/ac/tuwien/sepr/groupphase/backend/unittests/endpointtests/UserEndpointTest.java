@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;

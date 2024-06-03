@@ -3,7 +3,7 @@ import {NgForOf, NgIf, SlicePipe} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {GroupService} from "../../../services/group.service";
 import {ToastrService} from "ngx-toastr";
-import {GroupDetailDto} from "../../../dtos/group";
+import {GroupListDto} from "../../../dtos/group";
 import {RouterLink} from "@angular/router";
 
 @Component({
@@ -24,7 +24,7 @@ export class GroupInfoCardContentComponent {
     private groupService: GroupService,
     private notification: ToastrService,
   ) { }
-  groups: GroupDetailDto[] = [];
+  groups: GroupListDto[] = [];
 
   ngOnInit(): void {
     if(this.authService.isLoggedIn()){

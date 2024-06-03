@@ -22,11 +22,6 @@ public class ActivityDetailDto {
 
     private LocalDateTime timestamp;
 
-    private Double amount;
-
-    private String userEmail;
-    private String paymentReceiverEmail;
-
     @ManyToOne
     private Long expenseId;
 

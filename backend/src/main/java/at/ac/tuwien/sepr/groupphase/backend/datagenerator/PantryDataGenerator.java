@@ -41,7 +41,6 @@ public class PantryDataGenerator implements DataGenerator {
         };
         Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
         Random random = new Random();
-        random.setSeed(12345);
 
         for (GroupEntity group : groups) {
             Pantry pantry = Pantry.builder()

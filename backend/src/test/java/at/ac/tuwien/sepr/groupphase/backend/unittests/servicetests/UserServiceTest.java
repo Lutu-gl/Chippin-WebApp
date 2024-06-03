@@ -6,14 +6,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import at.ac.tuwien.sepr.groupphase.backend.service.DebtService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -38,8 +36,6 @@ public class UserServiceTest {
 
     @InjectMocks
     private CustomUserDetailService userService;
-    @Autowired
-    private DebtService debtService;
 
     private UserRegisterDto userRegisterDto;
     @Mock
@@ -54,7 +50,7 @@ public class UserServiceTest {
             .password("Test1234")
             .build();
 
-        userService = new CustomUserDetailService(userRepository, debtService, passwordEncoder, jwtTokenizer);
+        userService = new CustomUserDetailService(userRepository, passwordEncoder, jwtTokenizer);
     }
 
     @Test

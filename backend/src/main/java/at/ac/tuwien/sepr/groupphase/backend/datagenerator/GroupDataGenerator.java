@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +28,7 @@ public class GroupDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.debug("generating data for group");
         final Random random = new Random();
-        random.setSeed(12345);
+
 
         ApplicationUser user1 = userRepository.findByEmail("luca@chippin.com");
         ApplicationUser user2 = userRepository.findByEmail("max@chippin.com");
@@ -61,30 +60,13 @@ public class GroupDataGenerator implements DataGenerator {
             "WG-Reinickendorf", "Oslo Ausflug", "WG-Spandau", "Helsinki Urlaub", "WG-Steglitz",
             "Riga Expedition", "WG-Zehlendorf", "Tallinn Besuch"
         };
-        List<ApplicationUser> wgUsers = new ArrayList<>();
 
         for (int i = 0; i < 20; i++) {
             Collections.shuffle(applicationUsers);
-            Set<ApplicationUser> groupUsers = new HashSet<>();
-
-
-            String groupName = groupNames[random.nextInt(groupNames.length)];
-            if (groupName.contains("WG")) {
-                for (ApplicationUser user : applicationUsers) {
-                    if (!wgUsers.contains(user) && groupUsers.size() < 6) {
-                        groupUsers.add(user);
-                        wgUsers.add(user);
-                    }
-                }
-                if (groupUsers.size() < 3) {
-                    continue;
-                }
-            } else {
-                groupUsers.addAll(applicationUsers.subList(0, 6));
-            }
+            Set<ApplicationUser> groupUsers = new HashSet<>(applicationUsers.subList(0, 6));
 
             GroupEntity group = GroupEntity.builder()
-                .groupName(groupName)
+                .groupName(groupNames[random.nextInt(groupNames.length)])
                 .users(groupUsers)
                 .build();
 

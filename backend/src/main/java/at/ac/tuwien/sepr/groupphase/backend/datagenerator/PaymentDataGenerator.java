@@ -39,7 +39,6 @@ public class PaymentDataGenerator implements DataGenerator {
         List<GroupEntity> groups = groupRepository.findAll();
 
         Random random = new Random();
-        random.setSeed(12345);
 
         for (GroupEntity group : groups) {
             if (group.getGroupName().equals("PantryTestGroup1")

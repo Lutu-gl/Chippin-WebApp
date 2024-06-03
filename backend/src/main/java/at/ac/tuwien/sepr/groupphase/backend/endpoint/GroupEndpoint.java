@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
