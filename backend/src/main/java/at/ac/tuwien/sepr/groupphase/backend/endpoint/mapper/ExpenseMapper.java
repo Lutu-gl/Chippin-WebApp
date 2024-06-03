@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -14,6 +15,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")

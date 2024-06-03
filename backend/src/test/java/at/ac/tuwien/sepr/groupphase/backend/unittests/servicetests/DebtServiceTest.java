@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
+public class DebtServiceTest extends BaseTest {
     @Mock
     private ExpenseRepository expenseRepository;
 

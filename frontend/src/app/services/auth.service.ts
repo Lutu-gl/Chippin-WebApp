@@ -96,9 +96,4 @@ export class AuthService {
     return date;
   }
 
-  getEmail() {
-    if (this.getToken() == null) return "";
-    const decoded: any = jwtDecode(this.getToken());
-    return decoded.sub;
-  }
 }

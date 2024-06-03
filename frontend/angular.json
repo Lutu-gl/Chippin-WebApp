@@ -34,11 +34,12 @@
             "styles": [
               "src/styles.scss",
               "node_modules/ngx-toastr/toastr.css",
-              "src/assets/themes/mytheme/blue/theme.scss",
-              "node_modules/primeng/resources/primeng.min.css"
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "node_modules/bootstrap/dist/css/bootstrap.css"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.slim.min.js"
+              "node_modules/jquery/dist/jquery.slim.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.js"
             ],
             "extractLicenses": false,
             "sourceMap": true,

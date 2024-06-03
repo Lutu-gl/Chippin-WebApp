@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.error.UserAlreadyExistsErrorDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
@@ -47,9 +48,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    protected String handleUserAlreadyExists(Throwable ex, WebRequest request) {
+    protected UserAlreadyExistsErrorDto handleUserAlreadyExists(Throwable ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
-        return ex.getMessage();
+        return new UserAlreadyExistsErrorDto(ex.getMessage());
     }
 
     //Exception handler for PreAuthorize annotation

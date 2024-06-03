@@ -1,8 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,12 +17,10 @@ public class PantryItemCreateDto {
     @NotBlank
     @Size(min = 2, max = 60)
     private String description;
-    @Min(0)
-    @Max(1000000)
+    @PositiveOrZero
     private int amount;
     @NotNull
     private Unit unit;
-    @Min(0)
-    @Max(1000000)
+    @PositiveOrZero
     private Long lowerLimit;
 }

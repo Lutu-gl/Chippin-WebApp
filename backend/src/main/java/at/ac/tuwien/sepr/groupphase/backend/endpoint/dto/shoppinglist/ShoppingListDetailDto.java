@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserDetailsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +24,5 @@ public class ShoppingListDetailDto {
     private GroupDetailDto group;
     private List<ShoppingListItemDto> items;
     private Set<Category> categories;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
 }

@@ -1,8 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.friendship.AcceptFriendRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.friendship.FriendInfoDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.friendship.FriendRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AcceptFriendRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.FriendRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,16 +60,6 @@ public class FriendshipEndpoint {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping(value = "/outgoing-friend-requests")
-    public Collection<String> getOutgoingFriendRequest() {
-        LOGGER.trace("getOutgoingFriendRequest()");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return friendshipService.getOutgoingFriendRequest(email);
-    }
-
-    @Secured("ROLE_USER")
     @GetMapping(value = "/friends")
     public Collection<String> getFriends() {
         LOGGER.trace("getFriends()");
@@ -78,16 +67,6 @@ public class FriendshipEndpoint {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return friendshipService.getFriends(email);
-    }
-
-    @Secured("ROLE_USER")
-    @GetMapping(value = "/friends-with-debt-infos")
-    public Collection<FriendInfoDto> getFriendsWithDebtInfos() {
-        LOGGER.trace("getFriendsWithDebtInfos()");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return friendshipService.getFriendsWithDebtInfos(email);
     }
 
     @Secured("ROLE_USER")
@@ -106,14 +85,5 @@ public class FriendshipEndpoint {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         friendshipService.rejectFriendRequest(senderEmail, email);
-    }
-
-    @Secured("ROLE_USER")
-    @DeleteMapping(value = "/retract/{receiver-email}")
-    public void retractFriendRequest(@PathVariable(name = "receiver-email") String receiverEmail) throws InvalidFriendRequest {
-        LOGGER.trace("retractFriendRequest({})", receiverEmail);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        friendshipService.retractFriendRequest(email, receiverEmail);
     }
 }

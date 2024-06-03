@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
+import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import { FriendsComponent } from './components/friends/friends.component';
@@ -33,10 +34,10 @@ import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-gl
 import {PaymentCreateComponent, PaymentCreateEditMode} from "./components/payment-create/payment-create.component";
 import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
-import {HomeComponent} from "./components/home/home.component";
 
 
 const routes: Routes = [
+  {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
   {path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},
@@ -89,9 +90,11 @@ const routes: Routes = [
   {path: 'expenses/info/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.info}},
   {path: 'expenses/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.edit}},
   {path: 'payments', canActivate: mapToCanActivate([AuthGuard]), component:ExpenseCreateComponent, data: {mode: ExpenseCreateEditMode.create}},
-  {path: 'home/:tab', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
-  {path: 'home', component: HomeComponent, canActivate: mapToCanActivate([AuthGuard])},
-  {path: '**', redirectTo: '/home'},
+  {path: '**', redirectTo: ''},
+
+
+
+
 ];
 
 @NgModule({

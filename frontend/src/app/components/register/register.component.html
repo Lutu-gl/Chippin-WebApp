@@ -1,51 +1,56 @@
-<div class="w-full pt-40 flex-1 flex items-center justify-center">
-  <div class="bg-blue-200 rounded-lg pt-12 px-12 pb-6 flex items-center flex-col min-w-96 shadow-2xl">
-    <h1 class="pt-8 text-2xl font-bold">Register</h1>
-    <form class="flex flex-col gap-4 pt-16" [formGroup]="registerForm">
-      <div class="flex flex-col gap-2">
-        <label for="inputEmail" class="font-medium">E-Mail</label>
-        <input type="text" pInputText pAutoFocus [autofocus]="true" name="email" id="inputEmail" formControlName="email" placeholder="max@chippin.com">
-        <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
-          <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Email is required!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.email">Email must be a valid email address!</small>
+<div *ngIf="error" class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Authentication problems!</strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formRegister"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          <h3 class="mb-0">Register</h3>
         </div>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="inputPassword" class="font-medium">Password</label>
-        <p-password [toggleMask]="true" [feedback]="true" id="inputPassword" formControlName="password">
-          <ng-template pTemplate="footer" >
-            <p-divider />
-            <p class="mt-2">Requirements</p>
-            <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-              <li>At least one lowercase</li>
-              <li>At least one uppercase</li>
-              <li>At least one numeric</li>
-              <li>Minimum 8 characters</li>
-            </ul>
-          </ng-template>
-        </p-password>
-        <div *ngIf="submitted && registerForm.controls.password.errors" class="flex flex-col">
-          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Password is required!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Password must be at least 8 characters long!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingLowerCase">Password must contain at least one lowercase letter!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingUpperCase">Password must contain at least one uppercase letter!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.missingNumber">Password must contain at least one number!</small>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="registerForm" (ngSubmit)="submitRegisterForm()">
+
+            <div class="form-group">
+              <label for="inputUsername">Username</label>
+              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
+                     aria-describedby="usernameHelp" placeholder="Enter username">
+              <div *ngIf="submitted && registerForm.controls.username.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.username.errors.required">Your username is
+                  required!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="Password">
+              <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Your password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+            <br>
+            <button type="button" (click)="submitRegisterForm()" class="btn btn-success float-right">Register</button>
+
+          </form>
         </div>
+
       </div>
-      <div class="flex flex-col gap-2">
-        <label for="inputConfirmPassword" class="font-medium">Confirm Password</label>
-        <p-password [toggleMask]="true" [feedback]="false" id="inputConfirmPassword" formControlName="confirmPassword"></p-password>
-        <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="flex flex-col">
-          <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Confirming your password is required!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.notSame">Passwords must match!</small>
-        </div>
-      </div>
-    </form>
-    <div class="pt-8">
-      <p-button label="Register" (click)="submitRegisterForm()"></p-button>
-    </div>
-    <div class="pt-8">
-      <a [routerLink]="['/login']" class="text-sm text-blue-800">Already have an account? Login here</a>
+
     </div>
   </div>
 </div>

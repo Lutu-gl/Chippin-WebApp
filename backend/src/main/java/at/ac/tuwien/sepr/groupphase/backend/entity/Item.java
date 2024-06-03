@@ -14,8 +14,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -43,18 +41,17 @@ public class Item {
     private Long id;
 
     @Column
-    @Size(min = 2, max = 60, message = "The item name must be between 2 and 60 characters long")
+    @Size(min = 2, max = 60)
     @NotBlank
     @NotNull
     private String description;
 
     @Column
-    @Min(value = 0, message = "The minimum amount is 0")
-    @Max(value = 1000000, message = "The maximum amount is 1000000")
+    @PositiveOrZero
     private int amount;
 
     @Column
-    @NotNull(message = "Unit must not be empty")
+    @NotNull
     private Unit unit;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})

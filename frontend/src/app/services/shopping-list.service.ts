@@ -105,10 +105,10 @@ export class ShoppingListService {
    *
    * @param userId the id of the user adding the item
    * @param shoppingListId the id of the shopping list to add the item to
-   * @param itemToCreate the item to add
+   * @param itemToEdit the item to add
    */
-  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToCreate: ItemCreateDto) {
-    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToCreate);
+  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
   }
 
   /**

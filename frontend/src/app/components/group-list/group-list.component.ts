@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {GroupService} from "../../services/group.service";
-import {GroupDetailDto, GroupListDto} from "../../dtos/group";
+import {GroupListDto} from "../../dtos/group";
 import {ToastrService} from "ngx-toastr";
-import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-group-list',
@@ -11,47 +10,28 @@ import {MessageService} from "primeng/api";
 })
 export class GroupListComponent implements OnInit {
   groups: GroupListDto[] = [];
-  // map of group id to balance summary
-  groupBalanceSummaries: { [p: string]: number } = {};
+
   constructor(
     private groupService: GroupService,
-    private messageService: MessageService,
+    private notification: ToastrService,
 ) { }
 
   ngOnInit(): void {
-    this.groupService.getGroupsWithDebtInfos().subscribe({
+    this.groupService.getGroups().subscribe({
        next: data => {
-         this.groups = data.sort((a, b) => a.groupName.localeCompare(b.groupName))
-          this.groups.forEach(group => {
-            this.groupBalanceSummaries[group.id] = this.calculateBalanceSummary(group.membersDebts);
-          });
+         this.groups = data;
        },
       error: error => {
         if (error && error.error && error.error.errors) {
           for (let i = 0; i < error.error.errors.length; i++) {
-            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
+            this.notification.error(`${error.error.errors[i]}`);
           }
-        } else if (error && error.error && error.error.message) {
-          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
-        } else if (error && error.error && error.error.detail) {
-          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.notification.error(`${error.error.message}`);
         } else {
-          console.error('Error getting group', error);
-          this.messageService.add({severity:'error', summary:'Error', detail:`Getting group did not work!`});
+          console.error('Error getting groups', error);
         }
       }
     });
-  }
-
-  protected calculateBalanceSummary(membersDebts: { [p: string]: number }
-  ): number {
-    let balanceSummary = 0;
-    for (let membersDebtsKey in membersDebts) {
-      let memberDebt = membersDebts[membersDebtsKey];
-      if (memberDebt) {
-        balanceSummary += memberDebt;
-      }
-    }
-    return balanceSummary;
   }
 }

@@ -88,7 +88,7 @@ export class ExpenseCreateComponent implements OnInit {
         next: data => {
           this.group = data;
           this.members = this.group.members.map(member => ({
-            name: member,
+            name: member.email,
             isParticipating: true,
             percentage: 100 / this.group.members.length
           }));
@@ -123,8 +123,8 @@ export class ExpenseCreateComponent implements OnInit {
           this.dummyGroupSelectionModel = {onInit: true, ...data.group};
 
           this.members = data.group.members.map(member => {
-            const formattedMember: ExpenseParticipant = { name: member, isParticipating: false, percentage: null }
-            const percentage = data.participants[member];
+            const formattedMember: ExpenseParticipant = { name: member.email, isParticipating: false, percentage: null }
+            const percentage = data.participants[member.email];
             if (percentage) {
               formattedMember.isParticipating = true;
               formattedMember.percentage = percentage * 100;
@@ -222,7 +222,7 @@ export class ExpenseCreateComponent implements OnInit {
     }
     this.members.forEach(member => member.percentage = parseFloat((this.expense.amount * (member.percentage / 100)).toFixed(2)));
     this.members[0].percentage = parseFloat((this.members[0].percentage + this.expense.amount - this.members.map(u => u.percentage).reduce((a,b) => a+b, 0)).toFixed(2));
-
+    
   }
 
   public groupSelected(group: GroupDto) {
@@ -240,7 +240,7 @@ export class ExpenseCreateComponent implements OnInit {
       next: data => {
         this.group = data;
         this.members = this.group.members.map(member => ({
-          name: member,
+          name: member.email,
           isParticipating: true,
           percentage: parseFloat((100 / this.group.members.length).toFixed(2))
         }));
@@ -383,7 +383,7 @@ export class ExpenseCreateComponent implements OnInit {
     of(Object.values(Category));
 
   payerSuggestions = (input: string): Observable<string[]> =>
-    of(this.group.members.map(member => member));
+    of(this.group.members.map(member => member.email));
 
 
   public formatGroup(group: GroupDto | null): string {

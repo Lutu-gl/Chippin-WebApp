@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ShoppingListListDto {
+public class GroupDetailDto {
     private Long id;
-    private String name;
-    private Long groupId;
-    private int itemCount;
-    private int checkedItemCount;
+    private String groupName;
 }

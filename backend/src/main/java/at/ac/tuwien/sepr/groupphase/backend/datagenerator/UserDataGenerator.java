@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Locale;
-import java.util.Random;
 
 @Component
 @AllArgsConstructor
@@ -21,10 +19,7 @@ public class UserDataGenerator implements DataGenerator {
     @Override
     public void generateData() {
         LOGGER.debug("generating data for user");
-        Random random = new Random();
-        random.setSeed(12345);
-        final Faker faker = new Faker(Locale.getDefault(), random);
-
+        final Faker faker = new Faker();
 
         userRepository.save(ApplicationUser.builder()
             .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
