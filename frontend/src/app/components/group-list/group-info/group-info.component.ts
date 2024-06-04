@@ -185,9 +185,18 @@ export class GroupInfoComponent implements OnInit {
   getTransactions(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.activityService.getExpenseActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(transactions => {
-      console.log(transactions);
-      this.transactions = transactions;
+      transactions.forEach(transaction => {
+        this.transactions.push(transaction);
+      })
     });
+
+    this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
+      payments.forEach(payment => {
+        this.transactions.push(payment);
+      })
+   });
+    console.log(this.transactions.length)
+    console.log('transactions: ' + this.transactions);
   }
 
   getPayments(): void {
@@ -278,6 +287,13 @@ export class GroupInfoComponent implements OnInit {
     }
   }
 
+  getTransactionVarSorted():ActivityDetailDto[] {
+    return this.transactions.sort((a, b) => {
+      let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return bTime - aTime;
+    });
+  }
 
   // Sorts the members with debts by the amount of debt
   // First the members you own are shown, then the members that own you
