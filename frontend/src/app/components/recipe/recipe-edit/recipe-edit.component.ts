@@ -5,7 +5,13 @@ import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
-import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
+import {
+  ItemCreateDto,
+  ItemDetailDto,
+  pantryItemCreateDisplayDtoToPantryItemDetailDto,
+  PantryItemDetailDto,
+  Unit
+} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
 import {ConfirmationService, MessageService} from "primeng/api";
@@ -214,9 +220,37 @@ export class RecipeEditComponent implements OnInit {
       this.recipe.ingredients[index]=this.itemToEdit;
     }
 
-    //TODO  Actually change recipe
-    this.itemToEdit= null;
-    this.hideEditDialog();
+    this.service.updateItemInRecipe(this.itemToEdit, this.recipe.id).subscribe({
+      next: dto => {
+        console.log("Updated item: ", dto);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: `${dto.description} updated`,
+          life: 3000
+        });
+
+
+
+        this.itemToEdit= null;
+        this.hideEditDialog();
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not update item: ', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+        }
+      }
+    });
+
   }
 
 

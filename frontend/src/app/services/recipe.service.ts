@@ -173,6 +173,15 @@ getRecipeWithInfoById(id: number): Observable<RecipeDetailWithUserInfoDto> {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/own`, {params});
   }
 
+  /**
+   * Update an item in a recipe.
+   * @param item the item to update
+   * @param recipeId the id of the recipe the item belongs to
+   */
+  updateItemInRecipe(item: ItemDetailDto, recipeId:number): Observable<ItemDetailDto> {
+    return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, item);
+  }
+
   removeRecipeIngredientsFromPantry(pantryId:number, recipeId:number, portion:number): Observable<String[]> {
 
     return this.httpClient.put<String[]>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});

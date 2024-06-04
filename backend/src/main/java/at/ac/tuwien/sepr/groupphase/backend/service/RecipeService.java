@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -97,6 +99,15 @@ public interface RecipeService {
      * @param id the id of the recipe to delete
      */
     void deleteRecipe(long id);
+
+    /**
+     * Updates an item in a recipe.
+     *
+     * @param item     the updated item
+     * @param recipeId the id of the recipe, where the item is in
+     * @return the updated item
+     */
+    Item updateItem(ItemDto item, long recipeId);
 
     /**
      * Like a recipe.

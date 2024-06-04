@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShopping
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -158,6 +159,13 @@ public class RecipeEndpoint {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeMapper.recipeEntityListToListOfRecipeListDto(userService.getRecipesByUserEmail(authentication.getName()));
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("/{recipeId}/recipe")
+    public ItemDto updateItem(@PathVariable long recipeId, @Valid @RequestBody ItemDto itemDto) {
+        LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", recipeId, itemDto);
+        return itemMapper.itemToItemDto(recipeService.updateItem(itemDto, recipeId));
     }
 
     @Secured("ROLE_USER")

@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -8,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
+
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -75,6 +77,26 @@ public class RecipeServiceImpl implements RecipeService {
             return itemRepository.save(item);
         } else {
             throw new NotFoundException(String.format("Could not find recipe with id %s", recipeId));
+        }
+    }
+
+    @Override
+    @Transactional
+    public Item updateItem(ItemDto item, long recipeId) {
+        LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, recipeId);
+        Optional<Recipe> optionalPantry = recipeRepository.findById(recipeId);
+        if (optionalPantry.isPresent()) {
+            Recipe recipe = optionalPantry.get();
+            Item updatedItem = Item.builder()
+                .recipe(recipe)
+                .id(item.getId())
+                .unit(item.getUnit())
+                .amount(item.getAmount())
+                .description(item.getDescription())
+                .build();
+            return itemRepository.save(updatedItem);
+        } else {
+            throw new NotFoundException(String.format("Could not find pantry with id %s", recipeId));
         }
     }
 
