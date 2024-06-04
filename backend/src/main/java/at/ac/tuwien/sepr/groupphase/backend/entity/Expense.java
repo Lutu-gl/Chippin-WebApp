@@ -59,4 +59,6 @@ public class Expense {
     private Map<ApplicationUser, Double> participants = new HashMap<>();
 
     private boolean deleted;
+    private Boolean archived;
+
 }

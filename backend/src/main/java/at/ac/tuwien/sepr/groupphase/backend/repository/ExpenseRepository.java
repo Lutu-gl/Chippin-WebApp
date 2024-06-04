@@ -23,6 +23,13 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("UPDATE Expense e SET e.deleted = false WHERE e = :expense")
     void markExpenseAsRecovered(Expense expense);
 
+    @Query("SELECT e FROM Expense e WHERE e.group.id = :groupId and e.archived = false")
+    List<Expense> findAllByGroupIdNotArchived(@Param("groupId") Long groupId);
+
+    @Query("SELECT e FROM Expense e WHERE e.group.id = :groupId")
+    List<Expense> findAllByGroupId(@Param("groupId") Long groupId);
+
+
     /**
      * Calculates the balances for a user in a group with its members. This query does not take the payments into account.
      *

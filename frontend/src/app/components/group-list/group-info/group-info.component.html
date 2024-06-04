@@ -3,15 +3,15 @@
   [(visible)]="isExpenseDialogVisible"
   [modal]="true"
   [style]="{with: '5000px'}"
-  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-  [style]="{ width: '50vw' }" 
-  [draggable]="false" 
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
   [resizable]="false"
 >
   <p-header>
     <div class="text-2xl font-bold">Create Expense for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
   </p-header>
-  
+
   <app-expense-create
     [groupId]="group.id"
     [mode]="expenseDialogMode"
@@ -22,23 +22,33 @@
   <p-footer></p-footer>
 </p-dialog>
 
+<!-- Modal for making sure to leave the gorup -->
+<p-confirmDialog>
+  <ng-template pTemplate="message" let-message>
+    <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+      <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+      <p [innerHTML]="message.message"></p>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+
 
 <!-- Modal for creating new budget -->
 <p-dialog
   [(visible)]="isBudgetDialogVisible"
   [modal]="true"
   [style]="{with: '5000px'}"
-  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-  [style]="{ width: '50vw' }" 
-  [draggable]="false" 
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
   [resizable]="false"
 >
 <p-header>
   <div
-  *ngIf="budgetModeIsCreate()" 
+  *ngIf="budgetModeIsCreate()"
   class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
 </p-header>
-  
+
   <app-budget-create
   [groupId]="group.id"
   [mode]="budgetDialogMode"
@@ -95,8 +105,22 @@
       />
     </div>
     <div class="flex flex-col align-items-center gap-3 mb-5">
-      <label for="amount" class="font-semibold w-6rem">Amount</label>
-      <input pInputText placeholder="30"  [(ngModel)]="amountOfSelectedDebtMember" name="amountOfSelectedDebtMember" id="amount" type="number" min="1" max="1000000" class="flex-auto" autocomplete="off" [required]="true" required/>
+<!--      <label for="amount" class="font-semibold w-6rem">Amount</label>-->
+      <label for="amount" class="font-semibold w-6rem">Total Amount (€)</label>
+      <p-inputNumber
+        [(ngModel)]="amountOfSelectedDebtMember"
+        mode="currency"
+        inputId="amount"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0.01"
+        [max]="9999999.99"
+        [required]="true"
+        required
+        name="amount"
+        #amountCtrl="ngModel"
+      />
+<!--      <input pInputText placeholder="30"  [(ngModel)]="amountOfSelectedDebtMember" name="amountOfSelectedDebtMember" id="amount" type="number" min="1" max="1000000" class="flex-auto" autocomplete="off" [required]="true" required/>-->
     </div>
     <br>
     <br>

@@ -11,7 +11,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.DebtService;
 import at.ac.tuwien.sepr.groupphase.backend.service.FriendshipService;
-import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +64,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         Map<Long, Map<String, Double>> debtsPerGroup = new HashMap<>();
         for (GroupEntity group : groups) {
             DebtGroupDetailDto debts = debtService.getById(user.getEmail(), group.getId());
+
             debtsPerGroup.put(group.getId(), debts.getMembersDebts());
         }
 

@@ -53,13 +53,13 @@ public class GroupDataGenerator implements DataGenerator {
 
         final List<ApplicationUser> applicationUsers = userRepository.findAll();
         final String[] groupNames = {
-            "Berlin Reise", "WG-Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
-            "WG-Neukölln", "Madrid Expedition", "WG-Kreuzberg", "Prag Besuch", "WG-Prenzlauer Berg",
-            "Amsterdam Reise", "WG-Charlottenburg", "Lissabon Trip", "WG-Schöneberg", "Barcelona Ausflug",
-            "WG-Friedrichshain", "Dublin Urlaub", "WG-Treptow", "Wien Expedition", "WG-Lichtenberg",
-            "Budapest Besuch", "WG-Marzahn", "Stockholm Reise", "WG-Hellersdorf", "Kopenhagen Trip",
-            "WG-Reinickendorf", "Oslo Ausflug", "WG-Spandau", "Helsinki Urlaub", "WG-Steglitz",
-            "Riga Expedition", "WG-Zehlendorf", "Tallinn Besuch"
+            "Berlin Reise", "WG Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
+            "WG Neukölln", "Madrid Expedition", "WG Kreuzberg", "Prag Besuch", "WG Prenzlauer Berg",
+            "Amsterdam Reise", "WG Charlottenburg", "Lissabon Trip", "WG Schoeneberg", "Barcelona Ausflug",
+            "WG Friedrichshain", "Dublin Urlaub", "WG Treptow", "Wien Expedition", "WG Lichtenberg",
+            "Budapest Besuch", "WG Marzahn", "Stockholm Reise", "WG Hellersdorf", "Kopenhagen Trip",
+            "WG Reinickendorf", "Oslo Ausflug", "WG Spandau", "Helsinki Urlaub", "WG Steglitz",
+            "Riga Expedition", "WG Zehlendorf", "Tallinn Besuch"
         };
         List<ApplicationUser> wgUsers = new ArrayList<>();
 

@@ -5,4 +5,5 @@ export interface PaymentDto {
   receiverEmail: string;
   deleted: boolean;
   groupId: number;
+  archived: boolean;
 }

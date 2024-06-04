@@ -52,6 +52,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setDate(LocalDateTime.now());
+        payment.setDeleted(false);
+        payment.setArchived(false);
 
         Payment savedPayment = paymentRepository.save(payment);
         Activity activityForExpense = Activity.builder()
@@ -97,6 +99,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         payment.setId(paymentId);
         payment.setDate(existingPayment.getDate());
+        payment.setArchived(existingPayment.getArchived());
+        payment.setDeleted(existingPayment.isDeleted());
 
         Payment paymentSaved = paymentRepository.save(payment);
 

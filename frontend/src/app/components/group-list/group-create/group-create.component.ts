@@ -191,7 +191,13 @@ export class GroupCreateComponent implements OnInit {
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
-          this.router.navigate(['/group/' + this.group.id]);
+          if (this.group.id) {
+            this.router.navigate(['/group/' + this.group.id]);
+          } else if (data.id) {
+            this.router.navigate(['/group/' + data.id]);
+          } else {
+            this.router.navigate(['/home/groups']);
+          }
         },
         error: error => {
           console.log(error);

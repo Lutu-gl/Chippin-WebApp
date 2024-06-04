@@ -5,13 +5,14 @@ import {Globals} from '../global/globals';
 import {GroupDto, GroupDetailDto, GroupListDto} from "../dtos/group";
 import {UserSelection} from "../dtos/user";
 import { BudgetDto } from '../dtos/budget';
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
   private groupBaseUri: string = this.globals.backendUri + '/group';
-  constructor(private http: HttpClient, private globals: Globals) { }
+  constructor(private http: HttpClient, private globals: Globals, private authService: AuthService) { }
 
   getGroups(): Observable<GroupDetailDto[]> {
     return this.http.get<GroupDetailDto[]>(this.globals.backendUri + '/users/groups');
@@ -49,6 +50,12 @@ export class GroupService {
   }
 
   update(group: GroupDto) {
+    return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, group);
+  }
+
+  // remove own email form the group members
+  leaveGroup(group: GroupDto) {
+    group.members = group.members.filter(member => member !== this.authService.getEmail());
     return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, group);
   }
 }
