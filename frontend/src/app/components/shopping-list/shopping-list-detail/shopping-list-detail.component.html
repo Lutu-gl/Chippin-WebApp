@@ -8,6 +8,16 @@
         <h2>Categories: </h2>
         <p-tag *ngFor="let category of shoppingListDetailDto.categories" severity="info" value="{{category}}"></p-tag>
       </div>
+      <!-- Owner -->
+      <div *ngIf="shoppingListDetailDto?.owner" class="flex gap-2 items-center">
+        <h2>Owner: </h2>
+        <button type="button">
+          <p-tag
+            severity="info"
+            value="{{ shoppingListDetailDto?.owner.email === userEmail ? 'You' : shoppingListDetailDto?.owner.email  }}">
+          </p-tag>
+        </button>
+      </div>
       <!-- Group -->
       <div *ngIf="shoppingListDetailDto?.group" class="flex gap-2 items-center">
         <h2>Group: </h2>
@@ -25,7 +35,8 @@
     </div>
   </div>
 
-  <app-shopping-list-edit-modal [(visible)]="showEditModal" (update)="loadShoppingListDetailDto()" [shoppingList]="shoppingListDetailDto"></app-shopping-list-edit-modal>
+  <app-shopping-list-edit-modal [(visible)]="showEditModal" (update)="loadShoppingListDetailDto()"
+                                [shoppingList]="shoppingListDetailDto"></app-shopping-list-edit-modal>
 
   <div class="w-full">
     <p-divider></p-divider>
@@ -137,7 +148,8 @@
     <form [formGroup]="editItemForm">
       <div class="flex flex-col gap-2">
         <label for="editDescription">Name</label>
-        <input id="editDescription" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
+        <input id="editDescription" type="text" formControlName="name" pInputText placeholder="e.g. Milk"
+               [minLength]="2"
                [maxLength]="60">
       </div>
       <div class="pb-8">

@@ -97,6 +97,7 @@ export class ShoppingListDetailComponent implements OnInit {
 
   shoppingListDetailDto: ShoppingListDetailDto;
   groupId: number;
+  userEmail: string;
   shoppingListId: number;
   selectedItem: ShoppingListItemDto;
   draggedItem: ShoppingListItemDto;
@@ -122,6 +123,8 @@ export class ShoppingListDetailComponent implements OnInit {
         console.error(err);
       }
     });
+
+    this.userEmail = this.authService.getEmail();
 
     // this.units has to be an array the values of the enum DisplayedUnit
     //q: How do i do that?
