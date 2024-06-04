@@ -7,13 +7,14 @@ import {
   RecipeGlobalListDto
 } from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
-import {Unit} from "../../../dtos/item";
+import {ItemCreateDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
 import {Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 export enum RecipeDetailMode {
   owner,
@@ -64,6 +65,8 @@ export class RecipeDetailComponent implements OnInit {
     private service: RecipeService,
     private userService: UserService,
     private router: Router,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private notification: ToastrService
   ) {
   }
@@ -109,18 +112,15 @@ export class RecipeDetailComponent implements OnInit {
   printError(error): void {
     if (error && error.error && error.error.errors) {
       for (let i = 0; i < error.error.errors.length; i++) {
-        this.notification.error(`${error.error.errors[i]}`);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
       }
-    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.log(error);
-      if(error.status !== 401) {
-        const errorMessage = error.status === 0
-          ? 'Is the backend up?'
-          : error.message.message;
-        this.notification.error(errorMessage, 'Could not connect to the server.');
-      }
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
 
@@ -243,7 +243,9 @@ export class RecipeDetailComponent implements OnInit {
 
 
 
+
+
   protected readonly Unit = Unit;
   protected readonly clone = clone;
-  protected readonly RecipeDetailMode = RecipeDetailMode;
+
 }

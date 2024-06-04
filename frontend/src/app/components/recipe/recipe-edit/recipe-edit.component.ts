@@ -5,9 +5,10 @@ import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
-import {ItemCreateDto, Unit} from "../../../dtos/item";
+import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 
 @Component({
@@ -33,12 +34,18 @@ export class RecipeEditComponent implements OnInit {
     unit: Unit.Piece,
     description: ""
   };
-  itemToEdit: ItemCreateDto = undefined;
-  selectedIdToDelete: number;
-  selectedIndexToDelete:number;
-  selectedIndexToEdit:number;
-  deleteWhatString: String;
+  itemToEdit: ItemDetailDto = undefined;
   recipeId:number;
+
+
+  submitted: boolean = false;
+  newItemDialog: boolean = false;
+  itemDialog: boolean = false;
+  changeItem:boolean=false;
+  items!: ItemDetailDto[];
+  item!: ItemDetailDto;
+
+  selectedItems!: ItemCreateDto[] | null;
 
 
   constructor(
@@ -46,6 +53,8 @@ export class RecipeEditComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private notification: ToastrService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
   }
 
@@ -60,17 +69,11 @@ export class RecipeEditComponent implements OnInit {
           this.recipe = data;
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error)
         }
       });
   }
 
-
-  public dynamicCssClassesForInput(input: NgModel): any {
-    return {
-      'is-invalid': !input.valid && !input.pristine,
-    };
-  }
 
   public onRecipeSubmit(form: NgForm): void {
     if (form.valid) {
@@ -84,22 +87,21 @@ export class RecipeEditComponent implements OnInit {
           this.router.navigate(['/recipe']);
         },
         error: error => {
-          this.defaultServiceErrorHandling(error);
+          this.printError(error);
         }
       });
     }
   }
 
-  onIngredientSubmit(form: NgForm) {
-    console.log('is form valid?', form.valid);
-    if (form.valid) {
+  onIngredientSubmit() {
+
     this.service.createItem(this.recipeId,this.newIngredient)
       .subscribe({
         next: data => {
           this.recipe.ingredients.push(data);
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error)
         }
       });
     this.newIngredient= {
@@ -107,88 +109,67 @@ export class RecipeEditComponent implements OnInit {
       unit: Unit.Piece,
       description: ""}
 
-    }
+    this.hideDialog();
   }
 
   public deleteIngredient(id: number, index:number) {
-    this.recipe.ingredients.splice(index,1)
-    this.service.deleteIngredient(this.recipeId,id).subscribe({
-      next: res => {
-        console.log('deleted recipe: ', res);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to remove ' + this.recipe.ingredients[index].description + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.recipe.ingredients.splice(index, 1);
+        this.service.deleteIngredient(this.recipeId,id).subscribe({
+          next: res => {
+            console.log('deleted recipe: ', res);
 
-      },
-      error: err => {
-        this.printError(err);
+          },
+          error: err => {
+            this.printError(err);
+          }
+        });
       }
     });
 
 
 
+
+  }
+
+  changeIngredient(index:number) {
+    this.itemToEdit=this.recipe.ingredients[index];
+
+    this.changeItem=true;
   }
 
 
-  changeAmount(item: ItemCreateDto, amountChanged: number) {
-    item.amount+=amountChanged;
+  openNew() {
+    this.newIngredient = {
+      description: "",
+      amount: 0,
+      unit: Unit.Piece,
+    };
+    this.submitted = false;
+    this.newItemDialog = true;
   }
 
-
-  selectEditItem(item: ItemCreateDto) {
-    this.itemToEdit = item;
-  }
-
-  getUnitStep(unit: Unit, largeStep: boolean, positive: boolean): number {
-    let value: number = 0;
-    let prefixNum = positive === true ? 1 : -1;
-    switch (unit) {
+  getRecipeSuffix(item: ItemCreateDto): String {
+    switch (item.unit) {
       case Unit.Piece:
-        value = prefixNum * 1;
-        break
+        return item.amount == 1 ? " Piece" : " Pieces";
       case Unit.Gram:
-        value = prefixNum * 10;
-        break;
+        return item.amount < 1000 ? "g" : "kg";
       case Unit.Milliliter:
-        value = prefixNum * 10;
-        break;
+        return item.amount < 1000 ? "ml" : "l";
       default:
-        console.error("Undefined unit");
-    }
-
-    return largeStep ? value * 10 : value;
-  }
-
-  getUnitStepString(value: number): string {
-    if (value > 0) return "+" + value;
-    else return value.toString();
-
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
+        console.error("Unknown Unit");
+        return "";
     }
   }
 
-  selectIdToDelete(id:number, index:number): void {
-    this.selectedIdToDelete=id;
-    this.selectedIndexToDelete=index;
-    //this.deleteWhatString=this.recipe.ingredients[id].description.toString();
-    this.deleteWhatString="Ingredient";
-  }
 
-  selectIndexToEdit(index:number):void {
-    this.selectedIndexToEdit=index;
-  }
 
-  formatAmount(fNumber:number): number {
-    if (fNumber == null || isNaN(fNumber)) {
-      return 0.0;
-    }
-    return parseFloat(fNumber.toFixed(1));
-  }
+
 
   deleteRecipe() {
     this.service.deleteRecipe(this.recipe.id);
@@ -198,19 +179,50 @@ export class RecipeEditComponent implements OnInit {
   printError(error): void {
     if (error && error.error && error.error.errors) {
       for (let i = 0; i < error.error.errors.length; i++) {
-        this.notification.error(`${error.error.errors[i]}`);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
       }
-    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.log(error);
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
 
+  hideDialog() {
+    this.itemDialog = false;
+    this.newItemDialog = false;
+    this.submitted = false;
+  }
+
+  hideEditDialog() {
+    this.changeItem=false;
+    this.submitted = false;
+  }
+
+  handleEnter(event: KeyboardEvent): void {
+    event.preventDefault(); // Prevents the default behavior of adding a new line in the textarea
+    this.recipe.description += '\n';
+  }
+
+  onIngredientChange() {
+    const index = this.recipe.ingredients.findIndex(o => o.id === this.itemToEdit.id);
+
+    if(index!== -1 ) {
+      this.recipe.ingredients[index]=this.itemToEdit;
+    }
+
+    //TODO  Actually change recipe
+    this.itemToEdit= null;
+    this.hideEditDialog();
+  }
 
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly Object = Object;
 }
 
 

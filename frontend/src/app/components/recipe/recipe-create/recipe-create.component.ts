@@ -8,6 +8,8 @@ import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
 import {ItemCreateDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
+import {ConfirmationService, MessageService} from "primeng/api";
+
 
 
 @Component({
@@ -32,15 +34,19 @@ export class RecipeCreateComponent implements OnInit {
     description: ""
   };
   itemToEdit: ItemCreateDto = undefined;
-  selectedIndexToDelete: number;
-  selectedIndexToEdit:number;
-  deleteWhatString: string;
+  submitted: boolean = false;
+  newItemDialog: boolean = false;
+  itemDialog: boolean = false;
+
+  selectedItems!: ItemCreateDto[] | null;
 
 
   constructor(
     private service: RecipeService,
     private router: Router,
     private route: ActivatedRoute,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private notification: ToastrService,
   ) {
   }
@@ -51,12 +57,6 @@ export class RecipeCreateComponent implements OnInit {
   }
 
 
-  public dynamicCssClassesForInput(input: NgModel): any {
-    return {
-      'is-invalid': !input.valid && !input.pristine,
-    };
-  }
-
   public onRecipeSubmit(form: NgForm): void {
     if (form.valid) {
       let observable: Observable<RecipeCreateWithoutUserDto>;
@@ -65,7 +65,8 @@ export class RecipeCreateComponent implements OnInit {
 
       observable.subscribe({
         next: data => {
-          this.notification.success(`Recipe ${this.recipe.name} successfully created.`);
+          this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe ${this.recipe.name} successfully created.`});
+
           this.router.navigate(['/recipe']);
         },
         error: error => {
@@ -75,7 +76,7 @@ export class RecipeCreateComponent implements OnInit {
     }
   }
 
-  onIngredientSubmit(form: NgForm) {
+  onIngredientSubmit() {
 
       this.recipe.ingredients.push(this.newIngredient);
       this.newIngredient= {
@@ -83,89 +84,124 @@ export class RecipeCreateComponent implements OnInit {
         unit: Unit.Piece,
         description: ""}
 
+    this.hideDialog();
+
 
   }
 
-  public removeIngredient(index: number) {
-    this.recipe.ingredients.splice(index, 1);
-    this.selectedIndexToDelete=undefined;
+
+  hideDialog() {
+    this.itemDialog = false;
+    this.newItemDialog = false;
+    this.submitted = false;
   }
 
 
-  changeAmount(item: ItemCreateDto, amountChanged: number) {
-    item.amount+=amountChanged;
+  handleEnter(event: KeyboardEvent): void {
+    event.preventDefault(); // Prevents the default behavior of adding a new line in the textarea
+    this.recipe.description += '\n';
   }
 
-
-  selectEditItem(item: ItemCreateDto) {
-    this.itemToEdit = item;
-  }
-
-  getUnitStep(unit: Unit, largeStep: boolean, positive: boolean): number {
-    let value: number = 0;
-    let prefixNum = positive === true ? 1 : -1;
-    switch (unit) {
-      case Unit.Piece:
-        value = prefixNum * 1;
-        break
-      case Unit.Gram:
-        value = prefixNum * 10;
-        break;
-      case Unit.Milliliter:
-        value = prefixNum * 10;
-        break;
-      default:
-        console.error("Undefined unit");
-    }
-
-    return largeStep ? value * 10 : value;
-  }
-
-  getUnitStepString(value: number): string {
-    if (value > 0) return "+" + value;
-    else return value.toString();
-
-  }
 
   printError(error): void {
     if (error && error.error && error.error.errors) {
       for (let i = 0; i < error.error.errors.length; i++) {
-        this.notification.error(`${error.error.errors[i]}`);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
       }
-    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error && error.error.message) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.error('Error', error);
-      if(error.status !== 401) {
-        const errorMessage = error.status === 0
-          ? 'Is the backend up?'
-          : error.message.message;
-        this.notification.error(errorMessage, 'Could not connect to the server.');
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load pantry!`});
+    }
+  }
+
+  deleteSelectedItems(index: number) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to remove ' + this.recipe.ingredients[index].description + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.recipe.ingredients.splice(index, 1);
       }
+    });
+  }
+
+  decrement(index: number) {
+    this.recipe.ingredients[index].amount -= this.getRecipeStepSize(this.recipe.ingredients[index]);
+    if(this.recipe.ingredients[index].amount < 0) {
+      this.recipe.ingredients[index].amount = 0;
+    }
+
+  }
+
+  increment(index: number) {
+    this.recipe.ingredients[index].amount += this.getRecipeStepSize(this.recipe.ingredients[index]);
+    if(this.recipe.ingredients[index].amount > 1000000) {
+      this.recipe.ingredients[index].amount = 1000000;
     }
   }
 
-  selectIndexToDelete(index:number): void {
-    this.selectedIndexToDelete=index;
-    this.deleteWhatString=this.recipe.ingredients[index].description.toString();
-}
-
-  selectIndexToEdit(index:number):void {
-    this.selectedIndexToEdit=index;
+  openNew() {
+    this.newIngredient = {
+      description: "",
+      amount: 0,
+      unit: Unit.Piece,
+    };
+    this.submitted = false;
+    this.newItemDialog = true;
   }
-
-  formatAmount(fNumber:number): number {
-    if (fNumber == null || isNaN(fNumber)) {
-      return 0.0;
+  getRecipeStepSize(item: ItemCreateDto): number {
+    switch (item.unit) {
+      case Unit.Piece:
+        return item.amount > 100 ? 10 : 1;
+      case Unit.Gram:
+        switch (true) {
+          case (item.amount < 100):
+            return 10;
+          case (item.amount < 1000):
+            return 100;
+          case (item.amount < 10000):
+            return 250;
+          default:
+            return 1000;
+        }
+      case Unit.Milliliter:
+        switch (true) {
+          case (item.amount < 100):
+            return 10;
+          case (item.amount < 1000):
+            return 100;
+          case (item.amount < 10000):
+            return 250;
+          default:
+            return 1000;
+        }
+      default:
+        console.error("Unknown Unit");
+        return 1;
     }
-    return parseFloat(fNumber.toFixed(1));
   }
 
-
-
+  getRecipeSuffix(item: ItemCreateDto): String {
+    switch (item.unit) {
+      case Unit.Piece:
+        return item.amount == 1 ? " Piece" : " Pieces";
+      case Unit.Gram:
+        return item.amount < 1000 ? "g" : "kg";
+      case Unit.Milliliter:
+        return item.amount < 1000 ? "ml" : "l";
+      default:
+        console.error("Unknown Unit");
+        return "";
+    }
+  }
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly Object = Object;
 }
 
 
