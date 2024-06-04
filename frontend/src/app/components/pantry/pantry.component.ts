@@ -1,7 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
-import {DisplayedUnit, PantryItemCreateDisplayDto, PantryItemDetailDto, Unit,} from "../../dtos/item";
+import {
+  DisplayedUnit,
+  PantryItemCreateDisplayDto,
+  pantryItemCreateDisplayDtoToPantryItemCreateDto, pantryItemCreateDisplayDtoToPantryItemDetailDto,
+  PantryItemDetailDto, pantryItemDetailDtoToPantryItemCreateDisplayDto,
+} from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
@@ -24,8 +29,16 @@ import {DropdownModule} from "primeng/dropdown";
 import {RadioButtonModule} from "primeng/radiobutton";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {ConfirmationService, MessageService} from "primeng/api";
-import {getStepSize, getSuffix} from "../../util/unit-helper";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {
+  getAmountForCreateEdit,
+  formatAmount,
+  getStepSize,
+  getSuffix,
+  getSuffixForCreateEdit, formatLowerLimit, getLimitSuffix
+} from "../../util/unit-helper";
+import {inRange} from "lodash";
+import {TabMenuModule} from "primeng/tabmenu";
 
 @Component({
   selector: 'app-pantry',
@@ -53,20 +66,24 @@ import {getStepSize, getSuffix} from "../../util/unit-helper";
     DropdownModule,
     RadioButtonModule,
     InputNumberModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TabMenuModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
   styleUrl: './pantry.component.scss'
 })
 export class PantryComponent implements OnInit {
+  tabMenuItems: MenuItem[] | undefined;
+  tabMenuActiveItem: MenuItem | undefined;
+
   itemDialog: boolean = false;
-  newItemDialog: boolean = false;
   items!: PantryItemDetailDto[];
-  item!: PantryItemDetailDto;
-  selectedItems!: PantryItemDetailDto[] | null;
+  createEditItem!: PantryItemCreateDisplayDto;
+  itemToEditId: number;
   submitted: boolean = false;
-  newItem: PantryItemCreateDisplayDto;
+  edit: boolean = false;
+  selectedItems!: PantryItemDetailDto[] | null;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
@@ -80,7 +97,26 @@ export class PantryComponent implements OnInit {
   ) {
   }
 
+  onActiveItemChange(event: MenuItem) {
+    this.tabMenuActiveItem = event;
+  }
+
+  isEditSelected(): boolean {
+    return this.tabMenuActiveItem === this.tabMenuItems[0];
+  }
+
+  isMergeSelected(): boolean {
+    return this.tabMenuActiveItem === this.tabMenuItems[1];
+  }
+
   ngOnInit(): void {
+    //tab menu in Edit/Merge dialog
+    this.tabMenuItems = [
+      {label: 'Edit'},
+      {label: 'Merge'}
+    ];
+    this.tabMenuActiveItem = this.tabMenuItems[0];
+
     this.route.params.subscribe({
       next: params => {
         this.id = +params['id'];
@@ -108,18 +144,104 @@ export class PantryComponent implements OnInit {
 
   hideDialog() {
     this.itemDialog = false;
-    this.newItemDialog = false;
     this.submitted = false;
   }
+
   openNew() {
-    this.newItem = {
+    this.createEditItem = {
       description: "",
       amount: 0,
       unit: DisplayedUnit.Piece,
       lowerLimit: null,
     };
+    this.edit = false;
+    this.itemToEditId = null;
     this.submitted = false;
-    this.newItemDialog = true;
+    this.itemDialog = true;
+  }
+
+  openEdit(item: PantryItemDetailDto) {
+    this.createEditItem = pantryItemDetailDtoToPantryItemCreateDisplayDto(item);
+    console.log(item);
+    console.log(this.createEditItem);
+    this.edit = true;
+    this.itemToEditId = item.id;
+    this.submitted = false;
+    this.itemDialog = true;
+  }
+
+  saveNewItem() {
+    this.submitted = true;
+
+    if (this.createEditItem.description?.trim()
+      && inRange(this.createEditItem.amount, 0, 1000001)
+      && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
+
+      this.service.createItem(this.id, pantryItemCreateDisplayDtoToPantryItemCreateDto(this.createEditItem)).subscribe({
+        next: dto => {
+          console.log("Created new item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `${dto.description} created`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        }, error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not create item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not create item!`});
+          }
+        }
+      })
+      this.itemDialog = false;
+    }
+  }
+
+  editItem() {
+    this.submitted = true;
+
+    if (this.createEditItem.description?.trim()
+      && inRange(this.createEditItem.amount, 0, 1000001)
+      && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
+
+      this.service.updateItem(pantryItemCreateDisplayDtoToPantryItemDetailDto(this.createEditItem, this.itemToEditId), this.id).subscribe({
+        next: dto => {
+          console.log("Updated item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `${dto.description} updated`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not update item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+          }
+        }
+      })
+
+      this.itemDialog = false;
+    }
   }
 
   getPantry(id: number) {
@@ -182,7 +304,7 @@ export class PantryComponent implements OnInit {
 
   decrement(item: PantryItemDetailDto) {
     item.amount -= getStepSize(item);
-    if(item.amount < 0) {
+    if (item.amount < 0) {
       item.amount = 0;
     }
     this.service.updateItem(item, this.id).subscribe({
@@ -198,7 +320,7 @@ export class PantryComponent implements OnInit {
 
   increment(item: PantryItemDetailDto) {
     item.amount += getStepSize(item);
-    if(item.amount > 1000000) {
+    if (item.amount > 1000000) {
       item.amount = 1000000;
     }
     this.service.updateItem(item, this.id).subscribe({
@@ -270,7 +392,12 @@ export class PantryComponent implements OnInit {
   }
 
   protected readonly getStepSize = getStepSize;
-  protected readonly getSuffix = getSuffix;
   protected readonly DisplayedUnit = DisplayedUnit;
   protected readonly Object = Object;
+  protected readonly getQuantity = formatAmount;
+  protected readonly getSuffix = getSuffix;
+  protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
+  protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
+  protected readonly formatLowerLimit = formatLowerLimit;
+  protected readonly getLimitSuffix = getLimitSuffix;
 }
