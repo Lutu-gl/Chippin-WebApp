@@ -4,8 +4,11 @@ import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
   PantryItemCreateDisplayDto,
-  pantryItemCreateDisplayDtoToPantryItemCreateDto, pantryItemCreateDisplayDtoToPantryItemDetailDto,
-  PantryItemDetailDto, pantryItemDetailDtoToPantryItemCreateDisplayDto,
+  pantryItemCreateDisplayDtoToPantryItemCreateDto,
+  pantryItemCreateDisplayDtoToPantryItemDetailDto,
+  PantryItemDetailDto,
+  pantryItemDetailDtoToPantryItemCreateDisplayDto,
+  PantryItemMergeDto,
 } from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -31,11 +34,12 @@ import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {
-  getAmountForCreateEdit,
   formatAmount,
+  formatLowerLimit,
+  getAmountForCreateEdit,
   getStepSize,
   getSuffix,
-  getSuffixForCreateEdit, formatLowerLimit, getLimitSuffix
+  getSuffixForCreateEdit
 } from "../../util/unit-helper";
 import {inRange} from "lodash";
 import {TabMenuModule} from "primeng/tabmenu";
@@ -80,6 +84,8 @@ export class PantryComponent implements OnInit {
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
+  itemMergeEdit!: PantryItemCreateDisplayDto;
+  itemMergeDto!: PantryItemMergeDto;
   itemToEditId: number;
   submitted: boolean = false;
   edit: boolean = false;
@@ -148,6 +154,7 @@ export class PantryComponent implements OnInit {
   }
 
   openNew() {
+    this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = {
       description: "",
       amount: 0,
@@ -161,7 +168,14 @@ export class PantryComponent implements OnInit {
   }
 
   openEdit(item: PantryItemDetailDto) {
+    this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = pantryItemDetailDtoToPantryItemCreateDisplayDto(item);
+    this.itemMergeEdit = {
+      description: "",
+      amount: 0,
+      unit: DisplayedUnit.Piece,
+      lowerLimit: null,
+    };
     console.log(item);
     console.log(this.createEditItem);
     this.edit = true;
@@ -242,6 +256,11 @@ export class PantryComponent implements OnInit {
 
       this.itemDialog = false;
     }
+  }
+
+  setItemToMerge(baseItem: PantryItemCreateDisplayDto) {
+    this.itemMergeEdit = { ...this.itemMergeEdit };
+    this.itemMergeEdit.amount += baseItem.unit === this.itemMergeEdit.unit ? baseItem.amount : 0;
   }
 
   getPantry(id: number) {
@@ -399,5 +418,5 @@ export class PantryComponent implements OnInit {
   protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
   protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
   protected readonly formatLowerLimit = formatLowerLimit;
-  protected readonly getLimitSuffix = getLimitSuffix;
+  protected readonly formatAmount = formatAmount
 }

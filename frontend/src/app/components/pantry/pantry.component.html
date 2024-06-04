@@ -2,7 +2,7 @@
 <p-confirmDialog [style]="{ width: '450px' }"/>
 <p-dialog
   [(visible)]="itemDialog"
-  [style]="{ width: '600px' }"
+  [style]="{ width: '600px', minHeight: '550px' }"
   [header]="edit ? 'Edit Item' : 'Create new Item'"
   [modal]="true"
   styleClass="p-fluid">
@@ -95,6 +95,77 @@
           </div>
         </div>
       </div>
+      <div class="field">
+        <div class="p-4">
+          <label for="selectItemToMergeWith">Item to merge with</label>
+          <p-dropdown
+            id="selectItemToMergeWith"
+            [(ngModel)]="itemMergeEdit"
+            (onChange)="setItemToMerge(createEditItem)"
+            [options]="items">
+            <ng-template let-item pTemplate="item">
+              {{item.description}} {{formatAmount(item)}}
+            </ng-template>
+            <ng-template let-item pTemplate="selectedItem">
+              {{item.description}} {{formatAmount(item)}}
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+      <div class="field">
+        <div class="p-4">
+          <div *ngIf="itemMergeEdit">
+            <div class="field pt-5">
+              <label for="itemToMergeWithName">Name</label>
+              <input
+                type="text"
+                pInputText
+                id="itemToMergeWithName"
+                [(ngModel)]="itemMergeEdit.description"
+                [disabled]="itemMergeEdit.description === createEditItem.description"
+                minlength="2"
+                maxlength="60"
+                required
+                autofocus/>
+              <small class="p-error" *ngIf="submitted && !itemMergeEdit.description">
+                Name is required.
+              </small>
+            </div>
+            <div class="field pt-5">
+              <label for="itemToMergeWithUnit">Unit</label>
+              <p-dropdown
+                [(ngModel)]="itemMergeEdit.unit"
+                [disabled]="itemMergeEdit.unit === createEditItem.unit"
+                id="itemToMergeWithUnit"
+                [options]="Object.values(DisplayedUnit)"
+                (onChange)="getAmountForCreateEdit(itemMergeEdit)">
+              </p-dropdown>
+            </div>
+            <div class="field pt-5">
+              <label for="itemToMergeWithAmount">Amount</label>
+              <p-inputNumber
+                id="itemToMergeWithAmount"
+                [(ngModel)]="itemMergeEdit.amount"
+                [disabled]="itemMergeEdit.unit === createEditItem.unit"
+                [min]="0"
+                [max]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+                [minFractionDigits]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 2 : 0"
+                [suffix]="getSuffixForCreateEdit(itemMergeEdit)"
+                required/>
+            </div>
+            <div class="field pt-5">
+              <label for="itemToMergeWithLowerLimit">Minimum</label>
+              <p-inputNumber
+                id="itemToMergeWithLowerLimit"
+                [(ngModel)]="itemMergeEdit.lowerLimit"
+                [min]="0"
+                [max]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+                [minFractionDigits]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 2 : 0"
+                [suffix]="getSuffixForCreateEdit(itemMergeEdit)"/>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
@@ -119,6 +190,7 @@
         <ng-template pTemplate="left">
           <p-button
             pRipple
+            pTooltip="Create a new item"
             severity="success"
             label="New"
             icon="pi pi-plus"
@@ -126,6 +198,7 @@
             (click)="openNew()"/>
           <p-button
             pRipple
+            pTooltip="Delete selected items"
             severity="danger"
             label="Delete"
             icon="pi pi-trash"
@@ -135,6 +208,7 @@
         <ng-template pTemplate="right">
           <p-button
             pRipple
+            pTooltip="Find recipes with the selected items"
             severity="secondary"
             label="Find recipes"
             [disabled]="!selectedItems || !selectedItems.length"/>
@@ -197,6 +271,8 @@
             </td>
             <td>
               <p-button
+                [pTooltip]="'Remove ' + getStepSize(item) + getSuffix(item)"
+                tooltipPosition="left"
                 icon="pi pi-minus"
                 severity="danger"
                 [disabled]="item.amount === 0"
@@ -209,6 +285,8 @@
                 [max]="1000000"
                 [buttonLayout]=""/>
               <p-button
+                [pTooltip]="'Add ' + getStepSize(item) + getSuffix(item)"
+                tooltipPosition="right"
                 icon="pi pi-plus"
                 severity="success"
                 [disabled]="item.amount === 1000000"
@@ -221,6 +299,7 @@
             <td>
               <p-button
                 pRipple
+                pTooltip="Edit item"
                 icon="pi pi-pencil"
                 class="mr-2"
                 (click)="openEdit(item)"
@@ -229,6 +308,7 @@
                 severity="success"/>
               <p-button
                 pRipple
+                pTooltip="Delete item"
                 icon="pi pi-trash"
                 severity="danger"
                 (click)="deleteItem(item)"
@@ -238,7 +318,6 @@
           </tr>
         </ng-template>
       </p-table>
-
     </div>
   </div>
 </div>
