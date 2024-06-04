@@ -18,6 +18,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,26 +90,26 @@ public class GroupServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void testUpdateGroupSuccess() throws Exception {
-        GroupEntity existingGroupEntity = new GroupEntity();
-        existingGroupEntity.setId(1L); // assuming this ID exists in the database
-
         GroupCreateDto updateDto = GroupCreateDto.builder()
+            .id(1L)
             .groupName("UpdatedTestGroup")
-            .members(Arrays.stream(new String[]{"user1@example.com", "user2@example.com"}).collect(Collectors.toSet()))
+            .members(new HashSet<>(Arrays.asList("user1@example.com", "user2@example.com")))
             .build();
 
-        when(groupMapper.groupCreateDtoToGroupEntity(updateDto)).thenReturn(existingGroupEntity);
-        when(groupRepository.save(existingGroupEntity)).thenReturn(existingGroupEntity);
-        when(groupMapper.groupEntityToGroupCreateDto(existingGroupEntity)).thenReturn(updateDto);
+        GroupEntity mockGroupEntity = new GroupEntity();
+        mockGroupEntity.setId(updateDto.getId());
+        mockGroupEntity.setGroupName(updateDto.getGroupName());  // assuming you have a setName method
+
+        when(groupMapper.groupCreateDtoToGroupEntity(updateDto)).thenReturn(mockGroupEntity);
+        when(groupRepository.findById(updateDto.getId())).thenReturn(Optional.of(mockGroupEntity));
+        when(groupRepository.save(any(GroupEntity.class))).thenReturn(mockGroupEntity);
         when(groupValidator.validateFriendsWithEveryone(any(GroupEntity.class))).thenReturn(true);
+        when(groupMapper.groupEntityToGroupCreateDto(any(GroupEntity.class))).thenReturn(updateDto);
 
-        // Act
-        GroupCreateDto result = groupService.update(updateDto, "user1@example.com");
 
-        // Assert
+        GroupCreateDto result = groupService.update(updateDto, "owner@example.com");
+
         assertNotNull(result);
         assertEquals("UpdatedTestGroup", result.getGroupName());
         assertEquals(2, result.getMembers().size());

@@ -97,6 +97,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                     .group(group)
                     .participants(participants)
                     .deleted(false)
+                    .archived(false)
                     .build();
 
                 Expense expense2 = Expense.builder()
@@ -108,6 +109,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                     .payer(usersInGroup.get(0))
                     .participants(participants2)
                     .deleted(false)
+                    .archived(false)
                     .build();
 
                 Expense expense3 = Expense.builder()
@@ -119,6 +121,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                     .payer(usersInGroup.get(1))
                     .participants(participants3)
                     .deleted(false)
+                    .archived(false)
                     .build();
                 expenseRepository.save(expense);
                 expenseRepository.save(expense2);
@@ -156,6 +159,8 @@ public class ExpenseDataGenerator implements DataGenerator {
                     .payer(payer)
                     .group(group)
                     .participants(participants)
+                    .deleted(false)
+                    .archived(false)
                     .build();
 
                 expenseRepository.save(expense);

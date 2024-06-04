@@ -29,9 +29,17 @@ public class DebtServiceImpl implements DebtService {
     public DebtGroupDetailDto getById(String userEmail, Long groupId) throws NotFoundException {
         LOGGER.trace("getById({}, {})", userEmail, groupId);
 
+
+        groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
+
+
         List<Object[]> rawResults = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(userEmail, groupId);
         if (rawResults.isEmpty()) {
-            throw new NotFoundException("No debts found for user in group");
+            return DebtGroupDetailDto.builder()
+                .userEmail(userEmail)
+                .groupId(groupId)
+                .membersDebts(new HashMap<>())
+                .build();
         }
 
         Map<String, Double> participantsMap = new HashMap<>();

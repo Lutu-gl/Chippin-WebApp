@@ -22,4 +22,5 @@ public class ExpenseDetailDto {
     private GroupCreateDto group;
     private Map<String, Double> participants;
     private Boolean deleted;
+    private Boolean archived;
 }

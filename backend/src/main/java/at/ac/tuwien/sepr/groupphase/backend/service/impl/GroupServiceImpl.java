@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler.FatalException;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
@@ -11,9 +12,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.GroupValidator;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +42,8 @@ public class GroupServiceImpl implements GroupService {
     private final GroupRepository groupRepository;
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
+    private final ExpenseRepository expenseRepository;
+    private final PaymentRepository paymentRepository;
     private final PantryRepository pantryRepository;
     private final GroupMapper groupMapper;
 
@@ -83,6 +89,36 @@ public class GroupServiceImpl implements GroupService {
         validator.validateForUpdate(groupCreateDto, ownerEmail);
 
         GroupEntity groupEntity = groupMapper.groupCreateDtoToGroupEntity(groupCreateDto);
+
+        GroupEntity existingGroup = groupRepository.findById(groupCreateDto.getId())
+            .orElseThrow(() -> new NotFoundException("No group found with this id"));
+
+        // look if group members are deleted in the new group
+        Set<ApplicationUser> deletedMembers = existingGroup.getUsers().stream()
+            .filter(user -> !groupCreateDto.getMembers().contains(user.getEmail()))
+            .collect(Collectors.toSet());
+
+        // Set all Expenses and Payments where the deleted members are part of to archived
+        if (!deletedMembers.isEmpty()) {
+            for (ApplicationUser deletedMember : deletedMembers) {
+                List<Expense> allByGroupId = expenseRepository.findAllByGroupIdNotArchived(existingGroup.getId());
+                for (Expense expense : allByGroupId) {
+                    if (expense.getParticipants().containsKey(deletedMember)) {
+                        expense.setArchived(true);
+                        expenseRepository.save(expense);
+                    }
+                }
+
+                paymentRepository.findAllByGroupIdNotArchived(existingGroup.getId())
+                    .forEach(payment -> {
+                        if (payment.getPayer().equals(deletedMember) || payment.getReceiver().equals(deletedMember)) {
+                            payment.setArchived(true);
+                            paymentRepository.save(payment);
+                        }
+                    });
+            }
+        }
+
         if (groupCreateDto.getMembers() != null) {
             Set<ApplicationUser> users = groupCreateDto.getMembers().stream()
                 .map(userRepository::findByEmail)

@@ -59,7 +59,8 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
         }
 
-        return expenseMapper.expenseEntityToExpenseDetailDto(expense);
+        ExpenseDetailDto expenseDetailDto = expenseMapper.expenseEntityToExpenseDetailDto(expense);
+        return expenseDetailDto;
     }
 
     @Override
@@ -74,6 +75,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         expense.setDate(LocalDateTime.now());
         expense.setDeleted(false);
+        expense.setArchived(false);
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
@@ -119,7 +121,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
             budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
         }
-
+        expense.setArchived(existingExpense.getArchived());
         Expense expenseSaved = expenseRepository.save(expense);
 
         Activity activityForExpenseUpdate = Activity.builder()

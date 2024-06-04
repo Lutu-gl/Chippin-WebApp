@@ -29,6 +29,7 @@ export class ExpenseCreateComponent implements OnChanges {
   expenseName: string;
   expenseAmount: number;
   expenseDeleted = false;
+  expenseArchived = false;
   group: GroupDto = { groupName: '', members: [] };
   members: any[] = [];
 
@@ -160,6 +161,7 @@ export class ExpenseCreateComponent implements OnChanges {
         this.selectedCategory = {name: data.category};
         this.selectedPayer = {name: data.payerEmail};
         this.expenseDeleted = data.deleted;
+        this.expenseArchived = data.archived;
         this.members = Object.entries(data.participants)
           .map(([email, percentage]) => ({
             email: email,
@@ -341,4 +343,7 @@ export class ExpenseCreateComponent implements OnChanges {
     return this.expenseDeleted === true;
   }
 
+  public expenseIsArchived(): boolean {
+    return this.expenseArchived === true;
+  }
 }
