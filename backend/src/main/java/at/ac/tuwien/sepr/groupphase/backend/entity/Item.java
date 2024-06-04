@@ -17,7 +17,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,11 +53,6 @@ public class Item {
     @Column
     @NotNull(message = "Unit must not be empty")
     private Unit unit;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinColumn(name = "item_list_id")
-    @JsonIgnore
-    private Blueprint blueprint;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "recipe_id")

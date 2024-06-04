@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
-import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
+import {ItemCreateDto, ItemDetailDto, PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
 import {RecipeListDto} from "../dtos/recipe";
 
 @Injectable({
@@ -38,12 +38,12 @@ export class PantryService {
   }
 
   /**
-   * Persists an item belonging to a pantry to the backend.
+   * Persists an item belonging to a pantry in the backend.
    *
    * @param id the pantry id
    * @param item to persist
    */
-  createItem(id: number, item: ItemCreateDto): Observable<PantryItemDetailDto> {
+  createItem(id: number, item: PantryItemCreateDto): Observable<PantryItemDetailDto> {
     return this.httpClient.post<PantryItemDetailDto>(`${this.pantryBaseUri}/${id}/pantry`, item);
   }
 

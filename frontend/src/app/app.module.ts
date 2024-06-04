@@ -80,6 +80,11 @@ import {InputNumberModule} from 'primeng/inputnumber';
 import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {PantryComponent} from "./components/pantry/pantry.component";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {RippleModule} from "primeng/ripple";
+import {TableModule} from "primeng/table";
+import {ToolbarModule} from "primeng/toolbar";
 
 
 @NgModule({
@@ -126,14 +131,14 @@ import {PantryComponent} from "./components/pantry/pantry.component";
     ShoppingListComponent,
     MenuCardComponent,
     InputTextModule,
-        InputNumberModule,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        DropdownModule,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent
+    InputNumberModule,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    DropdownModule,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule
   ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],

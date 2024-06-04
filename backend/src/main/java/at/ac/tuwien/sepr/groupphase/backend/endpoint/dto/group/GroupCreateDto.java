@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -27,7 +26,5 @@ public class GroupCreateDto {
     @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Invalid letters in the name (no special characters allowed)")
     private String groupName;
 
-    @NotNull(message = "Group must have at least one member")
-    @NotEmpty(message = "Group must have at least one member")
     private Set<String> members; // Email of the members
 }

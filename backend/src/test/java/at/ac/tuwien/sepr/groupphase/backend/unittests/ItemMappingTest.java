@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class ItemMappingTest extends BaseTest {
-    private final List<Item> items = List.of(new Item(1L, "Potato", 2, Unit.Piece, null, null));
+    private final List<Item> items = List.of(new Item(1L, "Potato", 2, Unit.Piece, null));
     @Autowired
     private ItemMapper itemMapper;
 

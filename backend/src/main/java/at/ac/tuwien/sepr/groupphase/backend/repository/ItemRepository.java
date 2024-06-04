@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.Blueprint;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;

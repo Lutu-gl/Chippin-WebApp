@@ -3,16 +3,42 @@
 //@import "bootstrap/scss/variables";
 //@import "bootstrap/scss/mixins";
 
-.min-width {
-  width: 0;
+.input-area {
+  margin-left:20px;
+  margin-top: 30px;
+}
+
+.upper {
+  margin-top:20px;
+  gap:10px;
 }
 
 .center-td > td {
   vertical-align: middle;
 }
 
+.field {
+  margin-top:10px;
+}
+
 .responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button, .responsive-success-button {
   opacity: 0;
+}
+.title {
+  margin-bottom:10px;
+font-weight:bold;
+  font-size:32px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.submit {
+  float:right;
+  margin-right:20px;
 }
 
 //@each $color in (info, warning, danger, success) {

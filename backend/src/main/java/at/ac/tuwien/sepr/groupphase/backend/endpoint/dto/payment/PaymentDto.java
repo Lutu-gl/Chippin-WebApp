@@ -31,4 +31,6 @@ public class PaymentDto {
     private Long groupId;
 
     private Boolean deleted;
+
+    private Boolean archived;
 }
