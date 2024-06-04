@@ -53,11 +53,18 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new AccessDeniedException("You do not have permission to access this expense");
         }
 
+        // if expense is not archived, then all participants of the expense should definitely be in the group
+        // if not they should be deleted from the participants list
+        if (expense.getArchived() == null || !expense.getArchived()) {
+            expense.getParticipants().keySet().removeIf(member -> !expense.getGroup().getUsers().contains(member));
+        }
+
         for (ApplicationUser member : expense.getGroup().getUsers()) {
             if (!expense.getParticipants().containsKey(member)) {
                 expense.getParticipants().put(member, 0.0);
             }
         }
+
 
         ExpenseDetailDto expenseDetailDto = expenseMapper.expenseEntityToExpenseDetailDto(expense);
         return expenseDetailDto;
