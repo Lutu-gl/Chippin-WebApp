@@ -19,4 +19,5 @@ export interface ExpenseDetailDto {
   group: GroupDto,
   participants: object,
   deleted: boolean
+  archived: boolean
 }

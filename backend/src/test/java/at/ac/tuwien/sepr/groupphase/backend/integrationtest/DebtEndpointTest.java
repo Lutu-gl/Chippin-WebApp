@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +66,10 @@ public class DebtEndpointTest extends BaseTest {
 
 
     @Test
+    @Transactional
     @WithMockUser("user1GE@example.com")
     public void retreiveDebtOfNonExistingGroupShouldReturnNotFound() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/debt/-666")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/debt/-3666")
                 .contentType(MediaType.APPLICATION_JSON))
             //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
             .andExpect(status().isNotFound());

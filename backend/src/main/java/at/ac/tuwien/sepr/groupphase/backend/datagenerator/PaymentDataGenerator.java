@@ -50,7 +50,7 @@ public class PaymentDataGenerator implements DataGenerator {
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
             // spezial group where expenses are inserted manually to test (f.e. debt)
-            if (group.getGroupName().equals("groupExample0")) {
+            if (group.getGroupName().equals("Chippin")) {
 
                 Payment payment =
                     Payment.builder()
@@ -59,6 +59,8 @@ public class PaymentDataGenerator implements DataGenerator {
                         .amount(20.0)
                         .date(LocalDateTime.now())
                         .group(group)
+                        .deleted(false)
+                        .archived(false)
                         .build();
 
                 Payment paymentDeleted = Payment.builder()
@@ -68,6 +70,7 @@ public class PaymentDataGenerator implements DataGenerator {
                     .date(LocalDateTime.now())
                     .group(group)
                     .deleted(true)
+                    .archived(false)
                     .build();
 
                 paymentRepository.save(paymentDeleted);
@@ -90,6 +93,8 @@ public class PaymentDataGenerator implements DataGenerator {
                 .amount(amount)
                 .date(LocalDateTime.now())
                 .group(group)
+                .deleted(false)
+                .archived(false)
                 .build();
 
             paymentRepository.save(payment);
