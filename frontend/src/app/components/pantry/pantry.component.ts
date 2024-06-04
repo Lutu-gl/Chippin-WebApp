@@ -156,6 +156,7 @@ export class PantryComponent implements OnInit {
   openNew() {
     this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = {
+      id: null,
       description: "",
       amount: 0,
       unit: DisplayedUnit.Piece,
@@ -171,6 +172,7 @@ export class PantryComponent implements OnInit {
     this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = pantryItemDetailDtoToPantryItemCreateDisplayDto(item);
     this.itemMergeEdit = {
+      id: null,
       description: "",
       amount: 0,
       unit: DisplayedUnit.Piece,
@@ -250,6 +252,51 @@ export class PantryComponent implements OnInit {
           } else {
             console.error('Could not update item: ', error);
             this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+          }
+        }
+      })
+
+      this.itemDialog = false;
+    }
+  }
+
+  mergeItems() {
+    this.submitted = true;
+
+    if (this.itemMergeEdit.description?.trim()
+      && inRange(this.itemMergeEdit.amount, 0, 1000001)
+      && (!this.itemMergeEdit.lowerLimit || inRange(this.itemMergeEdit.lowerLimit, 0, 1000001))) {
+
+      let mergeDto: PantryItemMergeDto = {
+        itemToDeleteId: this.itemMergeEdit.id,
+        result: pantryItemCreateDisplayDtoToPantryItemDetailDto(this.itemMergeEdit, this.createEditItem.id)
+      }
+
+      mergeDto.result.id = this.createEditItem.id;
+
+      this.service.mergeItems(mergeDto, this.id).subscribe({
+        next: dto => {
+          console.log("Updated item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `$Items merged`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not merge item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not merge item!`});
           }
         }
       })

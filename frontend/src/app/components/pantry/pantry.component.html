@@ -180,7 +180,7 @@
       label="Save"
       icon="pi pi-check"
       [text]="true"
-      (click)="edit ? editItem() : saveNewItem()"/>
+      (click)="edit ? (isEditSelected() ? editItem() : mergeItems()) : saveNewItem()"/>
   </ng-template>
 </p-dialog>
 <div class="flex flex-col items-center p-4">
