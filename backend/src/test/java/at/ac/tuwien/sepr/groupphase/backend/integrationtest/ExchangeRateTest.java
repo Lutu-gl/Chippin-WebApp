@@ -29,6 +29,7 @@ public class ExchangeRateTest {
     @Autowired
     private ExchangeRateService exchangeRateService;
 
+    //TODO VOR MR3 AKTIVIEREN
     //Add @Test manually if it needs testing
     public void getExchangeRatesFromApi_ThenRatesInPersistence() {
 
