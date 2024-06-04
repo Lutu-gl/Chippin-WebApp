@@ -55,7 +55,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         // if expense is not archived, then all participants of the expense should definitely be in the group
         // if not they should be deleted from the participants list
-        if (!expense.getArchived()) {
+        if (expense.getArchived() == null || !expense.getArchived()) {
             expense.getParticipants().keySet().removeIf(member -> !expense.getGroup().getUsers().contains(member));
         }
 
