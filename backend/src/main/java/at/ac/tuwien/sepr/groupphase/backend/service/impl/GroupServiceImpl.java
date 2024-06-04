@@ -103,7 +103,8 @@ public class GroupServiceImpl implements GroupService {
             for (ApplicationUser deletedMember : deletedMembers) {
                 List<Expense> allByGroupId = expenseRepository.findAllByGroupIdNotArchived(existingGroup.getId());
                 for (Expense expense : allByGroupId) {
-                    if (expense.getParticipants().containsKey(deletedMember)) {
+                    // TODO> look into this. There exist cases where members are in participants with value 0.0
+                    if (expense.getParticipants().containsKey(deletedMember) && expense.getParticipants().get(deletedMember) != 0.0) {
                         expense.setArchived(true);
                         expenseRepository.save(expense);
                     }
