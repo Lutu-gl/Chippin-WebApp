@@ -35,7 +35,12 @@ export class GroupCreateComponent implements OnInit {
   dummyMemberSelectionModel: unknown; // Just needed for the autocomplete
   filteredFriends: any[] | undefined;
   friends: any[] | undefined;
+
+  filteredFriendsEdit: any[] | undefined;
+  friendsEdit: any[] | undefined;
+
   protected membersEmails: string[] = [];
+  protected membersEmailsEdit: string[] = [];
 
   constructor(
     private service: GroupService,
@@ -89,6 +94,10 @@ export class GroupCreateComponent implements OnInit {
     return this.mode === GroupCreateEditMode.create;
   }
 
+  get modeIsEdit(): boolean {
+    return this.mode === GroupCreateEditMode.edit;
+  }
+
   get modeIsInfo(): boolean {
     return this.mode === GroupCreateEditMode.info;
   }
@@ -108,6 +117,9 @@ export class GroupCreateComponent implements OnInit {
     this.friendshipService.getFriends().subscribe({
       next: data => {
         this.friends = data;
+        if (this.modeIsEdit) {
+          this.friendsEdit = data.filter(friend => !this.membersEmails.includes(friend));
+        }
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -150,6 +162,7 @@ export class GroupCreateComponent implements OnInit {
         next: data => {
           this.group = data;
           this.membersEmails = data.members;
+          this.membersEmailsEdit = [];
         },
         error: error => {
           if (error && error.error && error.error.errors) {
@@ -182,6 +195,9 @@ export class GroupCreateComponent implements OnInit {
           observable = this.service.create(this.group);
           break;
         case GroupCreateEditMode.edit:
+          this.membersEmailsEdit.forEach(member => {
+            this.group.members.push(member)
+          });
           observable = this.service.update(this.group);
           break;
         default:
@@ -252,6 +268,23 @@ export class GroupCreateComponent implements OnInit {
     this.membersEmails.push(member.value);
   }
 
+  public addMemberEdit(member: AutoCompleteSelectEvent) {
+    setTimeout(() => {
+      this.currentlySelected = ""
+    });
+
+    if (!member.value) return;
+    if (this.membersEmailsEdit.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already in participant list`
+      });
+      return;
+    }
+    this.membersEmailsEdit.push(member.value);
+  }
+
   memberSuggestions = (input: string): Observable<UserSelection[]> =>
     this.friendshipService.getFriends()
       .pipe(map(members => members.map((h) => ({
@@ -265,6 +298,15 @@ export class GroupCreateComponent implements OnInit {
     }
 
     this.membersEmails.splice(index, 1);
+  }
+
+  public removeMemberEdit(index: number) {
+    if (this.authService.getEmail() == this.membersEmailsEdit[index]) {
+      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
+      return;
+    }
+
+    this.membersEmailsEdit.splice(index, 1);
   }
 
   filterMembers(event: AutoCompleteCompleteEvent) {
@@ -282,10 +324,37 @@ export class GroupCreateComponent implements OnInit {
     this.filteredFriends = filtered;
   }
 
-  getSortedMembersEmail(): string[] {
-    return this.membersEmails
+  filterMembersEdit(event: AutoCompleteCompleteEvent) {
+
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.friendsEdit as any[]).length; i++) {
+      let friend = (this.friendsEdit as any[])[i];
+      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(friend);
+      }
+    }
+
+    this.filteredFriendsEdit = filtered;
   }
 
+  getMembersEmail(): string[] {
+    return this.group.members
+  }
+
+  getSortedMembersEmail(): string[] {
+    return this.group.members.sort((a, b) => a.localeCompare(b));
+  }
+
+  // return only the members that are not in the group yet
+  getMembersEmailEdit(): string[] {
+    return this.membersEmailsEdit;
+    // return this.membersEmails.filter(member => !this.group.members.includes(member));
+  }
+  getSortedMembersEmailEdit(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.group.members.includes(member));
+  }
 
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
   currentlySelected: any;
