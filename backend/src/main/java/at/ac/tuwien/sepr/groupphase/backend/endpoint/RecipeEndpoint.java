@@ -3,7 +3,6 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.blueprint.BlueprintListDto;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
@@ -90,9 +89,9 @@ public class RecipeEndpoint {
     //TODO
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
-    public BlueprintListDto searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
+    public List<ItemDto> searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
         LOGGER.trace("GET /api/v1/recipe/{}/recipe/search", recipeId);
-        return new BlueprintListDto(itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
+        return (itemMapper.listOfItemsToListOfItemDto(recipeService.findItemsByDescription(searchParams.getDetails(), recipeId)));
     }
 
     @Secured("ROLE_USER")

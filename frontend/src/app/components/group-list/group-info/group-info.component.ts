@@ -16,6 +16,7 @@ import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
 import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
+import {group} from "@angular/animations";
 
 @Component({
   selector: 'app-group-info',
@@ -89,7 +90,7 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
   }
 
-  
+
   openInfoBudgetDialog(budgetId: number): void {
     console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
@@ -125,7 +126,14 @@ export class GroupInfoComponent implements OnInit {
           this.authService.logoutUser()
           this.router.navigate(['/login'])
         }
-      }
+      },
+      {
+        label: 'Leave Group',
+        icon: 'pi pi-sign-out',
+        command: () => {
+          this.confirmToLeaveGroup();
+          }
+        }
     ]
     // tab Menu
     this.tabMenuItems = [
@@ -177,9 +185,18 @@ export class GroupInfoComponent implements OnInit {
   getTransactions(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.activityService.getExpenseActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(transactions => {
-      console.log(transactions);
-      this.transactions = transactions;
+      transactions.forEach(transaction => {
+        this.transactions.push(transaction);
+      })
     });
+
+    this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
+      payments.forEach(payment => {
+        this.transactions.push(payment);
+      })
+   });
+    console.log(this.transactions.length)
+    console.log('transactions: ' + this.transactions);
   }
 
   getPayments(): void {
@@ -270,6 +287,13 @@ export class GroupInfoComponent implements OnInit {
     }
   }
 
+  getTransactionVarSorted():ActivityDetailDto[] {
+    return this.transactions.sort((a, b) => {
+      let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return bTime - aTime;
+    });
+  }
 
   // Sorts the members with debts by the amount of debt
   // First the members you own are shown, then the members that own you
@@ -346,7 +370,8 @@ export class GroupInfoComponent implements OnInit {
       payerEmail: this.authService.getEmail(),
       receiverEmail: this.selectedDebtMemberVar,
       deleted: false,
-      groupId: this.group.id
+      groupId: this.group.id,
+      archived: false
     }
 
     this.paymentService.createPayment(payment).subscribe({
@@ -378,6 +403,43 @@ export class GroupInfoComponent implements OnInit {
     this.amountOfSelectedDebtMember = undefined;
   }
 
+  confirmToLeaveGroup() {
+    this.confirmationService.confirm({
+      header: 'Attention!',
+      message: `All the Expenses and Payments get archived and will not be editable again<br>This action cannot be undone<br>Do you really want to leave the group?`,
+      acceptIcon: 'pi pi-check mr-2',
+      rejectIcon: 'pi pi-times mr-2',
+      rejectButtonStyleClass: 'p-button-sm',
+      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      accept: () => {
+        this.groupService.leaveGroup(this.group).subscribe({
+          next: () => {
+            this.messageService.add({severity:'success', summary:'Success', detail:`You left the group ${this.group.groupName} successfully!`});
+            this.router.navigate(['/home', 'groups']);
+          },
+          error: error => {
+            console.log(error);
+            if (error && error.error && error.error.errors) {
+              //this.notification.error(`${error.error.errors.join('. \n')}`);
+              for (let i = 0; i < error.error.errors.length; i++) {
+                this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
+              }
+            } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+              this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
+            } else if (error && error.error.detail) {
+              this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
+            } else {
+              console.error(`Leaving group did not work!`, error);
+              this.messageService.add({severity:'error', summary:'Error', detail:`Leaving group did not work!`});
+            }
+          }
+        });
+        },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Rejected', detail: 'You did not leave the group', life: 3000 });
+      }
+    });
+  }
 }
 
 // import {Component, OnInit} from '@angular/core';

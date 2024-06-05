@@ -47,4 +47,5 @@ public class Payment {
     private ApplicationUser receiver;
 
     private boolean deleted;
+    private Boolean archived;
 }

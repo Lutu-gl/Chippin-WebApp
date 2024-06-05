@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,7 +38,7 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
     @Mock
     private UserRepository userRepository;
 
-    @Autowired
+    @Mock
     private GroupRepository groupRepository;
 
     @InjectMocks
@@ -46,8 +46,7 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Test
     public void calculatingDebtOnGroupThatDoesntExistAndReturnsNothingNotFoundException() {
-        when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(new ArrayList<Object[]>());
-
+        when(groupRepository.getById(anyLong())).thenReturn(null);
 
         assertThrows(NotFoundException.class, () -> debtService.getById("user1@notfound.com", -666L));
     }
@@ -59,13 +58,18 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         objects.add(new Object[]{"user3@example.com", new BigDecimal(30)});
 
         when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
-        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
+        when(groupRepository.existsById(anyLong())).thenReturn(true);
 
-        DebtGroupDetailDto dto = debtService.getById("user1@example.com", groupExample0.getId());
+        GroupEntity groupExample0 = new GroupEntity();
+        groupExample0.setId(1L);
 
-        assertEquals(groupExample0.getId(), dto.getGroupId());
-        assertEquals(50.0d, dto.getMembersDebts().get("user2@example.com"));
-        assertEquals(30.0d, dto.getMembersDebts().get("user3@example.com"));
+        when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
+
+        DebtGroupDetailDto dto = debtService.getById("user1@example.com", 1L);
+
+        assertEquals(1L, dto.getGroupId());
+        assertEquals(50.0, dto.getMembersDebts().get("user2@example.com"));
+        assertEquals(30.0, dto.getMembersDebts().get("user3@example.com"));
     }
 
     @Test
@@ -75,13 +79,18 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         objects.add(new Object[]{"user3@example.com", new BigDecimal(80)});
 
         when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
-        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
+        when(groupRepository.existsById(anyLong())).thenReturn(true);
 
-        DebtGroupDetailDto dto = debtService.getById("user2@example.com", groupExample0.getId());
+        GroupEntity groupExample0 = new GroupEntity();
+        groupExample0.setId(2L);
 
-        assertEquals(groupExample0.getId(), dto.getGroupId());
-        assertEquals(-50.0d, dto.getMembersDebts().get("user1@example.com"));
-        assertEquals(80.0d, dto.getMembersDebts().get("user3@example.com"));
+        when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
+
+        DebtGroupDetailDto dto = debtService.getById("user2@example.com", 2L);
+
+        assertEquals(2L, dto.getGroupId());
+        assertEquals(-50.0, dto.getMembersDebts().get("user1@example.com"));
+        assertEquals(80.0, dto.getMembersDebts().get("user3@example.com"));
     }
 
     @Test
@@ -91,12 +100,17 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         objects.add(new Object[]{"user2@example.com", new BigDecimal(-80)});
 
         when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
-        GroupEntity groupExample0 = groupRepository.findByGroupName("groupExample0");
+        when(groupRepository.existsById(anyLong())).thenReturn(true);
 
-        DebtGroupDetailDto dto = debtService.getById("user3@example.com", groupExample0.getId());
+        GroupEntity groupExample0 = new GroupEntity();
+        groupExample0.setId(3L);
 
-        assertEquals(groupExample0.getId(), dto.getGroupId());
-        assertEquals(-30.0d, dto.getMembersDebts().get("user1@example.com"));
-        assertEquals(-80.0d, dto.getMembersDebts().get("user2@example.com"));
+        when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
+
+        DebtGroupDetailDto dto = debtService.getById("user3@example.com", 3L);
+
+        assertEquals(3L, dto.getGroupId());
+        assertEquals(-30.0, dto.getMembersDebts().get("user1@example.com"));
+        assertEquals(-80.0, dto.getMembersDebts().get("user2@example.com"));
     }
 }

@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.BudgetServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
@@ -31,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -86,6 +83,8 @@ public class ExpenseServiceTest {
                 .amount(10.0)
                 .payerEmail("test@email.com")
                 .participants(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))
+                .deleted(false)
+                .archived(false)
                 .build());
 
         // Execution

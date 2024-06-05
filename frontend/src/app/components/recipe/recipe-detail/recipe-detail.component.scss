@@ -65,13 +65,17 @@
   border-radius: 5px;
 }
 .recipe-description {
-  background: #e6fce7;
+  background: #f1f1f2;
   white-space: pre-line; /* This ensures that \n characters are rendered as line breaks */
   margin:20px;
   letter-spacing: 1px;
   line-height: 1.2;
 }
-
+.score-container {
+  width: 10px; /* Adjust the width as needed */
+  text-align: center; /* Center the text within the container */
+}
 .leftbuttons {
-
+  display: flex; /* Use flexbox for better control of spacing */
+  gap: 10px; /* Adjust the space between buttons */
 }

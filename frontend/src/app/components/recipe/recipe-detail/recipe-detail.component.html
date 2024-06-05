@@ -2,11 +2,7 @@
   <!-- Header part with diagram -->
   <div class="bg-blue-100">
     <div class="p-4 flex">
-      <!-- Left side buttons -->
-      <div class="leftbuttons flex space-x-2" >
-        <p-button (click)="openUsePantryDialog()" >Remove Ingredients from Pantry</p-button>
-        <p-button (click)="openUseShoppingListDialog()" >Add Items to Shopping List</p-button>
-      </div>
+
       <div class="w-2/3 flex justify-center">
 
         <div class="bg-blue-100 p-4 max-w-3xl mx-auto">
@@ -38,14 +34,14 @@
       <div class="flex flex-col justify-between items-start ml-4">
         <div class="mb-4">
           <h2 class="text-2xl font-bold">{{ recipe.name }}</h2>
-          <div class="text-sm"> Ingredients: {{recipe.ingredients.length}}</div>
+          <div class="text-sm"> For {{recipe.portionSize}} {{ recipe.portionSize === 1 ? "Person": "People" }}</div>
         </div>
         <div  class="flex space-x-2 mt-4">
-          <p-button icon="pi pi-print" severity="secondary" />
+          <p-button icon="pi pi-print" severity="secondary"/>
           <div *ngIf="isOwner()" class="flex space-x-2">
-          <button class="bg-red-300 text-black font-bold py-2 px-4 rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</button>
-          <button class="bg-red-200 text-black font-bold py-2 px-4 rounded" (click)="deleteRecipe()">Delete</button>
-          </div >
+          <p-button class="rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</p-button>
+          <p-button class="rounded" (click)="deleteRecipe()">Delete</p-button>
+          </div>
         </div>
       </div>
       <div class="flex flex-row justify-between items-start ml-4">
@@ -53,24 +49,29 @@
 
           <p-button *ngIf="!recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true" severity="info" (click)="like()" [disabled]="recipe.likedByUser"></p-button>
           <p-button *ngIf="recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true" [raised]="true" severity="info"></p-button>
-
-          <div class="ml-auto flex items-center space-x-4">
+<!-- TODO Global -> Detail erlaubt zweiten Like-->
+          <div class="score-container">
             {{ getScore(recipe) }}
           </div>
-          <div class="ml-auto flex items-center space-x-4">
-            <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true" [raised]="true" severity="danger" (click)="dislike()" [disabled]="recipe.dislikedByUser"></p-button>
-            <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true" [raised]="true" severity="danger"></p-button>
-          </div>
+
+          <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true" [raised]="true" severity="danger" (click)="dislike()" [disabled]="recipe.dislikedByUser"></p-button>
+          <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true" [raised]="true" severity="danger"></p-button>
+
         </div>
 
       </div>
+    </div>
+    <!-- Left side buttons -->
+    <div class="leftbuttons  text-black font-bold py-2 px-4 rounded " >
+      <p-button  (click)="openUsePantryDialog()" >Remove Ingredients from Pantry </p-button>
+      <p-button class="p-button-sm" (click)="openUseShoppingListDialog()" >Add Items to Shopping List</p-button>
     </div>
   </div>
 
 
 
 
-  <div class="recipe-description bg-blue-200 p-6 pt-8 pb-8 rounded-lg shadow-md flex justify-between items-left" [innerHTML]="formattedDescription">{{recipe.description}}  </div>
+  <div class="recipe-description  p-6 pt-8 pb-8 rounded-lg shadow-md flex justify-between items-left" [innerHTML]="formattedDescription">{{recipe.description}}  </div>
   <!-- Ingredients -->
   <div class="p-4 max-w-2xl text-left">
     <ng-container *ngFor="let ingredient of recipe.ingredients; let i = index">

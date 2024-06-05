@@ -3,6 +3,7 @@ import {RecipeListDto, RecipeSearch} from "../../dtos/recipe";
 import {ActivatedRoute} from "@angular/router";
 import {RecipeService} from "../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 
 @Component({
@@ -22,7 +23,9 @@ export class RecipeComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: RecipeService
+    private service: RecipeService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
   }
 
@@ -37,7 +40,7 @@ export class RecipeComponent implements OnInit {
           }
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error)
         }
       });
     this.searchChangedObservable
@@ -61,7 +64,7 @@ export class RecipeComponent implements OnInit {
         this.recipes = res;
       },
       error: err => {
-        this.defaultServiceErrorHandling(err);
+        this.printError(err);
       }
     });
   }
@@ -72,13 +75,18 @@ export class RecipeComponent implements OnInit {
 }
 
 
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+      }
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      this.errorMessage = error.error;
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
 }

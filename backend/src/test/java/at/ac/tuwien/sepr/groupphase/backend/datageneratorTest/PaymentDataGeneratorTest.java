@@ -59,6 +59,8 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                         .amount(20.0)
                         .date(LocalDateTime.now())
                         .group(group)
+                        .deleted(false)
+                        .archived(false)
                         .build();
 
                 Payment paymentDeleted = Payment.builder()
@@ -68,6 +70,7 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                     .date(LocalDateTime.now())
                     .group(group)
                     .deleted(true)
+                    .archived(false)
                     .build();
 
                 paymentRepository.save(paymentDeleted);
@@ -90,6 +93,8 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                 .amount(amount)
                 .date(LocalDateTime.now())
                 .group(group)
+                .archived(false)
+                .deleted(false)
                 .build();
 
             paymentRepository.save(payment);
