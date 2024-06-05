@@ -4,19 +4,19 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ShoppingListValidator {
 
     private final ShoppingListRepository shoppingListRepository;
-
-    public ShoppingListValidator(ShoppingListRepository shoppingListRepository) {
-        this.shoppingListRepository = shoppingListRepository;
-    }
 
     public void validateForUpdateGroup(ShoppingListUpdateDto shoppingListUpdateDto, ShoppingList shoppingListEntity) throws ConflictException {
         if (shoppingListUpdateDto.getGroup().getId().equals(shoppingListEntity.getGroup().getId())) {

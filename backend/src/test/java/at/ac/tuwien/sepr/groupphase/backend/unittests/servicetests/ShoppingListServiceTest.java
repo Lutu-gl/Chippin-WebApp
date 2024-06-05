@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -42,6 +43,9 @@ public class ShoppingListServiceTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Spy
     private ShoppingListMapperImpl shoppingListMapper;
+
+    @Mock
+    private ShoppingListValidator shoppingListValidator;
 
     @Mock
     private UserRepository userRepository;
