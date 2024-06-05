@@ -102,7 +102,7 @@
             id="selectItemToMergeWith"
             [(ngModel)]="itemMergeEdit"
             (onChange)="setItemToMerge(createEditItem)"
-            [options]="items">
+            [options]="mergeItemsSelectOptions(createEditItem)">
             <ng-template let-item pTemplate="item">
               {{item.description}} {{formatAmount(item)}}
             </ng-template>

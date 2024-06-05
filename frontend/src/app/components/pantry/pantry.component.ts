@@ -457,6 +457,10 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
+    return this.items.filter(i => i.id != item.id);
+  }
+
   protected readonly getStepSize = getStepSize;
   protected readonly DisplayedUnit = DisplayedUnit;
   protected readonly Object = Object;
