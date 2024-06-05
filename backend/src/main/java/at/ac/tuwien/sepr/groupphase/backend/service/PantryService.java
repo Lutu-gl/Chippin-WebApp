@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryI
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
 
@@ -59,8 +60,9 @@ public interface PantryService {
      * @param itemMergeDto contains the item to update and the id of the item to delete
      * @param pantryId     the id of the pantry
      * @return the updated item
+     * @throws ConflictException when the id of the two items to merge is the same
      */
-    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
+    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
 
     /**
      * Get recipes with ingredients that are stored in the pantry.
