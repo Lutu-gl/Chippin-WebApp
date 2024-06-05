@@ -42,6 +42,7 @@
   [style]="{ width: '50vw' }"
   [draggable]="false"
   [resizable]="false"
+  (onHide)="budgetModalClose()"
 >
 <p-header>
   <div
@@ -267,26 +268,35 @@
 
 
 
+  <!-- <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+  <p-progressBar [value]="50" />
+  </div>   -->
+
+  
+
     <!-- Budget tab -->
-  <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
-    <div class="flex justify-center mb-4">
-      <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
-        <span class="text-xl mr-2">+</span> Add Budget
-      </button>
-    </div>
-    <div class="h-96 overflow-y-auto overflow-x-hidden">
-      <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
-        <a class="no-underline text-black">
-          <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
-          flex justify-between items-center
-          hover:bg-slate-100 hover:cursor-pointer">
-            <div>{{ budget.name }} [{{budget.category}}]: {{budget.alreadySpent}} / {{ budget.amount }}€</div>
-          </div>
-        </a>
+    <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+      <div class="flex justify-center mb-4">
+        <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+          <span class="text-xl mr-2">+</span> Add Budget
+        </button>
+      </div>
+      <div class="h-96 overflow-y-auto overflow-x-hidden">
+        <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
+          <a class="text-black rounded-md outline outline-1 outline-slate-300">
+            <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
+              <p-progressBar [value]="getBudgetPercentage(budget)">
+                <ng-template pTemplate="content" let-value> 
+                <span>{{value}}%</span>    
+                </ng-template>
+                <div [ngClass]="getProgressBarColor(budget)"></div>
+              </p-progressBar>
+                <div>{{ budget.name }} [{{budget.category}}]</div>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-
 
   <app-pantry *ngIf="isPantrySelected()"></app-pantry>
   <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>

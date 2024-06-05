@@ -63,6 +63,7 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
 import {SplitButtonModule} from "primeng/splitbutton";
 import {MenuModule} from "primeng/menu";
 import {ChipsModule} from "primeng/chips";
+import { ProgressBarModule } from 'primeng/progressbar';
 import {FloatLabelModule} from "primeng/floatlabel";
 import {PasswordModule} from "primeng/password";
 import {DividerModule} from "primeng/divider";
@@ -132,6 +133,7 @@ import {ToolbarModule} from "primeng/toolbar";
     MenuCardComponent,
     InputTextModule,
     InputNumberModule,
+    ProgressBarModule,
     GroupInfoCardContentComponent,
     FriendsInfoCardContentComponent,
     ExpenseInfoCardContentComponent,

@@ -70,7 +70,16 @@ export class GroupInfoComponent implements OnInit {
   closeCreateBudgetDialog(): void {
     console.log("closeCreateBudgetDialog")
     this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
     this.ngOnInit();
+  }
+
+  budgetModalClose() {
+    console.log('Modal closed');
+    // Perform any additional actions you need here
+    this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+    console.log(this.budgetDialogMode)
   }
 
   openCreateExpenseDialog(): void {
@@ -92,16 +101,43 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
-    console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
-        console.log(this.budgetDialogMode)
     this.budgetDialogBudgetId = budgetId;
-    console.log(budgetId)
     this.isBudgetDialogVisible = true;
   }
 
   public budgetModeIsCreate(): boolean {
     return this.budgetDialogMode === BudgetCreateEditMode.create;
+  }
+
+
+  getBudgetPercentage(budget: any): number {
+    return Math.round((budget.alreadySpent / budget.amount) * 100);
+  }
+
+  // getProgressBarColor(budget: any): string {
+  //   const percentage = this.getBudgetPercentage(budget);
+  //   console.log("Farbe bestimmen")
+  //   if (percentage < 50) {
+  //     return '#bg-green-50'; // blue
+  //   } else if (percentage >= 50 && percentage <= 85) {
+  //     return '#bg-blue-50'; // Blau (standardmäßig)
+  //   } else {
+  //     return 'bg-red-50'; // Rot
+  //   }
+  // }
+  
+  getProgressBarColor(budget: any): string {
+    const percentage = this.getBudgetPercentage(budget);
+    let barcolor = "";
+    if (percentage < 50) {
+      barcolor = 'bg-green-50'; // Green
+    } else if (percentage >= 50 && percentage <= 85) {
+      barcolor = 'bg-blue-50'; // Blue (default)
+    } else {
+      barcolor = 'bg-red-50'; // Red
+    }
+    return barcolor;
   }
 
   ngOnInit(): void {
