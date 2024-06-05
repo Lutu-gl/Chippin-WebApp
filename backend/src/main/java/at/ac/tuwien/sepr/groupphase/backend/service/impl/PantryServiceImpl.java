@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
@@ -115,7 +116,10 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) {
+    public PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException {
+        if(itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
+            throw new ConflictException("Merging Error", List.of("Can not merge item with itself"));
+        }
         deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
         return updateItem(itemMergeDto.getResult(), pantryId);
     }
