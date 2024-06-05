@@ -98,6 +98,7 @@ export class ShoppingListDetailComponent implements OnInit {
   shoppingListDetailDto: ShoppingListDetailDto;
   groupId: number;
   userEmail: string;
+  userId: number;
   shoppingListId: number;
   selectedItem: ShoppingListItemDto;
   draggedItem: ShoppingListItemDto;
@@ -125,6 +126,7 @@ export class ShoppingListDetailComponent implements OnInit {
     });
 
     this.userEmail = this.authService.getEmail();
+    this.userId = this.authService.getUserId();
 
     // this.units has to be an array the values of the enum DisplayedUnit
     //q: How do i do that?
@@ -167,6 +169,14 @@ export class ShoppingListDetailComponent implements OnInit {
       }
     ]
 
+
+
+    this.loadShoppingListDetailDto();
+
+
+  }
+
+  setShoppingCartMenuItems() {
     this.shoppingCartItemMenuItems = [
       {
         label: "Move to pantry",
@@ -230,16 +240,20 @@ export class ShoppingListDetailComponent implements OnInit {
           this.toggleChecked(this.selectedItem.id);
         }
       }
-
     ]
 
-    this.loadShoppingListDetailDto();
+    if (!this.shoppingListDetailDto?.group){
+      // Remove "move to pantry" button
+      this.shoppingCartItemMenuItems = this.shoppingCartItemMenuItems.filter(item => item.label !== "Move to pantry");
+    }
+
   }
 
   loadShoppingListDetailDto(): void {
     this.shoppingListService.getShoppingListById(this.shoppingListId).subscribe({
       next: shoppingList => {
         this.shoppingListDetailDto = shoppingList;
+        this.setShoppingCartMenuItems();
       },
       error: err => {
         console.error(err);
@@ -263,12 +277,22 @@ export class ShoppingListDetailComponent implements OnInit {
         this.messageService.add({severity: 'success', summary: 'Success', detail: 'Shopping list deleted'});
         this.router.navigate(['/']);
       },
-      error: err => {
-        console.error(err);
-        let error = err.error;
-        this.messageService.add({severity: 'error', summary: 'Error deleting shopping list', detail: error});
+      error: error => {
+        console.error(error);
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not delete shopping list', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not delete shopping list!`});
+        }
       }
-    });
+      });
   }
 
   selectItem(item: ShoppingListItemDto) {
@@ -543,4 +567,47 @@ export class ShoppingListDetailComponent implements OnInit {
   }
 
   protected readonly displayQuantity = displayQuantity;
+
+  confirmDeleteAllInCart() {
+    if (this.getShoppingCartItems().length < 1) {
+      this.messageService.add({severity: 'warn', summary: 'Info', detail: 'No items in shopping cart'});
+      return;
+    }
+    this.confirmationService.confirm({
+      header: "Delete all items in shopping cart",
+      message: `Are you sure you want to delete all items in the shopping cart?`,
+      acceptLabel: "Delete",
+      acceptButtonStyleClass: "p-button-danger p-button-text",
+      rejectLabel: "Cancel",
+      rejectButtonStyleClass: "p-button-secondary p-button-text",
+      accept: () => {
+        this.deleteAllItemsInCart();
+      },
+      reject: () => {
+        this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
+      }
+    })
+  }
+
+  deleteAllItemsInCart() {
+    this.shoppingListService.deleteAllItemsInCart(this.authService.getUserId(), this.shoppingListDetailDto.id).subscribe({
+      next: () => {
+        this.loadShoppingListDetailDto();
+        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Deleted all items in shopping cart'});
+      },
+      error: err => {
+        console.error(err);
+        if (err.error) {
+          this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: err.error});
+        }
+        if (err.error.error) {
+          this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: err.error.error});
+        }
+        if (err.error.error.errors) {
+          err.error.error.errors.forEach((error: any) => {
+            this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: error.defaultMessage});
+          })
+        }
+      }});
+  }
 }

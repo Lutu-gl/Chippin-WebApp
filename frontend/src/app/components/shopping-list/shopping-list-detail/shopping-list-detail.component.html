@@ -31,7 +31,10 @@
     <div class="flex flex-col gap-1 items-end justify-center pr-6">
       <p-button label="Edit" icon="pi pi-pencil" severity="info" (click)="this.showEditModal = true"></p-button>
       <p-confirmDialog></p-confirmDialog>
-      <p-button label="Delete" icon="pi pi-trash" severity="danger" (click)="confirmDelete()"></p-button>
+      <div pTooltip="Only the owner can delete a shopping list" [tooltipDisabled]="shoppingListDetailDto.owner.id === userId">
+        <p-button label="Delete" icon="pi pi-trash" severity="danger"
+                  [disabled]="shoppingListDetailDto.owner.id !== userId" (click)="confirmDelete()"></p-button>
+      </div>
     </div>
   </div>
 
@@ -77,13 +80,18 @@
         </div>
       </div>
     </div>
+    <!-- Shopping cart -->
     <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
       <div class="flex gap-2 justify-between items-center">
         <h3>Shopping Cart</h3>
-        <p-button label="Move all to pantry" icon="pi pi-check-square" severity="primary" [outlined]="true"
+        <p-button *ngIf="!!shoppingListDetailDto.group" label="Move all to pantry" icon="pi pi-check-square"
+                  severity="primary" [outlined]="true"
                   [text]="true"
                   (click)="confirmMoveAllItemsInCartToPantry()"></p-button>
-
+        <p-button *ngIf="!shoppingListDetailDto.group" label="Delete all in cart" icon="pi pi-trash" severity="primary"
+                  [outlined]="true"
+                  [text]="true"
+                  (click)="confirmDeleteAllInCart()"></p-button>
       </div>
       <div class="flex flex-col gap-2">
         <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
@@ -95,7 +103,7 @@
           <div class="flex gap-2 w-2/3">
             <p
               class="text-sm w-1/4">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
-            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}" showDelay="400"
+            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
                 tooltipPosition="left">{{ item.item.description }}</h3>
           </div>
           <div>

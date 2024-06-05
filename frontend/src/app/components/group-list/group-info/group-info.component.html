@@ -265,6 +265,8 @@
     </div>
   </div>
 
+  <!-- Shopping lists tab -->
+  <app-shopping-lists-in-group *ngIf="isShoppingListsSelected()" [groupId]="group.id"></app-shopping-lists-in-group>
 
 
     <!-- Budget tab -->
@@ -289,7 +291,6 @@
 
 
   <app-pantry *ngIf="isPantrySelected()"></app-pantry>
-  <div *ngIf="isShoppingListsSelected()">Shopping lists works</div>
 
 </div>
 
