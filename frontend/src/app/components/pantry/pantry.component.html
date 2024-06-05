@@ -114,7 +114,7 @@
       </div>
       <div class="field">
         <div class="p-4">
-          <div *ngIf="itemMergeEdit">
+          <div *ngIf="itemMergeEdit.id">
             <div class="field pt-5">
               <label for="itemToMergeWithName">Name</label>
               <input
@@ -122,7 +122,7 @@
                 pInputText
                 id="itemToMergeWithName"
                 [(ngModel)]="itemMergeEdit.description"
-                [disabled]="itemMergeEdit.description === createEditItem.description"
+                [disabled]="itemMergeEditReset.description === createEditItem.description"
                 minlength="2"
                 maxlength="60"
                 required
@@ -135,7 +135,7 @@
               <label for="itemToMergeWithUnit">Unit</label>
               <p-dropdown
                 [(ngModel)]="itemMergeEdit.unit"
-                [disabled]="itemMergeEdit.unit === createEditItem.unit"
+                [disabled]="itemMergeEditReset.unit === createEditItem.unit"
                 id="itemToMergeWithUnit"
                 [options]="Object.values(DisplayedUnit)"
                 (onChange)="getAmountForCreateEdit(itemMergeEdit)">
@@ -146,7 +146,7 @@
               <p-inputNumber
                 id="itemToMergeWithAmount"
                 [(ngModel)]="itemMergeEdit.amount"
-                [disabled]="itemMergeEdit.unit === createEditItem.unit"
+                [disabled]="itemMergeEditReset.unit === createEditItem.unit"
                 [min]="0"
                 [max]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 1000 : 1000000"
                 [minFractionDigits]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 2 : 0"
@@ -168,20 +168,26 @@
       </div>
     </div>
   </ng-template>
-  <ng-template pTemplate="footer">
+  <p-footer>
+    <p-button *ngIf="edit"
+      pRipple
+      label="Reset"
+      severity="secondary"
+      icon="pi pi-replay"
+      (click)="isEditSelected() ? resetEditItem() : resetMergeItem()"/>
     <p-button
       pRipple
       label="Cancel"
+      severity="danger"
       icon="pi pi-times"
-      [text]="true"
       (click)="hideDialog()"/>
     <p-button
       pRipple
       label="Save"
+      severity="success"
       icon="pi pi-check"
-      [text]="true"
       (click)="edit ? (isEditSelected() ? editItem() : mergeItems()) : saveNewItem()"/>
-  </ng-template>
+  </p-footer>
 </p-dialog>
 <div class="flex flex-col items-center p-4">
   <div class="container mx-auto px-12 py-4 bg-gray-100 rounded text-center">

@@ -84,8 +84,9 @@ export class PantryComponent implements OnInit {
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
+  createEditItemReset!: PantryItemCreateDisplayDto;
   itemMergeEdit!: PantryItemCreateDisplayDto;
-  itemMergeDto!: PantryItemMergeDto;
+  itemMergeEditReset!: PantryItemCreateDisplayDto;
   itemToEditId: number;
   submitted: boolean = false;
   edit: boolean = false;
@@ -104,6 +105,13 @@ export class PantryComponent implements OnInit {
   }
 
   onActiveItemChange(event: MenuItem) {
+    this.itemMergeEdit = {
+      id: null,
+      description: "",
+      amount: 0,
+      unit: DisplayedUnit.Piece,
+      lowerLimit: null,
+    };
     this.tabMenuActiveItem = event;
   }
 
@@ -178,8 +186,8 @@ export class PantryComponent implements OnInit {
       unit: DisplayedUnit.Piece,
       lowerLimit: null,
     };
-    console.log(item);
-    console.log(this.createEditItem);
+    this.createEditItemReset = {...this.createEditItem};
+    console.log(this.createEditItemReset);
     this.edit = true;
     this.itemToEditId = item.id;
     this.submitted = false;
@@ -306,8 +314,20 @@ export class PantryComponent implements OnInit {
   }
 
   setItemToMerge(baseItem: PantryItemCreateDisplayDto) {
+    //Work on copy of item
+    //Prevents changing items in item list
     this.itemMergeEdit = { ...this.itemMergeEdit };
     this.itemMergeEdit.amount += baseItem.unit === this.itemMergeEdit.unit ? baseItem.amount : 0;
+    this.itemMergeEditReset = {...this.itemMergeEdit};
+    console.log(this.itemMergeEditReset);
+  }
+
+  resetEditItem() {
+    this.createEditItem = {...this.createEditItemReset};
+  }
+
+  resetMergeItem() {
+    this.itemMergeEdit = {...this.itemMergeEditReset};
   }
 
   getPantry(id: number) {
