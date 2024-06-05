@@ -195,5 +195,45 @@ public class ShoppingListItemTest extends BaseTest {
 
     }
 
+    @Test
+    @WithMockUser
+    public void givenValidShoppingListId_whenDeleteCheckedItems_thenCheckedItemsAreDeleted() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find a shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var itemAmount = shoppingList.getItems().size();
+
+        var owner = shoppingList.getOwner();
+
+        // Check 3 items
+        var items = shoppingList.getItems().subList(0, 3);
+        items.forEach(i -> i.setCheckedBy(owner));
+        shoppingListRepository.save(shoppingList);
+
+        // Delete the checked items
+        mockMvc.perform(delete("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items/checked-items"))
+            .andExpect(status().isOk());
+
+        // Check if the checked items were deleted
+        var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertAll(
+            () -> assertThat(updatedShoppingList.getItems().stream().noneMatch(i -> i.getCheckedBy() != null)).isTrue(),
+            () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemAmount - 3)
+        );
+    }
+
+    @Test
+    @WithMockUser
+    public void givenInvalidShoppingListId_whenDeleteCheckedItems_thenNotFoundException() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Delete the checked items
+        mockMvc.perform(delete("/api/v1/users/-1/shopping-lists/-1/items/checked-items"))
+            .andExpect(status().isNotFound());
+    }
+
 
 }
