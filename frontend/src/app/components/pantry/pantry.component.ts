@@ -4,8 +4,11 @@ import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
   PantryItemCreateDisplayDto,
-  pantryItemCreateDisplayDtoToPantryItemCreateDto, pantryItemCreateDisplayDtoToPantryItemDetailDto,
-  PantryItemDetailDto, pantryItemDetailDtoToPantryItemCreateDisplayDto,
+  pantryItemCreateDisplayDtoToPantryItemCreateDto,
+  pantryItemCreateDisplayDtoToPantryItemDetailDto,
+  PantryItemDetailDto,
+  pantryItemDetailDtoToPantryItemCreateDisplayDto,
+  PantryItemMergeDto,
 } from "../../dtos/item";
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -31,11 +34,12 @@ import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {
-  getAmountForCreateEdit,
   formatAmount,
+  formatLowerLimit,
+  getAmountForCreateEdit,
   getStepSize,
   getSuffix,
-  getSuffixForCreateEdit, formatLowerLimit, getLimitSuffix
+  getSuffixForCreateEdit
 } from "../../util/unit-helper";
 import {inRange} from "lodash";
 import {TabMenuModule} from "primeng/tabmenu";
@@ -80,6 +84,9 @@ export class PantryComponent implements OnInit {
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
+  createEditItemReset!: PantryItemCreateDisplayDto;
+  itemMergeEdit!: PantryItemCreateDisplayDto;
+  itemMergeEditReset!: PantryItemCreateDisplayDto;
   itemToEditId: number;
   submitted: boolean = false;
   edit: boolean = false;
@@ -98,7 +105,15 @@ export class PantryComponent implements OnInit {
   }
 
   onActiveItemChange(event: MenuItem) {
+    this.itemMergeEdit = {
+      id: null,
+      description: "",
+      amount: 0,
+      unit: DisplayedUnit.Piece,
+      lowerLimit: null,
+    };
     this.tabMenuActiveItem = event;
+    this.itemMergeEditReset = {...this.itemMergeEdit};
   }
 
   isEditSelected(): boolean {
@@ -148,7 +163,9 @@ export class PantryComponent implements OnInit {
   }
 
   openNew() {
+    this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = {
+      id: null,
       description: "",
       amount: 0,
       unit: DisplayedUnit.Piece,
@@ -161,9 +178,17 @@ export class PantryComponent implements OnInit {
   }
 
   openEdit(item: PantryItemDetailDto) {
+    this.tabMenuActiveItem = this.tabMenuItems[0]
     this.createEditItem = pantryItemDetailDtoToPantryItemCreateDisplayDto(item);
-    console.log(item);
-    console.log(this.createEditItem);
+    this.itemMergeEdit = {
+      id: null,
+      description: "",
+      amount: 0,
+      unit: DisplayedUnit.Piece,
+      lowerLimit: null,
+    };
+    this.createEditItemReset = {...this.createEditItem};
+    console.log(this.createEditItemReset);
     this.edit = true;
     this.itemToEditId = item.id;
     this.submitted = false;
@@ -242,6 +267,68 @@ export class PantryComponent implements OnInit {
 
       this.itemDialog = false;
     }
+  }
+
+  mergeItems() {
+    this.submitted = true;
+
+    if (this.itemMergeEdit.description?.trim()
+      && inRange(this.itemMergeEdit.amount, 0, 1000001)
+      && (!this.itemMergeEdit.lowerLimit || inRange(this.itemMergeEdit.lowerLimit, 0, 1000001))) {
+
+      let mergeDto: PantryItemMergeDto = {
+        itemToDeleteId: this.itemMergeEdit.id,
+        result: pantryItemCreateDisplayDtoToPantryItemDetailDto(this.itemMergeEdit, this.createEditItem.id)
+      }
+
+      mergeDto.result.id = this.createEditItem.id;
+
+      this.service.mergeItems(mergeDto, this.id).subscribe({
+        next: dto => {
+          console.log("Updated item: ", dto);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `$Items merged`,
+            life: 3000
+          });
+          this.getPantry(this.id);
+        },
+        error: error => {
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+          } else if (error && error.error && error.error.detail) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+          } else {
+            console.error('Could not merge item: ', error);
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not merge item!`});
+          }
+        }
+      })
+
+      this.itemDialog = false;
+    }
+  }
+
+  setItemToMerge(baseItem: PantryItemCreateDisplayDto) {
+    //Work on copy of item
+    //Prevents changing items in item list
+    this.itemMergeEdit = { ...this.itemMergeEdit };
+    this.itemMergeEdit.amount += baseItem.unit === this.itemMergeEdit.unit ? baseItem.amount : 0;
+    this.itemMergeEditReset = {...this.itemMergeEdit};
+    console.log(this.itemMergeEditReset);
+  }
+
+  resetEditItem() {
+    this.createEditItem = {...this.createEditItemReset};
+  }
+
+  resetMergeItem() {
+    this.itemMergeEdit = {...this.itemMergeEditReset};
   }
 
   getPantry(id: number) {
@@ -391,6 +478,10 @@ export class PantryComponent implements OnInit {
     });
   }
 
+  mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
+    return this.items.filter(i => i.id != item.id);
+  }
+
   protected readonly getStepSize = getStepSize;
   protected readonly DisplayedUnit = DisplayedUnit;
   protected readonly Object = Object;
@@ -399,5 +490,5 @@ export class PantryComponent implements OnInit {
   protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
   protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
   protected readonly formatLowerLimit = formatLowerLimit;
-  protected readonly getLimitSuffix = getLimitSuffix;
+  protected readonly formatAmount = formatAmount
 }

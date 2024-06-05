@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -92,7 +93,7 @@ public class PantryEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry/merged")
-    public PantryItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) {
+    public PantryItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) throws ConflictException {
         LOGGER.trace("PUT /api/v1/group/{}/pantry/merged body: {}", pantryId, itemMergeDto);
         return itemMapper.pantryItemToPantryItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
     }
