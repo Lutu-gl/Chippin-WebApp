@@ -117,7 +117,7 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException {
-        if(itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
+        if (itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
             throw new ConflictException("Merging Error", List.of("Can not merge item with itself"));
         }
         deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
