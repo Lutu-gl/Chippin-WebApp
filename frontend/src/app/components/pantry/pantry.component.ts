@@ -113,6 +113,7 @@ export class PantryComponent implements OnInit {
       lowerLimit: null,
     };
     this.tabMenuActiveItem = event;
+    this.itemMergeEditReset = {...this.itemMergeEdit};
   }
 
   isEditSelected(): boolean {
