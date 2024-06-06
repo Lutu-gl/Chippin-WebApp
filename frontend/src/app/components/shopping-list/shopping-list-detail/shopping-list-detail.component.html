@@ -8,6 +8,16 @@
         <h2>Categories: </h2>
         <p-tag *ngFor="let category of shoppingListDetailDto.categories" severity="info" value="{{category}}"></p-tag>
       </div>
+      <!-- Owner -->
+      <div *ngIf="shoppingListDetailDto?.owner" class="flex gap-2 items-center">
+        <h2>Owner: </h2>
+        <button type="button">
+          <p-tag
+            severity="info"
+            value="{{ shoppingListDetailDto?.owner.email === userEmail ? 'You' : shoppingListDetailDto?.owner.email  }}">
+          </p-tag>
+        </button>
+      </div>
       <!-- Group -->
       <div *ngIf="shoppingListDetailDto?.group" class="flex gap-2 items-center">
         <h2>Group: </h2>
@@ -19,11 +29,17 @@
       </div>
     </div>
     <div class="flex flex-col gap-1 items-end justify-center pr-6">
-      <p-button label="Edit" icon="pi pi-pencil" severity="info" [routerLink]="['edit']"></p-button>
+      <p-button label="Edit" icon="pi pi-pencil" severity="info" (click)="this.showEditModal = true"></p-button>
       <p-confirmDialog></p-confirmDialog>
-      <p-button label="Delete" icon="pi pi-trash" severity="danger" (click)="confirmDelete()"></p-button>
+      <div pTooltip="Only the owner can delete a shopping list" [tooltipDisabled]="shoppingListDetailDto.owner.id === userId">
+        <p-button label="Delete" icon="pi pi-trash" severity="danger"
+                  [disabled]="shoppingListDetailDto.owner.id !== userId" (click)="confirmDelete()"></p-button>
+      </div>
     </div>
   </div>
+
+  <app-shopping-list-edit-modal [(visible)]="showEditModal" (update)="loadShoppingListDetailDto()"
+                                [shoppingList]="shoppingListDetailDto"></app-shopping-list-edit-modal>
 
   <div class="w-full">
     <p-divider></p-divider>
@@ -47,8 +63,7 @@
         class="flex justify-between items-center hover:outline outline-1 outline-slate-300 w-full bg-sky-100 px-6 py-4 gap-4 shadow-md shadow-gray-200 rounded-lg cursor-move"
         *ngFor="let item of getShoppingListItems()" pDraggable (onDragStart)="dragStart(item)" (onDragEnd)="dragEnd()">
         <div class="flex flex-col gap-1 w-1/3">
-          <h3 class="font-medium truncate" pTooltip="{{item.item.description}}" tooltipPosition="left"
-              showDelay="400">{{ item.item.description }}</h3>
+          <h3 class="font-medium truncate">{{ item.item.description }}</h3>
           <p
             class="text-sm">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
         </div>
@@ -64,13 +79,18 @@
         </div>
       </div>
     </div>
+    <!-- Shopping cart -->
     <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
       <div class="flex gap-2 justify-between items-center">
         <h3>Shopping Cart</h3>
-        <p-button label="Move all to pantry" icon="pi pi-check-square" severity="primary" [outlined]="true"
+        <p-button *ngIf="!!shoppingListDetailDto.group" label="Move all to pantry" icon="pi pi-check-square"
+                  severity="primary" [outlined]="true"
                   [text]="true"
                   (click)="confirmMoveAllItemsInCartToPantry()"></p-button>
-
+        <p-button *ngIf="!shoppingListDetailDto.group" label="Delete all in cart" icon="pi pi-trash" severity="primary"
+                  [outlined]="true"
+                  [text]="true"
+                  (click)="confirmDeleteAllInCart()"></p-button>
       </div>
       <div class="flex flex-col gap-2">
         <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
@@ -82,7 +102,7 @@
           <div class="flex gap-2 w-2/3">
             <p
               class="text-sm w-1/4">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
-            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}" showDelay="400"
+            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
                 tooltipPosition="left">{{ item.item.description }}</h3>
           </div>
           <div>
@@ -135,7 +155,8 @@
     <form [formGroup]="editItemForm">
       <div class="flex flex-col gap-2">
         <label for="editDescription">Name</label>
-        <input id="editDescription" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
+        <input id="editDescription" type="text" formControlName="name" pInputText placeholder="e.g. Milk"
+               [minLength]="2"
                [maxLength]="60">
       </div>
       <div class="pb-8">

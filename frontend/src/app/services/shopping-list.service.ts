@@ -133,4 +133,13 @@ export class ShoppingListService {
   }
 
 
+  /**
+   * Deletes all items in the cart (i.e. all checked items in the shopping list).
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   */
+  deleteAllItemsInCart(userId: number, shoppingListId: number) {
+    return this.httpClient.delete<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/checked-items`);
+  }
 }

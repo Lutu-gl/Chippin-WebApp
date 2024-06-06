@@ -10,7 +10,9 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -57,6 +59,7 @@ public class ShoppingListItemTest extends BaseTest {
 
     @Test
     @WithMockUser
+    @Transactional
     public void givenValidItemCreateDto_whenAddItemToShoppingList_thenItemIsAddedToShoppingList() throws Exception {
         when(securityService.hasCorrectId(any())).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
@@ -89,6 +92,7 @@ public class ShoppingListItemTest extends BaseTest {
 
     @Test
     @WithMockUser
+    @Transactional
     public void givenValidItemCreateDto_whenAddItemToShoppingListInGroupWithUserThatIsNotShoppingListOwner_thenItemIsAddedToShoppingList() throws Exception {
         when(securityService.hasCorrectId(any())).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
@@ -128,6 +132,7 @@ public class ShoppingListItemTest extends BaseTest {
 
     @Test
     @WithMockUser
+    @Transactional
     public void givenValidShoppingListItemUpdateDto_whenUpdateItemInShoppingList_thenItemIsUpdated() throws Exception {
         when(securityService.hasCorrectId(any())).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
@@ -171,6 +176,7 @@ public class ShoppingListItemTest extends BaseTest {
 
     @Test
     @WithMockUser
+    @Transactional
     public void givenExistingShoppingListItemId_whenDeleteItemInShoppingList_thenItemIsDeleted() throws Exception {
         when(securityService.hasCorrectId(any())).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
@@ -195,5 +201,143 @@ public class ShoppingListItemTest extends BaseTest {
 
     }
 
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenValidShoppingListId_whenDeleteCheckedItems_thenCheckedItemsAreDeleted() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find a shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var itemAmount = shoppingList.getItems().size();
+
+        var owner = shoppingList.getOwner();
+
+        // Check 3 items
+        var items = shoppingList.getItems().subList(0, 3);
+        items.forEach(i -> i.setCheckedBy(owner));
+        shoppingListRepository.save(shoppingList);
+
+        // Delete the checked items
+        mockMvc.perform(delete("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items/checked-items"))
+            .andExpect(status().isOk());
+
+        // Check if the checked items were deleted
+        var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertAll(
+            () -> assertThat(updatedShoppingList.getItems().stream().noneMatch(i -> i.getCheckedBy() != null)).isTrue(),
+            () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemAmount - 3)
+        );
+    }
+
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenInvalidShoppingListId_whenDeleteCheckedItems_thenNotFoundException() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Delete the checked items
+        mockMvc.perform(delete("/api/v1/users/-1/shopping-lists/-1/items/checked-items"))
+            .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Add an item with a name that already exists in the shopping list (and with the same unit) merges the items.
+     * Both items are not checked.
+     */
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenItemWithSameNameAndUnit_whenAddItemToShoppingList_thenItemsAreMerged() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find a shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var itemsAmount = shoppingList.getItems().size();
+
+        var owner = shoppingList.getOwner();
+
+        // Create an item
+        var itemCreateDto = ItemCreateDto.builder()
+            .description("Test Item description")
+            .amount(10)
+            .unit(Unit.Piece)
+            .build();
+
+        // Add the item to the shopping list
+        mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(itemCreateDto)))
+            .andExpect(status().isOk());
+
+        // Add the same item to the shopping list
+        mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(itemCreateDto)))
+            .andExpect(status().isOk());
+
+        // Check if the item was added to the shopping list
+        var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertAll(
+            () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemsAmount + 1),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(1),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).findFirst().get().getItem().getAmount()).isEqualTo(20)
+        );
+
+    }
+
+    /**
+     * Add an item with a name that already exists in the shopping list (and with the same unit) but one of the items is checked does not merge the items.
+     */
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenCheckedItemWithSameNameAndUnit_whenAddItemToShoppingList_thenItemsAreNotMerged() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find a shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var itemsAmount = shoppingList.getItems().size();
+
+        var owner = shoppingList.getOwner();
+
+        // Create an item
+        var itemCreateDto = ItemCreateDto.builder()
+            .description("Test Item description")
+            .amount(10)
+            .unit(Unit.Piece)
+            .build();
+
+        // Add the item to the shopping list
+        mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(itemCreateDto))
+        ).andExpect(status().isOk());
+
+        // Check the item
+        shoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        var item = shoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).findFirst().get();
+        item.setCheckedBy(owner);
+        shoppingListRepository.save(shoppingList);
+
+        // Add the same item to the shopping list
+        mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(itemCreateDto))
+        ).andExpect(status().isOk());
+
+        // Check if both items were added to the shopping list
+        var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertAll(
+            () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemsAmount + 2),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(2),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).filter(i -> i.getCheckedBy() != null).count()).isEqualTo(1),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).filter(i -> i.getCheckedBy() == null).count()).isEqualTo(1)
+        );
+    }
 
 }

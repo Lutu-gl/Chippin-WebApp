@@ -69,7 +69,7 @@
   <!-- Incoming friend requests -->
   <div *ngIf="incomingFriendRequests.length > 0" class="mt-6 w-full max-w-md">
     <h3 class="font-bold mb-2">Incoming friend requests</h3>
-    <div *ngFor="let email of incomingFriendRequests" class="flex items-center justify-between p-4 bg-gray-100 rounded">
+    <div *ngFor="let email of incomingFriendRequests" class="flex items-center justify-between p-4 bg-gray-200 rounded">
       <div>{{ email }}</div>
       <div class="space-x-2">
         <button (click)="acceptFriendRequest(email)" class="bg-green-500 text-white py-1 px-3 rounded">Accept</button>
@@ -81,7 +81,7 @@
   <!-- Outgoing friend requests -->
   <div *ngIf="outgoingFriendRequests.length > 0" class="mt-6 w-full max-w-md">
     <h3 class="font-bold mb-2">Outgoing friend requests</h3>
-    <div *ngFor="let email of outgoingFriendRequests" class="flex items-center justify-between p-4 bg-gray-100 rounded">
+    <div *ngFor="let email of outgoingFriendRequests" class="flex items-center justify-between p-4 bg-gray-200 rounded">
       <div>{{ email }}</div>
       <div>
         <button (click)="retractFriendRequest(email)" class="bg-red-500 text-white py-1 px-3 rounded">Retract</button>
@@ -97,7 +97,7 @@
   <!-- Friends -->
   <div *ngIf="friends.length > 0" class="w-full max-w-md space-y-4 mt-6">
     <h3 class="font-bold mb-2">Friends</h3>
-    <div *ngFor="let friend of friends" (click)="openFriendInfoDialog(friend.email)" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+    <div *ngFor="let friend of friends" (click)="openFriendInfoDialog(friend.email)" class="flex items-center justify-between p-4 bg-gray-200 rounded mb-4 cursor-pointer">
       <div class="flex items-center space-x-4">
         <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ friend.email[0] }}</div>
         <div>
