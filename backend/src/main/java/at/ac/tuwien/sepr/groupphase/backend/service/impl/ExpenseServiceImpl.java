@@ -110,7 +110,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         LOGGER.trace("updateExpense({}, {})", expenseId, updaterEmail);
         Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
         expenseCreateDto.setGroupId(existingExpense.getGroup().getId());
-        expenseValidator.validateForCreation(expenseCreateDto);
+        expenseValidator.validateForUpdate(expenseCreateDto, existingExpense);
 
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
         ApplicationUser user = userRepository.findByEmail(updaterEmail);

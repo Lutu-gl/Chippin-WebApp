@@ -1,14 +1,19 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler.FatalException;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ExpenseMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.PaymentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -46,6 +51,8 @@ public class GroupServiceImpl implements GroupService {
     private final PaymentRepository paymentRepository;
     private final PantryRepository pantryRepository;
     private final GroupMapper groupMapper;
+    private final ExpenseMapper expenseMapper;
+    private final PaymentMapper paymentMapper;
 
     @Override
     @Transactional
@@ -148,6 +155,39 @@ public class GroupServiceImpl implements GroupService {
             .orElseThrow(() -> new NotFoundException("No group found with this id"));
 
         return groupMapper.groupEntityToGroupCreateDto(groupEntity);
+    }
+
+    @Override
+    @Transactional
+    public List<ExpenseDetailDto> getAllExpensesById(long id) {
+        LOGGER.trace("getAllExpensesById({})", id);
+        List<Expense> allByGroupId = expenseRepository.findAllByGroupId(id);
+
+        // if expense is not archived, then all participants of the expense should definitely be in the group
+        // if not they should be deleted from the participants list
+        for (Expense expense : allByGroupId) {
+            if (expense.getArchived() == null || !expense.getArchived()) {
+                expense.getParticipants().keySet().removeIf(member -> !expense.getGroup().getUsers().contains(member));
+            }
+        }
+
+        List<ExpenseDetailDto> collect = allByGroupId.stream()
+            .map(expenseMapper::expenseEntityToExpenseDetailDto)
+            .collect(Collectors.toList());
+
+        return collect;
+    }
+
+    @Override
+    public List<PaymentDto> getAllPaymentsById(long id) {
+        LOGGER.trace("getAllPaymentsById({})", id);
+        List<Payment> allByGroupId = paymentRepository.findAllByGroupId(id);
+
+        List<PaymentDto> collect = allByGroupId.stream()
+            .map(paymentMapper::paymentEntityToPaymentDto)
+            .collect(Collectors.toList());
+
+        return collect;
     }
 
     private void makeFriendsWithEveryMember(GroupEntity group) {

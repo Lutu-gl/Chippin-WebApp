@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validator;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import org.slf4j.Logger;
@@ -23,12 +25,14 @@ public class ExpenseValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final ExpenseRepository expenseRepository;
 
 
     @Autowired
-    public ExpenseValidator(UserRepository userRepository, GroupRepository groupRepository) {
+    public ExpenseValidator(UserRepository userRepository, GroupRepository groupRepository, ExpenseRepository expenseRepository) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.expenseRepository = expenseRepository;
     }
 
     public void validateForCreation(ExpenseCreateDto expense) throws ValidationException, ConflictException {
@@ -50,6 +54,39 @@ public class ExpenseValidator {
         if (!conflictErrors.isEmpty()) {
             throw new ConflictException("expense creation failed because of conflict", conflictErrors);
         }
+    }
+
+    public void validateForUpdate(ExpenseCreateDto expense, Expense existingExpense) throws ValidationException, ConflictException {
+        List<String> validationErrors = new ArrayList<>();
+
+        checkPercentagesAddsUpTo1(expense, validationErrors);
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of expense for creation failed", validationErrors);
+        }
+
+        List<String> conflictErrors = new ArrayList<>();
+
+        checkParticipantsExist(expense, conflictErrors);
+        if (checkGroupExists(expense, conflictErrors)) {
+            checkPayerAndParticipantsAreInGroup(expense, conflictErrors);
+            checkExpenseNotArchived(existingExpense, conflictErrors);
+        }
+
+        if (!conflictErrors.isEmpty()) {
+            throw new ConflictException("expense creation failed because of conflict", conflictErrors);
+        }
+    }
+
+    private boolean checkExpenseNotArchived(Expense expense, List<String> conflictErrors) {
+        LOGGER.trace("checkExpenseNotArchived({})", expense);
+
+        if (expense.getArchived()) {
+            conflictErrors.add("Expense is archived and cannot be edited");
+            return false;
+        }
+
+        return true;
     }
 
     private boolean checkPayerAndParticipantsAreInGroup(ExpenseCreateDto expense, List<String> confictErrors) {
