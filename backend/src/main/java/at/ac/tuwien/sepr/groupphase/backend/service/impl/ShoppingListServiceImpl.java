@@ -88,6 +88,37 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         log.debug("Shopping list deleted");
     }
 
+    /**
+     * Merge item into shopping list.
+     * If an item with the same description, unit and checked-state exists in the shopping list, the quantity of the existing item is increased and the checked-state is updated.
+     *
+     * @param item the item to merge
+     * @param shoppingList the shopping list to merge the item into
+     */
+    public ShoppingListItem shoppingListItemAutoMerge(ShoppingListItem item, ShoppingList shoppingList) {
+        log.debug("Merging item {} into shopping list {}", item, shoppingList);
+        var updatedItem = item;
+        var existingItem = shoppingList.getItems().stream()
+            .filter(i -> i.getItem().getDescription().equals(item.getItem().getDescription())
+                && i.getItem().getUnit().equals(item.getItem().getUnit())
+                && !i.getId().equals(item.getId())
+                && ((i.getCheckedBy() == null) == (item.getCheckedBy() == null)))
+            .findFirst();
+        if (existingItem.isPresent()) {
+            log.debug("Item already exists in shopping list. Merging quantities");
+            existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
+            existingItem.get().setCheckedBy(item.getCheckedBy());
+            // Delete the item that was merged if it was already in the shopping list
+            shoppingListItemRepository.delete(item);
+            updatedItem = existingItem.get();
+        } else {
+            log.debug("Item does not exist in shopping list. Adding item");
+            shoppingList.getItems().add(item);
+        }
+        return updatedItem;
+    }
+
+
     @Override
     @Transactional
     public ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) {
@@ -100,7 +131,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             () -> new NotFoundException("User with id " + userId + " not found")
         );
         var item = shoppingListMapper.itemCreateDtoAndUserToShoppingListItem(itemCreateDto, user);
-        shoppingList.getItems().add(item);
+        shoppingListItemAutoMerge(item, shoppingList);
         var savedShoppingList = shoppingListRepository.save(shoppingList);
         log.debug("Item added to shopping list: {}", savedShoppingList);
         return shoppingList.getItems().getLast();
@@ -181,18 +212,18 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found in shopping list with id " + shoppingListId));
         // Update the item inside the shopping-list-item
-        var updatedItem = shoppingListMapper.updateShoppingListItem(shoppingListItem, shoppingListItemUpdateDto);
+        shoppingListMapper.updateShoppingListItem(shoppingListItem, shoppingListItemUpdateDto);
         // Add checkedBy if item is checked
         if (shoppingListItemUpdateDto.isChecked()) {
-            updatedItem.setCheckedBy(userRepository.findById(userId).orElseThrow(
+            shoppingListItem.setCheckedBy(userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id " + userId + " not found")
             ));
         } else {
-            updatedItem.setCheckedBy(null);
+            shoppingListItem.setCheckedBy(null);
         }
-        var savedShoppingList = shoppingListRepository.save(shoppingList);
-        log.debug("Item updated: {}", savedShoppingList);
-        return updatedItem;
+        shoppingListRepository.save(shoppingList);
+        log.debug("Item updated: {}", shoppingListItem);
+        return shoppingListItem;
     }
 
     @Override
