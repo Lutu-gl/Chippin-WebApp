@@ -42,6 +42,8 @@ export class RecipeEditComponent implements OnInit {
   };
   itemToEdit: ItemDetailDto = undefined;
   recipeId:number;
+  isPublic:boolean = false;
+
 
 
   submitted: boolean = false;
@@ -73,6 +75,7 @@ export class RecipeEditComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipe = data;
+          this.isPublic=this.recipe.isPublic;
         },
         error: error => {
           this.printError(error)
@@ -80,11 +83,16 @@ export class RecipeEditComponent implements OnInit {
       });
   }
 
+  changeIsPublic() {
+    this.isPublic=!this.isPublic;
+  }
+
 
   public onRecipeSubmit(form: NgForm): void {
     if (form.valid) {
       let observable: Observable<RecipeCreateWithoutUserDto>;
 
+      this.recipe.isPublic=this.isPublic;
       observable = this.service.updateRecipe(this.recipe);
 
       observable.subscribe({
@@ -178,7 +186,16 @@ export class RecipeEditComponent implements OnInit {
 
 
   deleteRecipe() {
-    this.service.deleteRecipe(this.recipe.id);
+    this.service.deleteRecipe(this.recipe.id).subscribe({
+      //TODO
+      next: res => {
+        console.log('deleted recipe: ', res);
+
+      },
+      error: err => {
+        this.printError(err);
+      }
+    });
     this.notification.success("Recipe successfully deleted");
     this.router.navigate(['/recipe']);
   }

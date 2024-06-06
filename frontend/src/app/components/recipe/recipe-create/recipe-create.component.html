@@ -110,7 +110,10 @@
             Should this recipe be public? <p-inputSwitch [(ngModel)]="recipe.isPublic" trueValue=true falseValue=false />
           </div>
 
-
+          <!-- submit -->
+          <div class="submit flex">
+            <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+          </div>
 
 
 
@@ -148,10 +151,7 @@
     </div>
 
   </div>
-  <!-- submit -->
-  <div class="submit flex">
-    <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
-  </div>
+
 </form>
 
 <div class="flex flex-col items-center p-4">

@@ -40,6 +40,17 @@ label {
   float:right;
   margin-right:20px;
 }
+.save {
+  display:flex;
+  float: right;
+  gap:10px;
+  margin-left:10px;
+  margin-right:10px;
+}
+
+.test {
+  margin-left:10px;
+}
 
 //@each $color in (info, warning, danger, success) {
 //  $value: map.get($theme-colors, $color);

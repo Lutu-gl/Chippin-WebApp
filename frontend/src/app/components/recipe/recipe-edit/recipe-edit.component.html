@@ -166,15 +166,21 @@
               Portion Size is missing.
             </small>
 
+            <div (click)="changeIsPublic()"> Change is Public</div>
+          </div>
+          Recipe: {{recipe.isPublic}}
+No Recipe:{{isPublic}}
+          <div class="upper flex" *ngIf="recipe.name!==''">
+
+            Should this recipe be public? <p-inputSwitch  [(ngModel)]="isPublic" (onChange)="changeIsPublic()"/>
 
           </div>
 
-          <div class="upper flex" >
-
-            Should this recipe be public? <p-inputSwitch [(ngModel)]="recipe.isPublic" trueValue=true falseValue=false />
+          <div class="submit flex">
+            <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+            <div class="test">
+            <p-button severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
           </div>
-
-
 
 
 
@@ -205,17 +211,20 @@
         required minlength="2"
         (keydown.enter)="handleEnter($event)"
       ></textarea>
+      <div></div>
+
       <div class="flex">
         <small class="p-error" *ngIf="submitted && !recipe.description"> Description is missing </small>
         <small class="p-error" *ngIf="form.controls['recipeDescription'].errors?.minlength">Recipe name must be at least 2 characters long.</small>
       </div>
+      <!-- submit -->
+
+
+
     </div>
 
   </div>
-  <!-- submit -->
-  <div class="submit flex">
-    <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
-  </div>
+
 </form>
 
 <div class="flex flex-col items-center p-4">
@@ -241,9 +250,7 @@
 
       <p-table
         #dt
-        [rows]="10"
         [value]="recipe.ingredients"
-        [paginator]="true"
         [globalFilterFields]="['description', 'amount', 'min']"
         [(selection)]="selectedItems"
         [tableStyle]="{ 'min-width': '75rem' }"

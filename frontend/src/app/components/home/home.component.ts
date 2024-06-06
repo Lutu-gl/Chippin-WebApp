@@ -68,6 +68,9 @@ export class HomeComponent implements OnInit {
       case 'My groups':
         this.router.navigate(['home', 'groups']);
         break;
+      case 'Recipes':
+        this.router.navigate(['home','recipes']);
+        break;
       case 'Shopping lists':
         this.router.navigate(['home', 'shopping-lists']);
         break;
