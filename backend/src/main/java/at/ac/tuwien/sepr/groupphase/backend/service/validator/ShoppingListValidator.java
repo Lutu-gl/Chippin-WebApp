@@ -23,7 +23,7 @@ public class ShoppingListValidator {
             return;
         }
         // Validate user is owner of shopping list
-        if (shoppingListEntity.getOwner().getId() != SecurityContextHolder.getContext().getAuthentication().getPrincipal()){
+        if (shoppingListEntity.getOwner().getId() != SecurityContextHolder.getContext().getAuthentication().getPrincipal()) {
             throw new ConflictException("Conflict error", List.of("User is not owner of shopping list. Only the owner can update a shopping list."));
         }
     }
@@ -31,9 +31,11 @@ public class ShoppingListValidator {
     public void validateForDelete(Long id) throws ConflictException {
         // Get shopping list by id
         var shoppingList = shoppingListRepository.findById(id).orElse(null);
-        if (shoppingList == null) return;
+        if (shoppingList == null) {
+            return;
+        }
         // Validate user is owner of shopping list
-        if (shoppingList.getOwner().getId() != SecurityContextHolder.getContext().getAuthentication().getPrincipal()){
+        if (shoppingList.getOwner().getId() != SecurityContextHolder.getContext().getAuthentication().getPrincipal()) {
             throw new ConflictException("Conflict error", List.of("User is not owner of shopping list. Only the owner can delete a shopping list."));
         }
 
