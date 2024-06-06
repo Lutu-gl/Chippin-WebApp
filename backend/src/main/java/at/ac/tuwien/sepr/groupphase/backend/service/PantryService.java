@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -71,6 +72,14 @@ public interface PantryService {
      * @return a list of recipes
      */
     List<RecipeListDto> getRecipes(Long pantryId);
+
+    /**
+     * Get recipes with ingredients matching the selected items.
+     *
+     * @param getRecipeDto the dto containing the list of items
+     * @return a list of recipes
+     */
+    List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto);
 
     /**
      * Update items in pantry that have been used in a recipe.

@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantrySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemCreateDto;
@@ -98,11 +99,21 @@ public class PantryEndpoint {
         return itemMapper.pantryItemToPantryItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
     }
 
+    /*
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @GetMapping("/{pantryId}/pantry/recipes")
     public List<RecipeListDto> getRecipes(@PathVariable long pantryId) {
         LOGGER.trace("GET /api/v1/group/{}/pantry/recipes", pantryId);
         return pantryService.getRecipes(pantryId);
+    }
+     */
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
+    @PostMapping("/{pantryId}/pantry/recipes")
+    public List<RecipeListDto> getRecipes(@PathVariable long pantryId, @Valid @RequestBody GetRecipeDto getRecipeDto) {
+        LOGGER.trace("POST /api/v1/group/{}/pantry/recipes", pantryId);
+        return pantryService.getRecipes(getRecipeDto);
     }
 }
