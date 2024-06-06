@@ -281,7 +281,7 @@
           <div class="text-sm">Total spent: €343</div>
         </div>
         <div class="flex space-x-2 mt-4">
-          <p-button label="Show charts"></p-button>
+          <p-button label="Show charts" (click) = "showVisualizationPage()"></p-button>
           <p-button label="Settle debts" (click) ="showDialogSettleDebts()"></p-button>
           <p-menu #menu [model]="menuitemsButtonMore" [popup]="true" ></p-menu>
           <p-button label="More" icon="pi pi-angle-down" severity="secondary" iconPos="right" (click)="menu.show($event)"></p-button>

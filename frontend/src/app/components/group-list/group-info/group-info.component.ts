@@ -607,6 +607,10 @@ export class GroupInfoComponent implements OnInit {
       this.ngOnInit();
     }, 250);
   }
+
+  showVisualizationPage() {
+    this.router.navigate(['/group',this.group.id ,'visualization']);
+  }
 }
 
 

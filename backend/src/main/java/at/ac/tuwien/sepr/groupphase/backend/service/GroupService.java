@@ -1,9 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+
+import java.util.List;
 
 public interface GroupService {
 
@@ -41,4 +45,22 @@ public interface GroupService {
      * @throws NotFoundException if the group with the given ID does not exist in the persistent data store
      */
     GroupCreateDto getById(long id) throws NotFoundException;
+
+
+    /**
+     * Get all expenses of the group with given ID.
+     *
+     * @param id the ID of the group to get the expenses from
+     * @return all expenses of the group with ID {@code id}
+     */
+    List<ExpenseDetailDto> getAllExpensesById(long id);
+
+
+    /**
+     * Get all payments of the group with given ID.
+     *
+     * @param id the ID of the group to get the payments from
+     * @return all payments of the group with ID {@code id}
+     */
+    List<PaymentDto> getAllPaymentsById(long id);
 }
