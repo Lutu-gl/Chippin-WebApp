@@ -26,6 +26,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,7 +64,9 @@ public class ShoppingList {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Builder.Default
     @NotNull
-    private List<ShoppingListItem> items = List.of();
+    private List<ShoppingListItem> items = new ArrayList<>();
+
+
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER, optional = true)

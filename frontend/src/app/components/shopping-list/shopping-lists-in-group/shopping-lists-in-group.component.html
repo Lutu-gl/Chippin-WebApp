@@ -1,0 +1,16 @@
+<div class="flex flex-col gap-4 p-4 max-w-md mx-auto">
+  <!--    <div class="flex justify-center mb-4">-->
+  <!--      <button class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">-->
+  <!--        <span class="text-xl mr-2">+</span> Add member-->
+  <!--      </button>-->
+  <!--    </div>-->
+  <div *ngFor="let list of getSortedShoppingLists()" [routerLink]="['/shopping-list', list.id]"
+       class="flex flex-col justify-between p-4 bg-blue-50 rounded-lg shadow hover:cursor-pointer">
+    <h1 class="font-semibold">
+      {{ list.groupName }}
+    </h1>
+    <div class="font-light">
+      {{list.itemCount - list.checkedItemCount}} item{{list.itemCount - list.checkedItemCount === 1 ? "" : "s"}} left
+    </div>
+  </div>
+</div>

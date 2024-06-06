@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit, Output} from '@angular/core';
 import {ShoppingListCreateEditDto} from "../../../dtos/shoppingList";
 import {NgForm, NgModel} from "@angular/forms";
 import {ShoppingListService} from "../../../services/shopping-list.service";
@@ -23,6 +23,7 @@ export enum ShoppingListCreateEditMode {
   styleUrl: './shopping-list-create.component.scss'
 })
 export class ShoppingListCreateComponent implements OnInit {
+
   mode: ShoppingListCreateEditMode = ShoppingListCreateEditMode.create;
   protected readonly ShoppingListCreateEditMode = ShoppingListCreateEditMode;
   currentUserId: number;
@@ -33,6 +34,10 @@ export class ShoppingListCreateComponent implements OnInit {
     categories: [],
     group: null,
   }
+  // Two-way-binding for visibility of the dialog
+  @Input() visible: boolean = false;
+  @Output() visibleChange = this.visible;
+
 
   constructor(private shoppingListService: ShoppingListService,
               private groupService: GroupService,
