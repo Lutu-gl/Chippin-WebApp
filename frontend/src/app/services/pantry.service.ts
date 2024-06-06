@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
-import {PantryDetailDto, PantrySearch} from "../dtos/pantry";
+import {GetRecipesDto, PantryDetailDto, PantrySearch} from "../dtos/pantry";
 import {ItemCreateDto, ItemDetailDto, PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
 import {RecipeListDto} from "../dtos/recipe";
 
@@ -80,10 +80,12 @@ export class PantryService {
 
   /**
    *
+   *
    * @param id
+   * @param getRecipeDto
    */
-  getRecipes(id: number) {
-    return this.httpClient.get<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes`);
+  getRecipes(id: number, getRecipesDto: GetRecipesDto) {
+    return this.httpClient.post<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes`, getRecipesDto);
   }
 
   getAllMissingItems(id: number) {

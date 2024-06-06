@@ -47,6 +47,7 @@ export class ShoppingListComponent implements OnInit {
       next: shoppingLists => {
         this.shoppingLists = shoppingLists;
         this.groupShoppingLists();
+        console.log(this.shoppingListsGrouped)
       },
       error: err => {
         console.error(err);

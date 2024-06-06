@@ -67,7 +67,6 @@ public class ShoppingList {
     private List<ShoppingListItem> items = new ArrayList<>();
 
 
-
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private GroupEntity group;

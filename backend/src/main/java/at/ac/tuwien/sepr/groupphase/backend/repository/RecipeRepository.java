@@ -35,6 +35,20 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
         + "ORDER BY COUNT(i.id) DESC")
     List<Recipe> findRecipeByPantry(long groupId);
 
+    /**
+     * Finds all recipes that use ingredients from a list of ingredients.
+     *
+     * @param itemIds list of item ids
+     * @return list of recipes
+     */
+    @Query("SELECT r FROM Recipe r "
+        + "JOIN r.ingredients i "
+        + "JOIN Item it ON i.description = it.description AND i.unit = it.unit "
+        + "WHERE it.id IN :itemIds "
+        + "GROUP BY r.id "
+        + "ORDER BY COUNT(i.id) DESC")
+    List<Recipe> findRecipesByItemIds(@Param("itemIds") List<Integer> itemIds);
+
     @Modifying
     @Query("delete from Recipe r where r.id=:recipeId")
     void deleteRecipe(@Param("recipeId") long recipeId);

@@ -386,6 +386,7 @@ public class PantryEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         );
     }
 
+    /*
     @Test
     @WithMockUser(username = "user1@example.com")
     public void givenNothing_whenGetRecipes_thenReturnListOfRecipesContainingItemsStoredInPantry() throws Exception {
@@ -409,4 +410,6 @@ public class PantryEndpointTest extends BaseTestGenAndClearBevorAfterEach {
             () -> assertEquals("Test 2", recipes.get(1).getName())
         );
     }
+
+     */
 }

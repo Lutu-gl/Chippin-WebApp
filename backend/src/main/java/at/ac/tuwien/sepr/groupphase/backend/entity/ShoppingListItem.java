@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 public class ShoppingListItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 

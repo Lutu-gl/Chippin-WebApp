@@ -9,6 +9,7 @@ import {
   ShoppingListListDto
 } from "../dtos/shoppingList";
 import {ItemCreateDto} from "../dtos/item";
+import {AddItemToShoppingListDto} from "../dtos/AddRecipeItemToShoppingListDto";
 
 @Injectable({
   providedIn: 'root'
@@ -142,4 +143,5 @@ export class ShoppingListService {
   deleteAllItemsInCart(userId: number, shoppingListId: number) {
     return this.httpClient.delete<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/checked-items`);
   }
+
 }

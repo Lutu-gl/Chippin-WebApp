@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
@@ -128,6 +129,11 @@ public class PantryServiceImpl implements PantryService {
     @Override
     public List<RecipeListDto> getRecipes(Long pantryId) {
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipeByPantry(pantryId));
+    }
+
+    @Override
+    public List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto) {
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds()));
     }
 
     @Override
