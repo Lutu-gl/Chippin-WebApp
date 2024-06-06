@@ -35,8 +35,6 @@
               "src/styles.scss",
               "node_modules/ngx-toastr/toastr.css",
               "src/assets/themes/mytheme/blue/theme.scss",
-              "node_modules/primeng/resources/themes/nova-light/theme.css",
-              "node_modules/primeng/resources/themes/saga-blue/theme.css",
               "node_modules/primeicons/primeicons.css",
               "node_modules/primeng/resources/primeng.min.css"
             ],
