@@ -144,7 +144,7 @@ import {CarouselModule} from "primeng/carousel";
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
     DropdownModule,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent
   ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
