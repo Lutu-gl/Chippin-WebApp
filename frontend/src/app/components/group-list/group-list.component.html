@@ -11,7 +11,7 @@
     <div *ngIf="groups.length > 0" class="w-full max-w-md space-y-4">
       <br><br>
       <h3 class="font-bold mb-2">Groups</h3>
-      <div *ngFor="let group of groups" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer" [routerLink]="['/group', group.id]">
+      <div *ngFor="let group of groups" class="flex items-center justify-between p-4 bg-gray-200 rounded mb-4 cursor-pointer" [routerLink]="['/group', group.id]">
         <div class="flex items-center space-x-4">
           <div>
             <div class="font-bold">{{ group.groupName }}</div>

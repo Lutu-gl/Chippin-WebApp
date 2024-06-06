@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,6 +47,9 @@ public class ShoppingListEndpointTest extends BaseTest {
 
     @SpyBean
     private SecurityService securityService;
+
+    @SpyBean
+    private ShoppingListValidator shoppingListValidator;
 
     @Autowired
     private MockMvc mockMvc;
@@ -231,6 +236,7 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         when(securityService.hasCorrectId(userId)).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
+        doNothing().when(shoppingListValidator).validateForUpdateGroup(any(), any());
 
         // Find id of shopping list
         var shoppingList = shoppingListRepository.findAllByOwnerId(userId).stream().findFirst().orElseThrow();

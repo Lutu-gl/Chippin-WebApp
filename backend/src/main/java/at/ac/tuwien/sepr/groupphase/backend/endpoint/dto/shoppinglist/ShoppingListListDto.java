@@ -33,4 +33,5 @@ public class ShoppingListListDto {
     private int checkedItemCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String groupName;
 }
