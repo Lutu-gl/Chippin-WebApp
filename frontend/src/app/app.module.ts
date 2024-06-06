@@ -85,6 +85,8 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
 import {ToolbarModule} from "primeng/toolbar";
+import {VisualizationComponent} from "./components/visualization/visualization.component";
+import {CarouselModule} from "primeng/carousel";
 
 
 @NgModule({
@@ -114,7 +116,8 @@ import {ToolbarModule} from "primeng/toolbar";
     RecipeGlobalComponent,
     RecipeLikedComponent,
     PaymentCreateComponent,
-    ShoppingListCreateComponent
+    ShoppingListCreateComponent,
+    VisualizationComponent
   ],
 
   imports: [
@@ -138,7 +141,7 @@ import {ToolbarModule} from "primeng/toolbar";
     ItemListInfoCardContentComponent,
     RecipeInfoCardContentComponent,
     DropdownModule,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule
   ],
 
   providers: [httpInterceptorProviders, MessageService, ConfirmationService],
