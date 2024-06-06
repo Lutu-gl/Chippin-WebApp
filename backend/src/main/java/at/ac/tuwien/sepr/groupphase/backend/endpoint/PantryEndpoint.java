@@ -105,4 +105,11 @@ public class PantryEndpoint {
         LOGGER.trace("GET /api/v1/group/{}/pantry/recipes", pantryId);
         return pantryService.getRecipes(pantryId);
     }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
+    @GetMapping("/{pantryId}/pantry/missing")
+    public List<ItemDto> findAllMissingItems(@PathVariable long pantryId) {
+        return pantryService.findAllMissingItems(pantryId);
+    }
 }

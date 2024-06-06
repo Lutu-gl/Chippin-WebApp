@@ -27,6 +27,14 @@
           </p-tag>
         </button>
       </div>
+
+      <!-- Item Quick Add-->
+      <div *ngIf="!!shoppingListDetailDto?.group">
+        <p-autoComplete [suggestions]="filteredMissingItems" (completeMethod)="filterMissingItems($event)"
+                        [forceSelection]="true" [(ngModel)]="selectedMissingItem"
+                        (onSelect)="selectItemToAdd($event)"
+                        [dropdown]="true" optionLabel="description" placeholder="Quick add item"/>
+      </div>
     </div>
     <div class="flex flex-col gap-1 items-end justify-center pr-6">
       <p-button label="Edit" icon="pi pi-pencil" severity="info" (click)="this.showEditModal = true"></p-button>
@@ -40,6 +48,7 @@
 
   <app-shopping-list-edit-modal [(visible)]="showEditModal" (update)="loadShoppingListDetailDto()"
                                 [shoppingList]="shoppingListDetailDto"></app-shopping-list-edit-modal>
+
 
   <div class="w-full">
     <p-divider></p-divider>
