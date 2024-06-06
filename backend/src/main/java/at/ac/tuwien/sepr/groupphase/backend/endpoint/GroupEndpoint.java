@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = GroupEndpoint.BASE_PATH)
@@ -67,6 +69,14 @@ public class GroupEndpoint {
         groupCreateDto.setId(id);   // set the id of the group to update
 
         return groupService.update(groupCreateDto, authentication.getName());
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("{id}/expenses")
+    public List<ExpenseDetailDto> getAllExpensesById(@PathVariable("id") long id) throws NotFoundException {
+        LOGGER.trace("getAllExpensesById({})", id);
+        return groupService.getAllExpensesById(id);
     }
 
     private void logClientError(HttpStatus status, String message, Exception e) {
