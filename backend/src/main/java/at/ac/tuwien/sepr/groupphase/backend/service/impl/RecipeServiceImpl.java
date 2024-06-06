@@ -323,7 +323,8 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams, owner);
+
+        List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase(), owner);
 
         recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
@@ -331,7 +332,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams, owner);
+        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase(), owner);
 
         recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
@@ -339,7 +340,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams);
+        List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase());
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();
         for (Recipe recipe : recipeEntities) {
             resultLists.addFirst(RecipeGlobalListDto.builder()
