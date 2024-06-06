@@ -47,7 +47,6 @@ export class RecipeCreateComponent implements OnInit {
     private route: ActivatedRoute,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private notification: ToastrService,
   ) {
   }
 

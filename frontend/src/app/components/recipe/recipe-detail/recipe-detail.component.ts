@@ -67,7 +67,6 @@ export class RecipeDetailComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private notification: ToastrService
   ) {
   }
 
@@ -134,7 +133,12 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(err);
       }
     });
-      this.notification.success("Recipe successfully deleted");
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Successful',
+      detail: `Recipe successfully deleted`,
+      life: 3000
+    });
       this.router.navigate(['/recipe']);
   }
 

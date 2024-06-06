@@ -1,15 +1,12 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
 import {
   ItemCreateDto,
   ItemDetailDto,
-  pantryItemCreateDisplayDtoToPantryItemDetailDto,
-  PantryItemDetailDto,
   Unit
 } from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
@@ -60,7 +57,6 @@ export class RecipeEditComponent implements OnInit {
     private service: RecipeService,
     private router: Router,
     private route: ActivatedRoute,
-    private notification: ToastrService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {
@@ -97,8 +93,13 @@ export class RecipeEditComponent implements OnInit {
 
       observable.subscribe({
         next: data => {
-          this.notification.success(`Recipe ${this.recipe.name} successfully changed.`);
-          this.router.navigate(['/recipe']);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `Recipe ${this.recipe.name} successfully changed`,
+            life: 3000
+          });
+          this.router.navigate(['/recipe', 'owner', this.recipe.id] );
         },
         error: error => {
           this.printError(error);
@@ -136,6 +137,12 @@ export class RecipeEditComponent implements OnInit {
         this.service.deleteIngredient(this.recipeId,id).subscribe({
           next: res => {
             console.log('deleted recipe: ', res);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: `Ingredient successfully deleted`,
+              life: 3000
+            });
 
           },
           error: err => {
@@ -196,7 +203,12 @@ export class RecipeEditComponent implements OnInit {
         this.printError(err);
       }
     });
-    this.notification.success("Recipe successfully deleted");
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Successful',
+      detail: `Recipe successfully deleted`,
+      life: 3000
+    });
     this.router.navigate(['/recipe']);
   }
   printError(error): void {
