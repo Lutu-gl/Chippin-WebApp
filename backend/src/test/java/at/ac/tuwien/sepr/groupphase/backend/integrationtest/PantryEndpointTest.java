@@ -410,6 +410,6 @@ public class PantryEndpointTest extends BaseTestGenAndClearBevorAfterEach {
             () -> assertEquals("Test 2", recipes.get(1).getName())
         );
     }
-    
+
      */
 }
