@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
@@ -160,6 +161,17 @@ public class PantryServiceImpl implements PantryService {
         }
 
         return changedItems;
+    }
+
+    @Override
+    @Transactional
+    public List<ItemDto> findAllMissingItems(long pantryId) {
+        var item = pantryItemRepository.findAllMissingItems(pantryId);
+        //Change quantity to the missing quantity
+        for (PantryItem pantryItem : item) {
+            pantryItem.setAmount((int) (pantryItem.getLowerLimit() - pantryItem.getAmount()));
+        }
+        return itemMapper.listOfPantryItemDtosToListOfItemDto(pantryItemRepository.findAllMissingItems(pantryId));
     }
 
 }

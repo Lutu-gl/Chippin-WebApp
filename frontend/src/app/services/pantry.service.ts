@@ -87,4 +87,8 @@ export class PantryService {
   getRecipes(id: number, getRecipesDto: GetRecipesDto) {
     return this.httpClient.post<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes`, getRecipesDto);
   }
+
+  getAllMissingItems(id: number) {
+    return this.httpClient.get<ItemDetailDto[]>(`${this.pantryBaseUri}/${id}/pantry/missing`);
+  }
 }

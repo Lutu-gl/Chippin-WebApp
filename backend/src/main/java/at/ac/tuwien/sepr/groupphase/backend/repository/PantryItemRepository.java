@@ -47,4 +47,9 @@ public interface PantryItemRepository extends JpaRepository<PantryItem, Long> {
         + "AND pi.description = i.description "
         + "AND pi.unit = i.unit")
     List<PantryItem> findMatchingRecipeItemsInPantry(@Param("pantryId") Long pantryId, @Param("recipeId") Long recipeId);
+
+    @Query("select p from PantryItem p where p.pantry.id = ?1 and p.amount < p.lowerLimit")
+    List<PantryItem> findAllMissingItems(Long id);
+
+
 }
