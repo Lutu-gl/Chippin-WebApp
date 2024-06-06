@@ -13,7 +13,7 @@ import {
 import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
-import {PantrySearch} from "../../dtos/pantry";
+import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
@@ -422,12 +422,17 @@ export class PantryComponent implements OnInit {
   }
 
   getRecipes() {
-    this.service.getRecipes(this.id).subscribe({
+    let getRecipesDto: GetRecipesDto = {
+      itemIds: this.selectedItems.map(i => i.id)
+    }
+    console.log(getRecipesDto);
+    this.service.getRecipes(this.id, getRecipesDto).subscribe({
       next: res => {
         console.log(res);
         this.recipes = res;
       }, error: err => {
-
+        console.error(err);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not get recipes!`});
       }
     })
   }

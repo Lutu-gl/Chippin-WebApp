@@ -217,6 +217,7 @@
             pTooltip="Find recipes with the selected items"
             severity="secondary"
             label="Find recipes"
+            (click)="getRecipes()"
             [disabled]="!selectedItems || !selectedItems.length"/>
         </ng-template>
       </p-toolbar>
