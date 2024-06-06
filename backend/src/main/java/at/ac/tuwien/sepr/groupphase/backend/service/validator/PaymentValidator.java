@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class PaymentValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final PaymentRepository paymentRepository;
 
 
     @Transactional
@@ -156,11 +158,21 @@ public class PaymentValidator {
 
         if (checkPayerExist(paymentDto, conflictErrors) && checkReceiverExists(paymentDto, conflictErrors) && checkGroupExists(paymentDto, conflictErrors)) {
             checkPayerAndReceiverAreInGroup(paymentDto, conflictErrors);
+            checkPaymentNotArchived(existingPayment, conflictErrors);
         }
 
         if (!conflictErrors.isEmpty()) {
             throw new ConflictException("expense creation failed because of conflict", conflictErrors);
         }
+    }
+
+    private boolean checkPaymentNotArchived(Payment paymentDto, List<String> conflictErrors) {
+        LOGGER.trace("checkPaymentNotArchived({})", paymentDto);
+        if (paymentDto.getArchived() != null && paymentDto.getArchived()) {
+            conflictErrors.add("Payment is archived and cannot be updated");
+            return false;
+        }
+        return true;
     }
 
     private void checkCreatorEmailEqualsPayerOrReceiverEmail(PaymentDto paymentDto, String creatorEmail, List<String> validationErrors) {
