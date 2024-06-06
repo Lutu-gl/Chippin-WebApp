@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -30,6 +32,8 @@ public class PaymentDto {
     @NotNull(message = "Group id must be given")
     private Long groupId;
 
+    private LocalDateTime date;
+    
     private Boolean deleted;
 
     private Boolean archived;

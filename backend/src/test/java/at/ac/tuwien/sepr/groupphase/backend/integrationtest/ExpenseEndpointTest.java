@@ -168,5 +168,4 @@ public class ExpenseEndpointTest extends BaseTest {
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isBadRequest());
     }
-
 }

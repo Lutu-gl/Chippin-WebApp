@@ -1,0 +1,14 @@
+<br>
+<br>
+<br>
+<div class="flex flex-col items-center justify-center p-4">
+  <p-carousel [value]="charts" [numVisible]="1" [numScroll]="1" [circular]="true" class="w-1/2">
+    <ng-template let-chart pTemplate="item">
+      <p-chart type="line" [data]="chart.data" [options]="chart.options"></p-chart>
+    </ng-template>
+  </p-carousel>
+</div>
+<div class="flex w-full mt-4 ml-40">
+  <p-button label="back to group" class="ml-4" (click)="backToGroup()"></p-button>
+</div>
+
