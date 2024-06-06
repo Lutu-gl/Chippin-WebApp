@@ -2,15 +2,18 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler.FatalException;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ExpenseMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.PaymentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -49,6 +52,7 @@ public class GroupServiceImpl implements GroupService {
     private final PantryRepository pantryRepository;
     private final GroupMapper groupMapper;
     private final ExpenseMapper expenseMapper;
+    private final PaymentMapper paymentMapper;
 
     @Override
     @Transactional
@@ -169,6 +173,18 @@ public class GroupServiceImpl implements GroupService {
 
         List<ExpenseDetailDto> collect = allByGroupId.stream()
             .map(expenseMapper::expenseEntityToExpenseDetailDto)
+            .collect(Collectors.toList());
+
+        return collect;
+    }
+
+    @Override
+    public List<PaymentDto> getAllPaymentsById(long id) {
+        LOGGER.trace("getAllPaymentsById({})", id);
+        List<Payment> allByGroupId = paymentRepository.findAllByGroupId(id);
+
+        List<PaymentDto> collect = allByGroupId.stream()
+            .map(paymentMapper::paymentEntityToPaymentDto)
             .collect(Collectors.toList());
 
         return collect;

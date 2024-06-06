@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.payment.PaymentDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -77,6 +78,14 @@ public class GroupEndpoint {
     public List<ExpenseDetailDto> getAllExpensesById(@PathVariable("id") long id) throws NotFoundException {
         LOGGER.trace("getAllExpensesById({})", id);
         return groupService.getAllExpensesById(id);
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("{id}/payments")
+    public List<PaymentDto> getAllPaymentsById(@PathVariable("id") long id) throws NotFoundException {
+        LOGGER.trace("getAllPaymentsById({})", id);
+        return groupService.getAllPaymentsById(id);
     }
 
     private void logClientError(HttpStatus status, String message, Exception e) {
