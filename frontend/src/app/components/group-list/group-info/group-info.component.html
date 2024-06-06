@@ -32,6 +32,19 @@
   </ng-template>
 </p-confirmDialog>
 
+<!-- Modal for delete confirmation -->
+<p-dialog
+  header="Delete Expense"
+  [modal]="true"
+  [(visible)]="isDeleteDialogVisible"
+  [style]="{ width: '25rem' }"
+>
+  <span class="p-text-secondary block mb-5">Do you really want to delete this payment?</span>
+  <div class="flex justify-content-end gap-2">
+    <p-button label="No" severity="secondary" (click)="closeDeleteDialog()" />
+    <p-button label="Yes" (click)="deleteExistingPayment()"/>
+  </div>
+</p-dialog>
 
 <!-- Modal for creating new budget -->
 <p-dialog
@@ -68,7 +81,7 @@
           [resizable]="false"
           [style]="{ width: '40rem'}"
 >
-  <p-confirmDialog />
+  <p-confirmDialog key="SettleDebtsConfirmDialog"/>
   <div *ngIf="getMembersOnlyNegativeDebts().length === 0" class="w-full max-w-md p-4 flex rounded ">
     <p>Perfect! Seems like you do not have open debts</p>
   </div>
@@ -134,6 +147,107 @@
 </p-dialog>
 
 
+<!--Modal for Payments -->
+<p-dialog header="Payment"
+          [(visible)]="isPaymentDialogVisible"
+          [modal]="true"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [draggable]="false"
+          [resizable]="false"
+          [style]="{ width: '40rem'}"
+>
+  <div class="bg-blue-100 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto space-y-6 mt-2">
+
+  <label *ngIf="paymentIsDeleted() && !paymentIsArchived()" class="flex items-center text-red-500 font-bold">
+    <i class="pi pi-exclamation-triangle mr-2"></i>
+    This Payment is marked as deleted!
+  </label>
+
+  <label *ngIf="paymentIsArchived()" class="flex items-center text-red-500 font-bold">
+    <i class="pi pi-exclamation-triangle mr-2"></i>
+    Oooops! This Payment is marked as archived!
+  </label>
+  <label *ngIf="paymentIsArchived()" class="block text-sm font-medium text-gray-700">A member of the payment has left the group, thus it is not possible to make changes.</label>
+
+
+  <!-- Section for displaying the amount -->
+  <div class=" space-y-4">
+    <!-- Payer -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Payer</label>
+      <input type="text" pInputText
+             [(ngModel)]="payerEmailForPaymentDialog"
+             [disabled]="true"
+      />
+    </div>
+
+    <!-- Receiver -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Receiver</label>
+      <input type="text" pInputText
+             [(ngModel)]="receiverEmailForPaymentDialog"
+             [disabled]="true"
+      />
+    </div>
+
+    <!-- Amount -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Amount</label>
+      <!--    <label class="font-semibold w-6rem">{{paymentForDialog?.payerEmail}} payed {{paymentForDialog?.receiverEmail}}</label>-->
+
+      <p-inputNumber
+        [(ngModel)]="amountForPaymentDialog"
+        mode="currency"
+        inputId="amount"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0.01"
+        [max]="9999999.99"
+        [required]="true"
+        [disabled]= "paymentModeIsInfo()"
+        required
+        name="amount"
+        #amountCtrl="ngModel"
+      />
+    </div>
+
+    <!-- Buttons -->
+
+    <div *ngIf="paymentModeIsEdit() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
+      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
+        <i class="pi pi-trash mr-2"></i> Delete Payment
+      </button>
+      <p-button
+        label="Save Changes"
+        icon = "pi pi-check"
+        iconPos="left"
+        (click)="paymentModalSaveChanges()"
+      ></p-button>
+    </div>
+    <div *ngIf="paymentModeIsInfo() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
+      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
+        <i class="pi pi-trash mr-2"></i> Delete Payment
+      </button>
+      <p-button
+        label="Edit Payment"
+        icon="pi pi-pencil"
+        iconPos="left"
+        (click)="paymentSwitchToEditMode()"
+      ></p-button>
+    </div>
+    <div *ngIf="paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
+      <p-button
+        label="Recover Payment"
+        icon="pi pi-undo"
+        iconPos="left"
+        (click)="recoverDeletedPayment()"
+      ></p-button>
+    </div>
+  </div>
+
+  </div>
+</p-dialog>
+
 <div>
   <!-- Header part with diagram -->
   <div class="bg-blue-100">
@@ -162,7 +276,7 @@
       <div class="flex flex-col justify-between items-start ml-4">
         <div class="mb-4">
           <h2 class="text-2xl font-bold">{{ group.groupName }}</h2>
-          <div class="text-sm">Transactions: {{ transactions.length }}</div>
+          <div class="text-sm">Transactions: {{ transactionsActivities.length }}</div>
           <div class="text-sm">Members: {{ group.members.length }}</div>
           <div class="text-sm">Total spent: €343</div>
         </div>
@@ -193,14 +307,30 @@
       </button>
     </div>
     <div class="space-y-4">
-      <div *ngFor="let transaction of getTransactionVarSorted()" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getExpenseColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
-        <div class="flex items-center space-x-4">
-          <div>
-            <div class="font-normal text-sm">User <b></b> {{ transaction.description }}</div>
-            <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+      <div *ngFor="let transaction of getTransactionVarSorted()">
+
+<!--        For expenses -->
+        <div *ngIf="transaction.expenseId !== null" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm">User <b></b> {{ transaction.description }}</div>
+              <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
           </div>
+          <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
         </div>
-        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+<!--          For payments-->
+        <div *ngIf="transaction.paymentId !== null" (click)="openInfoPaymentDialog(transaction.paymentId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm">User <b></b> {{ transaction.description }}</div>
+              <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+        </div>
+
+
       </div>
     </div>
   </div>
@@ -219,7 +349,7 @@
 <!--  </div>-->
 
     <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
-      <div *ngFor="let payment of payments" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
+      <div *ngFor="let payment of paymentsActivities" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
         <span class="font-bold">{{ payment }}</span>
         <div class="flex flex-col justify-center align-items-center">
           <span class="text-red-500 font-bold"></span>
