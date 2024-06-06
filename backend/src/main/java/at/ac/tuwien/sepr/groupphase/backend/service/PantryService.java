@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -81,4 +82,12 @@ public interface PantryService {
      * @param portion  how many people ate the recipe
      */
     List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
+
+    /**
+     * Find all items in the pantry with a quantity less than the minimum quantity.
+     *
+     * @param pantryId the pantry id
+     * @return a list of pantry items with a quantity less than the minimum quantity
+     */
+    List<ItemDto> findAllMissingItems(long pantryId);
 }

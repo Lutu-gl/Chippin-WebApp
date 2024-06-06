@@ -53,6 +53,7 @@ export class HomeComponent implements OnInit {
           break;
         case 'recipes':
           this.tabMenuActiveItem = this.tabMenuItems[3];
+          break;
         default:
           this.tabMenuActiveItem = this.tabMenuItems[0];
       }
@@ -70,6 +71,9 @@ export class HomeComponent implements OnInit {
         break;
       case 'Shopping lists':
         this.router.navigate(['home', 'shopping-lists']);
+        break;
+      case 'Recipes':
+        this.router.navigate(['home', 'recipes']);
         break;
     }
 
@@ -94,7 +98,7 @@ export class HomeComponent implements OnInit {
 
 
   onRecipesClick(event: any) {
-    this.selectedRecipeOption=null;
+    //this.selectedRecipeOption=null;
     event.originalEvent.stopPropagation();
     this.recipeMenu.toggle(event.originalEvent);
   }
