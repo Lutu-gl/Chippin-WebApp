@@ -73,8 +73,19 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                     .archived(false)
                     .build();
 
+                Payment paymentArchived = Payment.builder()
+                    .payer(usersInGroup.get(4))
+                    .receiver(usersInGroup.get(5))
+                    .amount(420.0)
+                    .date(LocalDateTime.now())
+                    .group(group)
+                    .deleted(false)
+                    .archived(true)
+                    .build();
+
                 paymentRepository.save(paymentDeleted);
                 paymentRepository.save(payment);
+                paymentRepository.save(paymentArchived);
                 continue;
             }
             ApplicationUser user1 = usersInGroup.get(random.nextInt(usersInGroup.size()));

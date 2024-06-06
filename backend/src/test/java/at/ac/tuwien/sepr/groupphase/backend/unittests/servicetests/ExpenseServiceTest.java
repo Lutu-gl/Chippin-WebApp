@@ -210,7 +210,7 @@ public class ExpenseServiceTest {
         assertEquals(2, result.getParticipants().size());
         assertTrue(result.getParticipants().containsKey("test@email.com"));
         assertTrue(result.getParticipants().containsKey("user1@email.com"));
-        verify(expenseValidator, times(1)).validateForCreation(expenseCreateDto);
+        verify(expenseValidator, times(1)).validateForUpdate(expenseCreateDto, mockExpenseEntity);
         verify(activityRepository, times(1)).save(any());
 
     }
