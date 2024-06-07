@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBevorAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
@@ -18,7 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,12 +61,18 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         objects.add(new Object[]{"user3@example.com", new BigDecimal(30)});
 
         when(expenseRepository.calculateBalancesExpensesAndPaymentsForUser(anyString(), anyLong())).thenReturn(objects);
-        when(groupRepository.existsById(anyLong())).thenReturn(true);
 
         GroupEntity groupExample0 = new GroupEntity();
         groupExample0.setId(1L);
 
+        Set<ApplicationUser> users = new HashSet<>();
+        users.add(ApplicationUser.builder().email("user1@example.com").build());
+        users.add(ApplicationUser.builder().email("user2@example.com").build());
+        users.add(ApplicationUser.builder().email("user3@example.com").build());
+        groupExample0.setUsers(users);
+
         when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
+        when(groupRepository.findById(1L)).thenReturn(Optional.of(groupExample0));
 
         DebtGroupDetailDto dto = debtService.getById("user1@example.com", 1L);
 
@@ -84,6 +93,13 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         GroupEntity groupExample0 = new GroupEntity();
         groupExample0.setId(2L);
 
+        Set<ApplicationUser> users = new HashSet<>();
+        users.add(ApplicationUser.builder().email("user1@example.com").build());
+        users.add(ApplicationUser.builder().email("user2@example.com").build());
+        users.add(ApplicationUser.builder().email("user3@example.com").build());
+        groupExample0.setUsers(users);
+
+        when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
         when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
 
         DebtGroupDetailDto dto = debtService.getById("user2@example.com", 2L);
@@ -105,6 +121,13 @@ public class DebtServiceTest extends BaseTestGenAndClearBevorAfterEach {
         GroupEntity groupExample0 = new GroupEntity();
         groupExample0.setId(3L);
 
+        Set<ApplicationUser> users = new HashSet<>();
+        users.add(ApplicationUser.builder().email("user1@example.com").build());
+        users.add(ApplicationUser.builder().email("user2@example.com").build());
+        users.add(ApplicationUser.builder().email("user3@example.com").build());
+        groupExample0.setUsers(users);
+
+        when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
         when(groupRepository.findById(anyLong())).thenReturn(Optional.of(groupExample0));
 
         DebtGroupDetailDto dto = debtService.getById("user3@example.com", 3L);
