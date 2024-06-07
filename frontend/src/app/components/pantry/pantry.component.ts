@@ -17,7 +17,7 @@ import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
 import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
-import {RecipeListDto} from "../../dtos/recipe";
+import {RecipeByItemsDto, RecipeDetailDto, RecipeListDto} from "../../dtos/recipe";
 import {ShoppingListAddDialogComponent} from "./shopping-list-add-dialog/shopping-list-add-dialog.component";
 import {ButtonModule} from "primeng/button";
 import {TagModule} from "primeng/tag";
@@ -43,6 +43,7 @@ import {
 } from "../../util/unit-helper";
 import {inRange} from "lodash";
 import {TabMenuModule} from "primeng/tabmenu";
+import {max} from "@popperjs/core/lib/utils/math";
 
 @Component({
   selector: 'app-pantry',
@@ -81,6 +82,7 @@ export class PantryComponent implements OnInit {
   tabMenuItems: MenuItem[] | undefined;
   tabMenuActiveItem: MenuItem | undefined;
 
+  recipeDialog: boolean = false;
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
@@ -94,7 +96,7 @@ export class PantryComponent implements OnInit {
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   id: number;
-  recipes: RecipeListDto[];
+  recipes: RecipeByItemsDto[];
 
   constructor(
     private route: ActivatedRoute,
@@ -160,6 +162,11 @@ export class PantryComponent implements OnInit {
   hideDialog() {
     this.itemDialog = false;
     this.submitted = false;
+    this.recipeDialog = false;
+  }
+
+  openRecipeDialog() {
+    this.recipeDialog = true;
   }
 
   openNew() {
@@ -198,7 +205,7 @@ export class PantryComponent implements OnInit {
   saveNewItem() {
     this.submitted = true;
 
-    if (this.createEditItem.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.createEditItem.amount, 0, 1000001)
       && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
 
@@ -234,7 +241,7 @@ export class PantryComponent implements OnInit {
   editItem() {
     this.submitted = true;
 
-    if (this.createEditItem.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.createEditItem.amount, 0, 1000001)
       && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
 
@@ -272,7 +279,7 @@ export class PantryComponent implements OnInit {
   mergeItems() {
     this.submitted = true;
 
-    if (this.itemMergeEdit.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.itemMergeEdit.amount, 0, 1000001)
       && (!this.itemMergeEdit.lowerLimit || inRange(this.itemMergeEdit.lowerLimit, 0, 1000001))) {
 
@@ -317,7 +324,7 @@ export class PantryComponent implements OnInit {
   setItemToMerge(baseItem: PantryItemCreateDisplayDto) {
     //Work on copy of item
     //Prevents changing items in item list
-    this.itemMergeEdit = { ...this.itemMergeEdit };
+    this.itemMergeEdit = {...this.itemMergeEdit};
     this.itemMergeEdit.amount += baseItem.unit === this.itemMergeEdit.unit ? baseItem.amount : 0;
     this.itemMergeEditReset = {...this.itemMergeEdit};
     console.log(this.itemMergeEditReset);
@@ -435,6 +442,10 @@ export class PantryComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not get recipes!`});
       }
     })
+  }
+
+  compare(a: RecipeByItemsDto, b: RecipeByItemsDto): number {
+    return ;
   }
 
   deleteItem(item: PantryItemDetailDto) {

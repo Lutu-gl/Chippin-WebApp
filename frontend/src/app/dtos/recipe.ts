@@ -1,5 +1,4 @@
-import {ItemCreateDto, ItemDetailDto} from "./item";
-import {UserSelection} from "./user";
+import {ItemCreateDto, ItemDetailDto, PantryItemDetailDto} from "./item";
 
 export interface RecipeSearch {
   details: string;
@@ -49,4 +48,11 @@ export interface RecipeCreateWithoutUserDto {
   description: String
   isPublic: boolean
   portionSize:number
+}
+
+export interface RecipeByItemsDto {
+  id: number
+  name: String
+  ingredients: ItemDetailDto[]
+  pantryItems: PantryItemDetailDto[]
 }

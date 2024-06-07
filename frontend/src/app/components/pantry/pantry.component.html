@@ -1,9 +1,11 @@
 <p-toast/>
+
 <p-confirmDialog [style]="{ width: '450px' }"/>
+
+<!--Create/Edit/Merge dialog-->
 <p-dialog
   [(visible)]="itemDialog"
   [style]="{ width: '600px', minHeight: '550px' }"
-  [header]="edit ? 'Edit Item' : 'Create new Item'"
   [modal]="true"
   styleClass="p-fluid">
   <ng-template pTemplate="header">
@@ -33,6 +35,9 @@
           autofocus/>
         <small class="p-error" *ngIf="submitted && !createEditItem.description">
           Name is required.
+        </small>
+        <small class="p-error" *ngIf="submitted && createEditItem.description.length < 2">
+          Name requires at least 2 characters.
         </small>
       </div>
       <div class="field pt-5">
@@ -130,6 +135,9 @@
               <small class="p-error" *ngIf="submitted && !itemMergeEdit.description">
                 Name is required.
               </small>
+              <small class="p-error" *ngIf="submitted && itemMergeEdit.description.length < 2">
+                Name requires at least 2 characters.
+              </small>
             </div>
             <div class="field pt-5">
               <label for="itemToMergeWithUnit">Unit</label>
@@ -169,7 +177,8 @@
     </div>
   </ng-template>
   <p-footer>
-    <p-button *ngIf="edit"
+    <p-button
+      *ngIf="edit"
       pRipple
       label="Reset"
       severity="secondary"
@@ -189,6 +198,44 @@
       (click)="edit ? (isEditSelected() ? editItem() : mergeItems()) : saveNewItem()"/>
   </p-footer>
 </p-dialog>
+
+<!--Recipe dialog-->
+<p-dialog
+  [(visible)]="recipeDialog"
+  [style]="{ width: '800px', minHeight: '550px' }"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <div>
+      <span class="font-bold whitespace-nowrap">Recipes</span>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <p-table [value]="recipes">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Recipe</th>
+          <th>NUmber of Ingredients</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-recipe>
+        <tr>
+          <td>
+            <button type="button" [routerLink]="['/recipe/viewer/', recipe.id]">
+              <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
+                     severity="secondary" value="{{recipe.name}}">
+              </p-tag>
+            </button>
+          </td>
+          <td>
+            {{recipe.itemsInPantry?.length}} / {{recipe.ingredients?.length}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-dialog>
+
 <div class="flex flex-col items-center p-4">
   <div class="container mx-auto px-12 py-4 bg-gray-100 rounded text-center">
     <div class="container mx-auto p-4">
@@ -217,7 +264,7 @@
             pTooltip="Find recipes with the selected items"
             severity="secondary"
             label="Find recipes"
-            (click)="getRecipes()"
+            (click)="getRecipes(); openRecipeDialog()"
             [disabled]="!selectedItems || !selectedItems.length"/>
         </ng-template>
       </p-toolbar>
