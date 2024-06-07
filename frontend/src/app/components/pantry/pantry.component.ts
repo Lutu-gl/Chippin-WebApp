@@ -205,7 +205,7 @@ export class PantryComponent implements OnInit {
   saveNewItem() {
     this.submitted = true;
 
-    if (this.createEditItem.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.createEditItem.amount, 0, 1000001)
       && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
 
@@ -241,7 +241,7 @@ export class PantryComponent implements OnInit {
   editItem() {
     this.submitted = true;
 
-    if (this.createEditItem.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.createEditItem.amount, 0, 1000001)
       && (!this.createEditItem.lowerLimit || inRange(this.createEditItem.lowerLimit, 0, 1000001))) {
 
@@ -279,7 +279,7 @@ export class PantryComponent implements OnInit {
   mergeItems() {
     this.submitted = true;
 
-    if (this.itemMergeEdit.description?.trim()
+    if (inRange(this.createEditItem.description?.length, 2, 61)
       && inRange(this.itemMergeEdit.amount, 0, 1000001)
       && (!this.itemMergeEdit.lowerLimit || inRange(this.itemMergeEdit.lowerLimit, 0, 1000001))) {
 

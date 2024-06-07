@@ -36,6 +36,9 @@
         <small class="p-error" *ngIf="submitted && !createEditItem.description">
           Name is required.
         </small>
+        <small class="p-error" *ngIf="submitted && createEditItem.description.length < 2">
+          Name requires at least 2 characters.
+        </small>
       </div>
       <div class="field pt-5">
         <label for="unit">Unit</label>
@@ -132,6 +135,9 @@
               <small class="p-error" *ngIf="submitted && !itemMergeEdit.description">
                 Name is required.
               </small>
+              <small class="p-error" *ngIf="submitted && itemMergeEdit.description.length < 2">
+                Name requires at least 2 characters.
+              </small>
             </div>
             <div class="field pt-5">
               <label for="itemToMergeWithUnit">Unit</label>
@@ -171,12 +177,13 @@
     </div>
   </ng-template>
   <p-footer>
-    <p-button *ngIf="edit"
-              pRipple
-              label="Reset"
-              severity="secondary"
-              icon="pi pi-replay"
-              (click)="isEditSelected() ? resetEditItem() : resetMergeItem()"/>
+    <p-button
+      *ngIf="edit"
+      pRipple
+      label="Reset"
+      severity="secondary"
+      icon="pi pi-replay"
+      (click)="isEditSelected() ? resetEditItem() : resetMergeItem()"/>
     <p-button
       pRipple
       label="Cancel"
