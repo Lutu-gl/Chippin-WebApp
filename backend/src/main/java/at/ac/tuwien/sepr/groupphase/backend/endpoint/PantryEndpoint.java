@@ -7,6 +7,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantryDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.PantrySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -87,16 +89,17 @@ public class PantryEndpoint {
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry")
     public ItemDto updateItem(@PathVariable long pantryId, @Valid @RequestBody PantryItemDto itemDto) {
-        LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
-        return itemMapper.itemToItemDto(pantryService.updateItem(itemDto, pantryId));
+        LOGGER.debug("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
+        PantryItem item = itemMapper.pantryItemDtoToPantryItem(itemDto);
+        return itemMapper.itemToItemDto(pantryService.updateItem(item, pantryId));
     }
 
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry/merged")
-    public PantryItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) throws ConflictException {
+    public ItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) throws ConflictException {
         LOGGER.trace("PUT /api/v1/group/{}/pantry/merged body: {}", pantryId, itemMergeDto);
-        return itemMapper.pantryItemToPantryItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
+        return itemMapper.itemToItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
     }
 
     /*
@@ -111,9 +114,17 @@ public class PantryEndpoint {
 
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
-    @PostMapping("/{pantryId}/pantry/recipes")
-    public List<RecipeListDto> getRecipes(@PathVariable long pantryId, @Valid @RequestBody GetRecipeDto getRecipeDto) {
-        LOGGER.trace("POST /api/v1/group/{}/pantry/recipes", pantryId);
-        return pantryService.getRecipes(getRecipeDto);
+    @PostMapping("/{pantryId}/pantry/recipes/user/{userId}")
+    public List<RecipeByItemsDto> getRecipes(@PathVariable long pantryId, @PathVariable long userId, @Valid @RequestBody GetRecipeDto getRecipeDto) {
+        LOGGER.trace("POST /api/v1/group/{pantryId}/pantry/recipes/user/{userId}", pantryId, userId);
+        return pantryService.getRecipes(getRecipeDto, pantryId, userId);
     }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
+    @GetMapping("/{pantryId}/pantry/missing")
+    public List<ItemDto> findAllMissingItems(@PathVariable long pantryId) {
+        return pantryService.findAllMissingItems(pantryId);
+    }
+
 }

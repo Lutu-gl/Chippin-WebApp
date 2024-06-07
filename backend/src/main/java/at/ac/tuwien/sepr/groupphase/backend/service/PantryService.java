@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
@@ -54,7 +55,7 @@ public interface PantryService {
      * @param pantryId the pantry id
      * @return the updated item
      */
-    PantryItem updateItem(PantryItemDto item, long pantryId);
+    Item updateItem(PantryItem item, long pantryId);
 
     /**
      * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
@@ -64,7 +65,7 @@ public interface PantryService {
      * @return the updated item
      * @throws ConflictException when the id of the two items to merge is the same
      */
-    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
+    Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
 
     /**
      * Get recipes with ingredients that are stored in the pantry.
@@ -78,9 +79,10 @@ public interface PantryService {
      * Get recipes with ingredients matching the selected items.
      *
      * @param getRecipeDto the dto containing the list of items
+     * @param userId       the id of the user requesting the recipes
      * @return a list of recipes
      */
-    List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto);
+    List<RecipeByItemsDto> getRecipes(GetRecipeDto getRecipeDto, Long pantryId, Long userId);
 
     /**
      * Update items in pantry that have been used in a recipe.

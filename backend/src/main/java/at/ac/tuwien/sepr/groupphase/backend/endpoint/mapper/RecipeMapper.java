@@ -32,5 +32,7 @@ public interface RecipeMapper {
 
     List<RecipeListDto> recipeEntityListToListOfRecipeListDto(List<Recipe> recipes);
 
+    List<RecipeDetailDto> recipeEntityListToRecipeDetailDtoList(List<Recipe> recipes);
+
 }
 
