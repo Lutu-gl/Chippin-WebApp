@@ -27,18 +27,17 @@ public class PantryItemServiceImpl implements PantryItemService {
         LOGGER.debug("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
         List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(pantryItem.getDescription(), pantryItem.getUnit(), pantry);
         if (pantryItems.size() == 0) {
-            if(pantryItem.getPantry() == null){
+            if (pantryItem.getPantry() == null) {
                 pantry.addItem(pantryItem);
                 LOGGER.debug("No pantryItem to merge. New pantryItem {} saved", pantryItem);
-            }
-            else {
+            } else {
                 LOGGER.debug("No pantryItem to merge. PantryItem {} updated", pantryItem);
             }
             return pantryItemRepository.save(pantryItem);
         }
         PantryItem baseItem = pantryItems.get(0);
         baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
-        if(pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent()){
+        if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent()) {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
             LOGGER.debug("PantryItem {} deleted", pantryItem);
