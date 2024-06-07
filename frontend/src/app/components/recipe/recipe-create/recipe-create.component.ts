@@ -9,6 +9,7 @@ import {ItemCreateDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {getStepSize, getSuffix} from "../../../util/unit-helper";
 
 
 
@@ -201,6 +202,8 @@ export class RecipeCreateComponent implements OnInit {
   protected readonly Unit = Unit;
   protected readonly clone = clone;
   protected readonly Object = Object;
+  protected readonly getSuffix = getSuffix;
+  protected readonly getStepSize = getStepSize;
 }
 
 

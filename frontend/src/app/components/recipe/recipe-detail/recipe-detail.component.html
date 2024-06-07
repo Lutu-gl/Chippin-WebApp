@@ -37,10 +37,10 @@
           <div class="text-sm"> For {{recipe.portionSize}} {{ recipe.portionSize === 1 ? "Person": "People" }}</div>
         </div>
         <div  class="flex space-x-2 mt-4">
-          <p-button icon="pi pi-print" severity="secondary"/>
+          <p-button [pTooltip]="'Export this recipe as a PDF'" icon="pi pi-print" severity="secondary"/>
           <div *ngIf="isOwner()" class="flex space-x-2">
-          <p-button class="rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</p-button>
-          <p-button class="rounded" (click)="deleteRecipe()">Delete</p-button>
+          <p-button [pTooltip]="'Make changes on your recipe'" class="rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</p-button>
+          <p-button [pTooltip]="'Delete your Recipe'" class="rounded" (click)="deleteRecipe()">Delete</p-button>
           </div>
         </div>
       </div>

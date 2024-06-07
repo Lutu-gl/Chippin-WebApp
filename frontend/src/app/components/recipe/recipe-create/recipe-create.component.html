@@ -160,6 +160,7 @@
       <p-toolbar styleClass="mb-4 gap-2">
         <ng-template pTemplate="left">
           <p-button
+            [pTooltip]="'Add a new Ingredient to your Recipe!'"
             pRipple
             severity="success"
             label="New"
@@ -219,6 +220,8 @@
             </td>
             <td>
               <p-button
+                [pTooltip]="'Remove ' + getStepSize(item) + getSuffix(item)"
+                tooltipPosition="left"
                 icon="pi pi-minus"
                 severity="danger"
                 [disabled]="item.amount === 0"
@@ -234,6 +237,8 @@
                 locale="en-US"
                 [buttonLayout]=""/>
               <p-button
+                [pTooltip]="'Add ' + getStepSize(item) + getSuffix(item)"
+                tooltipPosition="right"
                 icon="pi pi-plus"
                 severity="success"
                 [disabled]="item.amount === 1000000"
@@ -246,6 +251,7 @@
             </td>
             <td>
               <p-button
+                [pTooltip]="'Remove the ingredient'"
                 pRipple
                 icon="pi pi-trash"
                 severity="danger"

@@ -173,13 +173,13 @@ No Recipe:{{isPublic}}
           <div class="upper flex" *ngIf="recipe.name!==''">
 
             Should this recipe be public? <!-- <p-inputSwitch  [(ngModel)]="isPublic" (onChange)="changeIsPublic()"/> -->
-<!-- TODO EDIT INGREDIENTS FUNKTIONIERT NICHT, SUCHE CASE INSENSITIVE machen, Add tooltips to everything-->
+<!-- TODO EDIT INGREDIENTS FUNKTIONIERT NICHT, Add tooltips to everything-->
           </div>
 
           <div class="submit flex">
-            <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+            <p-button [pTooltip]="'Save your changes!'" severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
             <div class="test">
-            <p-button severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
+            <p-button [pTooltip]="'Delete your Recipe'" severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
           </div>
 
 
@@ -233,17 +233,13 @@ No Recipe:{{isPublic}}
       <p-toolbar styleClass="mb-4 gap-2">
         <ng-template pTemplate="left">
           <p-button
+            [pTooltip]="'Add a new Ingredient to your Recipe!'"
             pRipple
             severity="success"
             label="New"
             icon="pi pi-plus"
             class="mr-2"
             (click)="openNew()"/>
-          <p-button
-            pRipple
-            severity="danger"
-            label="Delete"
-            icon="pi pi-trash"/>
         </ng-template>
 
       </p-toolbar>
@@ -304,6 +300,7 @@ No Recipe:{{isPublic}}
             <td>
 
               <p-button
+                [pTooltip]="'Change ingredient'"
                 pRipple
                 icon="pi pi-pencil"
                 class="mr-2"
@@ -313,6 +310,7 @@ No Recipe:{{isPublic}}
                 (click)="changeIngredient(i)"/>
 
               <p-button
+                [pTooltip]="'Remove ingredient'"
                 pRipple
                 icon="pi pi-trash"
                 severity="danger"

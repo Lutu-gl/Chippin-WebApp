@@ -53,12 +53,13 @@ export class RecipeGlobalComponent implements OnInit {
 
   public like(id: number) {
     this.service.likeRecipe(id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error)
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
         }
       });
 
@@ -79,12 +80,13 @@ export class RecipeGlobalComponent implements OnInit {
 
   public dislike(id:number) {
     this.service.dislikeRecipe(id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error)
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
         }
       });
 

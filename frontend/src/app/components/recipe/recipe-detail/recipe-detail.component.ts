@@ -11,10 +11,11 @@ import {ItemCreateDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
-import {Observable, of} from "rxjs";
+import {debounceTime, Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {getStepSize, getSuffix} from "../../../util/unit-helper";
 
 export enum RecipeDetailMode {
   owner,
@@ -145,12 +146,13 @@ export class RecipeDetailComponent implements OnInit {
 
   public like() {
     this.service.likeRecipe(this.recipe.id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
         }
       });
     if(this.recipe.dislikedByUser) {
@@ -170,12 +172,13 @@ export class RecipeDetailComponent implements OnInit {
 
   public dislike() {
     this.service.dislikeRecipe(this.recipe.id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
         }
       });
     if(this.recipe.likedByUser) {
@@ -252,4 +255,6 @@ export class RecipeDetailComponent implements OnInit {
   protected readonly Unit = Unit;
   protected readonly clone = clone;
 
+  protected readonly getSuffix = getSuffix;
+  protected readonly getStepSize = getStepSize;
 }
