@@ -1,17 +1,24 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.util.Optional;
 
 @Service
 public class ImportExportServiceImpl implements ImportExportService {
@@ -19,6 +26,8 @@ public class ImportExportServiceImpl implements ImportExportService {
     private GroupRepository groupRepository;
 
     private ExpenseRepository expenseRepository;
+
+    private RecipeRepository recipeRepository;
 
 
     @Transactional
@@ -47,6 +56,17 @@ public class ImportExportServiceImpl implements ImportExportService {
             }
         }
 
+        return null;
+    }
+
+    @Override
+    public ByteArrayInputStream exportRecipe(long recipeId) {
+        Optional<Recipe> optional = recipeRepository.findById(recipeId);
+
+        if (optional.isEmpty()) {
+            throw new NotFoundException("Could not find Recipe");
+        }
+        Recipe recipe = optional.get();
         return null;
     }
 
