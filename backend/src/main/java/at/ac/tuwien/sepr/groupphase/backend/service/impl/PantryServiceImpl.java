@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
@@ -27,8 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -132,8 +135,40 @@ public class PantryServiceImpl implements PantryService {
     }
 
     @Override
-    public List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto, Long userId) {
-        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds(), userId));
+    @Transactional
+    public List<RecipeByItemsDto> getRecipes(GetRecipeDto getRecipeDto, Long pantryId, Long userId) {
+
+        Pantry pantry = pantryRepository.getReferenceById(pantryId);
+        List<PantryItem> pantryItems = pantry.getItems();
+        List<Recipe> recipes = recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds(), userId);
+
+        List<RecipeByItemsDto> recipeByItemsDtoList = new ArrayList<>();
+
+        for (Recipe recipe : recipes) {
+            recipeByItemsDtoList.add(RecipeByItemsDto.builder()
+                .id(recipe.getId())
+                .name(recipe.getName())
+                .ingredients(itemMapper.listOfItemsToListOfItemDto(recipe.getIngredients()))
+                .itemsInPantry(itemMapper.listOfPantryItemsToListOfPantryItemDto(pantryItems
+                    .stream()
+                    .filter(p -> recipe.getIngredients()
+                        .stream()
+                        .anyMatch(r -> p.getDescription().equals(r.getDescription()) && p.getUnit().equals(r.getUnit()))).collect(Collectors.toList())))
+                .build());
+        }
+
+        recipeByItemsDtoList.sort(new Comparator<RecipeByItemsDto>() {
+            @Override
+            public int compare(RecipeByItemsDto o1, RecipeByItemsDto o2) {
+                float ratio1 = (float) o1.getItemsInPantry().size() / o1.getIngredients().size();
+                float ratio2 =  (float) o2.getItemsInPantry().size() / o2.getIngredients().size();
+                if(ratio2 - ratio1 == 0) {
+                    return o2.getItemsInPantry().size() > o1.getItemsInPantry().size() ? 1 : -1;
+                }
+                return (int)((ratio2 - ratio1) * 100);
+            }
+        });
+        return recipeByItemsDtoList;
     }
 
     @Override

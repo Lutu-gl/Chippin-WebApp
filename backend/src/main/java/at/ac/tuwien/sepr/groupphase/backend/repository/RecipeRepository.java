@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -46,7 +47,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
         + "JOIN Item it ON i.description = it.description AND i.unit = it.unit "
         + "WHERE it.id IN :itemIds "
         + "GROUP BY r.id "
-        + "HAVING r.isPublic OR r.owner.id = :userId "
+        + "HAVING r.isPublic = true OR r.owner.id = :userId "
         + "ORDER BY COUNT(i.id) DESC")
     List<Recipe> findRecipesByItemIds(@Param("itemIds") List<Integer> itemIds, @Param("userId") Long ownerId);
 

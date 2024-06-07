@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {GetRecipesDto, PantryDetailDto, PantrySearch} from "../dtos/pantry";
 import {ItemCreateDto, ItemDetailDto, PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
-import {RecipeListDto} from "../dtos/recipe";
+import {RecipeByItemsDto, RecipeDetailDto, RecipeListDto} from "../dtos/recipe";
 import {AuthService} from "./auth.service";
 
 @Injectable({
@@ -86,8 +86,10 @@ export class PantryService {
    * @param getRecipeDto
    */
   getRecipes(id: number, getRecipesDto: GetRecipesDto) {
-    return this.httpClient.post<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes/user/${this.authService.getUserId()}`, getRecipesDto);
+    return this.httpClient.post<RecipeByItemsDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes/user/${this.authService.getUserId()}`, getRecipesDto);
   }
+  //List<{RecipeName, RecipeId, ItemsInPantry, Ingredients}>
+
 
   getAllMissingItems(id: number) {
     return this.httpClient.get<ItemDetailDto[]>(`${this.pantryBaseUri}/${id}/pantry/missing`);

@@ -27,4 +27,12 @@ public class PantryItemDto {
     @Min(value = 0, message = "The minimum lowerLimit is 0")
     @Max(value = 1000000, message = "The maximum lowerLimit is 1000000")
     private Long lowerLimit;
+
+    public PantryItemDto(Long id, String description, int amount, Unit unit, Long lowerLimit) {
+        this.id = id;
+        this.description = description;
+        this.amount = amount;
+        this.unit = unit;
+        this.lowerLimit = lowerLimit;
+    }
 }

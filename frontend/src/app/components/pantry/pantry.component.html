@@ -208,7 +208,7 @@
       <ng-template pTemplate="header">
         <tr>
           <th>Recipe</th>
-          <th></th>
+          <th>NUmber of Ingredients</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-recipe>
@@ -220,7 +220,9 @@
               </p-tag>
             </button>
           </td>
-          <td></td>
+          <td>
+            {{recipe.itemsInPantry?.length}} / {{recipe.ingredients?.length}}
+          </td>
         </tr>
       </ng-template>
     </p-table>
