@@ -89,7 +89,7 @@ public class PantryEndpoint {
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry")
     public ItemDto updateItem(@PathVariable long pantryId, @Valid @RequestBody PantryItemDto itemDto) {
-        LOGGER.debug("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
+        LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDto);
         PantryItem item = itemMapper.pantryItemDtoToPantryItem(itemDto);
         return itemMapper.itemToItemDto(pantryService.updateItem(item, pantryId));
     }
