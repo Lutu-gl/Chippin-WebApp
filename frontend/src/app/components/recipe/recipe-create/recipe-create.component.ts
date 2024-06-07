@@ -38,6 +38,8 @@ export class RecipeCreateComponent implements OnInit {
   submitted: boolean = false;
   newItemDialog: boolean = false;
   itemDialog: boolean = false;
+  tooShort=false;
+  tooLong=false;
 
   selectedItems!: ItemCreateDto[] | null;
 
@@ -77,7 +79,8 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   onIngredientSubmit() {
-
+      if(this.newIngredient.description.length>1) {
+        this.tooShort=false;
       this.recipe.ingredients.push(this.newIngredient);
       this.newIngredient= {
         amount: 0,
@@ -85,8 +88,9 @@ export class RecipeCreateComponent implements OnInit {
         description: ""}
 
     this.hideDialog();
-
-
+      } else {
+      this.tooShort=true;
+      }
   }
 
 

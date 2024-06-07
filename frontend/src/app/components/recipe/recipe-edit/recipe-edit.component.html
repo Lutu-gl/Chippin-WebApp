@@ -17,7 +17,7 @@
         required
         autofocus/>
     </div>
-    <!-- TODO <small class="p-error" *ngIf="form.controls['newIngredientName'].errors?.minlength"> Name too short</small> -->
+    <small class="p-error" *ngIf="tooShort"> Name too short</small>
     <div class="field">
       <label for="unit">Unit</label>
       <p-dropdown
@@ -62,7 +62,7 @@
 <p-dialog
   [(visible)]="changeItem"
   [style]="{ width: '600px', minHeight: '420px'}"
-  header="Add a new Ingredient"
+  header="Edit an Ingredient"
   [modal]="true"
   styleClass="p-fluid">
   <ng-template pTemplate="content">
@@ -71,13 +71,14 @@
       <input
         type="text"
         minlength="2"
+        maxlength="60"
         pInputText
         id="cIngredientName"
         [(ngModel)]="itemToEdit.description"
         required
         autofocus/>
     </div>
-    <!-- TODO <small class="p-error" *ngIf="form.controls['newIngredientName'].errors?.minlength"> Name too short</small> -->
+    <small class="p-error" *ngIf="tooShort"> Name too short</small>
     <div class="field">
       <label for="unit">Unit</label>
       <p-dropdown

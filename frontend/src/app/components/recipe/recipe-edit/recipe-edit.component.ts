@@ -40,7 +40,7 @@ export class RecipeEditComponent implements OnInit {
   itemToEdit: ItemDetailDto = undefined;
   recipeId:number;
   isPublic:boolean = false;
-
+tooShort=false;
 
 
   submitted: boolean = false;
@@ -109,22 +109,27 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onIngredientSubmit() {
+    if(this.newIngredient.description.length>1) {
+      this.tooShort=false;
+      this.service.createItem(this.recipeId, this.newIngredient)
+        .subscribe({
+          next: data => {
+            this.recipe.ingredients.push(data);
+          },
+          error: error => {
+            this.printError(error)
+          }
+        });
+      this.newIngredient = {
+        amount: 0,
+        unit: Unit.Piece,
+        description: ""
+      }
 
-    this.service.createItem(this.recipeId,this.newIngredient)
-      .subscribe({
-        next: data => {
-          this.recipe.ingredients.push(data);
-        },
-        error: error => {
-          this.printError(error)
-        }
-      });
-    this.newIngredient= {
-      amount: 0,
-      unit: Unit.Piece,
-      description: ""}
-
-    this.hideDialog();
+      this.hideDialog();
+    } {
+      this.tooShort=true;
+    }
   }
 
   public deleteIngredient(id: number, index:number) {
@@ -227,12 +232,14 @@ export class RecipeEditComponent implements OnInit {
   }
 
   hideDialog() {
+    this.tooShort=false;
     this.itemDialog = false;
     this.newItemDialog = false;
     this.submitted = false;
   }
 
   hideEditDialog() {
+    this.tooShort=false;
     this.changeItem=false;
     this.submitted = false;
   }
@@ -243,6 +250,7 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onIngredientChange() {
+    if(this.itemToEdit.description.length>1) {
     const index = this.recipe.ingredients.findIndex(o => o.id === this.itemToEdit.id);
 
     if(index!== -1 ) {
@@ -260,9 +268,11 @@ export class RecipeEditComponent implements OnInit {
         });
 
 
-
-        this.itemToEdit= null;
+        this.itemToEdit = null;
         this.hideEditDialog();
+
+
+
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -278,7 +288,10 @@ export class RecipeEditComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
         }
       }
-    });
+    });}
+    else {
+        this.tooShort=true;
+      }
 
   }
 

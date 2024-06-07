@@ -11,13 +11,19 @@
       <input
         type="text"
         minlength="2"
+        maxlength="60"
         pInputText
         id="newIngredientName"
         [(ngModel)]="newIngredient.description"
         required
         autofocus/>
     </div>
-     <!-- TODO <small class="p-error" *ngIf="form.controls['newIngredientName'].errors?.minlength"> Name too short</small> -->
+    <small class="p-error" *ngIf="tooShort">
+      Name is too short.
+    </small>
+    <small class="p-error" *ngIf="tooLong">
+      Name is too long.
+    </small>
     <div class="field">
       <label for="unit">Unit</label>
       <p-dropdown
@@ -31,7 +37,7 @@
       <p-inputNumber
         id="amount"
         [(ngModel)]="newIngredient.amount"
-        [min]="0"
+        [min]="1"
         [max]="1000000"
         required/>
       <small class="p-error" *ngIf="submitted && !newIngredient.amount">
