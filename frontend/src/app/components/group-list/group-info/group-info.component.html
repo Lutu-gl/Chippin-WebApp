@@ -299,15 +299,10 @@
     </div>
   </div>
 
-  <!-- Transactions part -->
-  <div *ngIf="isTransactionsSelected()" class="p-4 max-w-lg mx-auto">
-    <div class="flex justify-center mb-4">
-      <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
-        <span class="text-xl mr-2">+</span> Add Expense
-      </button>
-    </div>
+  <!-- Activities part -->
+  <div *ngIf="isActivitiesSelected()" class="p-4 max-w-lg mx-auto">
     <div class="space-y-4">
-      <div *ngFor="let transaction of getTransactionVarSorted()">
+      <div *ngFor="let transaction of getTransactionActivitiesVarSorted()">
 
 <!--        For expenses -->
         <div *ngIf="transaction.expenseId !== null" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
@@ -348,14 +343,52 @@
 
 <!--  </div>-->
 
-    <div *ngIf="isDebtsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
-      <div *ngFor="let payment of paymentsActivities" class="bg-blue-50 p-6 rounded-lg shadow-md flex justify-between items-center">
-        <span class="font-bold">{{ payment }}</span>
-        <div class="flex flex-col justify-center align-items-center">
-          <span class="text-red-500 font-bold"></span>
-          <span class="text-black text-center font-bold">→</span>
+  <!-- Transactions tab -->
+    <div *ngIf="isTransactionsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
+      <div class="flex justify-center mb-4">
+        <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+          <span class="text-xl mr-2">+</span> Add Expense
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div *ngFor="let transaction of getTransactionVarSortedWithoutDeleted()">
+
+          <!--        For expenses -->
+          <div *ngIf="isExpense(transaction)" (click)="openInfoExpenseDialog(transaction.id)"  class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+            <div class="flex items-center space-x-4">
+              <div>
+                <div class="font-normal text-sm"><b>{{ transaction.name }}</b></div>
+                <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <div>
+                <div class="font-normal text-sm" *ngIf="transaction.payerEmail === authService.getEmail()" style="color: green;">
+                  You payed <span>{{transaction.amount | currency: 'EUR' }}</span>
+                </div>
+                <div class="font-normal text-sm"   *ngIf="transaction.payerEmail !== authService.getEmail()">{{ transaction.payerEmail }} payed {{transaction.amount | currency: 'EUR' }}</div>
+                <div class="text-xs" *ngIf="transaction.payerEmail === authService.getEmail()"></div>
+                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail()" style="color: red;">
+                  You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
+                </div>
+              </div>
+            </div>
+<!--            <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>-->
+          </div>
+          <!--          For payments-->
+          <div *ngIf="!isExpense(transaction)" (click)="openInfoPaymentDialog(transaction.id)" [ngClass]="getPaymentColor()" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+            <div class="flex items-center space-x-4">
+              <div>
+                <div class="font-normal text-sm"><b>{{transaction.payerEmail}}</b> payed  <b>{{ transaction.receiverEmail }}</b> {{transaction.amount | currency: 'EUR'}}</div>
+                <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+              </div>
+            </div>
+<!--            <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>-->
+          </div>
+
+
         </div>
-        <span class="font-bold">{{ payment }}</span>
       </div>
 
   </div>
