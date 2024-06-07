@@ -138,11 +138,11 @@ public class ActivityServiceImpl implements ActivityService {
             case ActivityCategory.PAYMENT ->
                 String.format("%s created payment to %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_DELETE ->
-                String.format("%s deleted payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
+                String.format("%s deleted a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_UPDATE ->
-                String.format("%s updated payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
+                String.format("%s updated a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_RECOVER ->
-                String.format("%s recovered payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
+                String.format("%s recovered a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             default -> "No description available";
         };
     }
