@@ -271,8 +271,6 @@ tooShort=false;
         this.itemToEdit = null;
         this.hideEditDialog();
 
-
-
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -288,8 +286,9 @@ tooShort=false;
           this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
         }
       }
-    });}
-    else {
+    });
+
+    } else {
         this.tooShort=true;
       }
 

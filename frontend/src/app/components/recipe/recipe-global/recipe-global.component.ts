@@ -1,9 +1,9 @@
 import {Component, OnInit} from "@angular/core";
 import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../../dtos/recipe";
-import {ActivatedRoute, Router} from "@angular/router";
+
 import {RecipeService} from "../../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {MessageService} from "primeng/api";
 
 
 
@@ -21,11 +21,8 @@ export class RecipeGlobalComponent implements OnInit {
   searchChangedObservable = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private service: RecipeService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
   ) {
   }
 

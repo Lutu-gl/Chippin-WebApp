@@ -37,6 +37,7 @@
       <p-inputNumber
         id="amount"
         [(ngModel)]="newIngredient.amount"
+        placeholder="1"
         [min]="1"
         [max]="1000000"
         required/>
@@ -73,7 +74,10 @@
       <!-- Left Side -->
       <div class="flex-1 p-4 max-w-3xl">
 
-        Picture here
+        <div>
+          <!-- <p-fileUpload name="image" accept="image/*" (onSelect)="onFileSelected($event)" [auto]="true"></p-fileUpload> -->
+
+        </div>
 
 
 
@@ -99,6 +103,7 @@
 
       <p-inputNumber
           inputId="integeronly"
+          name="portionSize"
           [(ngModel)]="recipe.portionSize"
           [min]="1"
           [max]="1000"
@@ -113,7 +118,7 @@
 
           <div class="upper flex" >
 
-            Should this recipe be public? <p-inputSwitch [(ngModel)]="recipe.isPublic" trueValue=true falseValue=false />
+            Should this recipe be public? <p-inputSwitch [(ngModel)]="recipe.isPublic" name="isPublic" trueValue=true falseValue=false />
           </div>
 
           <!-- submit -->

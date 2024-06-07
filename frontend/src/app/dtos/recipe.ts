@@ -1,5 +1,4 @@
 import {ItemCreateDto, ItemDetailDto} from "./item";
-import {UserSelection} from "./user";
 
 export interface RecipeSearch {
   details: string;

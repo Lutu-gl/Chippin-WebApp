@@ -1,7 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
@@ -10,6 +9,7 @@ import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {getStepSize, getSuffix} from "../../../util/unit-helper";
+
 
 
 
@@ -27,7 +27,8 @@ export class RecipeCreateComponent implements OnInit {
     ingredients: [],
     description: '',
     isPublic: false,
-    portionSize:1
+    portionSize:1,
+
   };
   newIngredient: ItemCreateDto = {
     amount: 0,
@@ -117,8 +118,8 @@ export class RecipeCreateComponent implements OnInit {
     } else if (error && error.error && error.error.detail) {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.error('Could not load pantry items', error);
-      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load pantry!`});
+      console.error('Could not load recipe items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load recipe!`});
     }
   }
 
