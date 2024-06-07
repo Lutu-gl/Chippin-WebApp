@@ -139,7 +139,7 @@ export class RecipeDetailComponent implements OnInit {
       detail: `Recipe successfully deleted`,
       life: 3000
     });
-      this.router.navigate(['/recipe']);
+      this.router.navigate(['/home/recipes']);
   }
 
 

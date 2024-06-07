@@ -66,7 +66,7 @@ export class RecipeCreateComponent implements OnInit {
         next: data => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe ${this.recipe.name} successfully created.`});
 
-          this.router.navigate(['/recipe']);
+          this.router.navigate(['/home/recipe']);
         },
         error: error => {
           this.printError(error);

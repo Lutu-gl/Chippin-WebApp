@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   tabMenuActiveItem: MenuItem | undefined;
   recipeMenuItems:MenuItem[] | undefined;
   selectedRecipeOption:String  = 'your-recipes';
-  @ViewChild('recipeMenu') recipeMenu: TieredMenu;
+  @ViewChild('recipeMenu') recipeMenu!: TieredMenu;
 
   constructor(
     public authService: AuthService,
@@ -53,6 +53,8 @@ export class HomeComponent implements OnInit {
           break;
         case 'recipes':
           this.tabMenuActiveItem = this.tabMenuItems[3];
+          this.selectedRecipeOption='your-recipes';
+          break;
         default:
           this.tabMenuActiveItem = this.tabMenuItems[0];
       }
@@ -70,6 +72,7 @@ export class HomeComponent implements OnInit {
         break;
       case 'Recipes':
         this.router.navigate(['home','recipes']);
+        this.selectedRecipeOption = 'your-recipes';
         break;
       case 'Shopping lists':
         this.router.navigate(['home', 'shopping-lists']);
