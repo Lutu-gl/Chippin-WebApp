@@ -75,8 +75,8 @@ export class PantryService {
    * @param itemMergeDto contains the new item and the id of the item to delete
    * @param pantryId the pantry id
    */
-  mergeItems(itemMergeDto: PantryItemMergeDto, pantryId: number): Observable<PantryItemDetailDto> {
-    return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/merged`, itemMergeDto)
+  mergeItems(itemMergeDto: PantryItemMergeDto, pantryId: number): Observable<ItemDetailDto> {
+    return this.httpClient.put<ItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry/merged`, itemMergeDto)
   }
 
   /**

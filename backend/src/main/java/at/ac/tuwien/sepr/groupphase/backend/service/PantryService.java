@@ -55,7 +55,7 @@ public interface PantryService {
      * @param pantryId the pantry id
      * @return the updated item
      */
-    PantryItem updateItem(PantryItemDto item, long pantryId);
+    Item updateItem(PantryItem item, long pantryId);
 
     /**
      * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
@@ -65,7 +65,7 @@ public interface PantryService {
      * @return the updated item
      * @throws ConflictException when the id of the two items to merge is the same
      */
-    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
+    Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
 
     /**
      * Get recipes with ingredients that are stored in the pantry.
