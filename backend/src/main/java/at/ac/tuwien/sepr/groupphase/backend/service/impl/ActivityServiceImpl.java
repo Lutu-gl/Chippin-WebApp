@@ -128,21 +128,21 @@ public class ActivityServiceImpl implements ActivityService {
     private String giveDescriptionToActivity(Activity activity) {
         return switch (activity.getCategory()) {
             case ActivityCategory.EXPENSE ->
-                String.format("created expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was created by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_UPDATE ->
-                String.format("updated expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was updated by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_DELETE ->
-                String.format("deleted expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was deleted by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_RECOVER ->
-                String.format("recovered expense %s in group %s", activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was recovered by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.PAYMENT ->
-                String.format("%s payed %s in group %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s created payment to %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_DELETE ->
-                String.format("User %s deleted payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s deleted payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_UPDATE ->
-                String.format("User %s updated payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s updated payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_RECOVER ->
-                String.format("User %s recovered payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s recovered payment to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             default -> "No description available";
         };
     }

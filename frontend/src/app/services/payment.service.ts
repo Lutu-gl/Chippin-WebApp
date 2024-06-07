@@ -12,6 +12,7 @@ import {DebtGroupDetailDto} from "../dtos/debt";
 })
 export class PaymentService {
   private paymentBaseUri: string = this.globals.backendUri + '/payment';
+  private paymentBaseUriGroup: string = this.globals.backendUri + '/group';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -37,5 +38,9 @@ export class PaymentService {
 
   getPaymentById(paymentId: number): Observable<PaymentDto> {
     return this.httpClient.get<PaymentDto>(this.paymentBaseUri + `/${paymentId}`)
+  }
+
+  getPaymentsByGroupId(groupId: number): Observable<PaymentDto[]> {
+    return this.httpClient.get<PaymentDto[]>(this.paymentBaseUriGroup + `/${groupId}/payments`)
   }
 }

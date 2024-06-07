@@ -31,7 +31,8 @@ export class PaymentCreateComponent implements OnInit {
     amount: this.route.snapshot.params.amount,
     groupId: this.route.snapshot.params.id,
     deleted: false,
-    archived: false
+    archived: false,
+    date: null
   }
   private paymentId: number;
 

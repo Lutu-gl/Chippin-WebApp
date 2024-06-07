@@ -17,6 +17,8 @@ import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
 import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
 import {PaymentCreateEditMode} from "../../payment-create/payment-create.component";
+import {ExpenseDetailDto} from "../../../dtos/expense";
+import {ExpenseService} from "../../../services/expense.service";
 
 @Component({
   selector: 'app-group-info',
@@ -37,7 +39,10 @@ export class GroupInfoComponent implements OnInit {
   membersWithDebtsWithoutEven: any[] = [];
   maxDebt: number = 0;
   transactionsActivities: ActivityDetailDto[] = [];
-  paymentsActivities: ActivityDetailDto[] = [];
+
+  payments: PaymentDto[] = [];
+  expenses: ExpenseDetailDto[] = [];
+
   menuitemsButtonMore: MenuItem[] | undefined;
 
 
@@ -55,6 +60,7 @@ export class GroupInfoComponent implements OnInit {
   isDeleteDialogVisible: boolean = false;
   paymentDeleted: boolean = false;
 
+
   isBudgetDialogVisible: boolean = false;
   budgetDialogMode: BudgetCreateEditMode;
   budgetDialogBudgetId: number;
@@ -67,8 +73,9 @@ export class GroupInfoComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private authService: AuthService,
+    protected authService: AuthService,
     private paymentService: PaymentService,
+    private expenseService: ExpenseService,
   ){
   }
 
@@ -181,7 +188,7 @@ export class GroupInfoComponent implements OnInit {
     // tab Menu
     this.tabMenuItems = [
       { label: 'Transactions', icon: 'pi pi-fw pi-dollar' },
-      { label: 'Debts', icon: 'pi pi-fw pi-money-bill' },
+      { label: 'Activities', icon: 'pi pi-fw pi-chart-bar' },
       { label: 'Members', icon: 'pi pi-fw pi-users' },
       { label: 'Pantry', icon: 'pi pi-fw pi-shopping-cart' },
       { label: 'Shopping lists', icon: 'pi pi-fw pi-shopping-cart' },
@@ -195,6 +202,7 @@ export class GroupInfoComponent implements OnInit {
     this.getDebt();
     this.getTransactions();
     this.getPayments();
+    this.getExpenses();
     this.getGroupBudgets();
 
     this.paymentForDialog = undefined;
@@ -248,9 +256,19 @@ export class GroupInfoComponent implements OnInit {
 
   getPayments(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
-      this.paymentsActivities = payments;
+
+    this.paymentService.getPaymentsByGroupId(id).subscribe(payments => {
+      this.payments = payments;
     });
+    console.log(this.payments)
+  }
+
+  getExpenses(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.expenseService.getExpensesByGroupId(id).subscribe(expenses => {
+      this.expenses = expenses;
+    });
+    console.log(this.expenses)
   }
 
   getGroupBudgets(): void {
@@ -299,7 +317,7 @@ export class GroupInfoComponent implements OnInit {
     return this.tabMenuActiveItem === this.tabMenuItems[0];
   }
 
-  isDebtsSelected(): boolean {
+  isActivitiesSelected(): boolean {
     return this.tabMenuActiveItem === this.tabMenuItems[1];
   }
 
@@ -342,12 +360,47 @@ export class GroupInfoComponent implements OnInit {
     }
   }
 
-  getTransactionVarSorted():ActivityDetailDto[] {
+  getPaymentColor() {
+    return 'bg-green-50';
+  }
+
+  getTransactionActivitiesVarSorted():ActivityDetailDto[] {
     return this.transactionsActivities.sort((a, b) => {
       let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return bTime - aTime;
     });
+  }
+
+  // combine expeneses and payments in one array and sort them by the date
+  getTransactionVarSorted() {
+    let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
+
+    transactions.sort((a, b) => {
+      let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
+      let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
+      return bTime - aTime;
+    });
+    console.log(transactions)
+    return transactions;
+  }
+
+  getTransactionVarSortedWithoutDeleted() {
+    let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
+
+    transactions = transactions.filter(transaction => !transaction.deleted)
+
+    transactions.sort((a, b) => {
+      let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
+      let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
+      return bTime - aTime;
+    });
+    console.log(transactions)
+    return transactions;
+  }
+
+  isExpense(transaction: any): boolean {
+    return transaction.hasOwnProperty('category');
   }
 
   // Sorts the members with debts by the amount of debt
@@ -430,7 +483,8 @@ export class GroupInfoComponent implements OnInit {
       receiverEmail: this.selectedDebtMemberVar,
       deleted: false,
       groupId: this.group.id,
-      archived: false
+      archived: false,
+      date: null
     }
 
     this.paymentService.createPayment(payment).subscribe({
@@ -591,7 +645,8 @@ export class GroupInfoComponent implements OnInit {
       receiverEmail: this.receiverEmailForPaymentDialog,
       groupId: this.group.id,
       deleted: false,
-      archived: false
+      archived: false,
+      date: null
     };
     this.paymentService.updatePayment(this.paymentDialogPaymentId, submitPayment).subscribe({
       next: data => {
@@ -610,6 +665,14 @@ export class GroupInfoComponent implements OnInit {
 
   showVisualizationPage() {
     this.router.navigate(['/group',this.group.id ,'visualization']);
+  }
+
+  getLoggedInUserAmountOfExpense(expense: ExpenseDetailDto): string {
+    return (expense.participants[this.authService.getEmail()] * expense.amount).toFixed(2);
+  }
+
+  getPayerEmailForExpenseDescription(transaction: ExpenseDetailDto) {
+    return transaction.payerEmail === this.authService.getEmail() ? "You" : transaction.payerEmail;
   }
 }
 
