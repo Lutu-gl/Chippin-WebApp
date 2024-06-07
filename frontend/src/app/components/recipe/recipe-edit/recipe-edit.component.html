@@ -168,18 +168,20 @@
 
             <div (click)="changeIsPublic()"> Change is Public</div>
           </div>
-          Recipe: {{recipe.isPublic}}
-No Recipe:{{isPublic}}
           <div class="upper flex" *ngIf="recipe.name!==''">
 
-            Should this recipe be public? <!-- <p-inputSwitch  [(ngModel)]="isPublic" (onChange)="changeIsPublic()"/> -->
-<!-- TODO EDIT INGREDIENTS FUNKTIONIERT NICHT, Add tooltips to everything-->
+            Should this recipe be public?
+            <button [pTooltip]="'This Recipe is now visible to everyone'" *ngIf="isPublic" class="public-button rounded" (click)="changeIsPublic()">Public</button>
+
+            <!-- Button for isPublic = false -->
+            <button [pTooltip]="'This Recipe is now only for your eyes'" *ngIf="!isPublic" class="private-button rounded" (click)="changeIsPublic()">Private</button>
+
           </div>
 
           <div class="submit flex">
             <p-button [pTooltip]="'Save your changes!'" severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
             <div class="test">
-            <p-button [pTooltip]="'Delete your Recipe'" severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
+            <p-button [pTooltip]="'Delete your Recipe'" tooltipPosition="left" severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
           </div>
 
 
