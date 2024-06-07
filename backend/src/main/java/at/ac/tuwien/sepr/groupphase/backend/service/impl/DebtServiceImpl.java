@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -30,7 +31,7 @@ public class DebtServiceImpl implements DebtService {
         LOGGER.trace("getById({}, {})", userEmail, groupId);
 
 
-        groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
+        GroupEntity group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
 
 
         List<Object[]> rawResults = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(userEmail, groupId);
@@ -43,8 +44,15 @@ public class DebtServiceImpl implements DebtService {
         }
 
         Map<String, Double> participantsMap = new HashMap<>();
+
         for (Object[] result : rawResults) {
+
+            // skip the result if the participantEmail is not in the group!
             String participantEmail = (String) result[0];
+            if (!group.getUsers().stream().anyMatch(user -> user.getEmail().equals(participantEmail))) {
+                continue;
+            }
+
             BigDecimal amount = (BigDecimal) result[1];
             participantsMap.put(participantEmail, amount.doubleValue());
         }
