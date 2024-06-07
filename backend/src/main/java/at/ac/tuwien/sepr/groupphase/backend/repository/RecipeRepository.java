@@ -46,8 +46,9 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
         + "JOIN Item it ON i.description = it.description AND i.unit = it.unit "
         + "WHERE it.id IN :itemIds "
         + "GROUP BY r.id "
+        + "HAVING r.isPublic OR r.owner.id = :userId "
         + "ORDER BY COUNT(i.id) DESC")
-    List<Recipe> findRecipesByItemIds(@Param("itemIds") List<Integer> itemIds);
+    List<Recipe> findRecipesByItemIds(@Param("itemIds") List<Integer> itemIds, @Param("userId") Long ownerId);
 
     @Modifying
     @Query("delete from Recipe r where r.id=:recipeId")

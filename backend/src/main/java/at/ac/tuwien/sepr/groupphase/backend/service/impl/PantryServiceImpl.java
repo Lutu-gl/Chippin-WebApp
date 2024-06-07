@@ -132,8 +132,8 @@ public class PantryServiceImpl implements PantryService {
     }
 
     @Override
-    public List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto) {
-        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds()));
+    public List<RecipeListDto> getRecipes(GetRecipeDto getRecipeDto, Long userId) {
+        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds(), userId));
     }
 
     @Override
