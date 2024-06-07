@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
@@ -18,7 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.ItemService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class PantryServiceImpl implements PantryService {
     private final ItemRepository itemRepository;
     private final PantryItemRepository pantryItemRepository;
     private final PantryRepository pantryRepository;
-    private final ItemService itemService;
+    private final PantryItemService pantryItemService;
     private final RecipeRepository recipeRepository;
     private final ItemMapper itemMapper;
     private final RecipeMapper recipeMapper;
@@ -78,7 +77,7 @@ public class PantryServiceImpl implements PantryService {
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            return itemService.pantryAutoMerge(item, pantry);
+            return pantryItemService.pantryAutoMerge(item, pantry);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
@@ -100,20 +99,13 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public PantryItem updateItem(PantryItemDto item, long pantryId) {
+    public Item updateItem(PantryItem item, long pantryId) {
         LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            PantryItem updatedItem = PantryItem.builder()
-                .pantry(pantry)
-                .id(item.getId())
-                .unit(item.getUnit())
-                .amount(item.getAmount())
-                .description(item.getDescription())
-                .lowerLimit(item.getLowerLimit())
-                .build();
-            return itemRepository.save(updatedItem);
+            item.setPantry(pantry);
+            return pantryItemService.pantryAutoMerge(item, pantry);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
@@ -121,12 +113,26 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException {
+    public Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException {
         if (itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
             throw new ConflictException("Merging Error", List.of("Can not merge item with itself"));
         }
         deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
-        return updateItem(itemMergeDto.getResult(), pantryId);
+        Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
+        if (optionalPantry.isPresent()) {
+            Pantry pantry = optionalPantry.get();
+            PantryItem updatedItem = PantryItem.builder()
+                .pantry(pantry)
+                .id(itemMergeDto.getResult().getId())
+                .unit(itemMergeDto.getResult().getUnit())
+                .amount(itemMergeDto.getResult().getAmount())
+                .description(itemMergeDto.getResult().getDescription())
+                .lowerLimit(itemMergeDto.getResult().getLowerLimit())
+                .build();
+            return itemRepository.save(updatedItem);
+        } else {
+            throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
+        }
     }
 
     @Override
@@ -190,8 +196,7 @@ public class PantryServiceImpl implements PantryService {
                 //If Amount would be negative set it to 0, otherwise reduce amount by recipe amount * ratio
                 pantryItem.setAmount(Math.max((int) Math.ceil(pantryItem.getAmount() - (currentRecipeItem.getAmount() * ratio)), 0));
                 changedItems.add(pantryItem.getDescription());
-                updateItem(itemMapper.pantryItemToPantryItemDto(pantryItem), groupId);
-
+                itemRepository.save(pantryItem);
             }
         }
 

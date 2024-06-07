@@ -8,7 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.ItemService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class ItemServiceTest {
+public class PantryItemServiceTest {
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
@@ -27,7 +27,7 @@ public class ItemServiceTest {
     @Autowired
     private GroupRepository groupRepository;
     @Autowired
-    private ItemService itemService;
+    private PantryItemService pantryItemService;
 
     @Test
     public void givenNewItem_thenNewItemSavedInPantry() {
@@ -40,7 +40,7 @@ public class ItemServiceTest {
 
         PantryItem pantryItem = PantryItem.builder().description("TestItem").unit(Unit.Piece).amount(10).lowerLimit(12L).build();
 
-        Item result = itemService.pantryAutoMerge(pantryItem, pantry);
+        Item result = pantryItemService.pantryAutoMerge(pantryItem, pantry);
 
         assertEquals(pantryItem, result);
     }
@@ -57,7 +57,7 @@ public class ItemServiceTest {
         groupRepository.save(group);
         PantryItem pantryItem = PantryItem.builder().description("TestItem").unit(Unit.Piece).amount(10).lowerLimit(12L).build();
 
-        Item result = itemService.pantryAutoMerge(pantryItem, pantry);
+        Item result = pantryItemService.pantryAutoMerge(pantryItem, pantry);
 
         assertAll(
             () -> assertEquals(result.getId(), existingItem.getId()),
