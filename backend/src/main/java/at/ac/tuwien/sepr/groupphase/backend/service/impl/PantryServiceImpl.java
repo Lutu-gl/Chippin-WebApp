@@ -161,11 +161,11 @@ public class PantryServiceImpl implements PantryService {
             @Override
             public int compare(RecipeByItemsDto o1, RecipeByItemsDto o2) {
                 float ratio1 = (float) o1.getItemsInPantry().size() / o1.getIngredients().size();
-                float ratio2 =  (float) o2.getItemsInPantry().size() / o2.getIngredients().size();
-                if(ratio2 - ratio1 == 0) {
+                float ratio2 = (float) o2.getItemsInPantry().size() / o2.getIngredients().size();
+                if (ratio2 - ratio1 == 0) {
                     return o2.getItemsInPantry().size() > o1.getItemsInPantry().size() ? 1 : -1;
                 }
-                return (int)((ratio2 - ratio1) * 100);
+                return (int) ((ratio2 - ratio1) * 100);
             }
         });
         return recipeByItemsDtoList;
