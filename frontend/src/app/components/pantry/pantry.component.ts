@@ -81,6 +81,7 @@ export class PantryComponent implements OnInit {
   tabMenuItems: MenuItem[] | undefined;
   tabMenuActiveItem: MenuItem | undefined;
 
+  recipeDialog: boolean = false;
   itemDialog: boolean = false;
   items!: PantryItemDetailDto[];
   createEditItem!: PantryItemCreateDisplayDto;
@@ -160,6 +161,11 @@ export class PantryComponent implements OnInit {
   hideDialog() {
     this.itemDialog = false;
     this.submitted = false;
+    this.recipeDialog = false;
+  }
+
+  openRecipeDialog() {
+    this.recipeDialog = true;
   }
 
   openNew() {

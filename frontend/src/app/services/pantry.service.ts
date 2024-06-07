@@ -5,6 +5,7 @@ import {Globals} from '../global/globals';
 import {GetRecipesDto, PantryDetailDto, PantrySearch} from "../dtos/pantry";
 import {ItemCreateDto, ItemDetailDto, PantryItemCreateDto, PantryItemDetailDto, PantryItemMergeDto} from "../dtos/item";
 import {RecipeListDto} from "../dtos/recipe";
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class PantryService {
 
   private pantryBaseUri: string = this.globals.backendUri + '/group';
 
-  constructor(private httpClient: HttpClient, private globals: Globals) {
+  constructor(private httpClient: HttpClient, private globals: Globals, private authService: AuthService) {
   }
 
   /**
@@ -85,7 +86,7 @@ export class PantryService {
    * @param getRecipeDto
    */
   getRecipes(id: number, getRecipesDto: GetRecipesDto) {
-    return this.httpClient.post<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes`, getRecipesDto);
+    return this.httpClient.post<RecipeListDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes/user/${this.authService.getUserId()}`, getRecipesDto);
   }
 
   getAllMissingItems(id: number) {
