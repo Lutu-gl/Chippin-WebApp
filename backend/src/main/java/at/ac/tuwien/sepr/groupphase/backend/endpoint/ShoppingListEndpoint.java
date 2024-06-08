@@ -108,6 +108,15 @@ public class ShoppingListEndpoint {
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
     }
 
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items/list")
+    public List<ShoppingListItemDto> addItems(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody List<ItemCreateDto> items) {
+        log.debug("request body: {}", items);
+        var shoppingListItems = shoppingListService.addItemsForUser(shoppingListId, items, userId);
+        return shoppingListMapper.listOfShoppingListItemsToListOfShoppingListItemDtos(shoppingListItems);
+    }
+
     // PATCH users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")

@@ -68,4 +68,6 @@ public interface ShoppingListMapper {
     @Mapping(target = "items", ignore = true)
     @Mapping(target = "group", ignore = true)
     ShoppingList updateShoppingList(@MappingTarget ShoppingList shoppingListEntity, ShoppingListUpdateDto shoppingList);
+
+    List<ShoppingListItemDto> listOfShoppingListItemsToListOfShoppingListItemDtos(List<ShoppingListItem> shoppingListItems);
 }
