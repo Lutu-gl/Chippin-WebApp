@@ -163,8 +163,8 @@ public class RecipeServiceImpl implements RecipeService {
                 .portionSize(result.getPortionSize())
                 .owner(result.getOwner())
                 .ingredients(itemMapper.listOfItemsToListOfItemDto(result.getIngredients()))
-                .likedByUser(result.getLikedByUsers().contains(user))
-                .dislikedByUser(result.getDislikedByUsers().contains(user))
+                .likedByUser(user.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(id)))
+                .dislikedByUser(user.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(id)))
                 .build();
 
         } else {

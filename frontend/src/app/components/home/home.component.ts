@@ -77,9 +77,6 @@ export class HomeComponent implements OnInit {
       case 'Shopping lists':
         this.router.navigate(['home', 'shopping-lists']);
         break;
-      case 'Recipes':
-        this.router.navigate(['home', 'recipes']);
-        break;
     }
 
     this.tabMenuActiveItem = event;

@@ -10,7 +10,6 @@ import {debounceTime, Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListListDto} from "../../../dtos/shoppingList";
 import {ConfirmationService, MessageService} from "primeng/api";
-import {getStepSize, getSuffix} from "../../../util/unit-helper";
 import {
   formatAmount,
   formatLowerLimit,
@@ -60,8 +59,6 @@ export class RecipeDetailComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private notification: ToastrService,
     private shoppingListService: ShoppingListService,
     private authService: AuthService
   ) {
@@ -183,18 +180,6 @@ export class RecipeDetailComponent implements OnInit {
         }
       });
     }
-  }
-
-  getRecipe() {
-    this.service.getRecipeWithInfoById(this.recipeId)
-      .subscribe({
-        next: data => {
-          this.recipe = data;
-        },
-        error: error => {
-          this.printError(error);
-        }
-      });
   }
 
   printError(error): void {

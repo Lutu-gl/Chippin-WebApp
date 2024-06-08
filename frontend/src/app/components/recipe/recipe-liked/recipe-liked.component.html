@@ -21,7 +21,7 @@
     <h3 class="font-bold mb-2">Your liked Recipes</h3>
     <div *ngFor="let recipe of recipes" [routerLink]="['/recipe', 'viewer', recipe.id]" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
       <div class="flex items-center space-x-4">
-        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div> <!-- TODO Add picture later -->
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div>
         <div>
           <div class="font-bold">{{ recipe.name }}</div>
         </div>
