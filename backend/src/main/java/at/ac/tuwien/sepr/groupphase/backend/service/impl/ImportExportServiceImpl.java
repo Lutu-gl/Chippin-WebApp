@@ -106,14 +106,6 @@ public class ImportExportServiceImpl implements ImportExportService {
                 .setFontColor(ColorConstants.BLACK);
             document.add(nameParagraph);
 
-            // Add portion size
-            Paragraph portionSizeParagraph = new Paragraph("For " + recipe.getPortionSize() + " " + (recipe.getPortionSize() == 1 ? "person" : "people"))
-                .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA))
-                .setFontSize(12)
-                .setFontColor(ColorConstants.BLACK)
-                .setMultipliedLeading(1.5f);
-            document.add(portionSizeParagraph);
-
 
             Paragraph descriptionParagraph = new Paragraph("\n" + recipe.getDescription())
                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA))
@@ -121,6 +113,14 @@ public class ImportExportServiceImpl implements ImportExportService {
                 .setMultipliedLeading(1.5f)
                 .setFontColor(ColorConstants.BLACK);
             document.add(descriptionParagraph);
+
+            // Add portion size
+            Paragraph portionSizeParagraph = new Paragraph("Ingredients for " + recipe.getPortionSize() + " " + (recipe.getPortionSize() == 1 ? "person" : "people"))
+                .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA))
+                .setFontSize(12)
+                .setFontColor(ColorConstants.BLACK)
+                .setMultipliedLeading(1.5f);
+            document.add(portionSizeParagraph);
 
             // Add a table of ingredients
             float[] columnWidths = {3, 2}; // Adjust column widths as necessary

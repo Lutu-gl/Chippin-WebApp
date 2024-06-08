@@ -193,11 +193,11 @@ export class RecipeCreateComponent implements OnInit {
   getRecipeSuffix(item: ItemCreateDto): String {
     switch (item.unit) {
       case Unit.Piece:
-        return item.amount == 1 ? " Piece" : " Pieces";
+        return item.amount == 1 ? "Piece" : "Pieces";
       case Unit.Gram:
-        return item.amount < 1000 ? "g" : "kg";
+        return "g"
       case Unit.Milliliter:
-        return item.amount < 1000 ? "ml" : "l";
+        return "ml"
       default:
         console.error("Unknown Unit");
         return "";
