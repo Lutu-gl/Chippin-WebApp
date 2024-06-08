@@ -23,6 +23,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -283,8 +285,11 @@ public class ShoppingListItemTest extends BaseTest {
         var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
         assertAll(
             () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemsAmount + 1),
-            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(1),
-            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).findFirst().get().getItem().getAmount()).isEqualTo(20)
+            () -> assertThat(
+                updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(1),
+            () -> assertThat(
+                updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).findFirst().get().getItem()
+                    .getAmount()).isEqualTo(20)
         );
 
     }
@@ -314,8 +319,8 @@ public class ShoppingListItemTest extends BaseTest {
 
         // Add the item to the shopping list
         mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(itemCreateDto))
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsString(itemCreateDto))
         ).andExpect(status().isOk());
 
         // Check the item
@@ -326,18 +331,72 @@ public class ShoppingListItemTest extends BaseTest {
 
         // Add the same item to the shopping list
         mockMvc.perform(post("/api/v1/users/" + owner.getId() + "/shopping-lists/" + shoppingList.getId() + "/items")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(itemCreateDto))
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsString(itemCreateDto))
         ).andExpect(status().isOk());
 
         // Check if both items were added to the shopping list
         var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
         assertAll(
             () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(itemsAmount + 2),
-            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(2),
-            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).filter(i -> i.getCheckedBy() != null).count()).isEqualTo(1),
-            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).filter(i -> i.getCheckedBy() == null).count()).isEqualTo(1)
+            () -> assertThat(
+                updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description")).count()).isEqualTo(2),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description"))
+                .filter(i -> i.getCheckedBy() != null).count()).isEqualTo(1),
+            () -> assertThat(updatedShoppingList.getItems().stream().filter(i -> i.getItem().getDescription().equals("Test Item description"))
+                .filter(i -> i.getCheckedBy() == null).count()).isEqualTo(1)
         );
     }
 
+    @Test
+    @WithMockUser(username = "test")
+    @Transactional
+    public void givenValidData_whenAddItems_thenItemsAreAdded() throws Exception {
+        List<ItemCreateDto> items = List.of(
+            ItemCreateDto.builder().description("Item 1").unit(Unit.Gram).amount(2000).build(),
+            ItemCreateDto.builder().description("Item 2").unit(Unit.Piece).amount(5).build()
+        );
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find an existing shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var initialItemsAmount = shoppingList.getItems().size();
+        var owner = shoppingList.getOwner();
+
+        mockMvc.perform(post("/api/v1/users/{ownerId}/shopping-lists/{shoppingListId}/items/list", owner.getId(), shoppingList.getId())
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(items)))
+            .andExpect(status().isOk());
+
+        var updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertAll(
+            () -> assertThat(updatedShoppingList.getItems().size()).isEqualTo(initialItemsAmount + 2),
+            () -> assertThat(updatedShoppingList.getItems().stream().anyMatch(i -> i.getItem().getDescription().equals("Item 1"))).isTrue(),
+            () -> assertThat(updatedShoppingList.getItems().stream().anyMatch(i -> i.getItem().getDescription().equals("Item 2"))).isTrue()
+        );
+    }
+
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenOneInvalidAndOneValidItem_whenAddItems_thenException() throws Exception {
+        List<ItemCreateDto> items = List.of(
+            ItemCreateDto.builder().description("Item 1").unit(Unit.Gram).amount(2000).build(),
+            ItemCreateDto.builder().description("Item 2").unit(Unit.Piece).amount(-5).build()
+        );
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+
+        // Find an existing shopping list
+        var shoppingList = shoppingListRepository.findAll().getFirst();
+        var owner = shoppingList.getOwner();
+
+        mockMvc.perform(
+                post("/api/v1/users/{ownerId}/shopping-lists/{shoppingListId}/items/list",
+                    owner.getId(), shoppingList.getId())
+                    .contentType("application/json")
+                    .content(objectMapper.writeValueAsString(items)))
+            .andExpect(status().isBadRequest());
+    }
 }

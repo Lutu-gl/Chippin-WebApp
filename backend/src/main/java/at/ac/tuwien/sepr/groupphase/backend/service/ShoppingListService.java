@@ -130,4 +130,14 @@ public interface ShoppingListService {
      */
 
     void deleteCheckedItems(Long shoppingListId);
+
+    /**
+     * Add multiple items to a shopping list.
+     *
+     * @param shoppingListId the id of the shopping list
+     * @param items the items to add
+     * @param userId the id of the user adding the items
+     * @return the added items
+     */
+    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
 }

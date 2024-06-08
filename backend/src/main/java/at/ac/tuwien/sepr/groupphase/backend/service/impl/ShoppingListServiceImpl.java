@@ -13,7 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -26,7 +25,6 @@ import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValida
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -95,7 +93,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * @param item the item to merge
      * @param shoppingList the shopping list to merge the item into
      */
-    public ShoppingListItem shoppingListItemAutoMerge(ShoppingListItem item, ShoppingList shoppingList) {
+    public ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
         log.debug("Merging item {} into shopping list {}", item, shoppingList);
         var updatedItem = item;
         var existingItem = shoppingList.getItems().stream()
@@ -108,8 +106,6 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             log.debug("Item already exists in shopping list. Merging quantities");
             existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
             existingItem.get().setCheckedBy(item.getCheckedBy());
-            // Delete the item that was merged if it was already in the shopping list
-            shoppingListItemRepository.delete(item);
             updatedItem = existingItem.get();
         } else {
             log.debug("Item does not exist in shopping list. Adding item");
@@ -131,7 +127,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             () -> new NotFoundException("User with id " + userId + " not found")
         );
         var item = shoppingListMapper.itemCreateDtoAndUserToShoppingListItem(itemCreateDto, user);
-        shoppingListItemAutoMerge(item, shoppingList);
+        mergeNewItem(item, shoppingList);
         var savedShoppingList = shoppingListRepository.save(shoppingList);
         log.debug("Item added to shopping list: {}", savedShoppingList);
         return shoppingList.getItems().getLast();
@@ -287,6 +283,27 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingList.getItems().removeIf(item -> item.getCheckedBy() != null);
         shoppingListRepository.save(shoppingList);
     }
+
+    @Override
+    @Transactional
+    public List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) {
+        log.debug("Adding items to shopping list with id {} for user with id {}", shoppingListId, userId);
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
+            () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
+        var user = userRepository.findById(userId).orElseThrow(
+            () -> new NotFoundException("User with id " + userId + " not found"));
+        List<ShoppingListItem> addedItems = new ArrayList<>();
+        for (var itemCreateDto : items) {
+            var item = shoppingListMapper.itemCreateDtoAndUserToShoppingListItem(itemCreateDto, user);
+            addedItems.add(mergeNewItem(item, shoppingList));
+        }
+        shoppingListRepository.save(shoppingList);
+        log.debug("Items added to shopping list");
+        return addedItems;
+
+    }
+
+
 
     @Override
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId) {
