@@ -199,21 +199,20 @@ tooShort=false;
 
   deleteRecipe() {
     this.service.deleteRecipe(this.recipe.id).subscribe({
-      //TODO
       next: res => {
-        console.log('deleted recipe: ', res);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: `Recipe successfully deleted`,
+          life: 3000
+        });
 
       },
       error: err => {
         this.printError(err);
       }
     });
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Successful',
-      detail: `Recipe successfully deleted`,
-      life: 3000
-    });
+
     this.router.navigate(['/recipe']);
   }
   printError(error): void {

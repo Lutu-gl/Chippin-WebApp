@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 
 public interface ImportExportService {
@@ -22,5 +23,5 @@ public interface ImportExportService {
      * @param recipeId the id of the recipe to export
      * @return the Pdf as ByeArrayInputStream
      */
-    ByteArrayInputStream exportRecipe(long recipeId);
+    byte[] exportRecipe(long recipeId);
 }

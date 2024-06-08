@@ -22,6 +22,7 @@ import {ShoppingListService} from "../../../services/shopping-list.service";
 import {AuthService} from "../../../services/auth.service";
 import {AddItemToShoppingListDto} from "../../../dtos/AddRecipeItemToShoppingListDto";
 import * as _ from "lodash";
+import {saveAs} from "file-saver";
 
 export enum RecipeDetailMode {
   owner,
@@ -358,6 +359,28 @@ export class RecipeDetailComponent implements OnInit {
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       });
     });
+  }
+
+  getPdf() {
+    let data = this.service.exportRecipe(this.recipeId).subscribe(
+      {
+        next:data => {
+          const blob = new Blob([data], { type: 'application/pdf' });
+
+          console.log(blob);
+
+
+          saveAs(blob, this.recipe.name + '.pdf');
+        },
+        error:error => {
+          window.alert("error");
+          this.printError(error);
+        }
+
+
+      }
+    );
+
   }
 
 
