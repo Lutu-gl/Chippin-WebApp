@@ -90,7 +90,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * Merge item into shopping list.
      * If an item with the same description, unit and checked-state exists in the shopping list, the quantity of the existing item is increased and the checked-state is updated.
      *
-     * @param item the item to merge
+     * @param item         the item to merge
      * @param shoppingList the shopping list to merge the item into
      */
     public ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
@@ -196,6 +196,26 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         return ownedShoppingLists;
     }
 
+    private ShoppingListItem mergeExistingItem(ShoppingListItem item, ShoppingList shoppingList) {
+        var updatedItem = item;
+        // Check if item already exists in shopping list
+        var existingItem = shoppingList.getItems().stream()
+            .filter(i -> i.getItem().getDescription().equals(item.getItem().getDescription())
+                && i.getItem().getUnit().equals(item.getItem().getUnit())
+                && ((i.getCheckedBy() == null) == (item.getCheckedBy() == null))
+                && (i.getId() != item.getId()))
+            .findFirst();
+        if (existingItem.isPresent()) {
+            // Merge quantities
+            existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
+            existingItem.get().setCheckedBy(item.getCheckedBy());
+            // Remove the old item from the shopping list
+            shoppingList.getItems().remove(item);
+            updatedItem = existingItem.get();
+        }
+        return updatedItem;
+    }
+
     @Override
     @Transactional
     public ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId) {
@@ -217,6 +237,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         } else {
             shoppingListItem.setCheckedBy(null);
         }
+        // Merge item into shopping list
+        shoppingListItem = mergeExistingItem(shoppingListItem, shoppingList);
         shoppingListRepository.save(shoppingList);
         log.debug("Item updated: {}", shoppingListItem);
         return shoppingListItem;

@@ -24,6 +24,8 @@ public interface ItemMapper {
 
     PantryItem pantryItemCreateDtoToPantryItem(PantryItemCreateDto pantryItemCreateDto);
 
+    PantryItem pantryItemDtoToPantryItem(PantryItemDto pantryItemDto);
+
     PantryItemDto pantryItemToPantryItemDto(PantryItem pantryItem);
 
     @Mapping(target = "pantry", source = "pantry")
@@ -32,4 +34,6 @@ public interface ItemMapper {
     PantryItem itemToPantryItem(Item item, Pantry pantry);
 
     ItemDto itemToItemDto(Item item);
+
+    List<ItemDto> listOfPantryItemDtosToListOfItemDto(List<PantryItem> pantryItems);
 }

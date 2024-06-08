@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {ShoppingListDetailDto, ShoppingListItemDto, ShoppingListItemUpdateDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
@@ -30,13 +29,15 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {DialogModule} from "primeng/dialog";
 import {ChipsModule} from "primeng/chips";
 import {DropdownModule} from "primeng/dropdown";
-import {DisplayedUnit, ItemCreateDto} from "../../../dtos/item";
+import {DisplayedUnit, ItemCreateDto, ItemDetailDto, PantryItemDetailDto} from "../../../dtos/item";
 import {valuesIn} from "lodash";
 import {InputGroupModule} from "primeng/inputgroup";
 import {PaginatorModule} from "primeng/paginator";
 import {InputGroupAddonModule} from "primeng/inputgroupaddon";
 import {convertQuantity, displayQuantity} from "../../../util/unit-helper";
 import {ShoppingListEditModalComponent} from "../shopping-list-edit-modal/shopping-list-edit-modal.component";
+import {AutoCompleteCompleteEvent, AutoCompleteModule, AutoCompleteSelectEvent} from "primeng/autocomplete";
+import {PantryService} from "../../../services/pantry.service";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -71,6 +72,7 @@ import {ShoppingListEditModalComponent} from "../shopping-list-edit-modal/shoppi
     InputGroupAddonModule,
     ReactiveFormsModule,
     ShoppingListEditModalComponent,
+    AutoCompleteModule,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
@@ -82,6 +84,7 @@ export class ShoppingListDetailComponent implements OnInit {
               private router: Router,
               private authService: AuthService,
               private confirmationService: ConfirmationService,
+              private pantryService: PantryService,
               private messageService: MessageService) {
     this.addItemForm = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]),
@@ -111,6 +114,7 @@ export class ShoppingListDetailComponent implements OnInit {
   editItemForm: FormGroup = new FormGroup({});
   itemToEdit: ShoppingListItemDto | undefined;
   showEditModal: boolean = false;
+  allMissingItems: ItemDetailDto[] = [];
 
   ngOnInit(): void {
     this.route.params.subscribe({
@@ -170,10 +174,21 @@ export class ShoppingListDetailComponent implements OnInit {
     ]
 
 
-
     this.loadShoppingListDetailDto();
+    this.loadAllMissingItems();
+  }
 
-
+  loadAllMissingItems() {
+    if (!this.shoppingListDetailDto?.group) return;
+    this.pantryService.getAllMissingItems(this.shoppingListDetailDto.group.id).subscribe({
+      next: data => {
+        this.allMissingItems = data;
+      },
+      error: err => {
+        console.error(err);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load missing items'});
+      }
+    })
   }
 
   setShoppingCartMenuItems() {
@@ -242,7 +257,7 @@ export class ShoppingListDetailComponent implements OnInit {
       }
     ]
 
-    if (!this.shoppingListDetailDto?.group){
+    if (!this.shoppingListDetailDto?.group) {
       // Remove "move to pantry" button
       this.shoppingCartItemMenuItems = this.shoppingCartItemMenuItems.filter(item => item.label !== "Move to pantry");
     }
@@ -254,6 +269,7 @@ export class ShoppingListDetailComponent implements OnInit {
       next: shoppingList => {
         this.shoppingListDetailDto = shoppingList;
         this.setShoppingCartMenuItems();
+        this.loadAllMissingItems();
       },
       error: err => {
         console.error(err);
@@ -292,7 +308,7 @@ export class ShoppingListDetailComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not delete shopping list!`});
         }
       }
-      });
+    });
   }
 
   selectItem(item: ShoppingListItemDto) {
@@ -361,7 +377,6 @@ export class ShoppingListDetailComponent implements OnInit {
       }
     })
   }
-
 
 
   moveAllItemsInCartToPantry() {
@@ -520,7 +535,6 @@ export class ShoppingListDetailComponent implements OnInit {
   openAddItemDialog() {
     this.addItemForm.reset();
     this.displayAddItemDialog = true;
-
   }
 
   openEditItemDialog(itemToEdit: ShoppingListItemDto) {
@@ -567,6 +581,9 @@ export class ShoppingListDetailComponent implements OnInit {
   }
 
   protected readonly displayQuantity = displayQuantity;
+  filteredMissingItems: ItemDetailDto[] = [];
+  selectedMissingItem: ItemDetailDto;
+
 
   confirmDeleteAllInCart() {
     if (this.getShoppingCartItems().length < 1) {
@@ -593,21 +610,58 @@ export class ShoppingListDetailComponent implements OnInit {
     this.shoppingListService.deleteAllItemsInCart(this.authService.getUserId(), this.shoppingListDetailDto.id).subscribe({
       next: () => {
         this.loadShoppingListDetailDto();
-        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Deleted all items in shopping cart'});
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Deleted all items in shopping cart'
+        });
       },
       error: err => {
         console.error(err);
         if (err.error) {
-          this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: err.error});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error deleting items in shopping cart',
+            detail: err.error
+          });
         }
         if (err.error.error) {
-          this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: err.error.error});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error deleting items in shopping cart',
+            detail: err.error.error
+          });
         }
         if (err.error.error.errors) {
           err.error.error.errors.forEach((error: any) => {
-            this.messageService.add({severity: 'error', summary: 'Error deleting items in shopping cart', detail: error.defaultMessage});
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error deleting items in shopping cart',
+              detail: error.defaultMessage
+            });
           })
         }
-      }});
+      }
+    });
+  }
+
+  filterMissingItems($event: AutoCompleteCompleteEvent) {
+    this.filteredMissingItems = this.allMissingItems.filter(
+      item => item.description.toLowerCase().includes($event.query.toLowerCase()))
+      .filter(item => !this.getShoppingListItems().map(item => item.item.description).includes(item.description))
+      .filter(item => !this.getShoppingCartItems().map(item => item.item.description).includes(item.description));
+  }
+
+  selectItemToAdd($event: AutoCompleteSelectEvent) {
+    setTimeout(() => {
+      this.selectedMissingItem = null;
+    });
+    // Set addItemForm values
+    this.addItemForm.controls.name.setValue($event.value.description);
+    this.addItemForm.controls.amount.setValue($event.value.amount);
+    this.addItemForm.controls.unit.setValue($event.value.unit);
+
+    // Open add modal
+    this.displayAddItemDialog = true;
   }
 }
