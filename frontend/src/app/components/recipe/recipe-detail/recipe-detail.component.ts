@@ -40,7 +40,7 @@ export class RecipeDetailComponent implements OnInit {
     dislikedByUser:false,
   };
   portion:number = 1;
-  /*group: GroupDto = {
+  group: GroupDto = {
     id: 0,
     members: [],
     groupName: ''
@@ -53,7 +53,7 @@ export class RecipeDetailComponent implements OnInit {
     items: [],
     name: "",
     owner: undefined
-  } */
+  }
   recipeId: number;
   error = false;
   errorMessage = '';
