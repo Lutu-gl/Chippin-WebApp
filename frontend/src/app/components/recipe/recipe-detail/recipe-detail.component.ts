@@ -38,7 +38,6 @@ export class RecipeDetailComponent implements OnInit {
     dislikes:0,
     likedByUser:false,
     dislikedByUser:false,
-    image:null
   };
   portion:number = 1;
   /*group: GroupDto = {
