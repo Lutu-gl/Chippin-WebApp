@@ -520,7 +520,7 @@ export class GroupInfoComponent implements OnInit {
   confirmToLeaveGroup() {
     this.confirmationService.confirm({
       header: 'Attention!',
-      message: `All the Expenses and Payments get archived and will not be editable again<br>This action cannot be undone<br>Do you really want to leave the group?`,
+      message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
@@ -668,7 +668,9 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getLoggedInUserAmountOfExpense(expense: ExpenseDetailDto): string {
-    return (expense.participants[this.authService.getEmail()] * expense.amount).toFixed(2);
+    if(expense.participants[this.authService.getEmail()])
+      return (expense.participants[this.authService.getEmail()] * expense.amount).toFixed(2);
+    return "0";
   }
 
   getPayerEmailForExpenseDescription(transaction: ExpenseDetailDto) {

@@ -369,7 +369,10 @@
                 </div>
                 <div class="font-normal text-sm"   *ngIf="transaction.payerEmail !== authService.getEmail()">{{ transaction.payerEmail }} payed {{transaction.amount | currency: 'EUR' }}</div>
                 <div class="text-xs" *ngIf="transaction.payerEmail === authService.getEmail()"></div>
-                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail()" style="color: red;">
+                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) !== '0'" style="color: red;">
+                  You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
+                </div>
+                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) === '0'">
                   You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
                 </div>
               </div>

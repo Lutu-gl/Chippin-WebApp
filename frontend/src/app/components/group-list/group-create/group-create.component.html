@@ -7,11 +7,23 @@
 <!--  Create Group Div-->
   <div *ngIf="modeIsCreate" class="flex flex-col gap-2 pl-6">
     <label for="inputGroupName" class="font-medium w-64">Group Name</label>
-    <input pAutoFocus [autofocus]="true"
-           [(ngModel)]="group.groupName"
-           type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
-           required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$">
-
+    <input
+      pAutoFocus [autofocus]="true"
+       [(ngModel)]="group.groupName"
+      #groupName="ngModel"
+      type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
+       required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$"
+       maxlength="20"
+    >
+    <div *ngIf="groupName.touched && groupName.errors?.required" class="text-red-500 text-xs">
+      Group name is required.
+    </div>
+    <div *ngIf="groupName.touched && groupName.errors?.pattern" class="text-red-500 text-xs">
+      Group name must only contain letters, numbers, and spaces and start with a letter or number.
+    </div>
+    <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
+      Group name must not have over 20 characters.
+    </div>
 
     <label for="inputMembers" class="font-medium w-64">Members</label>
     <p-autoComplete
@@ -60,15 +72,27 @@
   <!--  Edit Group Div-->
   <div *ngIf="modeIsEdit" class="flex flex-col gap-2 pl-6">
     <label for="inputGroupName" class="font-medium w-64">Group Name</label>
-    <input pAutoFocus [autofocus]="true"
+    <input pAutoFocus
            [(ngModel)]="group.groupName"
+           #groupName="ngModel"
            type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
-           required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$">
+           required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$"
+           maxlength="20"
+    >
+    <div *ngIf="groupName.touched && groupName.errors?.required" class="text-red-500 text-xs">
+      Group name is required.
+    </div>
+    <div *ngIf="groupName.touched && groupName.errors?.pattern" class="text-red-500 text-xs">
+      Group name must only contain letters, numbers, and spaces.
+    </div>
+    <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
+      Group name must not have over 20 characters.
+    </div>
     <br>
 
     <label for="inputMembers" class="font-medium w-64">Current Members</label>
     <div class="flex flex-wrap gap-4 ml-12 mr-20">
-      <div *ngFor="let member of getSortedMembersEmail(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
+      <div *ngFor="let member of getSortedGroupMembersEmail(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <div class="font-semibold">{{i+1}}:</div>
