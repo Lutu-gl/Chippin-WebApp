@@ -1,21 +1,28 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute, Router} from "@angular/router";
-import {
-  RecipeCreateWithoutUserDto,
-  RecipeDetailDto,
-  RecipeDetailWithUserInfoDto,
-  RecipeGlobalListDto
-} from "../../../dtos/recipe";
+import {RecipeDetailWithUserInfoDto} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
-import {ItemCreateDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
+import {DisplayedUnit, ItemCreateDto, ItemDetailDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
 import {debounceTime, Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
-import {ShoppingListDetailDto} from "../../../dtos/shoppingList";
+import {ShoppingListListDto} from "../../../dtos/shoppingList";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {getStepSize, getSuffix} from "../../../util/unit-helper";
+import {
+  formatAmount,
+  formatLowerLimit,
+  getAmountForCreateEdit,
+  getStepSize,
+  getSuffix,
+  getSuffixForCreateEdit
+} from "../../../util/unit-helper";
+import {ShoppingListService} from "../../../services/shopping-list.service";
+import {AuthService} from "../../../services/auth.service";
+import {AddItemToShoppingListDto} from "../../../dtos/AddRecipeItemToShoppingListDto";
+import * as _ from "lodash";
 
 export enum RecipeDetailMode {
   owner,
@@ -28,35 +35,21 @@ export enum RecipeDetailMode {
 })
 export class RecipeDetailComponent implements OnInit {
   mode: RecipeDetailMode = RecipeDetailMode.owner;
-  recipe: RecipeDetailWithUserInfoDto = {
-    name: '',
-    ingredients: [],
-    description: '',
-    isPublic: false,
-    portionSize:1,
-    likes:0,
-    dislikes:0,
-    likedByUser:false,
-    dislikedByUser:false,
-  };
-  portion:number = 1;
+  recipe!: RecipeDetailWithUserInfoDto;
+  portion: number = 1;
   group: GroupDto = {
     id: 0,
     members: [],
     groupName: ''
   }
-  shoppingList: ShoppingListDetailDto = {
-    createdAt: undefined, updatedAt: undefined,
-    id:0,
-    categories: [],
-    group: undefined,
-    items: [],
-    name: "",
-    owner: undefined
-  }
+  shoppingLists: ShoppingListListDto[];
+  shoppingListsGrouped: { groupName: string, shoppingLists: ShoppingListListDto[] }[] = [];
+  shoppingList!: ShoppingListListDto;
+  addItemToShoppingListDto!: AddItemToShoppingListDto;
+  addItemToShoppingListDtoReset!: AddItemToShoppingListDto;
+  selectedIngredients: ItemDetailDto[];
   recipeId: number;
   error = false;
-  errorMessage = '';
   groups: GroupDto[] = [];
   isPantryDialogVisible = false;
   isShoppingListDialogVisible = false;
@@ -68,6 +61,9 @@ export class RecipeDetailComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private notification: ToastrService,
+    private shoppingListService: ShoppingListService,
+    private authService: AuthService
   ) {
   }
 
@@ -95,6 +91,98 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(error);
       }
     });
+    this.shoppingListService.getShoppingListsForUser(this.authService.getUserId()).subscribe({
+      next: dto => {
+        this.shoppingLists = dto;
+        this.groupShoppingLists();
+        console.log("Grouped ", this.shoppingListsGrouped)
+      }, error: error => {
+        this.printError(error);
+      }
+    })
+  }
+
+  onSelectShoppingList(): AddItemToShoppingListDto {
+    console.log(this.shoppingList)
+    if (!this.shoppingList || this.shoppingList.groupId === null) {
+      console.log("null");
+      return;
+    }
+    this.service.selectIngredientsForShoppingListWithPantry(this.recipeId, this.shoppingList.id, this.shoppingList.groupId).subscribe({
+      next: dto => {
+        this.addItemToShoppingListDto = dto;
+        this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+        this.shoppingList = {...this.shoppingList};
+        console.log(dto);
+      }, error: error => {
+        this.printError(error);
+      }
+    })
+    return null;
+  }
+
+  findMatchingShoppingListItem(item: ItemDetailDto): any {
+    let dto = this.addItemToShoppingListDto.shoppingListItems.find(i => i.item.description === item.description);
+    if (!dto) {
+      return {
+        amount: 0,
+        id: null,
+        description: "",
+        unit: item.unit
+      };
+    }
+    return dto.item;
+  }
+
+  findMatchingPantryItems(item: ItemDetailDto): PantryItemDetailDto {
+    let dto: PantryItemDetailDto = this.addItemToShoppingListDto.pantryItems.find(i => i.description === item.description);
+    if (!dto) {
+      return {
+        amount: 0,
+        id: null,
+        description: "",
+        lowerLimit: null,
+        unit: item.unit
+      };
+    }
+    return dto;
+  }
+
+  getColor(item: ItemDetailDto) {
+    let pantryMatching = this.findMatchingPantryItems(item);
+    let shoppingListMatching = this.findMatchingShoppingListItem(item);
+
+    if (pantryMatching.amount + shoppingListMatching.amount < item.amount) {
+      return 'bg-red-600';
+    } else if (pantryMatching.amount >= item.amount) {
+      return 'bg-green-600'
+    } else if (pantryMatching.amount + shoppingListMatching.amount >= item.amount) {
+      return 'bg-orange-600'
+    }
+  }
+
+  reset() {
+    this.addItemToShoppingListDto = JSON.parse(JSON.stringify(this.addItemToShoppingListDtoReset));
+    console.log(this.addItemToShoppingListDto)
+  }
+
+  addSelectedIngredientsToShoppingList() {
+    //TODO wait for endpoint
+    for (let ingredient of this.selectedIngredients) {
+      let dto: ItemCreateDto = {
+        description: ingredient.description,
+        amount: ingredient.amount,
+        unit: ingredient.unit
+      };
+      this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.shoppingList.id, dto).subscribe({
+        next: res => {
+          console.log(res);
+        }, error: err => {
+          console.log(err)
+          this.printError(err);
+        }
+      });
+    }
   }
 
   getRecipe() {
@@ -119,7 +207,7 @@ export class RecipeDetailComponent implements OnInit {
     } else if (error && error.error && error.error.detail) {
       this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.error('Could not load pantry items', error);
+      console.error('Could not load recipe items', error);
       this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
@@ -155,20 +243,21 @@ export class RecipeDetailComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
         }
       });
-    if(this.recipe.dislikedByUser) {
+    if (this.recipe.dislikedByUser) {
       this.recipe.dislikes--;
     }
-    this.recipe.dislikedByUser=false;
-    this.recipe.likedByUser=true;
+    this.recipe.dislikedByUser = false;
+    this.recipe.likedByUser = true;
     this.recipe.likes++;
   }
 
   public updatePortion() {
 
   }
+
   public isOwner(): boolean {
-  return this.mode === RecipeDetailMode.owner;
-}
+    return this.mode === RecipeDetailMode.owner;
+  }
 
   public dislike() {
     this.service.dislikeRecipe(this.recipe.id)
@@ -181,15 +270,14 @@ export class RecipeDetailComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
         }
       });
-    if(this.recipe.likedByUser) {
+    if (this.recipe.likedByUser) {
       this.recipe.likes--;
     }
-    this.recipe.likedByUser=false;
-    this.recipe.dislikedByUser=true;
+    this.recipe.likedByUser = false;
+    this.recipe.dislikedByUser = true;
     this.recipe.dislikes++;
 
   }
-
 
 
   /*public removeRecipeIngredientsFromPantry() {
@@ -210,23 +298,23 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   public getScore(recipe: RecipeDetailWithUserInfoDto): number {
-    return recipe.likes-recipe.dislikes;
+    return recipe.likes - recipe.dislikes;
   }
 
-  public unitDisplayer(unit: Unit, amount:number): string {
+  public unitDisplayer(unit: Unit, amount: number): string {
     switch (unit) {
       case Unit.Gram:
-        if(amount > 1000) {
-          return amount/1000+ " kg";
+        if (amount > 1000) {
+          return amount / 1000 + " kg";
         }
-        return amount+ " g";
+        return amount + " g";
       case Unit.Milliliter:
-        if(amount > 1000) {
-          return amount/1000 + " l";
+        if (amount > 1000) {
+          return amount / 1000 + " l";
         }
-        return amount +  " ml";
+        return amount + " ml";
       case Unit.Piece:
-        return amount +" pcs";
+        return amount + " pcs";
     }
   }
 
@@ -235,26 +323,68 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   closeUsePantryDialog() {
+    this.reset();
     this.isPantryDialogVisible = false;
   }
 
   openUseShoppingListDialog() {
-
     this.isShoppingListDialogVisible = true;
   }
 
   closeUseShoppingListDialog() {
+    this.reset();
+    this.shoppingList = null;
+    this.addItemToShoppingListDto = null;
+    this.addItemToShoppingListDtoReset = null;
+    this.selectedIngredients = [];
     this.isShoppingListDialogVisible = false;
   }
 
+  groupShoppingLists() {
+    this.shoppingListsGrouped = [];
+    this.shoppingLists.forEach(shoppingList => {
+      const group = this.shoppingListsGrouped.find(group => group.groupName === shoppingList.groupName);
+      if (group) {
+        group.shoppingLists.push(shoppingList);
+      } else if (!shoppingList.groupName) {
+        if (this.shoppingListsGrouped.find(group => group.groupName === 'Your lists')) {
+          this.shoppingListsGrouped.find(group => group.groupName === 'Your lists').shoppingLists.push(shoppingList);
+          return;
+        }
+        this.shoppingListsGrouped.push({groupName: 'Your lists', shoppingLists: [shoppingList]});
+      } else {
+        this.shoppingListsGrouped.push({groupName: shoppingList.groupName, shoppingLists: [shoppingList]});
+      }
+    });
 
-
-
+    // Sort the shopping lists by group name and start with 'Your lists'
+    this.shoppingListsGrouped.sort((a, b) => {
+      if (a.groupName === 'Your lists') {
+        return -1;
+      } else if (b.groupName === 'Your lists') {
+        return 1;
+      } else {
+        return a.groupName.localeCompare(b.groupName);
+      }
+    });
+    // Sort the shopping lists within each group by date
+    this.shoppingListsGrouped.forEach(group => {
+      group.shoppingLists.sort((a, b) => {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
+    });
+  }
 
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
 
+  protected readonly DisplayedUnit = DisplayedUnit;
+  protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
+  protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
+  protected readonly formatAmount = formatAmount;
+  protected readonly Object = Object;
+  protected readonly formatLowerLimit = formatLowerLimit;
   protected readonly getSuffix = getSuffix;
   protected readonly getStepSize = getStepSize;
 }

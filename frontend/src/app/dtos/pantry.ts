@@ -5,5 +5,9 @@ export interface PantrySearch {
 }
 
 export interface PantryDetailDto {
-  items: PantryItemDetailDto[]
+  items: PantryItemDetailDto[];
+}
+
+export interface GetRecipesDto {
+  itemIds: number[];
 }

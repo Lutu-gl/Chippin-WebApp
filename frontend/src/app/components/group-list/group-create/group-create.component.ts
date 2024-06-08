@@ -117,8 +117,10 @@ export class GroupCreateComponent implements OnInit {
     this.friendshipService.getFriends().subscribe({
       next: data => {
         this.friends = data;
+        this.friends.sort((a, b) => a.localeCompare(b));
         if (this.modeIsEdit) {
           this.friendsEdit = data.filter(friend => !this.membersEmails.includes(friend));
+          this.friendsEdit.sort((a, b) => a.localeCompare(b));
         }
       },
       error: error => {
@@ -161,7 +163,9 @@ export class GroupCreateComponent implements OnInit {
       .subscribe( {
         next: data => {
           this.group = data;
-          this.membersEmails = data.members;
+          data.members.forEach(member => {
+            this.membersEmails.push(member);
+          });
           this.membersEmailsEdit = [];
         },
         error: error => {
@@ -186,24 +190,37 @@ export class GroupCreateComponent implements OnInit {
       //this.router.navigate([`groups/${(this.route.snapshot.paramMap.get('id'))}/edit`]);
       return;
     }
-    if (form.valid) {
-      this.group.members = this.membersEmails
 
+    var memberGroupSaved = JSON.parse(JSON.stringify(this.group.members));
+    console.log(this.group.members)
+    console.log(this.membersEmails)
+    console.log(this.membersEmailsEdit)
+
+    if (form.valid) {
       let observable: Observable<GroupDto>;
       switch (this.mode) {
         case GroupCreateEditMode.create:
+
+          this.membersEmails.forEach(member => {
+            this.group.members.push(member)
+          });
+
           observable = this.service.create(this.group);
           break;
         case GroupCreateEditMode.edit:
+
           this.membersEmailsEdit.forEach(member => {
             this.group.members.push(member)
           });
+
           observable = this.service.update(this.group);
           break;
         default:
           console.error('Unknown GroupCreateEditMode', this.mode);
           return;
       }
+      console.log("final: ")
+      console.log(this.group.members)
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
@@ -216,6 +233,7 @@ export class GroupCreateComponent implements OnInit {
           }
         },
         error: error => {
+          this.group.members = memberGroupSaved;
           console.log(error);
           if (error && error.error && error.error.errors) {
             //this.notification.error(`${error.error.errors.join('. \n')}`);
@@ -340,10 +358,14 @@ export class GroupCreateComponent implements OnInit {
   }
 
   getMembersEmail(): string[] {
-    return this.group.members
+    return this.membersEmails;
   }
 
   getSortedMembersEmail(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b));
+  }
+
+  getSortedGroupMembersEmail(): string[] {
     return this.group.members.sort((a, b) => a.localeCompare(b));
   }
 
