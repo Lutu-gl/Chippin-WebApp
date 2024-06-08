@@ -85,8 +85,7 @@ public class RecipeEndpoint {
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.getByIdWithInfo(recipeId, user);
     }
-
-    //TODO
+    
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
     public List<ItemDto> searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
