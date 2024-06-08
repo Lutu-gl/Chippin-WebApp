@@ -48,7 +48,6 @@ public class RecipeCreateWithoutUserDto {
     @Max(value = 1000, message = "Recipe cannot feed more than 1000 people")
     int portionSize;
 
-
     public RecipeCreateDto addOwner(ApplicationUser user) {
         RecipeCreateDto toCreate = RecipeCreateDto.builder()
             .name(this.name)

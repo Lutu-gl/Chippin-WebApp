@@ -6,6 +6,7 @@ import {DisplayedUnit, ItemCreateDto, ItemDetailDto, PantryItemDetailDto, Unit} 
 import {clone} from "lodash";
 import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
+import {debounceTime, Observable, of} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListListDto} from "../../../dtos/shoppingList";
 import {ConfirmationService, MessageService} from "primeng/api";
@@ -21,6 +22,7 @@ import {ShoppingListService} from "../../../services/shopping-list.service";
 import {AuthService} from "../../../services/auth.service";
 import {AddItemToShoppingListDto} from "../../../dtos/AddRecipeItemToShoppingListDto";
 import * as _ from "lodash";
+import {saveAs} from "file-saver";
 
 export enum RecipeDetailMode {
   owner,
@@ -58,8 +60,6 @@ export class RecipeDetailComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private notification: ToastrService,
     private shoppingListService: ShoppingListService,
     private authService: AuthService
   ) {
@@ -183,18 +183,6 @@ export class RecipeDetailComponent implements OnInit {
     }
   }
 
-  getRecipe() {
-    this.service.getRecipeWithInfoById(this.recipeId)
-      .subscribe({
-        next: data => {
-          this.recipe = data;
-        },
-        error: error => {
-          this.printError(error);
-        }
-      });
-  }
-
   printError(error): void {
     if (error && error.error && error.error.errors) {
       for (let i = 0; i < error.error.errors.length; i++) {
@@ -220,19 +208,25 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(err);
       }
     });
-    this.notification.success("Recipe successfully deleted");
-    this.router.navigate(['/recipe']);
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Successful',
+      detail: `Recipe successfully deleted`,
+      life: 3000
+    });
+      this.router.navigate(['/home/recipes']);
   }
 
 
   public like() {
     this.service.likeRecipe(this.recipe.id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
         }
       });
     if (this.recipe.dislikedByUser) {
@@ -253,12 +247,13 @@ export class RecipeDetailComponent implements OnInit {
 
   public dislike() {
     this.service.dislikeRecipe(this.recipe.id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.printError(error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
         }
       });
     if (this.recipe.likedByUser) {
@@ -364,6 +359,28 @@ export class RecipeDetailComponent implements OnInit {
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       });
     });
+  }
+
+  getPdf() {
+    let data = this.service.exportRecipe(this.recipeId).subscribe(
+      {
+        next:data => {
+          const blob = new Blob([data], { type: 'application/pdf' });
+
+          console.log(blob);
+
+
+          saveAs(blob, this.recipe.name + '.pdf');
+        },
+        error:error => {
+          window.alert("error");
+          this.printError(error);
+        }
+
+
+      }
+    );
+
   }
 
 

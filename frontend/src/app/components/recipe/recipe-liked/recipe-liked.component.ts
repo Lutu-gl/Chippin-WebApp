@@ -1,9 +1,8 @@
 import {Component, OnInit} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
 import {RecipeListDto, RecipeSearch} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {MessageService} from "primeng/api";
 
 
 @Component({
@@ -21,10 +20,8 @@ export class RecipeLikedComponent implements OnInit {
   searchChangedObservable = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
     private service: RecipeService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
   ) {
   }
 

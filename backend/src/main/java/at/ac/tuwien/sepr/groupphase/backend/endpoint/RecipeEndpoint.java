@@ -85,8 +85,7 @@ public class RecipeEndpoint {
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.getByIdWithInfo(recipeId, user);
     }
-
-    //TODO
+    
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
     public List<ItemDto> searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
@@ -158,6 +157,13 @@ public class RecipeEndpoint {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return recipeMapper.recipeEntityListToListOfRecipeListDto(userService.getRecipesByUserEmail(authentication.getName()));
+    }
+
+    @Secured("ROLE_USER")
+    @PutMapping("/{recipeId}/recipe")
+    public ItemDto updateItem(@PathVariable long recipeId, @Valid @RequestBody ItemDto itemDto) {
+        LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", recipeId, itemDto);
+        return itemMapper.itemToItemDto(recipeService.updateItem(itemDto, recipeId));
     }
 
     @Secured("ROLE_USER")

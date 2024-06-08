@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
+package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
@@ -31,7 +31,10 @@ public class ExchangeRateTest {
 
     //TODO VOR MR3 AKTIVIEREN
     //Add @Test manually if it needs testing
+    //@Test
     public void getExchangeRatesFromApi_ThenRatesInPersistence() {
+
+        exchangeRateRepository.deleteAll();
 
         exchangeRateService.getExchangeRates();
 

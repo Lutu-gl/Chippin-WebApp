@@ -142,21 +142,7 @@
 
           <div class="flex items-end justify-around">
 
-            <div class="bg-blue-100 p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
 
-              <div class="flex items-end justify-around space-x-4">
-                Picture here
-                <div *ngFor="let entry of recipe.ingredients" class="flex flex-col items-center space-y-2">
-
-                  <div *ngIf="entry[1] > 0" class="bg-blue-300 p-4 rounded-t-lg shadow flex flex-col justify-between">
-
-                    <span class="font-bold self-end">{{ entry[1] | currency: 'EUR' }}</span>
-                  </div>
-
-
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -168,29 +154,28 @@
           <h2 class="text-2xl font-bold">{{ recipe.name }}</h2>
           <div class="text-sm"> For {{recipe.portionSize}} {{ recipe.portionSize === 1 ? "Person" : "People" }}</div>
         </div>
-        <div class="flex space-x-2 mt-4">
-          <p-button icon="pi pi-print" severity="secondary"/>
+        <div  class="flex space-x-2 mt-4">
+          <p-button [pTooltip]="'Export this recipe as a PDF'" (click)=getPdf() icon="pi pi-print" severity="secondary"/>
           <div *ngIf="isOwner()" class="flex space-x-2">
-            <p-button class="rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</p-button>
-            <p-button class="rounded" (click)="deleteRecipe()">Delete</p-button>
+          <p-button [pTooltip]="'Make changes on your recipe'" class="rounded" routerLink="/recipe/edit/{{recipeId}}">Edit</p-button>
+          <p-button [pTooltip]="'Delete your Recipe'" class="rounded" (click)="deleteRecipe()">Delete</p-button>
           </div>
         </div>
       </div>
       <div class="flex flex-row justify-between items-start ml-4">
         <div class="ml-auto flex items-center space-x-4">
 
-          <p-button *ngIf="!recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true"
+          <p-button *ngIf="recipe && !recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true"
                     severity="info" (click)="like()" [disabled]="recipe.likedByUser"></p-button>
-          <p-button *ngIf="recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true"
+          <p-button *ngIf="recipe && recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true"
                     [raised]="true" severity="info"></p-button>
-          <!-- TODO Global -> Detail erlaubt zweiten Like-->
           <div class="score-container">
             {{ getScore(recipe) }}
           </div>
 
-          <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true"
+          <p-button *ngIf="recipe && !recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true"
                     [raised]="true" severity="danger" (click)="dislike()" [disabled]="recipe.dislikedByUser"></p-button>
-          <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true"
+          <p-button *ngIf="recipe && recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true"
                     [raised]="true" severity="danger"></p-button>
 
         </div>
@@ -218,133 +203,7 @@
     </ng-container>
   </div>
 </div>
-<!--<div *ngIf= "recipe">
-  <div class="row">
-    <div class="mb-3 col-lg-10">
-      <h1 class="display-1">{{ recipe.name }}</h1>
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Name
-    </div>
 
-    <div class="mb-2 col-lg-5" *ngIf="recipe.name">
-      {{recipe.name}}
-    </div>
-
-  </div>
-
-
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Portion Size
-    </div>
-    <div class="mb-2 col-lg-2" *ngIf="recipe.portionSize">
-      {{recipe.portionSize}}
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Public
-    </div>
-    <div class="mb-2 col-lg-2">
-      {{recipe.isPublic === true ? 'Yes' : 'No' }}
-    </div>
-  </div><div class="row">
-  <div class="mb-2 col-lg-2">
-    Likes
-  </div>
-  <div class="mb-2 col-lg-2">
-    {{recipe.likes}}
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Dislikes
-    </div>
-    <div class="mb-2 col-lg-2">
-      {{recipe.dislikes}}
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Description:
-    </div>
-    <div class="mb-12 col-lg-12" *ngIf="recipe.description">
-      {{recipe.description}}
-    </div>
-  </div>
-</div>
-  <div class="row">
-    <div class="mt-4 d-flex justify-content-between align-items-center">
-
-      <div class="d-flex">
-        <button *ngIf="mode === RecipeDetailMode.owner"
-                type="button"
-                class="btn btn-danger me-2"
-                data-bs-toggle="modal"
-                data-bs-target="#confirm-delete-dialog-title">
-          <i class="bi bi-trash"></i>
-          Delete
-        </button>
-        <app-confirm-delete-dialog
-          [deleteWhat]="recipe.name"
-          (confirm)="deleteRecipe()">
-        </app-confirm-delete-dialog>
-
-        <button *ngIf="mode === RecipeDetailMode.owner"
-                type="button"
-                class="btn btn-primary"
-                routerLink="/recipe/edit/{{recipeId}}">
-          Edit
-        </button>
-      </div>
-
-      <div class="d-flex align-items-center">
-        <label for="portionSize" class="me-2">Which Pantry do you want to use:</label>
-        <app-autocomplete textInputClass="form-control"
-          [suggestions]="getGroupSuggestions"
-          [formatModel]="formatGroup"
-          [(ngModel)]="group">
-        </app-autocomplete>
-        <label for="portionSize" class="me-2">Portion Size:</label>
-        <input type="number" id="portionSize" [(ngModel)]="portion" (ngModelChange)="updatePortion()" class="form-control me-2" style="width: 100px;"/>
-        <button type="button"
-                class="btn btn-primary"
-                (click)="removeRecipeIngredientsFromPantry()">
-          Cook Recipe
-        </button>
-      </div>
-
-    </div>
-<p></p>
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th class="col-3">Ingredient</th>
-        <th class="col-2">Amount</th>
-        <th class="col-2">Unit</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-
-      <tr *ngFor="let ingredient of recipe.ingredients" class="center-td">
-        <td>
-          {{ ingredient.description}}
-        </td>
-        <td>
-          {{ingredient.amount}}
-        </td>
-        <td>
-          {{ingredient.unit }}
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
-  </div>
-</div> -->
 
 
 

@@ -176,7 +176,16 @@ export class RecipeService {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/own`, {params});
   }
 
-  removeRecipeIngredientsFromPantry(pantryId: number, recipeId: number, portion: number): Observable<String[]> {
+  /**
+   * Update an item in a recipe.
+   * @param item the item to update
+   * @param recipeId the id of the recipe the item belongs to
+   */
+  updateItemInRecipe(item: ItemDetailDto, recipeId:number): Observable<ItemDetailDto> {
+    return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, item);
+  }
+
+  removeRecipeIngredientsFromPantry(pantryId:number, recipeId:number, portion:number): Observable<String[]> {
 
     return this.httpClient.put<String[]>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
   }
@@ -193,5 +202,9 @@ export class RecipeService {
    */
   selectIngredientsForShoppingListWithPantry(recipeId: number, shoppingListId: number, pantryId: number): Observable<AddItemToShoppingListDto> {
     return this.httpClient.get<AddItemToShoppingListDto>(`${this.recipeBaseUri}/recipe/${recipeId}/shoppinglist/${shoppingListId}/pantry/${pantryId}`);
+  }
+
+  exportRecipe(recipeId:number) {
+    return this.httpClient.get(`${this.globals.backendUri}/recipe/${recipeId}/pdf`, {responseType: "blob"});
   }
 }
