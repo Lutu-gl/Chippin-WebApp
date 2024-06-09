@@ -9,7 +9,6 @@ import {
   ShoppingListListDto
 } from "../dtos/shoppingList";
 import {ItemCreateDto} from "../dtos/item";
-import {AddItemToShoppingListDto} from "../dtos/AddRecipeItemToShoppingListDto";
 
 @Injectable({
   providedIn: 'root'

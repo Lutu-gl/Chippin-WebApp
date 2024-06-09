@@ -20,9 +20,11 @@ import {
 } from "../../../util/unit-helper";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {AuthService} from "../../../services/auth.service";
-import {AddItemToShoppingListDto} from "../../../dtos/AddRecipeItemToShoppingListDto";
+import {AddItemToShoppingListDto, RemoveRecipeIngredientsFromPantryDto} from "../../../dtos/RecipePantryShoppingList";
 import * as _ from "lodash";
 import {saveAs} from "file-saver";
+import {PantryDetailDto} from "../../../dtos/pantry";
+import {PantryService} from "../../../services/pantry.service";
 
 export enum RecipeDetailMode {
   owner,
@@ -36,7 +38,7 @@ export enum RecipeDetailMode {
 export class RecipeDetailComponent implements OnInit {
   mode: RecipeDetailMode = RecipeDetailMode.owner;
   recipe!: RecipeDetailWithUserInfoDto;
-  portion: number = 1;
+  portion: number;
   group: GroupDto = {
     id: 0,
     members: [],
@@ -48,6 +50,13 @@ export class RecipeDetailComponent implements OnInit {
   addItemToShoppingListDto!: AddItemToShoppingListDto;
   addItemToShoppingListDtoReset!: AddItemToShoppingListDto;
   selectedIngredients: ItemDetailDto[];
+
+
+  removeIngredientsDto: RemoveRecipeIngredientsFromPantryDto;
+  removeIngredientsDtoReset: RemoveRecipeIngredientsFromPantryDto;
+  selectedPantryIngredients: ItemDetailDto[];
+
+
   recipeId: number;
   error = false;
   groups: GroupDto[] = [];
@@ -57,6 +66,7 @@ export class RecipeDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private service: RecipeService,
+    private pantryService: PantryService,
     private userService: UserService,
     private router: Router,
     private messageService: MessageService,
@@ -75,6 +85,7 @@ export class RecipeDetailComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipe = data;
+          this.portion= this.recipe.portionSize;
         },
         error: error => {
           this.printError(error);
@@ -100,7 +111,7 @@ export class RecipeDetailComponent implements OnInit {
     })
   }
 
-  onSelectShoppingList(): AddItemToShoppingListDto {
+  onSelectShoppingList() {
     console.log(this.shoppingList)
     if (!this.shoppingList || this.shoppingList.groupId === null) {
       console.log("null");
@@ -116,7 +127,26 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(error);
       }
     })
-    return null;
+  }
+
+  onSelectPantry() {
+    console.log(this.group)
+    if (!this.group || this.group.id === null) {
+      console.log("null");
+      return;
+    }
+    this.service.removeRecipeIngredientsFromPantry(this.recipeId, this.group.id, this.portion).subscribe({
+      next: dto => {
+        this.removeIngredientsDto = dto;
+        this.removeIngredientsDtoReset = JSON.parse(JSON.stringify(this.removeIngredientsDto));
+        this.selectedPantryIngredients=this.removeIngredientsDtoReset.recipeItems;
+        this.group = {...this.group};
+        console.log("SELECTED ITEMS " +this.selectedPantryIngredients);
+        console.log(dto);
+      }, error: error => {
+        this.printError(error);
+      }
+    })
   }
 
   findMatchingShoppingListItem(item: ItemDetailDto): any {
@@ -146,22 +176,52 @@ export class RecipeDetailComponent implements OnInit {
     return dto;
   }
 
+  findMatchingPantryItemsForRemove(item: ItemDetailDto): PantryItemDetailDto {
+    let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(i => i.description === item.description);
+    if (!dto) {
+      return {
+        amount: 0,
+        id: null,
+        description: "",
+        lowerLimit: null,
+        unit: item.unit
+      };
+    }
+    return dto;
+  }
+
   getColor(item: ItemDetailDto) {
     let pantryMatching = this.findMatchingPantryItems(item);
     let shoppingListMatching = this.findMatchingShoppingListItem(item);
 
     if (pantryMatching.amount + shoppingListMatching.amount < item.amount) {
-      return 'bg-red-600';
+      return 'bg-red-50';
     } else if (pantryMatching.amount >= item.amount) {
-      return 'bg-green-600'
+      return 'bg-green-50'
     } else if (pantryMatching.amount + shoppingListMatching.amount >= item.amount) {
-      return 'bg-orange-600'
+      return 'bg-orange-50'
+    }
+  }
+  getPantryColor(item: ItemDetailDto) {
+    let pantryMatching = this.findMatchingPantryItemsForRemove(item);
+
+    if ( pantryMatching.amount - item.amount < 0) {
+      return 'bg-red-50';
+    } else {
+      return '';
     }
   }
 
+
   reset() {
-    this.addItemToShoppingListDto = JSON.parse(JSON.stringify(this.addItemToShoppingListDtoReset));
-    console.log(this.addItemToShoppingListDto)
+    if(this.addItemToShoppingListDtoReset) {
+      this.addItemToShoppingListDto = JSON.parse(JSON.stringify(this.addItemToShoppingListDtoReset));
+
+    }
+    if(this.removeIngredientsDtoReset) {
+      this.removeIngredientsDto = JSON.parse(JSON.stringify(this.removeIngredientsDtoReset));
+      this.portion=this.recipe.portionSize;
+    }
   }
 
   addSelectedIngredientsToShoppingList() {
@@ -188,6 +248,36 @@ export class RecipeDetailComponent implements OnInit {
         this.printError(err);
       }
     });
+
+  }
+  onRemovePantrySubmit() {
+    let result: PantryItemDetailDto[] = [];
+
+    for(let i=0; i<this.selectedPantryIngredients.length; i++) {
+      let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(p => p.description === this.selectedPantryIngredients[i].description
+        && p.unit === this.selectedPantryIngredients[i].unit);
+
+      if (dto) {
+        let copy: PantryItemDetailDto = {
+          id: dto.id,
+          description: dto.description,
+          unit: dto.unit,
+          lowerLimit: dto.lowerLimit,
+          amount: (dto.amount - this.selectedPantryIngredients[i].amount < 0 ? 0 : dto.amount - this.selectedPantryIngredients[i].amount)
+        }
+        result.push(copy);
+      }
+    }
+    this.pantryService.updateItems(result,this.group.id).subscribe(
+      { next: data => {
+          this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe Ingredients have been successfully removed from your Pantry`});
+
+        }, error: error => {
+          this.printError(error);
+        }
+
+      }
+    );
 
   }
 
@@ -247,6 +337,11 @@ export class RecipeDetailComponent implements OnInit {
 
   public updatePortion() {
 
+
+
+      for(let i=0; i<this.removeIngredientsDto.recipeItems.length; i++) {
+        this.removeIngredientsDto.recipeItems[i].amount= this.recipe.ingredients[i].amount * (this.portion/this.recipe.portionSize);
+      }
   }
 
   public isOwner(): boolean {
@@ -274,18 +369,18 @@ export class RecipeDetailComponent implements OnInit {
   }
 
 
-  /*public removeRecipeIngredientsFromPantry() {
+  public removeRecipeIngredientsFromPantry() {
     this.service.removeRecipeIngredientsFromPantry(this.group.id,this.recipe.id, this.portion).subscribe(
       {
         next: data => {
-            this.notification.success("Ingredients successfully removed from Pantry");
+            this.messageService.add({severity: 'success', summary: 'Success', detail: `Ingredients successfully removed from Pantry`});
         },
         error: error => {
           this.printError(error)
         }
       }
     );
-  } */
+  }
 
   get formattedDescription(): string {
     return this.recipe.description.replace(/\n/g, '<br>');
@@ -318,6 +413,10 @@ export class RecipeDetailComponent implements OnInit {
 
   closeUsePantryDialog() {
     this.reset();
+    this.group=null;
+    this.selectedPantryIngredients=[];
+    this.removeIngredientsDtoReset=null;
+    this.removeIngredientsDto=null;
     this.isPantryDialogVisible = false;
   }
 
@@ -381,7 +480,6 @@ export class RecipeDetailComponent implements OnInit {
           saveAs(blob, this.recipe.name + '.pdf');
         },
         error:error => {
-          window.alert("error");
           this.printError(error);
         }
 
@@ -390,6 +488,8 @@ export class RecipeDetailComponent implements OnInit {
     );
 
   }
+
+
 
 
   protected readonly Unit = Unit;
