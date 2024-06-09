@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +30,16 @@ public class PantryItemServiceImpl implements PantryItemService {
             if (pantryItem.getPantry() == null) {
                 pantry.addItem(pantryItem);
                 LOGGER.debug("No pantryItem to merge. New pantryItem {} saved", pantryItem);
-            } else {
-                LOGGER.debug("No pantryItem to merge. PantryItem {} updated", pantryItem);
             }
             return pantryItemRepository.save(pantryItem);
         }
         PantryItem baseItem = pantryItems.get(0);
+        if (pantryItem.getId() != null && pantryItem.getId().equals(baseItem.getId())) {
+            LOGGER.debug("No pantryItem to merge. PantryItem {} updated", pantryItem);
+            return pantryItemRepository.save(pantryItem);
+        }
         baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
-        if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent() && !Objects.equals(pantryItem.getId(), baseItem.getId())) {
+        if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent() && !pantryItem.getId().equals(baseItem.getId())) {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
             LOGGER.debug("PantryItem {} deleted", pantryItem);

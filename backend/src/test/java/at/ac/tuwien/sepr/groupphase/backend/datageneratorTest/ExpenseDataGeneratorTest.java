@@ -46,9 +46,7 @@ public class ExpenseDataGeneratorTest implements DataGenerator {
             "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
             "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut"
         };
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
             if (group.getGroupName().equals("PantryTestGroup1")

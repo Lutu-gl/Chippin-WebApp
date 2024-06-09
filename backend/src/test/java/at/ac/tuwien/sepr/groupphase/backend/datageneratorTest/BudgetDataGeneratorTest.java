@@ -35,9 +35,7 @@ public class BudgetDataGeneratorTest implements DataGenerator {
             "Club"
         };
 
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
 

@@ -6,6 +6,7 @@ import {GroupDto, GroupDetailDto, GroupListDto} from "../dtos/group";
 import {UserSelection} from "../dtos/user";
 import { BudgetDto } from '../dtos/budget';
 import {AuthService} from "./auth.service";
+import {ExpenseDetailDto} from "../dtos/expense";
 
 @Injectable({
   providedIn: 'root'
@@ -57,5 +58,9 @@ export class GroupService {
   leaveGroup(group: GroupDto) {
     group.members = group.members.filter(member => member !== this.authService.getEmail());
     return this.http.put<GroupDto>(this.groupBaseUri + `/${group.id}`, group);
+  }
+
+  getAllExpensesById(id: number) {
+    return this.http.get<ExpenseDetailDto[]>(this.groupBaseUri + `/${id}/expenses`);
   }
 }

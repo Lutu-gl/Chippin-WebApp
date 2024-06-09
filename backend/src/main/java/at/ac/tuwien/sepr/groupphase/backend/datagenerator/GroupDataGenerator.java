@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -52,23 +53,43 @@ public class GroupDataGenerator implements DataGenerator {
             .build());
 
         final List<ApplicationUser> applicationUsers = userRepository.findAll();
-        final String[] groupNames = {
-            "Berlin Reise", "WG Mitte", "Paris Trip", "London Ausflug", "Rom Urlaub",
-            "WG Neukölln", "Madrid Expedition", "WG Kreuzberg", "Prag Besuch", "WG Prenzlauer Berg",
-            "Amsterdam Reise", "WG Charlottenburg", "Lissabon Trip", "WG Schoeneberg", "Barcelona Ausflug",
-            "WG Friedrichshain", "Dublin Urlaub", "WG Treptow", "Wien Expedition", "WG Lichtenberg",
-            "Budapest Besuch", "WG Marzahn", "Stockholm Reise", "WG Hellersdorf", "Kopenhagen Trip",
-            "WG Reinickendorf", "Oslo Ausflug", "WG Spandau", "Helsinki Urlaub", "WG Steglitz",
-            "Riga Expedition", "WG Zehlendorf", "Tallinn Besuch"
+        String[] groupNames = {
+            "Berlin Trip", "WG Mitte", "Paris Trip", "London Excursion", "Rome Vacation",
+            "WG Neukölln", "Madrid Expedition", "WG Kreuzberg", "Prague Visit", "WG Prenzlauer Berg",
+            "Amsterdam Trip", "WG Charlottenburg", "Lisbon Trip", "WG Schoeneberg", "Barcelona Excursion",
+            "WG Friedrichshain", "Dublin Vacation", "WG Treptow", "Vienna Expedition", "WG Lichtenberg",
+            "Budapest Visit", "WG Marzahn", "Stockholm Trip", "WG Hellersdorf", "Copenhagen Trip",
+            "WG Reinickendorf", "Oslo Excursion", "WG Spandau", "Helsinki Vacation", "WG Steglitz",
+            "Riga Expedition", "WG Zehlendorf", "Tallinn Visit",
+            "Brussels Adventure", "WG Wedding", "Munich Trip", "WG Moabit", "Glasgow Excursion",
+            "WG Tempelhof", "Zurich Vacation", "WG Kreuzberg South", "Antwerp Expedition", "WG Friedrichshagen",
+            "Geneva Trip", "WG Weissensee", "Athens Excursion", "WG Kopenick", "Malmo Visit",
+            "WG Schonefeld", "Santorini Vacation", "WG Tiergarten", "Valencia Trip", "WG Gatow",
+            "Milan Excursion", "WG Hohenschonhausen", "Porto Vacation", "WG Dahlem", "Florence Trip",
+            "WG Pankow", "Venice Excursion", "WG Koepenick", "Naples Visit", "WG Tempelhof South",
+            "Sofia Trip", "WG Neukoelln North", "Istanbul Vacation", "WG Grunewald", "Seville Excursion",
+            "WG Moabit East", "Bratislava Visit", "WG Kreuzberg East", "Luxembourg Adventure", "WG Marzahn West",
+            "Liverpool Journey", "WG Reinickendorf East", "Hamburg Expedition", "WG Spandau West", "Tokyo Trip",
+            "WG Steglitz North", "Beijing Adventure", "WG Zehlendorf South", "Sydney Excursion", "WG Wedding North",
+            "Moscow Visit", "WG Charlottenburg South", "Delhi Expedition", "WG Schoeneberg West", "Cairo Trip",
+            "WG Friedrichshain East", "Toronto Vacation", "WG Treptow North", "Seoul Excursion", "WG Lichtenberg South",
+            "Mexico City Visit", "WG Marzahn East", "New York Trip", "WG Hellersdorf West", "Sao Paulo Adventure",
+            "WG Reinickendorf West", "Los Angeles Vacation", "WG Spandau North", "Chicago Trip", "WG Steglitz East"
         };
+
+
         List<ApplicationUser> wgUsers = new ArrayList<>();
 
         for (int i = 0; i < 20; i++) {
             Collections.shuffle(applicationUsers);
             Set<ApplicationUser> groupUsers = new HashSet<>();
 
-
+            // retrive random group name from groupNames and remove name from the list
             String groupName = groupNames[random.nextInt(groupNames.length)];
+            groupNames = Arrays.stream(groupNames)
+                .filter(name -> !name.equals(groupName))
+                .toArray(String[]::new);
+
             if (groupName.contains("WG")) {
                 for (ApplicationUser user : applicationUsers) {
                     if (!wgUsers.contains(user) && groupUsers.size() < 6) {

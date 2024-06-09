@@ -142,7 +142,7 @@ public interface TestData {
 
             add(Expense.builder()
                 .name("testExpense2")
-                .category(Category.Transportation)
+                .category(Category.Travel)
                 .amount(100.0)
                 .date(LocalDateTime.now().minus(2, java.time.temporal.ChronoUnit.DAYS))
                 .payer(USERS.get(3))
