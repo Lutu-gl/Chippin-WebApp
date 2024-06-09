@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 
@@ -85,7 +86,7 @@ public class RecipeEndpoint {
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.getByIdWithInfo(recipeId, user);
     }
-    
+
     @Secured("ROLE_USER")
     @GetMapping("/{recipeId}/recipe/search")
     public List<ItemDto> searchItemsInRecipe(@PathVariable long recipeId, @Valid RecipeSearchDto searchParams) {
@@ -226,8 +227,8 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PutMapping("recipe/{recipeId}/pantry/{groupId}/{portion}")
-    public List<String> removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId,
-                                                          @PathVariable @Max(value = 100) @Min(value = 1) int portion) {
+    public RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId,
+                                                                            @PathVariable @Max(value = 100) @Min(value = 1) int portion) {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
 
 

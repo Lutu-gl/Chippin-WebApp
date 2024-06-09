@@ -157,7 +157,7 @@ public class ImportExportServiceImpl implements ImportExportService {
             document.add(table);
 
 
-            Paragraph ownerEmailParagraph = new Paragraph("Owner: " + recipe.getOwner().getEmail())
+            Paragraph ownerEmailParagraph = new Paragraph("Recipe created by " + recipe.getOwner().getEmail())
                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA))
                 .setFontSize(8)
                 .setFontColor(ColorConstants.GRAY);

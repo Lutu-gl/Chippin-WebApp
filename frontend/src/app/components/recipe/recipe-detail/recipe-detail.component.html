@@ -41,7 +41,9 @@
             <ng-template pTemplate="header">
               <tr>
                 <th style="width: 4rem">
-                  <p-tableHeaderCheckbox/>
+                  <p-tableHeaderCheckbox
+                  pTooltip="Decide if this ingredient should be added to the shopping list"
+                  />
                 </th>
                 <th style="min-width:15rem">
                   Name
@@ -66,7 +68,8 @@
             <ng-template pTemplate="body" let-ingredient>
               <tr [ngClass]="getColor(ingredient)">
                 <td>
-                  <p-tableCheckbox [value]="ingredient"/>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be added to the shopping list"
+                                   [value]="ingredient"/>
                 </td>
                 <td>
                   {{ ingredient.description }}
@@ -113,6 +116,7 @@
     <p-button
       pRipple
       label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
       severity="secondary"
       icon="pi pi-replay"
       (click)="reset()"/>
@@ -130,6 +134,149 @@
       (click)="addSelectedIngredientsToShoppingList(); closeUseShoppingListDialog()"/>
   </p-footer>
 </p-dialog>
+
+<!-- ------------------- SHOPPINGLIST DIALOG END ----------------------------------------->
+
+<!-- ------------------- PANTRY DIALOG START ----------------------------------------->
+<p-dialog
+  [(visible)]="isPantryDialogVisible"
+  [style]="{ width: '1500px', minHeight: '800px' }"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <div>
+      <span class="font-bold whitespace-nowrap">Select Options</span>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div>
+      <div class="field pt-5">
+
+
+          <label for="shoppingList">Pantry</label>
+          <p-dropdown
+            id="pantry"
+            [options]="groups"
+            [(ngModel)]="group"
+
+            (onChange)="onSelectPantry()"
+            optionLabel="groupName">
+            <ng-template let-group pTemplate="group">
+              <div class="flex align-items-center">
+                <span>{{ group.groupName }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+
+        <div class="p-4" *ngIf="removeIngredientsDto">
+
+          <div class="mb-6">
+            <label> For how many People?   (This Recipe is normally made for {{recipe.portionSize}} {{recipe.portionSize ===1 ? "Person" : "People"}})</label>
+            <p-inputNumber [(ngModel)]="portion"
+                           (onInput)="updatePortion()"         />
+
+          </div>
+          <p></p>
+          <p-table
+            #dt
+            [value]="removeIngredientsDto.recipeItems"
+            [(selection)]="selectedPantryIngredients"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [rowHover]="true"
+            dataKey="id"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"/>
+                </th>
+                <th style="min-width:15rem">
+                  Name
+                </th>
+                <th style="min-width:6rem">
+                  Amount
+                </th>
+
+                <th style="min-width:6rem">
+                  Amount in Pantry
+                </th>
+                <th style="min-width:6rem">
+                  Amount after preparing
+                </th>
+
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ingredient>
+              <tr [ngClass]="getPantryColor(ingredient)">
+                <td>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"[value]="ingredient"/>
+                </td>
+                <td>
+                  {{ ingredient.description }}
+                </td>
+                <td>
+                  <p-inputNumber
+                    [(ngModel)]="ingredient.amount"
+                    [min]="0"
+                    [max]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+                    [minFractionDigits]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 2 : 0"
+                    [suffix]="getSuffixForCreateEdit(ingredient)"
+                    required/>
+                </td>
+
+                <td>
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="formatAmount(findMatchingPantryItemsForRemove(ingredient))"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+                <td>
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="(findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount < 0) ?
+                    '' + unitDisplayer(ingredient.unit,0)
+                    : ' ' + unitDisplayer(ingredient.unit, findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount)"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <p-footer>
+    <p-button
+      pRipple
+      label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
+      severity="secondary"
+      icon="pi pi-replay"
+      (click)="reset()"/>
+    <p-button
+      pRipple
+      label="Cancel"
+      severity="danger"
+      icon="pi pi-times"
+      (click)="closeUsePantryDialog()"/>
+    <p-button
+      pRipple
+      label="Confirm select"
+      severity="success"
+      icon="pi pi-check"
+      (click)="onRemovePantrySubmit(); closeUsePantryDialog()"/>
+  </p-footer>
+</p-dialog>
+
+
+
+
+<!-- ------------------- PANTRY DIALOG END ----------------------------------------->
 
 <div>
   <!-- Header part with diagram -->

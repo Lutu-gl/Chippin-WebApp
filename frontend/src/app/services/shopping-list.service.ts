@@ -9,7 +9,6 @@ import {
   ShoppingListListDto
 } from "../dtos/shoppingList";
 import {ItemCreateDto} from "../dtos/item";
-import {AddItemToShoppingListDto} from "../dtos/AddRecipeItemToShoppingListDto";
 
 @Injectable({
   providedIn: 'root'
@@ -110,6 +109,10 @@ export class ShoppingListService {
    */
   addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToCreate: ItemCreateDto) {
     return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToCreate);
+  }
+
+  addShoppingListItemsToShoppingList(userId: number, shoppingListId: number, items: ItemCreateDto[]) {
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/list`, items)
   }
 
   /**

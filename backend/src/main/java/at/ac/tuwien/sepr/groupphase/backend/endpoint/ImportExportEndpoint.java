@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +45,7 @@ public class ImportExportEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#id)")
     @GetMapping(value = "recipe/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public byte[] exportRecipe(@PathVariable long id) {
         LOGGER.trace("GET /api/v1/recipe/{}/pdf", id);

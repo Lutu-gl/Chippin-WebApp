@@ -96,6 +96,15 @@ public class PantryEndpoint {
 
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
+    @PutMapping("/{pantryId}/pantry/multiple")
+    public List<ItemDto> updateItems(@PathVariable long pantryId, @Valid @RequestBody List<PantryItemDto> itemDtos) {
+        LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", pantryId, itemDtos);
+        List<PantryItem> items = itemMapper.listofPantryItemDtoToListOfPantryItem(itemDtos);
+        return itemMapper.listOfItemsToListOfItemDto(pantryService.updateItems(items, pantryId));
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PutMapping("/{pantryId}/pantry/merged")
     public ItemDto mergeItems(@PathVariable long pantryId, @Valid @RequestBody PantryItemMergeDto itemMergeDto) throws ConflictException {
         LOGGER.trace("PUT /api/v1/group/{}/pantry/merged body: {}", pantryId, itemMergeDto);
