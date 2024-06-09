@@ -86,6 +86,12 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
 import {ToolbarModule} from "primeng/toolbar";
+import {
+    ShoppingListsInGroupComponent
+} from "./components/shopping-list/shopping-lists-in-group/shopping-lists-in-group.component";
+import {VisualizationComponent} from "./components/visualization/visualization.component";
+import {CarouselModule} from "primeng/carousel";
+import {FileUploadModule} from "primeng/fileupload";
 
 
 @NgModule({
@@ -115,36 +121,40 @@ import {ToolbarModule} from "primeng/toolbar";
     RecipeGlobalComponent,
     RecipeLikedComponent,
     PaymentCreateComponent,
-    ShoppingListCreateComponent
+    ShoppingListCreateComponent,
+    VisualizationComponent
   ],
 
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(),
-    ShoppingListComponent,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    ShoppingListComponent,
-    MenuCardComponent,
-    InputTextModule,
-    InputNumberModule,
-    ProgressBarModule,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
-    DropdownModule,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(),
+        ShoppingListComponent,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
+        ShoppingListComponent,
+        MenuCardComponent,
+        InputTextModule,
+        InputNumberModule,
+        ProgressBarModule,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        DropdownModule,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule
+    ],
 
-  providers: [httpInterceptorProviders, MessageService, ConfirmationService],
-  bootstrap: [AppComponent]
+    providers: [httpInterceptorProviders, MessageService, ConfirmationService],
+    exports: [
+        ShoppingListCreateComponent
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

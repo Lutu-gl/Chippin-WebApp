@@ -23,6 +23,7 @@
     <i class="pi pi-exclamation-triangle mr-2"></i>
     This Expense is marked as archived!
   </label>
+  <label *ngIf="expenseIsArchived()" class="block text-sm font-medium text-gray-700">A member of the expense has left the group, thus it is not possible to make changes.</label>
 
   <!-- Input fields -->
   <div class="space-y-4">
@@ -115,10 +116,10 @@
   </div>
 
   <!-- Buttons -->
-  <div *ngIf="modeIsCreate() && !expenseIsDeleted()" class="flex justify-end">
+  <div *ngIf="modeIsCreate() && !expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end">
     <p-button (click)="onSubmit()"> Create Expense</p-button>
   </div>
-  <div *ngIf="modeIsEdit() && !expenseIsDeleted()" class="flex justify-end">
+  <div *ngIf="modeIsEdit() && !expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end">
     <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
       <i class="pi pi-trash mr-2"></i> Delete Expense
     </button>
@@ -129,7 +130,7 @@
       (click)="onSubmit()"
     ></p-button>
   </div>
-  <div *ngIf="modeIsInfo() && !expenseIsDeleted()" class="flex justify-end">
+  <div *ngIf="modeIsInfo() && !expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end">
     <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
       <i class="pi pi-trash mr-2"></i> Delete Expense
     </button>
@@ -140,7 +141,7 @@
       (click)="switchToEditMode()"
     ></p-button>
   </div>
-  <div *ngIf="expenseIsDeleted()" class="flex justify-end">
+  <div *ngIf="expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end">
     <p-button
       label="Recover Expense"
       icon="pi pi-undo"

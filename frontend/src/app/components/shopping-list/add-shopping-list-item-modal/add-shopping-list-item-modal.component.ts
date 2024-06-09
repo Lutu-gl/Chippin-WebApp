@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {KeyValuePipe, NgForOf, NgIf} from "@angular/common";
 import {DisplayedUnit, ItemCreateDto, Unit} from "../../../dtos/item";
 import {FormsModule, NgForm} from "@angular/forms";
@@ -18,8 +18,10 @@ import {ShoppingListService} from "../../../services/shopping-list.service";
   templateUrl: './add-shopping-list-item-modal.component.html',
   styleUrl: './add-shopping-list-item-modal.component.scss'
 })
-export class AddShoppingListItemModalComponent {
+export class AddShoppingListItemModalComponent implements OnInit {
   @Input() shoppingListId: number;
+  // Optionally input initial values
+  @Input() initialItem: ItemCreateDto;
   @ViewChild('modalClose') modalClose;
   @Output() onAdd = new EventEmitter<void>();
 
@@ -35,6 +37,12 @@ export class AddShoppingListItemModalComponent {
   constructor(private notifications: ToastrService,
               private authService: AuthService,
               private shoppingListService: ShoppingListService) {
+  }
+
+  ngOnInit() {
+    if (this.initialItem) {
+      this.itemToEdit = this.initialItem;
+    }
   }
 
   reset() {

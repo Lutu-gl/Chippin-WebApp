@@ -288,6 +288,30 @@ public class PaymentEndpointTest extends BaseTest {
     }
 
     @Test
+    public void updatePaymentForGroupNotValidIsArchived() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("groupExample0");
+        List<Payment> payments = paymentRepository.findAll();
+        Payment payment = payments.stream().filter(p -> p.getGroup().getId().equals(group.getId()) && p.getArchived()).findFirst().orElseThrow();
+
+        PaymentDto paymentDto = PaymentDto.builder()
+            .id(payment.getId())
+            .groupId(group.getId())
+            .payerEmail(payment.getPayer().getEmail())
+            .receiverEmail(payment.getReceiver().getEmail())
+            .amount(payment.getAmount() + 100)
+            .build();
+
+        String contentAsString = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/payment/%d", payment.getId()))
+                .content(objectMapper.writeValueAsString(paymentDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(payment.getPayer().getEmail(), ADMIN_ROLES)))
+            .andExpect(status().isConflict())
+            .andReturn().getResponse().getContentAsString();
+
+        assertTrue(contentAsString.contains("Payment is archived and cannot be updated"));
+    }
+
+    @Test
     public void deletePaymentForGroupWorksAndValid() throws Exception {
         GroupEntity group = groupRepository.findByGroupName("groupExample0");
         List<Payment> payments = paymentRepository.findAll();

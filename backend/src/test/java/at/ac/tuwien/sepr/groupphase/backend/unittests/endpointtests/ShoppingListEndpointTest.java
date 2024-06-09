@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -149,6 +151,20 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         verify(shoppingListService, times(1)).updateShoppingList(any(), any());
     }
+
+    @Test
+    @WithMockUser
+    public void givenValidShoppingListId_whenDeleteCheckedItems_thenNoException() throws Exception {
+        doNothing().when(shoppingListService).deleteCheckedItems(-1L);
+        when(securityService.canAccessShoppingList(-1L)).thenReturn(true);
+        when(securityService.hasCorrectId(-5L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/users/-5/shopping-lists/-1/items/checked-items"))
+            .andExpect(status().isOk());
+
+        verify(shoppingListService, times(1)).deleteCheckedItems(-1L);
+    }
+
 
 
 }

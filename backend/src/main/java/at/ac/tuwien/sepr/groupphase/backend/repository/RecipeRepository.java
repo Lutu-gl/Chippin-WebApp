@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -35,19 +36,34 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
         + "ORDER BY COUNT(i.id) DESC")
     List<Recipe> findRecipeByPantry(long groupId);
 
+    /**
+     * Finds all recipes that use ingredients from a list of ingredients.
+     *
+     * @param itemIds list of item ids
+     * @return list of recipes
+     */
+    @Query("SELECT r FROM Recipe r "
+        + "JOIN r.ingredients i "
+        + "JOIN Item it ON i.description = it.description AND i.unit = it.unit "
+        + "WHERE it.id IN :itemIds "
+        + "GROUP BY r.id "
+        + "HAVING r.isPublic = true OR r.owner.id = :userId "
+        + "ORDER BY COUNT(i.id) DESC")
+    List<Recipe> findRecipesByItemIds(@Param("itemIds") List<Integer> itemIds, @Param("userId") Long ownerId);
+
     @Modifying
     @Query("delete from Recipe r where r.id=:recipeId")
     void deleteRecipe(@Param("recipeId") long recipeId);
 
 
-    @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findPublicRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam);
 
 
-    @Query("SELECT r FROM Recipe r WHERE r.owner = :user AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r WHERE r.owner = :user AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findOwnRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam, ApplicationUser user);
 
-    @Query("SELECT r FROM Recipe r JOIN r.likedByUsers u WHERE u = :user AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r JOIN r.likedByUsers u WHERE u = :user AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findLikedRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam, ApplicationUser user);
 
     /**

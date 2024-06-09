@@ -40,6 +40,9 @@ export interface ShoppingListListDto {
   id: number;
   name: string;
   groupId: number;
+  groupName: string;
   itemCount: number;
   checkedItemCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

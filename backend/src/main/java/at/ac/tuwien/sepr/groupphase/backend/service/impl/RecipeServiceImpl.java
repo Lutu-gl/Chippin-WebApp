@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -8,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
+
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -80,6 +82,26 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
+    public Item updateItem(ItemDto item, long recipeId) {
+        LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, recipeId);
+        Optional<Recipe> optionalPantry = recipeRepository.findById(recipeId);
+        if (optionalPantry.isPresent()) {
+            Recipe recipe = optionalPantry.get();
+            Item updatedItem = Item.builder()
+                .recipe(recipe)
+                .id(item.getId())
+                .unit(item.getUnit())
+                .amount(item.getAmount())
+                .description(item.getDescription())
+                .build();
+            return itemRepository.save(updatedItem);
+        } else {
+            throw new NotFoundException(String.format("Could not find pantry with id %s", recipeId));
+        }
+    }
+
+    @Override
+    @Transactional
     public void deleteItem(long recipeId, long itemId) {
         LOGGER.debug("Delete item {} in recipe with ID {}", itemId, recipeId);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
@@ -141,8 +163,8 @@ public class RecipeServiceImpl implements RecipeService {
                 .portionSize(result.getPortionSize())
                 .owner(result.getOwner())
                 .ingredients(itemMapper.listOfItemsToListOfItemDto(result.getIngredients()))
-                .likedByUser(result.getLikedByUsers().contains(user))
-                .dislikedByUser(result.getDislikedByUsers().contains(user))
+                .likedByUser(user.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(id)))
+                .dislikedByUser(user.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(id)))
                 .build();
 
         } else {
@@ -301,7 +323,8 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams, owner);
+
+        List<Recipe> recipeEntities = recipeRepository.findOwnRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase(), owner);
 
         recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
@@ -309,7 +332,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams, owner);
+        List<Recipe> recipeEntities = recipeRepository.findLikedRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase(), owner);
 
         recipeEntities.sort(Comparator.comparingInt((Recipe r) -> r.getLikes() - r.getDislikes()).reversed());
         return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeEntities);
@@ -317,7 +340,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams) {
-        List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams);
+        List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase());
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();
         for (Recipe recipe : recipeEntities) {
             resultLists.addFirst(RecipeGlobalListDto.builder()

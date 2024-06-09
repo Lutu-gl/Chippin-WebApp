@@ -34,6 +34,7 @@ export interface PantryItemCreateDto {
 }
 
 export interface PantryItemCreateDisplayDto {
+  id: number;
   description: String;
   amount: number;
   unit: DisplayedUnit;
@@ -97,6 +98,7 @@ export function pantryItemCreateDisplayDtoToPantryItemCreateDto(item: PantryItem
 export function pantryItemDetailDtoToPantryItemCreateDisplayDto(item: PantryItemDetailDto): PantryItemCreateDisplayDto {
 
   return {
+    id: item.id,
     description: item.description,
     unit: unitToDisplayedUnit(item.unit),
     amount: item.amount,
@@ -142,3 +144,4 @@ export function pantryItemCreateDisplayDtoToPantryItemDetailDto(item: PantryItem
 
   return returnItem;
 }
+

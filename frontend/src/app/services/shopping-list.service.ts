@@ -9,6 +9,7 @@ import {
   ShoppingListListDto
 } from "../dtos/shoppingList";
 import {ItemCreateDto} from "../dtos/item";
+import {AddItemToShoppingListDto} from "../dtos/AddRecipeItemToShoppingListDto";
 
 @Injectable({
   providedIn: 'root'
@@ -132,5 +133,15 @@ export class ShoppingListService {
     return this.httpClient.put<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/pantry`, null);
   }
 
+
+  /**
+   * Deletes all items in the cart (i.e. all checked items in the shopping list).
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   */
+  deleteAllItemsInCart(userId: number, shoppingListId: number) {
+    return this.httpClient.delete<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/checked-items`);
+  }
 
 }

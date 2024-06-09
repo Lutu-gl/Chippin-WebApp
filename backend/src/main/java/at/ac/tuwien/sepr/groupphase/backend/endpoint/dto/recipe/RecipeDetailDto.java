@@ -61,5 +61,4 @@ public class RecipeDetailDto {
 
     @Builder.Default
     private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
-
 }

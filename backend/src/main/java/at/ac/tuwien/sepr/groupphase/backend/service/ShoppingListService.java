@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface ShoppingListService {
      *
      * @param id the id of the shopping list
      */
-    void deleteShoppingList(Long id);
+    void deleteShoppingList(Long id) throws ConflictException;
 
     /**
      * Add an item to a shopping list.
@@ -71,8 +72,9 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param shoppingList   the shopping list to update
      * @return the updated shopping list
+     * @throws ConflictException if the user is not the owner of the shopping list and tries to update the group
      */
-    ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList);
+    ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) throws ConflictException;
 
 
     /**
@@ -121,4 +123,21 @@ public interface ShoppingListService {
      */
     AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId);
 
+    /**
+     * Delete all checked items from a shopping list.
+     *
+     * @param shoppingListId the id of the shopping list
+     */
+
+    void deleteCheckedItems(Long shoppingListId);
+
+    /**
+     * Add multiple items to a shopping list.
+     *
+     * @param shoppingListId the id of the shopping list
+     * @param items the items to add
+     * @param userId the id of the user adding the items
+     * @return the added items
+     */
+    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
 }

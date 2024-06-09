@@ -11,6 +11,8 @@ import { UserSelection } from '../dtos/user';
 export class ExpenseService {
 
   private expenseBaseUri: string = this.globals.backendUri + '/expense';
+  private expenseBaseUriGroup: string = this.globals.backendUri + '/group';
+
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -37,6 +39,17 @@ export class ExpenseService {
         const members: UserSelection[] = response.group.members.map(email => ({ email: email }));
         response.group.members = members;
         return response;
+      }));
+  }
+
+  getExpensesByGroupId(groupId: number): Observable<ExpenseDetailDto[]> {
+    return this.httpClient.get<any>(this.expenseBaseUriGroup + `/${groupId}/expenses`)
+      .pipe(map(response => {
+        return response.map(expense => {
+          const members: UserSelection[] = expense.group.members.map(email => ({ email: email }));
+          expense.group.members = members;
+          return expense;
+        });
       }));
   }
 

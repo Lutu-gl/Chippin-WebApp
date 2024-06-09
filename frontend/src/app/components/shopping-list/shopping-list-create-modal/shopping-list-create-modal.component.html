@@ -1,0 +1,24 @@
+<p-dialog [(visible)]="visible" [modal]="true" (visibleChange)="hide()" [style]="{width: '40vw', height: '50vh'}">
+  <p-header>
+    <h2>Shopping List</h2>
+  </p-header>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="name">Name</label>
+      <input id="name" type="text" placeholder="e.g. List for upcoming trip" [(ngModel)]="shoppingListToCreate.name" pInputText required>
+    </div>
+    <div>
+      <label for="categories">Categories</label>
+      <p-multiSelect scrollHeight="150px" filter="false" placeholder="Select categories" id="categories" [(ngModel)]="shoppingListToCreate.categories" [options]="categories"></p-multiSelect>
+    </div>
+    <div>
+      <label for="group">Group</label>
+      <p-autoComplete id="group" forceSelection="true" [suggestions]="filteredGroups" scrollHeight="150px" optionLabel="groupName" [(ngModel)]="shoppingListToCreate.group" (completeMethod)="filterGroups($event)"
+        [minLength]="1" placeholder="Select a group" [dropdown]="true"></p-autoComplete>
+    </div>
+  </div>
+  <p-footer>
+    <p-button type="button" label="Cancel" severity="secondary" (click)="hide()"></p-button>
+    <p-button type="button" label="Save" (click)="onSave()"></p-button>
+  </p-footer>
+</p-dialog>

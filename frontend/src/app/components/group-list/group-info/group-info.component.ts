@@ -16,7 +16,9 @@ import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
 import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
-import {group} from "@angular/animations";
+import {PaymentCreateEditMode} from "../../payment-create/payment-create.component";
+import {ExpenseDetailDto} from "../../../dtos/expense";
+import {ExpenseService} from "../../../services/expense.service";
 
 @Component({
   selector: 'app-group-info',
@@ -36,14 +38,28 @@ export class GroupInfoComponent implements OnInit {
   membersWithDebts: any[] = [];
   membersWithDebtsWithoutEven: any[] = [];
   maxDebt: number = 0;
-  transactions: ActivityDetailDto[] = [];
-  payments: ActivityDetailDto[] = [];
+  transactionsActivities: ActivityDetailDto[] = [];
+
+  payments: PaymentDto[] = [];
+  expenses: ExpenseDetailDto[] = [];
+
   menuitemsButtonMore: MenuItem[] | undefined;
 
 
   isExpenseDialogVisible: boolean = false;
   expenseDialogMode: ExpenseCreateEditMode;
   expenseDialogExpenseId: number;
+
+  isPaymentDialogVisible: boolean = false;
+  paymentDialogMode: PaymentCreateEditMode;
+  paymentDialogPaymentId: number;
+  paymentForDialog: PaymentDto = undefined;
+  amountForPaymentDialog: number;
+  payerEmailForPaymentDialog: any;
+  receiverEmailForPaymentDialog: any;
+  isDeleteDialogVisible: boolean = false;
+  paymentDeleted: boolean = false;
+
 
   isBudgetDialogVisible: boolean = false;
   budgetDialogMode: BudgetCreateEditMode;
@@ -57,8 +73,9 @@ export class GroupInfoComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private authService: AuthService,
+    protected authService: AuthService,
     private paymentService: PaymentService,
+    private expenseService: ExpenseService,
   ){
   }
 
@@ -97,6 +114,39 @@ export class GroupInfoComponent implements OnInit {
     console.log(this.expenseDialogMode);
     this.expenseDialogExpenseId = expenseId;
     this.isExpenseDialogVisible = true;
+  }
+
+  openInfoPaymentDialog(paymentId: number): void {
+    this.paymentDialogMode = PaymentCreateEditMode.info;
+    console.log(this.paymentDialogMode);
+    this.paymentDialogPaymentId = paymentId;
+
+    this.paymentService.getPaymentById(paymentId).subscribe(
+      payment => {
+        this.paymentForDialog = payment
+        this.amountForPaymentDialog = payment.amount
+        this.payerEmailForPaymentDialog = payment.payerEmail
+        this.receiverEmailForPaymentDialog = payment.receiverEmail
+      },
+      error => {
+        if (error && error.error && error.error.errors) {
+          //this.notification.error(`${error.error.errors.join('. \n')}`);
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else if (error && error.error) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error}`});
+        } else {
+          console.error('Error getting payment', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Getting payment did not work!`});
+        }
+      }
+    );
+    this.isPaymentDialogVisible = true;
   }
 
 
@@ -167,7 +217,7 @@ export class GroupInfoComponent implements OnInit {
     // tab Menu
     this.tabMenuItems = [
       { label: 'Transactions', icon: 'pi pi-fw pi-dollar' },
-      { label: 'Debts', icon: 'pi pi-fw pi-money-bill' },
+      { label: 'Activities', icon: 'pi pi-fw pi-chart-bar' },
       { label: 'Members', icon: 'pi pi-fw pi-users' },
       { label: 'Pantry', icon: 'pi pi-fw pi-shopping-cart' },
       { label: 'Shopping lists', icon: 'pi pi-fw pi-shopping-cart' },
@@ -175,11 +225,16 @@ export class GroupInfoComponent implements OnInit {
     ];
     this.tabMenuActiveItem = this.tabMenuItems[0];
 
+    this.transactionsActivities = []
+
     this.getGroup();
     this.getDebt();
     this.getTransactions();
     this.getPayments();
+    this.getExpenses();
     this.getGroupBudgets();
+
+    this.paymentForDialog = undefined;
   }
 
   getGroup(): void {
@@ -215,24 +270,34 @@ export class GroupInfoComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.activityService.getExpenseActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(transactions => {
       transactions.forEach(transaction => {
-        this.transactions.push(transaction);
+        this.transactionsActivities.push(transaction);
       })
     });
 
     this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
       payments.forEach(payment => {
-        this.transactions.push(payment);
+        this.transactionsActivities.push(payment);
       })
    });
-    console.log(this.transactions.length)
-    console.log('transactions: ' + this.transactions);
+    console.log(this.transactionsActivities.length)
+    console.log('transactions: ' + this.transactionsActivities);
   }
 
   getPayments(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.activityService.getPaymentActivitiesFromGroup(id, {search: '', from: undefined, to: undefined}).subscribe(payments => {
+
+    this.paymentService.getPaymentsByGroupId(id).subscribe(payments => {
       this.payments = payments;
     });
+    console.log(this.payments)
+  }
+
+  getExpenses(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.expenseService.getExpensesByGroupId(id).subscribe(expenses => {
+      this.expenses = expenses;
+    });
+    console.log(this.expenses)
   }
 
   getGroupBudgets(): void {
@@ -281,7 +346,7 @@ export class GroupInfoComponent implements OnInit {
     return this.tabMenuActiveItem === this.tabMenuItems[0];
   }
 
-  isDebtsSelected(): boolean {
+  isActivitiesSelected(): boolean {
     return this.tabMenuActiveItem === this.tabMenuItems[1];
   }
 
@@ -301,7 +366,7 @@ export class GroupInfoComponent implements OnInit {
   }
 
 
-  getExpenseColor(expenseCategory: string) {
+  getActivityColor(expenseCategory: string) {
     switch (expenseCategory) {
       case 'EXPENSE':
         return 'bg-blue-50';
@@ -311,17 +376,60 @@ export class GroupInfoComponent implements OnInit {
         return 'bg-red-50';
       case 'EXPENSE_RECOVER':
         return 'bg-green-50';
+      case 'PAYMENT':
+        return 'bg-blue-50';
+      case 'PAYMENT_UPDATE':
+        return 'bg-yellow-50';
+      case 'PAYMENT_DELETE':
+        return 'bg-red-50';
+      case 'PAYMENT_RECOVER':
+        return 'bg-green-50';
       default:
         return '';
     }
   }
 
-  getTransactionVarSorted():ActivityDetailDto[] {
-    return this.transactions.sort((a, b) => {
+  getPaymentColor() {
+    return 'bg-green-50';
+  }
+
+  getTransactionActivitiesVarSorted():ActivityDetailDto[] {
+    return this.transactionsActivities.sort((a, b) => {
       let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return bTime - aTime;
     });
+  }
+
+  // combine expeneses and payments in one array and sort them by the date
+  getTransactionVarSorted() {
+    let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
+
+    transactions.sort((a, b) => {
+      let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
+      let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
+      return bTime - aTime;
+    });
+    console.log(transactions)
+    return transactions;
+  }
+
+  getTransactionVarSortedWithoutDeleted() {
+    let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
+
+    transactions = transactions.filter(transaction => !transaction.deleted)
+
+    transactions.sort((a, b) => {
+      let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
+      let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
+      return bTime - aTime;
+    });
+    console.log(transactions)
+    return transactions;
+  }
+
+  isExpense(transaction: any): boolean {
+    return transaction.hasOwnProperty('category');
   }
 
   // Sorts the members with debts by the amount of debt
@@ -366,7 +474,10 @@ export class GroupInfoComponent implements OnInit {
   }
 
   goBackFromSettleDebts($event: MouseEvent) {
+    console.log("goBackFromSettleDebts")
+
     this.confirmationService.confirm({
+      key: 'SettleDebtsConfirmDialog',
       target: event.target as EventTarget,
       message: 'Do you want to cancel the payment creation?',
       header: 'Cancel Confirmation',
@@ -381,6 +492,7 @@ export class GroupInfoComponent implements OnInit {
         this.visibleModalSettleDebts = false;
         this.selectedDebtMemberVar = undefined;
         this.amountOfSelectedDebtMember = undefined;
+        this.ngOnInit();
       },
       reject: () => {
         // this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'You have rejected' });
@@ -400,13 +512,15 @@ export class GroupInfoComponent implements OnInit {
       receiverEmail: this.selectedDebtMemberVar,
       deleted: false,
       groupId: this.group.id,
-      archived: false
+      archived: false,
+      date: null
     }
 
     this.paymentService.createPayment(payment).subscribe({
       next: data => {
         this.getDebt();
         this.messageService.add({severity: 'success', summary: 'Success', detail: `Payment successfully created`});
+        this.ngOnInit();
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -435,7 +549,7 @@ export class GroupInfoComponent implements OnInit {
   confirmToLeaveGroup() {
     this.confirmationService.confirm({
       header: 'Attention!',
-      message: `All the Expenses and Payments get archived and will not be editable again<br>This action cannot be undone<br>Do you really want to leave the group?`,
+      message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
@@ -469,7 +583,131 @@ export class GroupInfoComponent implements OnInit {
       }
     });
   }
+
+  protected readonly PaymentCreateEditMode = PaymentCreateEditMode;
+
+  paymentModeIsEdit(): boolean {
+    return this.paymentDialogMode === PaymentCreateEditMode.edit;
+  }
+  paymentModeIsInfo() {
+    return this.paymentDialogMode === PaymentCreateEditMode.info;
+  }
+
+  paymentIsDeleted(): boolean {
+    if(this.paymentForDialog) {
+      return this.paymentForDialog.deleted;
+    }
+    return false;
+  }
+
+  paymentIsArchived(): boolean {
+    if(this.paymentForDialog) {
+      return this.paymentForDialog.archived;
+    }
+    return false;
+  }
+
+  openDeleteDialog(): void {
+    this.isDeleteDialogVisible = true;
+  }
+  closeDeleteDialog(): void {
+    this.isDeleteDialogVisible = false;
+  }
+
+  deleteExistingPayment() {
+    this.paymentService.deletePayment(this.paymentDialogPaymentId).subscribe({
+      next: data => {
+        this.messageService.add({severity:'success', summary:'Success', detail:'Deleted expense successfully!'});
+        this.paymentDeleted = true;
+        this.closeDeleteDialog();
+      },
+      error: error => {
+        this.closeDeleteDialog();
+        this.printError(error);
+      }
+    });
+    this.isPaymentDialogVisible = false;
+    setTimeout(() => {
+      this.ngOnInit();
+    }, 250);
+  }
+
+  recoverDeletedPayment() {
+    this.paymentService.recoverPayment(this.paymentDialogPaymentId).subscribe({
+      next: data => {
+        this.messageService.add({severity:'success', summary:'Success', detail:'Recovered payment successfully!'});
+        this.paymentDeleted = false;
+      },
+      error: error => {
+        this.printError(error);
+      }
+    });
+    this.isPaymentDialogVisible = false;
+    setTimeout(() => {
+      this.ngOnInit();
+    }, 250);
+  }
+  private printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.messageService.add({severity:'error', summary:'Error', detail: error.error.errors[i] });
+      }
+    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+      this.messageService.add({severity:'error', summary:'Error', detail: error.error.message });
+    } else if (error && error.error.detail) {
+      this.messageService.add({severity:'error', summary:'Error', detail: error.error.detail });
+    } else if (error && error.error) {
+      this.messageService.add({severity:'error', summary:'Error', detail: error.error });
+    } else {
+        console.error('This operation did not work!');
+    }
+  }
+
+  paymentSwitchToEditMode() {
+    this.paymentDialogMode = PaymentCreateEditMode.edit;
+  }
+
+  paymentModalSaveChanges() {
+    const submitPayment: PaymentDto = {
+      amount: this.amountForPaymentDialog,
+      payerEmail: this.payerEmailForPaymentDialog,
+      receiverEmail: this.receiverEmailForPaymentDialog,
+      groupId: this.group.id,
+      deleted: false,
+      archived: false,
+      date: null
+    };
+    this.paymentService.updatePayment(this.paymentDialogPaymentId, submitPayment).subscribe({
+      next: data => {
+        this.messageService.add({severity:'success', summary:'Success', detail:'Updated payment successfully!'});
+        this.paymentDialogMode = PaymentCreateEditMode.info;
+      },
+      error: error => {
+        this.printError(error);
+      }
+    })
+    this.isPaymentDialogVisible = false;
+    setTimeout(() => {
+      this.ngOnInit();
+    }, 250);
+  }
+
+  showVisualizationPage() {
+    this.router.navigate(['/group',this.group.id ,'visualization']);
+  }
+
+  getLoggedInUserAmountOfExpense(expense: ExpenseDetailDto): string {
+    if(expense.participants[this.authService.getEmail()])
+      return (expense.participants[this.authService.getEmail()] * expense.amount).toFixed(2);
+    return "0";
+  }
+
+  getPayerEmailForExpenseDescription(transaction: ExpenseDetailDto) {
+    return transaction.payerEmail === this.authService.getEmail() ? "You" : transaction.payerEmail;
+  }
 }
+
+
 
 // import {Component, OnInit} from '@angular/core';
 // import {GroupService} from "../../../services/group.service";

@@ -6,4 +6,5 @@ export interface PaymentDto {
   deleted: boolean;
   groupId: number;
   archived: boolean;
+  date: Date;
 }

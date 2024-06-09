@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +81,7 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @DeleteMapping("/shopping-lists/{shoppingListId}")
     @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
-    public void deleteShoppingList(@PathVariable Long shoppingListId) {
+    public void deleteShoppingList(@PathVariable Long shoppingListId) throws ConflictException {
         shoppingListService.deleteShoppingList(shoppingListId);
     }
 
@@ -88,7 +89,8 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PatchMapping("/shopping-lists/{shoppingListId}")
     @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
-    public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @Valid @RequestBody ShoppingListUpdateDto shoppingListUpdateDto) {
+    public ShoppingListDetailDto updateShoppingList(@PathVariable Long shoppingListId, @Valid @RequestBody ShoppingListUpdateDto shoppingListUpdateDto)
+        throws ConflictException {
         log.debug("request body: {}", shoppingListUpdateDto);
         var shoppingList = shoppingListService.updateShoppingList(shoppingListId, shoppingListUpdateDto);
         return shoppingListMapper.shoppingListToShoppingListDetailDto(shoppingList);
@@ -104,6 +106,15 @@ public class ShoppingListEndpoint {
         log.debug("request body: {}", itemCreateDto);
         var item = shoppingListService.addItemForUser(shoppingListId, itemCreateDto, userId);
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items/list")
+    public List<ShoppingListItemDto> addItems(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody List<ItemCreateDto> items) {
+        log.debug("request body: {}", items);
+        var shoppingListItems = shoppingListService.addItemsForUser(shoppingListId, items, userId);
+        return shoppingListMapper.listOfShoppingListItemsToListOfShoppingListItemDtos(shoppingListItems);
     }
 
     // PATCH users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}
@@ -139,6 +150,14 @@ public class ShoppingListEndpoint {
     public void moveItemsToPantry(@PathVariable Long userId, @PathVariable Long shoppingListId) {
         log.debug("Moving all checked items to pantry for shopping list with id {}", shoppingListId);
         shoppingListService.moveItemsToPantry(shoppingListId);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
+    @DeleteMapping("/users/{userId}/shopping-lists/{shoppingListId}/items/checked-items")
+    public void deleteCheckedItems(@PathVariable Long userId, @PathVariable Long shoppingListId) {
+        log.debug("Deleting all checked items for shopping list with id {}", shoppingListId);
+        shoppingListService.deleteCheckedItems(shoppingListId);
     }
 
 }

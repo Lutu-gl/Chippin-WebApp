@@ -35,6 +35,7 @@ public interface ShoppingListMapper {
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "groupId", source = "group.id")
+    @Mapping(target = "groupName", source = "group.groupName")
     @Mapping(target = "itemCount", source = "items", qualifiedByName = "calculateItemCount")
     @Mapping(target = "checkedItemCount", source = "items", qualifiedByName = "calculateCheckedItemCount")
     ShoppingListListDto shoppingListToListDto(ShoppingList shoppingList);
@@ -67,4 +68,6 @@ public interface ShoppingListMapper {
     @Mapping(target = "items", ignore = true)
     @Mapping(target = "group", ignore = true)
     ShoppingList updateShoppingList(@MappingTarget ShoppingList shoppingListEntity, ShoppingListUpdateDto shoppingList);
+
+    List<ShoppingListItemDto> listOfShoppingListItemsToListOfShoppingListItemDtos(List<ShoppingListItem> shoppingListItems);
 }

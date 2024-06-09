@@ -40,6 +40,38 @@ label {
   float:right;
   margin-right:20px;
 }
+.save {
+  display:flex;
+  float: right;
+  gap:10px;
+  margin-left:10px;
+  margin-right:10px;
+}
+
+.test {
+  margin-left:10px;
+}
+
+.public-button,
+.private-button {
+  padding: 6px 12px; /* Adjust padding to make buttons smaller */
+  margin-bottom:30px;
+  font-size: 14px; /* Adjust font size */
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.public-button {
+  background-color: green;
+  color: white;
+  border: 1px solid green;
+}
+
+.private-button {
+  background-color: red;
+  color: white;
+  border: 1px solid red;
+}
 
 //@each $color in (info, warning, danger, success) {
 //  $value: map.get($theme-colors, $color);
