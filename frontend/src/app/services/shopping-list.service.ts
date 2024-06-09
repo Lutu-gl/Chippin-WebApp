@@ -112,6 +112,10 @@ export class ShoppingListService {
     return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToCreate);
   }
 
+  addShoppingListItemsToShoppingList(userId: number, shoppingListId: number, items: ItemCreateDto[]) {
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/list`, items)
+  }
+
   /**
    * Moves a shopping list item to the pantry.
    *
