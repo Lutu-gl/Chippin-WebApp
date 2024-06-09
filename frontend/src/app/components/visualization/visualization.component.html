@@ -2,6 +2,7 @@
   <p-carousel [value]="charts" [numVisible]="1" [numScroll]="1" [circular]="true" class="w-3/4">
     <ng-template let-chart pTemplate="item">
       <div class="flex flex-col items-center justify-center" style="width: 1200px; height: 900px;">
+        <p class="mb-2 text-4xl font-bold" [innerHTML]="chart.title"></p>
         <p-chart [type]="chart.type" [data]="chart.data" [options]="chart.options" width="1200px" height="600px"></p-chart>
         <p class="mt-2" [innerHTML]="chart.description"></p>
       </div>

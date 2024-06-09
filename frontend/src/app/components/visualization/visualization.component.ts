@@ -7,8 +7,6 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
-import defaultCallbacks from "chart.js/dist/plugins/plugin.tooltip";
-import _default from "chart.js/dist/plugins/plugin.legend";
 
 @Component({
   selector: 'app-visualization',
@@ -179,10 +177,10 @@ export class VisualizationComponent implements OnInit {
           mode: 'index',
           intersect: false,
           callbacks: {
-            title: function(tooltipItems) {
+            title: function (tooltipItems) {
               return tooltipItems[0].label;
             },
-            label: function(context) {
+            label: function (context) {
               let label = context.dataset.label;
               let value = context.parsed.y;
               if (value == 0 || value == '0') {
@@ -223,7 +221,13 @@ export class VisualizationComponent implements OnInit {
     };
 
 
-    let finalData = { data: graphData, options: graphOptions, type: "bar", description: this.getDescriptionForExpensesMadePerPerson()};
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "bar",
+      description: this.getDescriptionForExpensesMadePerPerson(),
+      title: "Expenses created by group member"
+    };
     this.charts.push(finalData);
   }
 
@@ -281,10 +285,10 @@ export class VisualizationComponent implements OnInit {
           mode: 'index',
           intersect: false,
           callbacks: {
-            title: function(tooltipItems) {
+            title: function (tooltipItems) {
               return tooltipItems[0].label;
             },
-            label: function(context) {
+            label: function (context) {
               let label = context.dataset.label;
               let value = context.parsed.y;
               if (value == 0 || value == '0') {
@@ -324,7 +328,13 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
-    let finalData = { data: graphData, options: graphOptions, type: "bar", description: this.getDescriptionForExpensesMadePerPersonCash() };
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "bar",
+      description: this.getDescriptionForExpensesMadePerPersonCash(),
+      title: "Spent by group member per category"
+    };
     this.charts.push(finalData);
   }
 
@@ -339,28 +349,41 @@ export class VisualizationComponent implements OnInit {
 
   getExpenseMapForCategory(category: string): Map<string, number> {
     switch (category) {
-      case "Food": return this.personExpenseFoodMap;
-      case "Travel": return this.personExpenseTravelMap;
-      case "Entertainment": return this.personExpenseEntertainmentMap;
-      case "Health": return this.personExpenseHealthMap;
-      case "Shopping": return this.personExpenseShoppingMap;
-      case "Other": return this.personExpenseOtherMap;
-      default: return new Map<string, number>(); // Save Fallback-Option
+      case "Food":
+        return this.personExpenseFoodMap;
+      case "Travel":
+        return this.personExpenseTravelMap;
+      case "Entertainment":
+        return this.personExpenseEntertainmentMap;
+      case "Health":
+        return this.personExpenseHealthMap;
+      case "Shopping":
+        return this.personExpenseShoppingMap;
+      case "Other":
+        return this.personExpenseOtherMap;
+      default:
+        return new Map<string, number>(); // Save Fallback-Option
     }
   }
 
   getExpenseMapForCategoryCash(category: string): Map<string, number> {
     switch (category) {
-      case "Food": return this.personExpenseFoodMapCash;
-      case "Travel": return this.personExpenseTravelMapCash;
-      case "Entertainment": return this.personExpenseEntertainmentMapCash;
-      case "Health": return this.personExpenseHealthMapCash;
-      case "Shopping": return this.personExpenseShoppingMapCash;
-      case "Other": return this.personExpenseOtherMapCash;
-      default: return new Map<string, number>(); // Save Fallback-Option
+      case "Food":
+        return this.personExpenseFoodMapCash;
+      case "Travel":
+        return this.personExpenseTravelMapCash;
+      case "Entertainment":
+        return this.personExpenseEntertainmentMapCash;
+      case "Health":
+        return this.personExpenseHealthMapCash;
+      case "Shopping":
+        return this.personExpenseShoppingMapCash;
+      case "Other":
+        return this.personExpenseOtherMapCash;
+      default:
+        return new Map<string, number>(); // Save Fallback-Option
     }
   }
-
 
   formatDataForSpendEuroInCategory() {
     //Expenses per category
@@ -445,21 +468,23 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
-    let finalData: {data: any, options: any, type: any, description: any} = {data: graphData, options: graphOptions, type: type, description: this.getDescriptionForSpendEuroInCategory(data, labels)
-
+    let finalData: any = {
+      data: graphData,
+      options: graphOptions,
+      type: type,
+      description: this.getDescriptionForSpendEuroInCategory(data, labels),
+      title: "Expenses by category"
     };
     this.charts.push(finalData);
   }
 
   getDescriptionForSpendEuroInCategory(data, labels) {
-    let string =         "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
+    let string = "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
       + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
       + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
 
     return string;
   }
-
-
 
   backToGroup() {
     this.router.navigate(['../'], {relativeTo: this.route})
@@ -520,13 +545,20 @@ export class VisualizationComponent implements OnInit {
 
   private getMapForCategory(category: string): Map<string, number> {
     switch (category) {
-      case "Food": return this.personExpenseFoodMap;
-      case "Travel": return this.personExpenseTravelMap;
-      case "Entertainment": return this.personExpenseEntertainmentMap;
-      case "Health": return this.personExpenseHealthMap;
-      case "Shopping": return this.personExpenseShoppingMap;
-      case "Other": return this.personExpenseOtherMap;
-      default: throw new Error(`Unknown category: ${category}`);
+      case "Food":
+        return this.personExpenseFoodMap;
+      case "Travel":
+        return this.personExpenseTravelMap;
+      case "Entertainment":
+        return this.personExpenseEntertainmentMap;
+      case "Health":
+        return this.personExpenseHealthMap;
+      case "Shopping":
+        return this.personExpenseShoppingMap;
+      case "Other":
+        return this.personExpenseOtherMap;
+      default:
+        throw new Error(`Unknown category: ${category}`);
     }
   }
 
