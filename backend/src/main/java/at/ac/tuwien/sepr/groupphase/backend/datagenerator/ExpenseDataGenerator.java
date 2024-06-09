@@ -138,8 +138,6 @@ public class ExpenseDataGenerator implements DataGenerator {
             random.setSeed(12345);
             while (startDate.isBefore(endDate)) {
                 ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
-                Category category = categories[random.nextInt(categories.length)];
-                String name = expenseNames[random.nextInt(expenseNames.length)];
 
                 Set<ApplicationUser> uniqueParticipants = new HashSet<>();
                 while (uniqueParticipants.size() < 3) {
@@ -167,6 +165,9 @@ public class ExpenseDataGenerator implements DataGenerator {
                 participants.put(participantsList.get(2), part3 / doubleAmountExpense);
 
 
+                Category category = categories[random.nextInt(categories.length)];
+                String name = expenseNames[random.nextInt(expenseNames.length)];
+                
                 Expense expense = Expense.builder()
                     .name(name)
                     .category(category)
