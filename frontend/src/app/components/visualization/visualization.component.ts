@@ -60,53 +60,7 @@ export class VisualizationComponent implements OnInit {
   categoryExpenseMap = new Map<string, number>();
 
 
-  charts: any[] = [
-    {
-      type: 'bar',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-        datasets: [
-          {
-            label: 'Beispiel Daten',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            borderColor: '#4bc0c0'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    },
-    {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-        datasets: [
-          {
-            label: 'Beispiel Daten',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            borderColor: '#4bc0c0'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    },
-
-  ];
+  charts: any[] = [];
 
   ngOnInit(): void {
     this.documentStyle = getComputedStyle(document.documentElement);
