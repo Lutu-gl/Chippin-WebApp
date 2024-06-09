@@ -36,4 +36,6 @@ public interface ItemMapper {
     ItemDto itemToItemDto(Item item);
 
     List<ItemDto> listOfPantryItemDtosToListOfItemDto(List<PantryItem> pantryItems);
+
+    List<PantryItem> listofPantryItemDtoToListOfPantryItem(List<PantryItemDto> pantryItems);
 }

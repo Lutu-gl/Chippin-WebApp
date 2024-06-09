@@ -10,7 +10,7 @@ import {
   RecipeSearch
 } from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
-import {AddItemToShoppingListDto} from "../dtos/AddRecipeItemToShoppingListDto";
+import {AddItemToShoppingListDto, RemoveRecipeIngredientsFromPantryDto} from "../dtos/RecipePantryShoppingList";
 
 @Injectable({
   providedIn: 'root'
@@ -185,9 +185,9 @@ export class RecipeService {
     return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, item);
   }
 
-  removeRecipeIngredientsFromPantry(pantryId:number, recipeId:number, portion:number): Observable<String[]> {
+  removeRecipeIngredientsFromPantry(recipeId:number, pantryId:number , portion:number): Observable<RemoveRecipeIngredientsFromPantryDto> {
 
-    return this.httpClient.put<String[]>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
+    return this.httpClient.put<RemoveRecipeIngredientsFromPantryDto>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
   }
 
 

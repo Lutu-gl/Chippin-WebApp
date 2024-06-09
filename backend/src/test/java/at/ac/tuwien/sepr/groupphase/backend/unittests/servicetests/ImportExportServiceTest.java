@@ -44,7 +44,7 @@ public class ImportExportServiceTest {
         String text = PdfTextExtractor.getTextFromPage(pdfDoc.getFirstPage());
 
         assertAll(
-            () -> assertTrue(text.contains("Owner:")),
+            () -> assertTrue(text.contains("Recipe created by ")),
             () -> assertTrue(text.contains("Ingredients for")),
             () -> assertFalse(text.contains("Not in the recipe"))
         );

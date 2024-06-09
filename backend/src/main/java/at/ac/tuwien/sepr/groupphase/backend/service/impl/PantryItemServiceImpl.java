@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class PantryItemServiceImpl implements PantryItemService {
         }
         PantryItem baseItem = pantryItems.get(0);
         baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
-        if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent()) {
+        if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent() && !Objects.equals(pantryItem.getId(), baseItem.getId())) {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
             LOGGER.debug("PantryItem {} deleted", pantryItem);
