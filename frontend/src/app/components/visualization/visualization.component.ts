@@ -7,6 +7,8 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
+import defaultCallbacks from "chart.js/dist/plugins/plugin.tooltip";
+import _default from "chart.js/dist/plugins/plugin.legend";
 
 @Component({
   selector: 'app-visualization',
@@ -45,6 +47,8 @@ export class VisualizationComponent implements OnInit {
   personExpenseOtherMap = new Map<string, number>();
   personExpenseHealthMap = new Map<string, number>();
   personExpenseShoppingMap = new Map<string, number>();
+
+  personExpenseMapCash = new Map<string, number>();
 
   personExpenseFoodMapCash = new Map<string, number>();
   personExpenseTravelMapCash = new Map<string, number>();
@@ -178,7 +182,7 @@ export class VisualizationComponent implements OnInit {
 
   formatDataExpensesMadePerPerson() {
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
-    const colorsCat = ["#0f518a", "#4bc0c0", "#36a2eb", "#ffcd56", "#ff6384", "#ff9f40"];
+    const colorsCat = this.getCategoryColor(0.8)
 
     let graphData = {
       labels: [],
@@ -265,13 +269,22 @@ export class VisualizationComponent implements OnInit {
     };
 
 
-    let finalData = { data: graphData, options: graphOptions, type: "bar" };
+    let finalData = { data: graphData, options: graphOptions, type: "bar", description: this.getDescriptionForExpensesMadePerPerson()};
     this.charts.push(finalData);
+  }
+
+  private getDescriptionForExpensesMadePerPerson() {
+    let map = this.personExpenseMap;
+
+    let string = "This graph shows the amount of expenses each person has made in each category <br>" +
+      "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
+
+    return string;
   }
 
   formatDataExpensesMadePerPersonCash() {
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
-    const colorsCat = ["#0f518a", "#4bc0c0", "#36a2eb", "#ffcd56", "#ff6384", "#ff9f40"];
+    const colorsCat = this.getCategoryColor(0.8)
 
     let graphData = {
       labels: [],
@@ -357,8 +370,17 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
-    let finalData = { data: graphData, options: graphOptions, type: "bar" };
+    let finalData = { data: graphData, options: graphOptions, type: "bar", description: this.getDescriptionForExpensesMadePerPersonCash() };
     this.charts.push(finalData);
+  }
+
+  private getDescriptionForExpensesMadePerPersonCash() {
+    let map = this.personExpenseMapCash;
+
+    let string = "This graph shows the amount of money each person has spent in each category <br>" +
+      "The person who has spent the most money in total is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "€</strong> spent."
+
+    return string;
   }
 
   getExpenseMapForCategory(category: string): Map<string, number> {
@@ -392,18 +414,17 @@ export class VisualizationComponent implements OnInit {
       labels: string[],
       datasets: any[]
     }
-    let graphOptions: {
-      responsive: boolean,
-      scales: any
-    };
-    let type: string = "bar";
+    let graphOptions: any;
+    let type: string = "pie";
     let labels: string[] = [];
     let datasets: {
       label: string,
       data: number[],
       fill: boolean,
       borderColor?: any,
-      backgroundColor?: any,
+      // add 6 colors for the 6 categories
+      backgroundColor: any[]
+      hoverBackgroundColor: any[],
     }[] = [];
 
     let dataset: {
@@ -411,7 +432,8 @@ export class VisualizationComponent implements OnInit {
       data: number[],
       fill: boolean,
       borderColor?: any,
-      backgroundColor?: any,
+      backgroundColor: any[],
+      hoverBackgroundColor: any[],
     };
     let label: string = "Expenses";
     let data: number[] = [];
@@ -423,11 +445,11 @@ export class VisualizationComponent implements OnInit {
     }
 
     dataset = {
+      backgroundColor: this.getCategoryColor(0.8),
+      hoverBackgroundColor: this.getCategoryColor(1),
       label: label,
       data: data,
-      fill: false,
-      borderColor: '4bc0c0',
-      backgroundColor: '#0f518a'
+      fill: false
     };
 
     console.log(dataset);
@@ -435,15 +457,55 @@ export class VisualizationComponent implements OnInit {
     console.log(datasets)
 
     graphData = {labels: labels, datasets: datasets};
-    graphOptions = {responsive: false, scales: {
-        y: {
-          beginAtZero: true
+    graphOptions = {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: this.textColor
+          }
         }
-      }};
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        }
+      }
+    };
 
-    let finalData: {data: any, options: any, type: any} = {data: graphData, options: graphOptions, type: type};
+    let finalData: {data: any, options: any, type: any, description: any} = {data: graphData, options: graphOptions, type: type, description: this.getDescriptionForSpendEuroInCategory(data, labels)
+
+    };
     this.charts.push(finalData);
   }
+
+  getDescriptionForSpendEuroInCategory(data, labels) {
+    let string =         "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
+      + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
+      + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
+
+    return string;
+  }
+
+
 
   backToGroup() {
     this.router.navigate(['../'], {relativeTo: this.route})
@@ -456,6 +518,10 @@ export class VisualizationComponent implements OnInit {
 
       // Update person expense map for num expenses
       this.updateMap(this.personExpenseMap, expense.payerEmail, 1);
+
+      // Update person expense map for cash
+      this.updateMap(this.personExpenseMapCash, expense.payerEmail, expense.amount);
+
 
       // Update category payer expense map based on the category
       this.fillInCategoryPayerExpenseMap(expense);
@@ -490,5 +556,9 @@ export class VisualizationComponent implements OnInit {
   private updateMap(map: Map<string, number>, key: string, increment: number): void {
     const currentValue = map.get(key) || 0;
     map.set(key, currentValue + increment);
+  }
+
+  private getCategoryColor(alpha): string[] {
+    return ['rgba(15, 81, 138, ' + alpha + ')', 'rgba(75, 192, 192, ' + alpha + ')', 'rgba(54, 162, 235, ' + alpha + ')', 'rgba(255, 205, 86, ' + alpha + ')', 'rgba(255, 99, 132, ' + alpha + ')', 'rgba(255, 159, 64, ' + alpha + ')'];
   }
 }
