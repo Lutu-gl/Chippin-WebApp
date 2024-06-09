@@ -15,10 +15,7 @@ import {FormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
-import {EditPantryItemDialogComponent} from "./edit-pantry-item-dialog/edit-pantry-item-dialog.component";
-import {DisplayRecipesDialogComponent} from "./display-recipes-dialog/display-recipes-dialog.component";
-import {RecipeByItemsDto, RecipeDetailDto, RecipeListDto} from "../../dtos/recipe";
-import {ShoppingListAddDialogComponent} from "./shopping-list-add-dialog/shopping-list-add-dialog.component";
+import {RecipeByItemsDto} from "../../dtos/recipe";
 import {ButtonModule} from "primeng/button";
 import {TagModule} from "primeng/tag";
 import {RatingModule} from "primeng/rating";
@@ -56,9 +53,6 @@ import {max} from "@popperjs/core/lib/utils/math";
     ConfirmDeleteDialogComponent,
     NgSwitchCase,
     NgSwitch,
-    EditPantryItemDialogComponent,
-    DisplayRecipesDialogComponent,
-    ShoppingListAddDialogComponent,
     ButtonModule,
     TagModule,
     RatingModule,

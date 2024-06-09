@@ -22,3 +22,4 @@ export interface ExpenseDetailDto {
   archived: boolean,
   date: Date
 }
+
