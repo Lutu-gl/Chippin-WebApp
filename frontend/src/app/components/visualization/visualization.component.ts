@@ -217,8 +217,22 @@ export class VisualizationComponent implements OnInit {
       responsive: false,
       plugins: {
         tooltip: {
+          enabled: true,
           mode: 'index',
-          intersect: false
+          intersect: false,
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function(context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0 || value == '0') {
+                return ''
+              }
+              return `${label}: ${value}`;
+            }
+          }
         },
         legend: {
           labels: {
@@ -249,6 +263,7 @@ export class VisualizationComponent implements OnInit {
         }
       }
     };
+
 
     let finalData = { data: graphData, options: graphOptions, type: "bar" };
     this.charts.push(finalData);
@@ -295,8 +310,22 @@ export class VisualizationComponent implements OnInit {
       responsive: false,
       plugins: {
         tooltip: {
+          enabled: true,
           mode: 'index',
-          intersect: false
+          intersect: false,
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function(context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0 || value == '0') {
+                return ''
+              }
+              return `${label}: ${value}`;
+            }
+          }
         },
         legend: {
           labels: {
