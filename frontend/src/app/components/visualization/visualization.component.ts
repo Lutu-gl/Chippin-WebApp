@@ -466,6 +466,8 @@ export class VisualizationComponent implements OnInit {
   }
 
   private formatDataForGraphs(): void {
+    this.initAllMaps();
+
     for (let expense of this.expenses) {
       // Update category expense map
       this.updateMap(this.categoryExpenseMap, expense.category, expense.amount);
@@ -482,6 +484,27 @@ export class VisualizationComponent implements OnInit {
 
       // Update category payer expense map based on the category
       this.fillInCategoryPayerExpenseMapCash(expense);
+    }
+  }
+
+  // this initialization is necessary to keep colors of category the same for each chart
+  private initAllMaps() {
+    this.categoryExpenseMap = new Map<string, number>();
+    this.categoryExpenseMap.set('Food', 0);
+    this.categoryExpenseMap.set('Travel', 0);
+    this.categoryExpenseMap.set('Entertainment', 0);
+    this.categoryExpenseMap.set('Health', 0);
+    this.categoryExpenseMap.set('Shopping', 0);
+    this.categoryExpenseMap.set('Other', 0);
+
+    this.personExpenseMap = new Map<string, number>();
+    for (let member of this.group.members) {
+      this.personExpenseMap.set(member, 0);
+    }
+
+    this.personExpenseMapCash = new Map<string, number>();
+    for (let member of this.group.members) {
+      this.personExpenseMapCash.set(member, 0);
     }
   }
 
