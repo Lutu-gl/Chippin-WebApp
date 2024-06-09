@@ -285,11 +285,13 @@
         <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
           <a class="text-black rounded-md outline outline-1 outline-slate-300">
             <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
-              <p-progressBar [value]="getBudgetPercentage(budget)">
+              <p-progressBar 
+                [value]="getBudgetPercentage(budget)"
+                [ngClass]="getProgressBarColor(budget)"
+                >
                 <ng-template pTemplate="content" let-value> 
                 <span>{{value}}%</span>    
                 </ng-template>
-                <div [ngClass]="getProgressBarColor(budget)"></div>
               </p-progressBar>
                 <div>{{ budget.name }} [{{budget.category}}]</div>
             </div>

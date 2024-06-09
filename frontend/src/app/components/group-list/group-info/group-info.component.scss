@@ -67,14 +67,16 @@
 
 
 
-.bg-green-50 {
-  background-color: #d4edda !important; /* Beispielhaftes Grün */
+:host ::ng-deep .yellow-progress .p-progressbar-value {
+  background: darkorange;
 }
 
-.bg-blue-50 {
-  background-color: #cce5ff !important; /* Beispielhaftes Blau */
+:host ::ng-deep .red-progress .p-progressbar-value {
+  background: red;
 }
 
-.bg-red-50 {
-  background-color: #f8d7da !important; /* Beispielhaftes Rot */
+:host ::ng-deep  .green-progress .p-progressbar-value {
+  background: darkgreen;
 }
+
+

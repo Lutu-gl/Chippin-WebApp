@@ -112,32 +112,25 @@ export class GroupInfoComponent implements OnInit {
 
 
   getBudgetPercentage(budget: any): number {
-    return Math.round((budget.alreadySpent / budget.amount) * 100);
+    if(budget.alreadySpent === 0){
+      return 0;
+    }
+    let ret = Math.round((budget.alreadySpent / budget.amount) * 100);
+    if(ret > 100){
+      return 100;
+    }
+    return ret;
   }
-
-  // getProgressBarColor(budget: any): string {
-  //   const percentage = this.getBudgetPercentage(budget);
-  //   console.log("Farbe bestimmen")
-  //   if (percentage < 50) {
-  //     return '#bg-green-50'; // blue
-  //   } else if (percentage >= 50 && percentage <= 85) {
-  //     return '#bg-blue-50'; // Blau (standardmäßig)
-  //   } else {
-  //     return 'bg-red-50'; // Rot
-  //   }
-  // }
   
   getProgressBarColor(budget: any): string {
-    const percentage = this.getBudgetPercentage(budget);
-    let barcolor = "";
+    let percentage = (this.getBudgetPercentage(budget));
     if (percentage < 50) {
-      barcolor = 'bg-green-50'; // Green
-    } else if (percentage >= 50 && percentage <= 85) {
-      barcolor = 'bg-blue-50'; // Blue (default)
+      return 'green-progress';
+    } else if (percentage < 75) {
+      return 'yellow-progress';
     } else {
-      barcolor = 'bg-red-50'; // Red
+      return 'red-progress';
     }
-    return barcolor;
   }
 
   ngOnInit(): void {
