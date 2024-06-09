@@ -87,7 +87,16 @@ export class GroupInfoComponent implements OnInit {
   closeCreateBudgetDialog(): void {
     console.log("closeCreateBudgetDialog")
     this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
     this.ngOnInit();
+  }
+
+  budgetModalClose() {
+    console.log('Modal closed');
+    // Perform any additional actions you need here
+    this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+    console.log(this.budgetDialogMode)
   }
 
   openCreateExpenseDialog(): void {
@@ -142,16 +151,36 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
-    console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
-        console.log(this.budgetDialogMode)
     this.budgetDialogBudgetId = budgetId;
-    console.log(budgetId)
     this.isBudgetDialogVisible = true;
   }
 
   public budgetModeIsCreate(): boolean {
     return this.budgetDialogMode === BudgetCreateEditMode.create;
+  }
+
+
+  getBudgetPercentage(budget: any): number {
+    if(budget.alreadySpent === 0){
+      return 0;
+    }
+    let ret = Math.round((budget.alreadySpent / budget.amount) * 100);
+    if(ret > 100){
+      return 100;
+    }
+    return ret;
+  }
+  
+  getProgressBarColor(budget: any): string {
+    let percentage = (this.getBudgetPercentage(budget));
+    if (percentage < 50) {
+      return 'green-progress';
+    } else if (percentage < 75) {
+      return 'yellow-progress';
+    } else {
+      return 'red-progress';
+    }
   }
 
   ngOnInit(): void {

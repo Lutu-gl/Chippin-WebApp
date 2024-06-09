@@ -7,6 +7,7 @@ import { ExpenseCreateDto } from 'src/app/dtos/expense';
 import { GroupDto } from 'src/app/dtos/group';
 import { ExpenseService } from 'src/app/services/expense.service';
 import { GroupService } from 'src/app/services/group.service';
+import { BudgetDto } from '../../../dtos/budget';
 
 export enum ExpenseCreateEditMode {
   create,
@@ -32,6 +33,7 @@ export class ExpenseCreateComponent implements OnChanges {
   expenseArchived = false;
   group: GroupDto = { groupName: '', members: [] };
   members: any[] = [];
+  budgets: BudgetDto[] = [];
 
   allCategories: any[] = Object.values(Category).map(category => ({name: category}));
   selectedCategory: any = { name: '' };
@@ -179,6 +181,31 @@ export class ExpenseCreateComponent implements OnChanges {
 
   }
 
+  getGroupBudgets(): BudgetDto[] {
+    const id = this.groupId;
+    this.groupService.getGroupBudgets(id)
+      .subscribe(budgets => {
+        // console.log(budgets)
+        this.budgets =  budgets;
+      }, error => {
+        console.error('Failed to load budgets', error);
+      });
+      return [];
+  }
+  
+  // checkIfExceedsBudget(): Promise<boolean> {
+  //   console.log("checkIfExceedsBudget")
+  //   console.log(this.groupId);
+  //   try {
+  //     let budgets = this.getGroupBudgets();
+  //     console.log(budgets)
+  //     return null; // oder return true/false basierend auf Ihrer Logik
+  //   } catch (error) {
+  //     console.error('Failed to get budgets', error);
+  //     return false;
+  //   }
+  // }
+
   submitValidation(): boolean {
     let returnValue = true;
     if (!this.expenseName || /^[a-zA-Z][a-zA-Z0-9 ]{0,254}$/.test(this.expenseName) === false) {
@@ -209,12 +236,7 @@ export class ExpenseCreateComponent implements OnChanges {
     return returnValue;
   }
 
-  public onSubmit(): void {
-
-    if (!this.submitValidation()) {
-      return;
-    }
-
+  public finishSubmit(): void {
     const submitExpense: ExpenseCreateDto = {
       name: this.expenseName,
       category: this.selectedCategory?.name || null,
@@ -237,6 +259,37 @@ export class ExpenseCreateComponent implements OnChanges {
     } else if (this.mode === ExpenseCreateEditMode.edit) {
       this.editExistingExpense(this.expenseId, submitExpense);
     }
+
+  }
+
+
+  public onSubmit(): void {
+    
+    if (!this.submitValidation()) {
+      return;
+    }
+
+    this.groupService.getGroupBudgets(this.groupId)
+    .subscribe(budgets => {
+      // console.log(budgets)
+      this.budgets =  budgets;
+
+      for(let budget of this.budgets){
+        if(this.selectedCategory != null && budget.category != this.selectedCategory.name){
+          continue;
+        }else{
+          if(budget.alreadySpent + this.expenseAmount > budget.amount){
+            this.messageService.add({severity:'warn', summary:'Budget Warning', detail:`Limit of Budget ${budget.name} has been exeeded` });
+          }
+        }
+      }
+      
+      this.finishSubmit();
+
+    }, error => {
+      this.messageService.add({severity:'warn', summary:'Budget Warning', detail:`Error loading the budgets` });
+    });
+
   }
 
   private createNewExpense(expense: ExpenseCreateDto): void {

@@ -64,3 +64,19 @@
   padding: 10px;
   border-radius: 5px;
 }
+
+
+
+:host ::ng-deep .yellow-progress .p-progressbar-value {
+  background: darkorange;
+}
+
+:host ::ng-deep .red-progress .p-progressbar-value {
+  background: red;
+}
+
+:host ::ng-deep  .green-progress .p-progressbar-value {
+  background: darkgreen;
+}
+
+
