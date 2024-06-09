@@ -31,6 +31,10 @@ export class VisualizationComponent implements OnInit {
   expenses: ExpenseDetailDto[];
   documentStyle: any;
 
+  // different data sets for visualization
+  personExpenseMap = new Map<string, number>();
+  categoryExpenseMap = new Map<string, number>();
+
   charts: any[] = [
     {
       type: 'bar',
@@ -130,6 +134,8 @@ export class VisualizationComponent implements OnInit {
       next: res => {
         this.expenses = res;
         this.formatDataForGraphs();
+        this.formatDataForSpendEuroInCategory();
+        this.formatDataExpensesMadePerPerson()
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -148,8 +154,7 @@ export class VisualizationComponent implements OnInit {
     })
   }
 
-  formatDataForGraphs() {
-    //Expenses per category
+  formatDataExpensesMadePerPerson() {
     let graphData: {
       labels: string[],
       datasets: any[]
@@ -174,21 +179,66 @@ export class VisualizationComponent implements OnInit {
       borderColor?: any,
       backgroundColor?: any,
     };
+    let label: string = "Expenses Made";
+    let data: number[] = [];
+
+
+    for (const [key, value] of this.personExpenseMap) {
+      labels.push(key);
+      data.push(value);
+    }
+
+    dataset = {
+      label: label,
+      data: data,
+      fill: false,
+      borderColor: '4bc0c0',
+      backgroundColor: '#0f518a'
+    };
+    datasets.push(dataset);
+
+    graphData = {labels: labels, datasets: datasets};
+    graphOptions = {responsive: false, scales: {
+        y: {
+          beginAtZero: true
+        }
+      }};
+
+    let finalData: {data: any, options: any, type: any} = {data: graphData, options: graphOptions, type: type};
+    this.charts.push(finalData);
+  }
+  formatDataForSpendEuroInCategory() {
+    //Expenses per category
+    let graphData: {
+      labels: string[],
+      datasets: any[]
+    }
+    let graphOptions: {
+      responsive: boolean,
+      scales: any
+    };
+    let type: string = "bar";
+    let labels: string[] = [];
+    let datasets: {
+      label: string,
+      data: number[],
+      fill: boolean,
+      borderColor?: any,
+      backgroundColor?: any,
+    }[] = [];
+
+    let dataset: {
+      label: string,
+      data: number[],
+      fill: boolean,
+      borderColor?: any,
+      backgroundColor?: any,
+    };
     let label: string = "Expenses";
     let data: number[] = [];
 
-    let categoryExpenseMap = new Map<string, number>();
 
-    for (let expense of this.expenses) {
-      //Generate map <category, amount>
-      if (categoryExpenseMap.has(expense.category)) {
-        let currentValue = categoryExpenseMap.get(expense.category);
-        categoryExpenseMap.set(expense.category, currentValue + expense.amount);
-      } else {
-        categoryExpenseMap.set(expense.category, expense.amount);
-      }
-    }
-    for (const [key, value] of categoryExpenseMap) {
+    for (const [key, value] of this.categoryExpenseMap) {
       labels.push(key);
       data.push(value);
     }
@@ -218,5 +268,28 @@ export class VisualizationComponent implements OnInit {
 
   backToGroup() {
     this.router.navigate(['../'], {relativeTo: this.route})
+  }
+
+  private formatDataForGraphs() {
+    for (let expense of this.expenses) {
+
+      // For Category Expense Map
+      // Generate map <category, amount>
+      if (this.categoryExpenseMap.has(expense.category)) {
+        let currentValue = this.categoryExpenseMap.get(expense.category);
+        this.categoryExpenseMap.set(expense.category, currentValue + expense.amount);
+      } else {
+        this.categoryExpenseMap.set(expense.category, expense.amount);
+      }
+
+      // For Payer Expense Map
+      if (this.personExpenseMap.has(expense.payerEmail)) {
+        let currentValue = this.personExpenseMap.get(expense.payerEmail);
+        this.personExpenseMap.set(expense.payerEmail, currentValue + 1);
+      } else {
+        this.personExpenseMap.set(expense.payerEmail, 0);
+      }
+
+    }
   }
 }
