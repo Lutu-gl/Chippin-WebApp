@@ -1,9 +1,8 @@
 import {Component, OnInit} from "@angular/core";
 import {RecipeListDto, RecipeSearch} from "../../dtos/recipe";
-import {ActivatedRoute} from "@angular/router";
 import {RecipeService} from "../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {MessageService} from "primeng/api";
 
 
 @Component({
@@ -22,10 +21,8 @@ export class RecipeComponent implements OnInit {
   hasRecipes = false;
 
   constructor(
-    private route: ActivatedRoute,
     private service: RecipeService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
   ) {
   }
 

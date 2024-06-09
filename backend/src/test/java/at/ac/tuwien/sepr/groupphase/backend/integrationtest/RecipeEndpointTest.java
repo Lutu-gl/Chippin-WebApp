@@ -320,16 +320,16 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        BlueprintListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), BlueprintListDto.class);
+        ItemDto[] listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto[].class);
 
-        assertEquals(1, listDto.getItems().size());
-        ItemDto itemDto = listDto.getItems().get(0);
+        assertEquals(1, listDto.length);
+        ItemDto itemDto = listDto[0];
         assertAll(
             () -> assertEquals(item.getDescription(), itemDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),
             () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
-    }*/
+    } */
 
 
     @Test
@@ -793,6 +793,33 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
             () -> assertTrue(result.getRecipeItems().getFirst().getDescription().contains("Blueberries")),
             () -> assertTrue(result.getPantryItems().getFirst().getDescription().contains("Blueberries")),
             () -> assertTrue(result.getShoppingListItems().getFirst().getItem().getDescription().contains("Blueberries"))
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void givenNothing_whenUpdate_thenItemUpdated()
+        throws Exception {
+
+
+        Item item = recipe.getIngredients().getFirst();
+        ItemDto dto = ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build();
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/recipe", recipe.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+
+        Item persisted = recipeRepository.findById(recipe.getId()).get().getIngredients().getFirst();
+
+        assertAll(
+            () -> assertEquals(dto.getUnit(), persisted.getUnit()),
+            () -> assertEquals(dto.getAmount(), persisted.getAmount()),
+            () -> assertEquals(dto.getDescription(), persisted.getDescription()),
+            () -> assertEquals(dto.getId(), persisted.getId())
         );
     }
 }

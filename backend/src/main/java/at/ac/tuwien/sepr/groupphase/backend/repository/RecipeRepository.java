@@ -56,14 +56,14 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     void deleteRecipe(@Param("recipeId") long recipeId);
 
 
-    @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r WHERE r.isPublic = true AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findPublicRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam);
 
 
-    @Query("SELECT r FROM Recipe r WHERE r.owner = :user AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r WHERE r.owner = :user AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findOwnRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam, ApplicationUser user);
 
-    @Query("SELECT r FROM Recipe r JOIN r.likedByUsers u WHERE u = :user AND (r.name LIKE %:searchParam%) ORDER BY r.likes DESC")
+    @Query("SELECT r FROM Recipe r JOIN r.likedByUsers u WHERE u = :user AND (LOWER (r.name) LIKE %:searchParam%) ORDER BY r.likes DESC")
     List<Recipe> findLikedRecipesBySearchParamOrderedByLikes(@Param("searchParam") String searchParam, ApplicationUser user);
 
     /**

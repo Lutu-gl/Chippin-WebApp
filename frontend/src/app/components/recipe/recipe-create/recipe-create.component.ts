@@ -1,7 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
@@ -9,6 +8,8 @@ import {ItemCreateDto, Unit} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {getStepSize, getSuffix} from "../../../util/unit-helper";
+
 
 
 
@@ -26,7 +27,8 @@ export class RecipeCreateComponent implements OnInit {
     ingredients: [],
     description: '',
     isPublic: false,
-    portionSize:1
+    portionSize:1,
+
   };
   newIngredient: ItemCreateDto = {
     amount: 0,
@@ -37,6 +39,8 @@ export class RecipeCreateComponent implements OnInit {
   submitted: boolean = false;
   newItemDialog: boolean = false;
   itemDialog: boolean = false;
+  tooShort=false;
+  tooLong=false;
 
   selectedItems!: ItemCreateDto[] | null;
 
@@ -47,7 +51,6 @@ export class RecipeCreateComponent implements OnInit {
     private route: ActivatedRoute,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private notification: ToastrService,
   ) {
   }
 
@@ -67,7 +70,7 @@ export class RecipeCreateComponent implements OnInit {
         next: data => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe ${this.recipe.name} successfully created.`});
 
-          this.router.navigate(['/recipe']);
+          this.router.navigate(['/home/recipe']);
         },
         error: error => {
           this.printError(error);
@@ -77,7 +80,8 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   onIngredientSubmit() {
-
+      if(this.newIngredient.description.length>1) {
+        this.tooShort=false;
       this.recipe.ingredients.push(this.newIngredient);
       this.newIngredient= {
         amount: 0,
@@ -85,8 +89,9 @@ export class RecipeCreateComponent implements OnInit {
         description: ""}
 
     this.hideDialog();
-
-
+      } else {
+      this.tooShort=true;
+      }
   }
 
 
@@ -113,8 +118,8 @@ export class RecipeCreateComponent implements OnInit {
     } else if (error && error.error && error.error.detail) {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.error('Could not load pantry items', error);
-      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load pantry!`});
+      console.error('Could not load recipe items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load recipe!`});
     }
   }
 
@@ -188,11 +193,11 @@ export class RecipeCreateComponent implements OnInit {
   getRecipeSuffix(item: ItemCreateDto): String {
     switch (item.unit) {
       case Unit.Piece:
-        return item.amount == 1 ? " Piece" : " Pieces";
+        return item.amount == 1 ? "Piece" : "Pieces";
       case Unit.Gram:
-        return item.amount < 1000 ? "g" : "kg";
+        return "g"
       case Unit.Milliliter:
-        return item.amount < 1000 ? "ml" : "l";
+        return "ml"
       default:
         console.error("Unknown Unit");
         return "";
@@ -202,6 +207,8 @@ export class RecipeCreateComponent implements OnInit {
   protected readonly Unit = Unit;
   protected readonly clone = clone;
   protected readonly Object = Object;
+  protected readonly getSuffix = getSuffix;
+  protected readonly getStepSize = getStepSize;
 }
 
 
