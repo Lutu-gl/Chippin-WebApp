@@ -12,9 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
@@ -22,7 +20,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -303,9 +300,8 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
     }
 
 
-    /*@Test
+    @Test
     @Rollback
-    @Transactional
     @WithMockUser
     public void givenRecipeWithOneItemAndMatchingDescription_whenSearchItemsInRecipe_thenListWithSizeOneAndCorrectItem()
         throws Exception {
@@ -329,7 +325,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBevorAfterEach {
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),
             () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
-    } */
+    }
 
 
     @Test
