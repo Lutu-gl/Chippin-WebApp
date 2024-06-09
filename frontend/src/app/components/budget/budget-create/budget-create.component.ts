@@ -128,7 +128,6 @@ export class BudgetCreateComponent implements OnChanges {
 
   private createBudget(): void {
     this.newBudget.category = this.selectedCategory.value;
-    console.log(this.newBudget)
     this.groupService.createBudget(this.groupId, this.newBudget).subscribe({
       next: budget => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully created budget' });
@@ -142,9 +141,7 @@ export class BudgetCreateComponent implements OnChanges {
   }
 
   private updateBudget(): void {
-    console.log(this.newBudget)
     this.newBudget.category = this.selectedCategory.value;
-    console.log(this.newBudget)
     this.groupService.updateBudget(this.groupId, this.budgetId, this.newBudget).subscribe({
       next: budget => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully updated budget' });
