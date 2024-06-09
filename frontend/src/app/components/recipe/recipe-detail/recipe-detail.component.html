@@ -167,7 +167,7 @@
         <div class="p-4" *ngIf="removeIngredientsDto">
 
           <div class="mb-6">
-            <label> For how many People?   (This Recipe is normally made for {{recipe.portionSize}} {{recipe.portionSize ==1 ? "Person" : "People"}})</label>
+            <label> For how many People?   (This Recipe is normally made for {{recipe.portionSize}} {{recipe.portionSize ===1 ? "Person" : "People"}})</label>
             <p-inputNumber [(ngModel)]="portion"
                            (onInput)="updatePortion()"         />
 
