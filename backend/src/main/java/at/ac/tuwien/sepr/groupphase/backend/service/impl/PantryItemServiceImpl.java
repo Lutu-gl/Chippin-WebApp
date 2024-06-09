@@ -34,7 +34,7 @@ public class PantryItemServiceImpl implements PantryItemService {
             return pantryItemRepository.save(pantryItem);
         }
         PantryItem baseItem = pantryItems.get(0);
-        if(pantryItem.getId() != null && pantryItem.getId().equals(baseItem.getId())) {
+        if (pantryItem.getId() != null && pantryItem.getId().equals(baseItem.getId())) {
             LOGGER.debug("No pantryItem to merge. PantryItem {} updated", pantryItem);
             return pantryItemRepository.save(pantryItem);
         }
