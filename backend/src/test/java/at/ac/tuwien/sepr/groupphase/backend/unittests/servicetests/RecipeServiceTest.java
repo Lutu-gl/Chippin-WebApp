@@ -118,11 +118,18 @@ public class RecipeServiceTest extends BaseTestGenAndClearBevorAfterEach {
 
     @Test
     @Rollback
-    public void givenRecipeId_WhenDeleteRecipe_RecipeDoesntExistAnymore() {
+    public void givenRecipeId_WhenDeleteRecipe_RecipeDoesntExistAnymore() throws AlreadyRatedException {
         Recipe recipe = recipeRepository.findAll().getFirst();
+
+        recipeServiceImpl.likeRecipe(recipe.getId(), recipe.getOwner());
 
         recipeServiceImpl.deleteRecipe(recipe.getId());
 
+        ApplicationUser user = customUserDetailService.findApplicationUserByEmail(recipe.getOwner().getEmail());
+
+        assertFalse(user.getRecipes().stream().anyMatch(o -> o.getId().equals(recipe.getId())));
+
+        assertFalse(user.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(recipe.getId())));
 
         assertThrows(NotFoundException.class, () -> recipeServiceImpl.getById(recipe.getId()));
     }
