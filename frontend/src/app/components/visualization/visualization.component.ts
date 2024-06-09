@@ -208,7 +208,7 @@ export class VisualizationComponent implements OnInit {
       console.log(this.personExpenseMap);
 
       graphData.datasets.push({
-        label: "Expenses Made in " + label + " Category",
+        label: label,
         data: data,
         fill: false,
         borderColor: '4bc0c0',
@@ -310,7 +310,7 @@ export class VisualizationComponent implements OnInit {
       console.log(this.personExpenseMap);
 
       graphData.datasets.push({
-        label: "Amount spend in " + label + " Category",
+        label: label,
         data: data,
         fill: false,
         borderColor: '4bc0c0',
