@@ -79,3 +79,14 @@
   display: flex; /* Use flexbox for better control of spacing */
   gap: 10px; /* Adjust the space between buttons */
 }
+
+.round-info-button {
+  background-color: #d3d3d3 !important; /* Light grey background */
+  border: none; /* Remove border */
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Make it round */
+}

@@ -41,7 +41,9 @@
             <ng-template pTemplate="header">
               <tr>
                 <th style="width: 4rem">
-                  <p-tableHeaderCheckbox/>
+                  <p-tableHeaderCheckbox
+                  pTooltip="Decide if this ingredient should be added to the shopping list"
+                  />
                 </th>
                 <th style="min-width:15rem">
                   Name
@@ -66,7 +68,8 @@
             <ng-template pTemplate="body" let-ingredient>
               <tr [ngClass]="getColor(ingredient)">
                 <td>
-                  <p-tableCheckbox [value]="ingredient"/>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be added to the shopping list"
+                                   [value]="ingredient"/>
                 </td>
                 <td>
                   {{ ingredient.description }}
@@ -113,6 +116,7 @@
     <p-button
       pRipple
       label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
       severity="secondary"
       icon="pi pi-replay"
       (click)="reset()"/>
@@ -184,7 +188,7 @@
             <ng-template pTemplate="header">
               <tr>
                 <th style="width: 4rem">
-                  <p-tableHeaderCheckbox/>
+                  <p-tableHeaderCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"/>
                 </th>
                 <th style="min-width:15rem">
                   Name
@@ -203,9 +207,9 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-ingredient>
-              <tr>
+              <tr [ngClass]="getPantryColor(ingredient)">
                 <td>
-                  <p-tableCheckbox [value]="ingredient"/>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"[value]="ingredient"/>
                 </td>
                 <td>
                   {{ ingredient.description }}
@@ -250,6 +254,7 @@
     <p-button
       pRipple
       label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
       severity="secondary"
       icon="pi pi-replay"
       (click)="reset()"/>

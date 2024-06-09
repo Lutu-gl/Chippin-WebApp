@@ -195,13 +195,23 @@ export class RecipeDetailComponent implements OnInit {
     let shoppingListMatching = this.findMatchingShoppingListItem(item);
 
     if (pantryMatching.amount + shoppingListMatching.amount < item.amount) {
-      return 'bg-red-600';
+      return 'bg-red-50';
     } else if (pantryMatching.amount >= item.amount) {
-      return 'bg-green-600'
+      return 'bg-green-50'
     } else if (pantryMatching.amount + shoppingListMatching.amount >= item.amount) {
-      return 'bg-orange-600'
+      return 'bg-orange-50'
     }
   }
+  getPantryColor(item: ItemDetailDto) {
+    let pantryMatching = this.findMatchingPantryItemsForRemove(item);
+
+    if ( pantryMatching.amount - item.amount < 0) {
+      return 'bg-red-50';
+    } else {
+      return '';
+    }
+  }
+
 
   reset() {
     if(this.addItemToShoppingListDtoReset) {
@@ -262,7 +272,6 @@ export class RecipeDetailComponent implements OnInit {
       { next: data => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe Ingredients have been successfully removed from your Pantry`});
 
-          this.router.navigate([`group/${this.group.id}/pantry`]);
         }, error: error => {
           this.printError(error);
         }
