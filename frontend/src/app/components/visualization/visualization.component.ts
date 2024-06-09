@@ -26,14 +26,35 @@ export class VisualizationComponent implements OnInit {
   ) {
   }
 
+  documentStyle = getComputedStyle(document.documentElement);
+  textColor = this.documentStyle.getPropertyValue('--text-color');
+  textColorSecondary = this.documentStyle.getPropertyValue('--text-color-secondary');
+  surfaceBorder = this.documentStyle.getPropertyValue('--surface-border');
+
   id: number;
   group: GroupDto;
   expenses: ExpenseDetailDto[];
-  documentStyle: any;
+  // documentStyle: any;
 
   // different data sets for visualization
   personExpenseMap = new Map<string, number>();
+
+  personExpenseFoodMap = new Map<string, number>();
+  personExpenseTravelMap = new Map<string, number>();
+  personExpenseEntertainmentMap = new Map<string, number>();
+  personExpenseOtherMap = new Map<string, number>();
+  personExpenseHealthMap = new Map<string, number>();
+  personExpenseShoppingMap = new Map<string, number>();
+
+  personExpenseFoodMapCash = new Map<string, number>();
+  personExpenseTravelMapCash = new Map<string, number>();
+  personExpenseEntertainmentMapCash = new Map<string, number>();
+  personExpenseOtherMapCash = new Map<string, number>();
+  personExpenseHealthMapCash = new Map<string, number>();
+  personExpenseShoppingMapCash = new Map<string, number>();
+
   categoryExpenseMap = new Map<string, number>();
+
 
   charts: any[] = [
     {
@@ -136,6 +157,7 @@ export class VisualizationComponent implements OnInit {
         this.formatDataForGraphs();
         this.formatDataForSpendEuroInCategory();
         this.formatDataExpensesMadePerPerson()
+        this.formatDataExpensesMadePerPersonCash()
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -155,58 +177,215 @@ export class VisualizationComponent implements OnInit {
   }
 
   formatDataExpensesMadePerPerson() {
-    let graphData: {
-      labels: string[],
-      datasets: any[]
-    }
-    let graphOptions: {
-      responsive: boolean,
-      scales: any
+    const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
+    const colorsCat = ["#0f518a", "#4bc0c0", "#36a2eb", "#ffcd56", "#ff6384", "#ff9f40"];
+
+    let graphData = {
+      labels: [],
+      datasets: []
     };
-    let type: string = "bar";
-    let labels: string[] = [];
-    let datasets: {
-      label: string,
-      data: number[],
-      fill: boolean,
-      borderColor?: any,
-      backgroundColor?: any,
-    }[] = [];
-    let dataset: {
-      label: string,
-      data: number[],
-      fill: boolean,
-      borderColor?: any,
-      backgroundColor?: any,
-    };
-    let label: string = "Expenses Made";
-    let data: number[] = [];
 
+    const sortedMembers = [...this.group.members].sort();
 
-    for (const [key, value] of this.personExpenseMap) {
-      labels.push(key);
-      data.push(value);
-    }
+    graphData.labels = sortedMembers;
 
-    dataset = {
-      label: label,
-      data: data,
-      fill: false,
-      borderColor: '4bc0c0',
-      backgroundColor: '#0f518a'
-    };
-    datasets.push(dataset);
+    labelsCat.forEach((label, index) => {
+      let data = new Array(sortedMembers.length).fill(0);
+      let map = this.getExpenseMapForCategory(label);
 
-    graphData = {labels: labels, datasets: datasets};
-    graphOptions = {responsive: false, scales: {
-        y: {
-          beginAtZero: true
+      map.forEach((value, key) => {
+        let memberIndex = sortedMembers.findIndex(member => member === key);
+        if (memberIndex !== -1) {
+          data[memberIndex] = value;
         }
-      }};
+      });
 
-    let finalData: {data: any, options: any, type: any} = {data: graphData, options: graphOptions, type: type};
+      console.log(data);
+      console.log(this.personExpenseMap);
+
+      graphData.datasets.push({
+        label: "Expenses Made in " + label + " Category",
+        data: data,
+        fill: false,
+        borderColor: '4bc0c0',
+        backgroundColor: colorsCat[index]
+      });
+    });
+
+    let graphOptions = {
+      maintainAspectRatio: true,
+      responsive: false,
+      plugins: {
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function(context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0 || value == '0') {
+                return ''
+              }
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        legend: {
+          labels: {
+            color: this.textColor
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        }
+      }
+    };
+
+
+    let finalData = { data: graphData, options: graphOptions, type: "bar" };
     this.charts.push(finalData);
   }
+
+  formatDataExpensesMadePerPersonCash() {
+    const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
+    const colorsCat = ["#0f518a", "#4bc0c0", "#36a2eb", "#ffcd56", "#ff6384", "#ff9f40"];
+
+    let graphData = {
+      labels: [],
+      datasets: []
+    };
+
+    const sortedMembers = [...this.group.members].sort();
+
+    graphData.labels = sortedMembers;
+
+    labelsCat.forEach((label, index) => {
+      let data = new Array(sortedMembers.length).fill(0);
+      let map = this.getExpenseMapForCategoryCash(label);
+
+      map.forEach((value, key) => {
+        let memberIndex = sortedMembers.findIndex(member => member === key);
+        if (memberIndex !== -1) {
+          data[memberIndex] = value;
+        }
+      });
+
+      console.log(data);
+      console.log(this.personExpenseMap);
+
+      graphData.datasets.push({
+        label: "Amount spend in " + label + " Category",
+        data: data,
+        fill: false,
+        borderColor: '4bc0c0',
+        backgroundColor: colorsCat[index]
+      });
+    });
+
+    let graphOptions = {
+      maintainAspectRatio: true,
+      responsive: false,
+      plugins: {
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function(context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0 || value == '0') {
+                return ''
+              }
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        legend: {
+          labels: {
+            color: this.textColor
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          }
+        }
+      }
+    };
+
+    let finalData = { data: graphData, options: graphOptions, type: "bar" };
+    this.charts.push(finalData);
+  }
+
+  getExpenseMapForCategory(category: string): Map<string, number> {
+    switch (category) {
+      case "Food": return this.personExpenseFoodMap;
+      case "Travel": return this.personExpenseTravelMap;
+      case "Entertainment": return this.personExpenseEntertainmentMap;
+      case "Health": return this.personExpenseHealthMap;
+      case "Shopping": return this.personExpenseShoppingMap;
+      case "Other": return this.personExpenseOtherMap;
+      default: return new Map<string, number>(); // Save Fallback-Option
+    }
+  }
+
+  getExpenseMapForCategoryCash(category: string): Map<string, number> {
+    switch (category) {
+      case "Food": return this.personExpenseFoodMapCash;
+      case "Travel": return this.personExpenseTravelMapCash;
+      case "Entertainment": return this.personExpenseEntertainmentMapCash;
+      case "Health": return this.personExpenseHealthMapCash;
+      case "Shopping": return this.personExpenseShoppingMapCash;
+      case "Other": return this.personExpenseOtherMapCash;
+      default: return new Map<string, number>(); // Save Fallback-Option
+    }
+  }
+
+
   formatDataForSpendEuroInCategory() {
     //Expenses per category
     let graphData: {
@@ -270,26 +449,46 @@ export class VisualizationComponent implements OnInit {
     this.router.navigate(['../'], {relativeTo: this.route})
   }
 
-  private formatDataForGraphs() {
+  private formatDataForGraphs(): void {
     for (let expense of this.expenses) {
+      // Update category expense map
+      this.updateMap(this.categoryExpenseMap, expense.category, expense.amount);
 
-      // For Category Expense Map
-      // Generate map <category, amount>
-      if (this.categoryExpenseMap.has(expense.category)) {
-        let currentValue = this.categoryExpenseMap.get(expense.category);
-        this.categoryExpenseMap.set(expense.category, currentValue + expense.amount);
-      } else {
-        this.categoryExpenseMap.set(expense.category, expense.amount);
-      }
+      // Update person expense map for num expenses
+      this.updateMap(this.personExpenseMap, expense.payerEmail, 1);
 
-      // For Payer Expense Map
-      if (this.personExpenseMap.has(expense.payerEmail)) {
-        let currentValue = this.personExpenseMap.get(expense.payerEmail);
-        this.personExpenseMap.set(expense.payerEmail, currentValue + 1);
-      } else {
-        this.personExpenseMap.set(expense.payerEmail, 0);
-      }
+      // Update category payer expense map based on the category
+      this.fillInCategoryPayerExpenseMap(expense);
 
+      // Update category payer expense map based on the category
+      this.fillInCategoryPayerExpenseMapCash(expense);
     }
+  }
+
+  private fillInCategoryPayerExpenseMap(expense: ExpenseDetailDto): void {
+    const map = this.getMapForCategory(expense.category);
+    this.updateMap(map, expense.payerEmail, 1);
+  }
+
+  private fillInCategoryPayerExpenseMapCash(expense: ExpenseDetailDto): void {
+    const map = this.getExpenseMapForCategoryCash(expense.category);
+    this.updateMap(map, expense.payerEmail, expense.amount);
+  }
+
+  private getMapForCategory(category: string): Map<string, number> {
+    switch (category) {
+      case "Food": return this.personExpenseFoodMap;
+      case "Travel": return this.personExpenseTravelMap;
+      case "Entertainment": return this.personExpenseEntertainmentMap;
+      case "Health": return this.personExpenseHealthMap;
+      case "Shopping": return this.personExpenseShoppingMap;
+      case "Other": return this.personExpenseOtherMap;
+      default: throw new Error(`Unknown category: ${category}`);
+    }
+  }
+
+  private updateMap(map: Map<string, number>, key: string, increment: number): void {
+    const currentValue = map.get(key) || 0;
+    map.set(key, currentValue + increment);
   }
 }

@@ -66,9 +66,7 @@ public class ExpenseDataGenerator implements DataGenerator {
         Faker faker = new Faker(Locale.getDefault(), random);
 
 
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
@@ -167,7 +165,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
                 Category category = categories[random.nextInt(categories.length)];
                 String name = expenseNames[random.nextInt(expenseNames.length)];
-                
+
                 Expense expense = Expense.builder()
                     .name(name)
                     .category(category)
