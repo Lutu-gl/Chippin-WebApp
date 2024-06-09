@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.ExchangeRateService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ImportExportServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RecipeServiceImpl;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -17,10 +14,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ImportExportServiceTest {
 
 
-    @Autowired
-    private RecipeServiceImpl recipeServiceImpl;
     @Autowired
     private ImportExportServiceImpl importExportServiceImpl;
     @Autowired
