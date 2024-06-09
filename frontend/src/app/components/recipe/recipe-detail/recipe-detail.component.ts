@@ -165,22 +165,30 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   addSelectedIngredientsToShoppingList() {
-    //TODO wait for endpoint
+    let list: ItemCreateDto[] = [];
     for (let ingredient of this.selectedIngredients) {
       let dto: ItemCreateDto = {
         description: ingredient.description,
         amount: ingredient.amount,
         unit: ingredient.unit
       };
-      this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.shoppingList.id, dto).subscribe({
-        next: res => {
-          console.log(res);
-        }, error: err => {
-          console.log(err)
-          this.printError(err);
-        }
-      });
+      list.push(dto);
     }
+    this.shoppingListService.addShoppingListItemsToShoppingList(this.authService.getUserId(), this.shoppingList.id, list).subscribe({
+      next: res => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: `${list.length} items added to ${this.shoppingList.name}`,
+          life: 3000
+        });
+        console.log(res);
+      }, error: err => {
+        console.log(err)
+        this.printError(err);
+      }
+    });
+
   }
 
   printError(error): void {
