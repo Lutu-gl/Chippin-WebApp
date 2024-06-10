@@ -139,7 +139,6 @@ public class CustomUserDetailService implements UserService {
     }
 
 
-    // TODO this should not make it into production
     @PostConstruct
     private void init() {
         LOGGER.info("Creating default users");

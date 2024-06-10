@@ -7,6 +7,13 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
+import {ChartData, ChartOptions} from "chart.js";
+import {
+  getHighestMonthAndSum,
+  getRandomColorForEmail,
+  groupExpensesByUserEmail,
+  sumExpensesPerUserPerMonth
+} from "./chartHelper";
 
 @Component({
   selector: 'app-visualization',
@@ -59,6 +66,7 @@ export class VisualizationComponent implements OnInit {
 
 
   charts: any[] = [];
+
 
   ngOnInit(): void {
     this.documentStyle = getComputedStyle(document.documentElement);
@@ -114,6 +122,7 @@ export class VisualizationComponent implements OnInit {
         this.formatDataForSpendEuroInCategory();
         this.formatDataExpensesMadePerPerson()
         this.formatDataExpensesMadePerPersonCash()
+        this.formatDataForExpensesPerUserPerMonth()
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -484,6 +493,76 @@ export class VisualizationComponent implements OnInit {
       + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
 
     return string;
+  }
+
+  // Add chart for amount of expenses paid per user
+  // This will be a stacked bar chart with the x-axis being the months and the y-axis being the amount of expenses paid
+  // Each user will have a different color in the bar chart
+  // The data will be stacked on top of each other
+  formatDataForExpensesPerUserPerMonth() {
+    let graphData: ChartData<"bar">;
+    let graphOptions: ChartOptions<"bar">;
+
+    let expensesByUser = groupExpensesByUserEmail(this.expenses);
+
+    let expensesPerUserPerMonth = sumExpensesPerUserPerMonth(expensesByUser);
+    console.log(expensesPerUserPerMonth);
+
+    // Create the data for the graph
+    let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let datasets = [];
+    let colors = ['#0f518a', '#4bc0c0', '#36a2eb', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40'];
+
+    for (let userEmail in expensesPerUserPerMonth) {
+      let data = [];
+      for (let i = 0; i < 12; i++) {
+        data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+      }
+      datasets.push({
+        label: userEmail,
+        data: data,
+        backgroundColor: getRandomColorForEmail(userEmail)
+      })
+    }
+
+    graphData = {labels, datasets};
+    graphOptions = {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          mode: "index",
+          intersect: false
+        },
+        legend: {
+          labels: {
+            color: this.textColor
+          }
+        },
+        title: {
+          display: true,
+          color: this.textColor
+        }
+      },
+      scales: {
+        y: {
+          stacked: true,
+          beginAtZero: true,
+        },
+        x: {
+          stacked: true
+        }
+      }
+    };
+
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "bar",
+      title: "Expenses per user per month",
+      description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>" +
+        "The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
+    };
+    this.charts.push(finalData);
   }
 
   backToGroup() {
