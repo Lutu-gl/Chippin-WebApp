@@ -328,13 +328,15 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
 
     @Override
-    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId) {
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId) {
         //Get Recipe
         List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
 
         //Get Pantry
         List<PantryItem> pantry = new ArrayList<>();
-        if (pantryId != -1L) {
+        if (pantryId == null) {
+            pantry = null;
+        } else {
             pantry = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
         }
         //Get Shopping List
