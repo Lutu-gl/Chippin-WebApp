@@ -316,7 +316,7 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
-          <tr>
+          <tr [ngClass]="getRowColor(belowMinimum(item))">
             <td>
               <p-tableCheckbox [value]="item"/>
             </td>
@@ -348,7 +348,13 @@
               ></p-button>
             </td>
             <td>
-              {{ formatLowerLimit(item) }}
+              <button type="button">
+                <p-tag
+                  [severity]="getTagSeverity(belowMinimum(item))"
+                  (click)="getTagSeverity(belowMinimum(item))">
+                  {{ formatLowerLimit(item) }}
+                </p-tag>
+              </button>
             </td>
             <td>
               <p-button

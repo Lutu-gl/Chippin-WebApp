@@ -135,7 +135,7 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   decrement(index: number) {
-    this.recipe.ingredients[index].amount -= this.getRecipeStepSize(this.recipe.ingredients[index]);
+    this.recipe.ingredients[index].amount -= this.getStepSize(this.recipe.ingredients[index]);
     if(this.recipe.ingredients[index].amount < 0) {
       this.recipe.ingredients[index].amount = 0;
     }
@@ -143,7 +143,7 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   increment(index: number) {
-    this.recipe.ingredients[index].amount += this.getRecipeStepSize(this.recipe.ingredients[index]);
+    this.recipe.ingredients[index].amount += this.getStepSize(this.recipe.ingredients[index]);
     if(this.recipe.ingredients[index].amount > 1000000) {
       this.recipe.ingredients[index].amount = 1000000;
     }
@@ -157,51 +157,6 @@ export class RecipeCreateComponent implements OnInit {
     };
     this.submitted = false;
     this.newItemDialog = true;
-  }
-  getRecipeStepSize(item: ItemCreateDto): number {
-    switch (item.unit) {
-      case Unit.Piece:
-        return item.amount > 100 ? 10 : 1;
-      case Unit.Gram:
-        switch (true) {
-          case (item.amount < 100):
-            return 10;
-          case (item.amount < 1000):
-            return 100;
-          case (item.amount < 10000):
-            return 250;
-          default:
-            return 1000;
-        }
-      case Unit.Milliliter:
-        switch (true) {
-          case (item.amount < 100):
-            return 10;
-          case (item.amount < 1000):
-            return 100;
-          case (item.amount < 10000):
-            return 250;
-          default:
-            return 1000;
-        }
-      default:
-        console.error("Unknown Unit");
-        return 1;
-    }
-  }
-
-  getRecipeSuffix(item: ItemCreateDto): String {
-    switch (item.unit) {
-      case Unit.Piece:
-        return item.amount == 1 ? "Piece" : "Pieces";
-      case Unit.Gram:
-        return "g"
-      case Unit.Milliliter:
-        return "ml"
-      default:
-        console.error("Unknown Unit");
-        return "";
-    }
   }
 
   protected readonly Unit = Unit;

@@ -1,24 +1,28 @@
-<div class="flex flex-col items-center justify-center p-4">
+<div class="flex flex-col items-center justify-center p-4" *ngIf="charts.length > 0">
+
   <div class="w-full font-medium text-2xl pl-8 pt-4 ">
     {{ group.groupName }}
   </div>
 
-  <div  *ngIf="charts.length < 4" class="w-full min-h-96 flex justify-center items-center">
-   <p-progressSpinner [style]="{'width': '60px'}" ></p-progressSpinner>
+  <div *ngIf="charts.length < 3" class="w-full min-h-96 flex justify-center items-center">
+    <p-progressSpinner [style]="{'width': '60px'}"></p-progressSpinner>
   </div>
 
-    <p-carousel *ngIf="charts.length > 4" [value]="charts" [numVisible]="1" [numScroll]="1" [circular]="true" class="w-3/4">
-      <ng-template let-chart pTemplate="item">
-        <div class="flex flex-col items-center justify-center" *ngIf="charts.length > 0">
-          <div class="flex items-center justify-center" style="width: 1200px; height: auto;">
-            <p-chart [type]="chart.type" [data]="chart.data" [options]="chart.options" width="1200px"></p-chart>
-          </div>
-        </div>
-      </ng-template>
-    </p-carousel>
 
-  <div class="w-full pl-32">
-    <p-button label="Back to Group" (click)="backToGroup()"></p-button>
-  </div>
+  <p-carousel *ngIf="charts.length > 3" [value]="charts" [numVisible]="1" [numScroll]="1" [circular]="true"
+              class="w-3/4">
+    <ng-template let-chart pTemplate="item">
+      <div class="flex flex-col items-center" style="width: 100%; height: 700px;">
+        <p class="m-6 text-4xl font-bold" [innerHTML]="chart.title"></p>
+        <p-chart [type]="chart.type" [data]="chart.data" [options]="chart.options" width="1200px"
+                 height="500px"></p-chart>
+        <p class="mt-2" [innerHTML]="chart.description"></p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <div class="pl-12">
+        <p-button label="Back to Group" (click)="backToGroup()"></p-button>
+      </div>
+    </ng-template>
+  </p-carousel>
 </div>
-

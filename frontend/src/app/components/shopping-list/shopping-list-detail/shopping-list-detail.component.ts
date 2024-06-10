@@ -34,7 +34,7 @@ import {valuesIn} from "lodash";
 import {InputGroupModule} from "primeng/inputgroup";
 import {PaginatorModule} from "primeng/paginator";
 import {InputGroupAddonModule} from "primeng/inputgroupaddon";
-import {convertQuantity, displayQuantity} from "../../../util/unit-helper";
+import {convertQuantity, formatAmount} from "../../../util/unit-helper";
 import {ShoppingListEditModalComponent} from "../shopping-list-edit-modal/shopping-list-edit-modal.component";
 import {AutoCompleteCompleteEvent, AutoCompleteModule, AutoCompleteSelectEvent} from "primeng/autocomplete";
 import {PantryService} from "../../../services/pantry.service";
@@ -580,7 +580,6 @@ export class ShoppingListDetailComponent implements OnInit {
 
   }
 
-  protected readonly displayQuantity = displayQuantity;
   filteredMissingItems: ItemDetailDto[] = [];
   selectedMissingItem: ItemDetailDto;
 
@@ -664,4 +663,6 @@ export class ShoppingListDetailComponent implements OnInit {
     // Open add modal
     this.displayAddItemDialog = true;
   }
+
+  protected readonly formatAmount = formatAmount;
 }
