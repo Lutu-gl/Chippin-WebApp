@@ -228,11 +228,8 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @PutMapping("recipe/{recipeId}/pantry/{groupId}/{portion}")
-    public RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId,
-                                                                            @PathVariable @Max(value = 100) @Min(value = 1) int portion) {
+    public RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(@PathVariable long groupId, @PathVariable long recipeId, @PathVariable @Max(value = 100) @Min(value = 1) int portion) {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/pantry/{} : {} Portions", recipeId, groupId, portion);
-
-
         return pantryService.removeRecipeIngredientsFromPantry(groupId, recipeId, portion);
     }
 

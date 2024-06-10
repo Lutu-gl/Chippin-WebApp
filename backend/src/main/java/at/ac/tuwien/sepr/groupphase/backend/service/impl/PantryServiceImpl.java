@@ -199,11 +199,10 @@ public class PantryServiceImpl implements PantryService {
         for (PantryItem item : pantryItems) {
             if (recipe.stream().anyMatch(o -> item.getDescription().equals(o.getDescription())
                 && item.getUnit().equals(o.getUnit()))) {
-
+                
                 result.add(item);
             }
         }
-
 
         return RemoveIngredientsFromPantryDto.builder().recipeItems(recipe).pantryItems(result).build();
     }
