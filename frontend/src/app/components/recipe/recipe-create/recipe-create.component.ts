@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgForm, NgModel} from "@angular/forms";
+import {NgForm} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
 import {ItemCreateDto, Unit} from "../../../dtos/item";
@@ -21,7 +21,6 @@ import {getStepSize, getSuffix} from "../../../util/unit-helper";
 
 export class RecipeCreateComponent implements OnInit {
   error = false;
-  errorMessage = '';
   recipe: RecipeCreateWithoutUserDto = {
     name: '',
     ingredients: [],
@@ -31,7 +30,7 @@ export class RecipeCreateComponent implements OnInit {
 
   };
   newIngredient: ItemCreateDto = {
-    amount: 0,
+    amount: 1,
     unit: Unit.Piece,
     description: ""
   };
@@ -41,6 +40,7 @@ export class RecipeCreateComponent implements OnInit {
   itemDialog: boolean = false;
   tooShort=false;
   tooLong=false;
+  tooSmall=false;
 
   selectedItems!: ItemCreateDto[] | null;
 
@@ -80,8 +80,14 @@ export class RecipeCreateComponent implements OnInit {
   }
 
   onIngredientSubmit() {
+    if(this.newIngredient.amount<1) {
+      this.tooSmall=true;
+      return;
+    }
+
       if(this.newIngredient.description.length>1) {
         this.tooShort=false;
+        this.tooSmall=false;
       this.recipe.ingredients.push(this.newIngredient);
       this.newIngredient= {
         amount: 0,
@@ -96,6 +102,8 @@ export class RecipeCreateComponent implements OnInit {
 
 
   hideDialog() {
+    this.tooSmall=false;
+    this.tooShort=false;
     this.itemDialog = false;
     this.newItemDialog = false;
     this.submitted = false;
@@ -152,7 +160,7 @@ export class RecipeCreateComponent implements OnInit {
   openNew() {
     this.newIngredient = {
       description: "",
-      amount: 0,
+      amount: 1,
       unit: Unit.Piece,
     };
     this.submitted = false;

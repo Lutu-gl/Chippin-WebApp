@@ -4,26 +4,19 @@ import {RecipeDetailWithUserInfoDto} from "../../../dtos/recipe";
 import {RecipeService} from "../../../services/recipe.service";
 import {DisplayedUnit, ItemCreateDto, ItemDetailDto, PantryItemDetailDto, Unit} from "../../../dtos/item";
 import {clone} from "lodash";
-import {ToastrService} from "ngx-toastr";
 import {GroupDto} from "../../../dtos/group";
-import {debounceTime, Observable, of} from "rxjs";
+import {debounceTime} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListListDto} from "../../../dtos/shoppingList";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {MessageService} from "primeng/api";
 import {
   formatAmount,
-  formatLowerLimit,
-  getAmountForCreateEdit,
-  getStepSize,
-  getSuffix,
   getSuffixForCreateEdit
 } from "../../../util/unit-helper";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {AuthService} from "../../../services/auth.service";
 import {AddItemToShoppingListDto, RemoveRecipeIngredientsFromPantryDto} from "../../../dtos/RecipePantryShoppingList";
-import * as _ from "lodash";
 import {saveAs} from "file-saver";
-import {PantryDetailDto} from "../../../dtos/pantry";
 import {PantryService} from "../../../services/pantry.service";
 
 export enum RecipeDetailMode {

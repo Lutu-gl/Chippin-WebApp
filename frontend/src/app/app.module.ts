@@ -92,7 +92,7 @@ import {
 import {VisualizationComponent} from "./components/visualization/visualization.component";
 import {CarouselModule} from "primeng/carousel";
 import {FileUploadModule} from "primeng/fileupload";
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 
 @NgModule({

@@ -14,10 +14,8 @@ import {MessageService} from "primeng/api";
 export class RecipeComponent implements OnInit {
   recipes: RecipeListDto[] = [];
   error = false;
-  errorMessage = '';
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
-  isRecipeInfoDialogVisible: boolean = false;
   hasRecipes = false;
 
   constructor(
