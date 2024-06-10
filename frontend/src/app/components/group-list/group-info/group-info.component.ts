@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Globals } from '../../../global/globals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {ConfirmationService, MenuItem} from 'primeng/api';
 import { GroupService } from 'src/app/services/group.service';
@@ -19,6 +20,8 @@ import { BudgetCreateEditMode } from '../../budget/budget-create/budget-create.c
 import {PaymentCreateEditMode} from "../../payment-create/payment-create.component";
 import {ExpenseDetailDto} from "../../../dtos/expense";
 import {ExpenseService} from "../../../services/expense.service";
+import { EmailSuggestionsAndContent, ImportDto } from 'src/app/dtos/importExport';
+import { ImportExportService } from 'src/app/services/import-export.service';
 
 @Component({
   selector: 'app-group-info',
@@ -65,6 +68,14 @@ export class GroupInfoComponent implements OnInit {
   budgetDialogMode: BudgetCreateEditMode;
   budgetDialogBudgetId: number;
 
+  isImportDialogVisible: boolean = false;
+  importUrl: string = this.globals.backendUri + '/import/splitwise/email-suggestions';
+  uploadedFile: any;
+  emailSuggestions: object;
+  importContent: string[];
+  importRequestLoading: boolean = false;
+
+
   constructor(
     private groupService: GroupService,
     private debtService: DebtService,
@@ -76,6 +87,8 @@ export class GroupInfoComponent implements OnInit {
     protected authService: AuthService,
     private paymentService: PaymentService,
     private expenseService: ExpenseService,
+    private importExportService: ImportExportService,
+    private globals: Globals
   ){
   }
 
@@ -87,7 +100,68 @@ export class GroupInfoComponent implements OnInit {
   closeCreateBudgetDialog(): void {
     console.log("closeCreateBudgetDialog")
     this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
     this.ngOnInit();
+  }
+
+  closeImportDialog(): void {
+    this.isImportDialogVisible = false;
+    this.uploadedFile = null;
+    this.emailSuggestions = null;
+    this.importContent = null;
+    this.importRequestLoading = false;
+  }
+
+  importSuccessful(event): void {
+    const response: EmailSuggestionsAndContent = event.originalEvent.body;
+    this.importContent = response.content;
+    this.emailSuggestions = Object.entries(response.emailSuggestions).map(([name, email]) => ({name, email, filteredSuggestions: this.group.members.slice()}));
+  }
+
+  importError(event): void {
+    if (event.error && event.error && event.error.error.errors) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${event.error.error.message}: ${event.error.error.errors.join('; ')}`});
+    } else {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Import did not work!`});
+    }
+  }
+
+  filterImportEmail(event, entry): void {
+    entry.filteredSuggestions = this.group.members.filter(member => member.includes(event.query));
+  }
+
+  importData(): void {
+    this.importRequestLoading = true;
+
+    const keys = Object.keys(this.emailSuggestions);
+    for (let key of keys) {
+      const obj = this.emailSuggestions[key];
+      this.importContent[0] = this.importContent[0].replace(`;${obj.name}`, `;${obj.email}`);
+    }
+    const importDto: ImportDto = {groupId: this.group.id, content: this.importContent.join('\n')};
+
+    this.importExportService.importData(importDto).subscribe({
+      next: () => {
+        this.messageService.add({severity: 'success', summary: 'Success', detail: 'Import successful!'});
+        this.closeImportDialog();
+        this.ngOnInit();
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors.join('; ')}`});
+        } else {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Import did not work!`});
+        }
+      }
+    });
+  }
+
+  budgetModalClose() {
+    console.log('Modal closed');
+    // Perform any additional actions you need here
+    this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+    console.log(this.budgetDialogMode)
   }
 
   openCreateExpenseDialog(): void {
@@ -142,16 +216,36 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
-    console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
-        console.log(this.budgetDialogMode)
     this.budgetDialogBudgetId = budgetId;
-    console.log(budgetId)
     this.isBudgetDialogVisible = true;
   }
 
   public budgetModeIsCreate(): boolean {
     return this.budgetDialogMode === BudgetCreateEditMode.create;
+  }
+
+
+  getBudgetPercentage(budget: any): number {
+    if(budget.alreadySpent === 0){
+      return 0;
+    }
+    let ret = Math.round((budget.alreadySpent / budget.amount) * 100);
+    if(ret > 100){
+      return 100;
+    }
+    return ret;
+  }
+  
+  getProgressBarColor(budget: any): string {
+    let percentage = (this.getBudgetPercentage(budget));
+    if (percentage < 50) {
+      return 'green-progress';
+    } else if (percentage < 75) {
+      return 'yellow-progress';
+    } else {
+      return 'red-progress';
+    }
   }
 
   ngOnInit(): void {
@@ -165,8 +259,7 @@ export class GroupInfoComponent implements OnInit {
         label: 'Import Data',
         icon: 'pi pi-file-import',
         command: () => {
-          this.authService.logoutUser()
-          this.router.navigate(['/login'])
+          this.isImportDialogVisible = true;
         }
       },
       {

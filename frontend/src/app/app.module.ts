@@ -63,6 +63,7 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
 import {SplitButtonModule} from "primeng/splitbutton";
 import {MenuModule} from "primeng/menu";
 import {ChipsModule} from "primeng/chips";
+import { ProgressBarModule } from 'primeng/progressbar';
 import {FloatLabelModule} from "primeng/floatlabel";
 import {PasswordModule} from "primeng/password";
 import {DividerModule} from "primeng/divider";
@@ -91,6 +92,7 @@ import {
 import {VisualizationComponent} from "./components/visualization/visualization.component";
 import {CarouselModule} from "primeng/carousel";
 import {FileUploadModule} from "primeng/fileupload";
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 
 @NgModule({
@@ -139,13 +141,14 @@ import {FileUploadModule} from "primeng/fileupload";
         MenuCardComponent,
         InputTextModule,
         InputNumberModule,
+        ProgressBarModule,
         GroupInfoCardContentComponent,
         FriendsInfoCardContentComponent,
         ExpenseInfoCardContentComponent,
         ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
         DropdownModule,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule
     ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
