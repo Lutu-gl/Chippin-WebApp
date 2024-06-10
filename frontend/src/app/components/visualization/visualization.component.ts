@@ -7,6 +7,13 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
+import {ChartData, ChartOptions} from "chart.js";
+import {
+  getRandomColor,
+  getRandomColorForEmail,
+  groupExpensesByUserEmail,
+  sumExpensesPerUserPerMonth
+} from "./chartHelper";
 
 @Component({
   selector: 'app-visualization',
@@ -104,6 +111,7 @@ export class VisualizationComponent implements OnInit {
 
   ];
 
+
   ngOnInit(): void {
     this.documentStyle = getComputedStyle(document.documentElement);
     this.route.params.subscribe({
@@ -158,6 +166,7 @@ export class VisualizationComponent implements OnInit {
         this.formatDataForSpendEuroInCategory();
         this.formatDataExpensesMadePerPerson()
         this.formatDataExpensesMadePerPersonCash()
+        this.formatDataForExpensesPerUserPerMonth()
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -443,6 +452,87 @@ export class VisualizationComponent implements OnInit {
 
     let finalData: {data: any, options: any, type: any} = {data: graphData, options: graphOptions, type: type};
     this.charts.push(finalData);
+  }
+
+  // Add chart for amount of expenses paid per user
+  // This will be a stacked bar chart with the x-axis being the months and the y-axis being the amount of expenses paid
+  // Each user will have a different color in the bar chart
+  // The data will be stacked on top of each other
+  formatDataForExpensesPerUserPerMonth() {
+    let graphData: ChartData<"bar">;
+    let graphOptions: ChartOptions<"bar">;
+
+    let expensesByUser = groupExpensesByUserEmail(this.expenses);
+
+    let expensesPerUserPerMonth = sumExpensesPerUserPerMonth(expensesByUser);
+    console.log(expensesPerUserPerMonth);
+
+    // Create the data for the graph
+    let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let datasets = [];
+    let colors = ['#0f518a', '#4bc0c0', '#36a2eb', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40'];
+
+    for (let userEmail in expensesPerUserPerMonth) {
+      let data = [];
+      for (let i = 0; i < 12; i++) {
+        data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+      }
+      datasets.push({
+        label: userEmail,
+        data: data,
+        backgroundColor: getRandomColorForEmail(userEmail)
+      })
+    }
+
+
+
+    // Mock data
+    // const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+    // const datasets = [
+    //   {
+    //     label: 'User 1',
+    //     data: [65, 59, 80, 81, 56, 55, 40],
+    //     backgroundColor: '#0f518a'
+    //   },
+    //   {
+    //     label: 'User 2',
+    //     data: [28, 48, 40, 19, 86, 27, 90],
+    //     backgroundColor: '#4bc0c0'
+    //   }
+    // ];
+
+    graphData = {labels, datasets};
+    graphOptions = {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          mode: "index",
+          intersect: false
+        },
+        legend: {
+          labels: {
+            color: this.textColor
+          }
+        },
+        title: {
+          display: true,
+          text: 'Expenses per User per Month',
+          color: this.textColor
+        }
+      },
+      scales: {
+        y: {
+          stacked: true,
+          beginAtZero: true,
+        },
+        x: {
+          stacked: true
+        }
+      }
+    };
+
+    let finalData: {data: ChartData<"bar">, options: ChartOptions<"bar">, type: "bar"} = {data: graphData, options: graphOptions, type: "bar"};
+    this.charts.unshift(finalData);
   }
 
   backToGroup() {
