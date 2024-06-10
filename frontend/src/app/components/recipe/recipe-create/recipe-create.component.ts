@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgForm, NgModel} from "@angular/forms";
+import {NgForm} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto} from "../../../dtos/recipe";
 import {ItemCreateDto, Unit} from "../../../dtos/item";
@@ -21,7 +21,6 @@ import {getStepSize, getSuffix} from "../../../util/unit-helper";
 
 export class RecipeCreateComponent implements OnInit {
   error = false;
-  errorMessage = '';
   recipe: RecipeCreateWithoutUserDto = {
     name: '',
     ingredients: [],
@@ -31,7 +30,7 @@ export class RecipeCreateComponent implements OnInit {
 
   };
   newIngredient: ItemCreateDto = {
-    amount: 0,
+    amount: 1,
     unit: Unit.Piece,
     description: ""
   };
