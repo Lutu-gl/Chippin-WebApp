@@ -33,7 +33,7 @@ export class RecipeEditComponent implements OnInit {
     dislikes:0,
   };
   newIngredient: ItemCreateDto = {
-    amount: 0,
+    amount: 1,
     unit: Unit.Piece,
     description: ""
   };
@@ -41,6 +41,7 @@ export class RecipeEditComponent implements OnInit {
   recipeId:number;
   isPublic:boolean = false;
 tooShort=false;
+tooSmall=false;
 
 
   submitted: boolean = false;
@@ -109,8 +110,14 @@ tooShort=false;
   }
 
   onIngredientSubmit() {
+    if(this.newIngredient.amount<1) {
+      this.tooSmall=true;
+      return;
+    }
+
     if(this.newIngredient.description.length>1) {
       this.tooShort=false;
+      this.tooSmall=false;
       this.service.createItem(this.recipeId, this.newIngredient)
         .subscribe({
           next: data => {
@@ -121,7 +128,7 @@ tooShort=false;
           }
         });
       this.newIngredient = {
-        amount: 0,
+        amount: 1,
         unit: Unit.Piece,
         description: ""
       }
@@ -172,7 +179,7 @@ tooShort=false;
   openNew() {
     this.newIngredient = {
       description: "",
-      amount: 0,
+      amount: 1,
       unit: Unit.Piece,
     };
     this.submitted = false;
@@ -231,6 +238,7 @@ tooShort=false;
   }
 
   hideDialog() {
+    this.tooSmall=false;
     this.tooShort=false;
     this.itemDialog = false;
     this.newItemDialog = false;
@@ -238,6 +246,7 @@ tooShort=false;
   }
 
   hideEditDialog() {
+    this.tooSmall=false;
     this.tooShort=false;
     this.changeItem=false;
     this.submitted = false;
@@ -249,7 +258,13 @@ tooShort=false;
   }
 
   onIngredientChange() {
+    if(this.itemToEdit.amount<1) {
+      this.tooSmall=true;
+      return;
+    }
+
     if(this.itemToEdit.description.length>1) {
+      this.tooSmall=false;
     const index = this.recipe.ingredients.findIndex(o => o.id === this.itemToEdit.id);
 
     if(index!== -1 ) {
@@ -268,6 +283,7 @@ tooShort=false;
 
 
         this.itemToEdit = null;
+
         this.hideEditDialog();
 
       },
