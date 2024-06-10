@@ -151,7 +151,7 @@ export class RecipeCreateComponent implements OnInit {
   openNew() {
     this.newIngredient = {
       description: "",
-      amount: 0,
+      amount: 1,
       unit: Unit.Piece,
     };
     this.submitted = false;
