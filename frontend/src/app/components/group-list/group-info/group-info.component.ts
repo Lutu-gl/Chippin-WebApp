@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Globals } from '../../../global/globals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {ConfirmationService, MenuItem} from 'primeng/api';
@@ -9,7 +9,7 @@ import { GroupDto } from 'src/app/dtos/group';
 import { ActivityService } from 'src/app/services/activity.service';
 import { DebtGroupDetailDto } from 'src/app/dtos/debt';
 import { ActivityDetailDto } from 'src/app/dtos/activity';
-import { ExpenseCreateEditMode } from '../../expense/expense-create/expense-create.component';
+import { ExpenseCreateComponent, ExpenseCreateEditMode } from '../../expense/expense-create/expense-create.component';
 import {AutoCompleteCompleteEvent, AutoCompleteSelectEvent} from "primeng/autocomplete";
 import {PaymentDto} from "../../../dtos/payment";
 import { BudgetDto } from '../../../dtos/budget';
@@ -48,7 +48,7 @@ export class GroupInfoComponent implements OnInit {
 
   menuitemsButtonMore: MenuItem[] | undefined;
 
-
+  @ViewChild(ExpenseCreateComponent) expenseCreateComponent!: ExpenseCreateComponent;
   isExpenseDialogVisible: boolean = false;
   expenseDialogMode: ExpenseCreateEditMode;
   expenseDialogExpenseId: number;
@@ -165,8 +165,10 @@ export class GroupInfoComponent implements OnInit {
   }
 
   openCreateExpenseDialog(): void {
-    this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.isExpenseDialogVisible = true;
+    this.expenseDialogMode = ExpenseCreateEditMode.create;
+    this.expenseCreateComponent.resetMode();
+    this.expenseCreateComponent.ngOnChanges(null);
   }
 
   closeCreateExpenseDialog(): void {
@@ -175,10 +177,15 @@ export class GroupInfoComponent implements OnInit {
   }
 
   openInfoExpenseDialog(expenseId: number): void {
-    this.expenseDialogMode = ExpenseCreateEditMode.info;
-    console.log(this.expenseDialogMode);
     this.expenseDialogExpenseId = expenseId;
     this.isExpenseDialogVisible = true;
+    this.expenseDialogMode = ExpenseCreateEditMode.info;
+    this.expenseCreateComponent.resetMode();
+    this.expenseCreateComponent.ngOnChanges(null);
+  }
+
+  expenseModalHided(): void {
+    //this.expenseCreateComponent.resetAllStates();
   }
 
   openInfoPaymentDialog(paymentId: number): void {
@@ -488,7 +495,7 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
+    //console.log(transactions)
     return transactions;
   }
 

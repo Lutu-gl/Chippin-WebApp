@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -53,6 +53,11 @@ export class ExpenseCreateComponent implements OnChanges {
   ) {
   }
 
+  resetMode(): void {
+    if (this.mode === ExpenseCreateEditMode.edit) {
+      this.mode = ExpenseCreateEditMode.info;
+    }
+  }
 
   filterCategory(event: AutoCompleteCompleteEvent) {
     let query = event.query;
@@ -114,8 +119,7 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
 
-  ngOnChanges(): void {
-    console.log("I get called");
+  ngOnChanges(changes: SimpleChanges): void {
     if (this.mode === ExpenseCreateEditMode.create) {
       this.prepareGroupOnCreate();
     } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
@@ -155,8 +159,6 @@ export class ExpenseCreateComponent implements OnChanges {
 
     this.expenseService.getExpenseById(this.expenseId).subscribe({
       next: data => {
-        console.log(data)
-
         this.group = data.group;
         this.expenseName = data.name;
         this.expenseAmount = data.amount;
@@ -185,7 +187,6 @@ export class ExpenseCreateComponent implements OnChanges {
     const id = this.groupId;
     this.groupService.getGroupBudgets(id)
       .subscribe(budgets => {
-        // console.log(budgets)
         this.budgets =  budgets;
       }, error => {
         console.error('Failed to load budgets', error);
