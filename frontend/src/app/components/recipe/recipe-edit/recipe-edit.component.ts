@@ -33,7 +33,7 @@ export class RecipeEditComponent implements OnInit {
     dislikes:0,
   };
   newIngredient: ItemCreateDto = {
-    amount: 0,
+    amount: 1,
     unit: Unit.Piece,
     description: ""
   };
