@@ -336,6 +336,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         List<PantryItem> pantry = new ArrayList<>();
         if (pantryId == null) {
             pantry = null;
+        } else {
+            pantry = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
         }
         //Get Shopping List
         Optional<ShoppingList> optional = shoppingListRepository.findById(shoppingListId);
