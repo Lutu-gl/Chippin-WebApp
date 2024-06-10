@@ -13,11 +13,12 @@ import lombok.Setter;
 @Setter
 @Builder
 public class BudgetCreateDto {
-    @NotNull
-    @NotBlank
-    @Size(min = 2, max = 60)
+    @NotNull(message = "Budget name must be given")
+    @NotBlank(message = "Budget name must not be empty")
+    @Size(min = 2, max = 60, message = "Budget name must be between 2 and 60 characters")
     private String name;
-    @PositiveOrZero
+    @NotNull(message = "Amount must be given")
+    @PositiveOrZero(message = "Amount must be positive or zero")
     private double amount;
 
     private Category category = Category.Other;

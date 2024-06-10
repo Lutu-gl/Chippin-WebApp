@@ -10,7 +10,7 @@ import {
   pantryItemDetailDtoToPantryItemCreateDisplayDto,
   PantryItemMergeDto,
 } from "../../dtos/item";
-import {KeyValuePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
+import {KeyValuePipe, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
@@ -66,7 +66,8 @@ import {max} from "@popperjs/core/lib/utils/math";
     RadioButtonModule,
     InputNumberModule,
     ConfirmDialogModule,
-    TabMenuModule
+    TabMenuModule,
+    NgClass
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
@@ -438,10 +439,6 @@ export class PantryComponent implements OnInit {
     })
   }
 
-  compare(a: RecipeByItemsDto, b: RecipeByItemsDto): number {
-    return ;
-  }
-
   deleteItem(item: PantryItemDetailDto) {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected items?',
@@ -486,6 +483,27 @@ export class PantryComponent implements OnInit {
 
       }
     });
+  }
+
+  belowMinimum(item: PantryItemDetailDto): boolean | null {
+    if(item.lowerLimit === null) {
+      return null;
+    }
+    return item.amount < item.lowerLimit;
+  }
+
+  getRowColor(belowMin: boolean | null): string {
+    if(belowMin === null) {
+      return '';
+    }
+    return belowMin ? 'bg-red-50' : '';
+  }
+
+  getTagSeverity(belowMin: boolean | null): "success" | "secondary" | "danger" {
+    if(belowMin === null) {
+      return "secondary";
+    }
+    return belowMin ? "danger" : "success";
   }
 
   mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
