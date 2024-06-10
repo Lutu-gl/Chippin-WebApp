@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.EmailSuggestionsAndContentDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.ImportDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.EmailSuggestionsAndContentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.ImportDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport;
 
 import lombok.Builder;
 import lombok.Getter;

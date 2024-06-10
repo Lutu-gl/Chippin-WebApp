@@ -1,8 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.EmailSuggestionsAndContentDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.ImportDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.EmailSuggestionsAndContentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.ImportDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.web.multipart.MultipartFile;
 

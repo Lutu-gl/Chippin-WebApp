@@ -1,12 +1,23 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.EmailSuggestionsAndContentDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.ImportDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.*;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.EmailSuggestionsAndContentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.ImportDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.*;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ImportExportValidator;
 import com.itextpdf.io.exceptions.IOException;
@@ -38,9 +49,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -171,37 +186,6 @@ public class ImportExportServiceImpl implements ImportExportService {
         }
         return participants;
     }
-
-//    @Transactional
-//    public GroupDetailDto importSplitwise(MultipartFile file) throws IOException {
-//
-//
-//        if (file.isEmpty()) {
-//            throw new IOException("Could not find file");
-//        }
-//
-//        try (InputStream inputStream = file.getInputStream();
-//             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-//            //firstLine[0]...Date
-//            //firstLine[1]...Description
-//            //firstLine[2]...Category
-//            //firstLine[3]...Cost
-//            //firstLine[4]...Currency
-//            //firstLine[5] - firstLine[max] are the Usernames and need to be transformed
-//            String[] firstLine = reader.readLine().split(",");
-//            String line;
-//            String[] linearray;
-//            while ((line = reader.readLine()) != null) {
-//                linearray = line.split(",");
-//                //TODO Create expense here, dont forget to use currency converter
-//
-//            }
-//        } catch (java.io.IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        return null;
-//    }
 
     @Override
     public byte[] exportRecipe(long recipeId) {
