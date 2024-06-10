@@ -74,7 +74,7 @@
         <div class="flex flex-col gap-1 w-1/3">
           <h3 class="font-medium truncate">{{ item.item.description }}</h3>
           <p
-            class="text-sm">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
+            class="text-sm">{{ formatAmount(item.item) }}</p>
         </div>
         <div class="flex gap-8 justify-between items-center">
           <p-button label="Move to cart" size="small" icon="pi pi-shopping-cart" severity="info" [text]="true"
@@ -110,7 +110,7 @@
              class="flex bg-gray-200 hover:outline outline-1 outline-slate-300 justify-between rounded-md cursor-move w-full px-2 py-1  shadow-md items-center">
           <div class="flex gap-2 w-2/3">
             <p
-              class="text-sm w-1/4">{{ displayQuantity(item.item.unit, item.item.amount)[1] }} {{ displayQuantity(item.item.unit, item.item.amount)[0] }}</p>
+              class="text-sm w-1/4">{{ formatAmount(item.item) }}</p>
             <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
                 tooltipPosition="left">{{ item.item.description }}</h3>
           </div>
