@@ -1,3 +1,61 @@
+<!-- Modal for importing data  -->
+<p-dialog
+  [(visible)]="isImportDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Import data for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
+  </p-header>
+
+  <div *ngIf="!emailSuggestions && !importRequestLoading">
+    <p-fileUpload
+      name="file" 
+      [url]="importUrl" 
+      (onUpload)="importSuccessful($event)"
+      (onError)="importError($event)"
+      accept="text/csv" 
+      maxFileSize="1000000"
+      chooseLabel="Select CSV file"
+      uploadLabel="Import"
+      showCancelButton="false"
+    >
+        <ng-template pTemplate="content">
+          <span *ngIf="uploadedFile">{{ uploadedFile.name }} - {{ uploadedFile.size }} bytes</span>
+        </ng-template>
+    </p-fileUpload>
+  </div>
+
+  <div *ngIf="emailSuggestions && !importRequestLoading" class="p-4 bg-gray-100 rounded-md shadow-md">
+    <span class="block text-gray-700 mb-4">Please make sure that all Names from the csv file are matched with the correct user</span>
+    <div *ngFor="let entry of emailSuggestions" class="mb-6">
+      <label class="block text-gray-600 mb-1">{{ entry.name }}</label>
+      <p-autoComplete 
+        [(ngModel)]="entry.email" 
+        [dropdown]="true" 
+        [suggestions]="entry.filteredSuggestions" 
+        (completeMethod)="filterImportEmail($event, entry)"
+      />
+    </div>
+    <p-button label="Import" (click)="importData()" />
+  </div>
+
+  <div *ngIf="importRequestLoading" class="p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center space-y-4">
+    <span class="text-gray-800 font-semibold">Importing data...</span>
+    <p-progressSpinner ariaLabel="loading" />
+  </div>
+
+  <p-footer>
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" severity="secondary" (click)="closeImportDialog()" />
+    </div>
+  </p-footer>
+</p-dialog>
+
 <!-- Modal for creating new expense -->
 <p-dialog
   [(visible)]="isExpenseDialogVisible"
@@ -55,6 +113,7 @@
   [style]="{ width: '50vw' }"
   [draggable]="false"
   [resizable]="false"
+  (onHide)="budgetModalClose()"
 >
 <p-header>
   <div
@@ -435,26 +494,37 @@
   <app-shopping-lists-in-group *ngIf="isShoppingListsSelected()" [groupId]="group.id"></app-shopping-lists-in-group>
 
 
+  <!-- <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+  <p-progressBar [value]="50" />
+  </div>   -->
+
+  
+
     <!-- Budget tab -->
-  <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
-    <div class="flex justify-center mb-4">
-      <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
-        <span class="text-xl mr-2">+</span> Add Budget
-      </button>
-    </div>
-    <div class="h-96 overflow-y-auto overflow-x-hidden">
-      <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
-        <a class="no-underline text-black">
-          <div class="p-2 m-2 rounded-md outline outline-1 outline-slate-300
-          flex justify-between items-center
-          hover:bg-slate-100 hover:cursor-pointer">
-            <div>{{ budget.name }} [{{budget.category}}]: {{budget.alreadySpent}} / {{ budget.amount }}€</div>
-          </div>
-        </a>
+    <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+      <div class="flex justify-center mb-4">
+        <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+          <span class="text-xl mr-2">+</span> Add Budget
+        </button>
+      </div>
+      <div class="h-96 overflow-y-auto overflow-x-hidden">
+        <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
+          <a class="text-black rounded-md outline outline-1 outline-slate-300">
+            <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
+              <p-progressBar 
+                [value]="getBudgetPercentage(budget)"
+                [ngClass]="getProgressBarColor(budget)"
+                >
+                <ng-template pTemplate="content" let-value> 
+                <span>{{value}}%</span>    
+                </ng-template>
+              </p-progressBar>
+                <div>{{budget.category}}</div>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-
 
   <app-pantry *ngIf="isPantrySelected()"></app-pantry>
 

@@ -261,7 +261,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .orElseThrow(
                 () -> new NotFoundException(String.format("Item with id %d not found in shopping list with id %d", itemId, shoppingListId))
             );
-        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), group.getPantry());
+        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), null);
         log.debug("Adding item to pantry: {}", pantryItem);
         pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         shoppingList.getItems().remove(shoppingListItem);
@@ -284,7 +284,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
         // Add checked items to pantry
         checkedItems.forEach(item -> {
-            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), group.getPantry());
+            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), null);
             log.debug("Adding item to pantry: {}", pantryItem);
             pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         });
@@ -328,13 +328,15 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
 
     @Override
-    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId) {
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId) {
         //Get Recipe
         List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
 
         //Get Pantry
         List<PantryItem> pantry = new ArrayList<>();
-        if (pantryId != -1L) {
+        if (pantryId == null) {
+            pantry = null;
+        } else {
             pantry = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
         }
         //Get Shopping List

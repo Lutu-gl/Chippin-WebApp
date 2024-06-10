@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/group")
@@ -238,23 +239,17 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId)")
     @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}")
-
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(@PathVariable long recipeId, @PathVariable long shoppingListId) {
         LOGGER.trace("GET recipe/{}/shoppinglist/{}", recipeId, shoppingListId);
-
-        return shoppingListService.selectIngredientsForShoppingList(recipeId, shoppingListId, -1L);
-
+        return shoppingListService.selectIngredientsForShoppingList(recipeId, shoppingListId, null);
     }
 
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.canAccessShoppingList(#shoppingListId) && @securityService.isGroupMember(#pantryId)")
     @GetMapping("recipe/{recipeId}/shoppinglist/{shoppingListId}/pantry/{pantryId}")
-
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingListWithPantry(@PathVariable long recipeId, @PathVariable long shoppingListId, @PathVariable long pantryId) {
         LOGGER.trace("GET recipe/{}/shoppinglist/{}/pantry/{}", recipeId, shoppingListId, pantryId);
-
         return shoppingListService.selectIngredientsForShoppingList(recipeId, shoppingListId, pantryId);
-
     }
 
 }

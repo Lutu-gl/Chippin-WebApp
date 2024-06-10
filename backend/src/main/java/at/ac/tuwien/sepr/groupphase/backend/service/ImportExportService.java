@@ -1,21 +1,29 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.EmailSuggestionsAndContentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.ImportDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 
 public interface ImportExportService {
 
     /**
-     * This function takes in a .csv file with the export standard of splitwise and creates a group with the given information.
+     * This function takes a .csv file and returns a map of email suggestions for the import of splitwise.
+     * As well as the content of the file.
      *
-     * @param file the file to import
-     * @return a GroupDetailDto of the created file
+     * @return a EmailSuggestionsAndContent dto object
      */
-    GroupDetailDto importSplitwise(MultipartFile file) throws IOException;
+    EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException;
+
+    /**
+     * This function takes the content of a .csv file and imports it into the database.
+     *
+     * @param importDto the content of the file and the group id
+     * @param username  the email of the user who requests the import
+     */
+    void importSplitwise(ImportDto importDto, String username) throws ValidationException;
 
     /**
      * Export a recipe with the given id as a pdf file.

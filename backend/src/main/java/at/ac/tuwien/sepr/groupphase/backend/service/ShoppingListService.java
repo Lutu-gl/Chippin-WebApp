@@ -121,7 +121,7 @@ public interface ShoppingListService {
      * @param pantryId       the pantry the user wants to be considered
      * @return a list of items with
      */
-    AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, long pantryId);
+    AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId);
 
     /**
      * Delete all checked items from a shopping list.

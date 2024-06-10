@@ -85,7 +85,7 @@ export class RecipeDetailComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipe = data;
-          this.portion= this.recipe.portionSize;
+          this.portion = this.recipe.portionSize;
         },
         error: error => {
           this.printError(error);
@@ -113,20 +113,30 @@ export class RecipeDetailComponent implements OnInit {
 
   onSelectShoppingList() {
     console.log(this.shoppingList)
-    if (!this.shoppingList || this.shoppingList.groupId === null) {
-      console.log("null");
-      return;
+
+    if (!this.shoppingList.groupId) {
+      this.service.selectIngredientsForShoppingList(this.recipeId, this.shoppingList.id).subscribe({
+        next: dto => {
+          this.addItemToShoppingListDto = dto;
+          this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+          this.shoppingList = {...this.shoppingList};
+          console.log(dto);
+        }, error: error => {
+          this.printError(error);
+        }
+      })
+    } else {
+      this.service.selectIngredientsForShoppingListWithPantry(this.recipeId, this.shoppingList.id, this.shoppingList.groupId).subscribe({
+        next: dto => {
+          this.addItemToShoppingListDto = dto;
+          this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+          this.shoppingList = {...this.shoppingList};
+          console.log(dto);
+        }, error: error => {
+          this.printError(error);
+        }
+      })
     }
-    this.service.selectIngredientsForShoppingListWithPantry(this.recipeId, this.shoppingList.id, this.shoppingList.groupId).subscribe({
-      next: dto => {
-        this.addItemToShoppingListDto = dto;
-        this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
-        this.shoppingList = {...this.shoppingList};
-        console.log(dto);
-      }, error: error => {
-        this.printError(error);
-      }
-    })
   }
 
   onSelectPantry() {
@@ -139,9 +149,9 @@ export class RecipeDetailComponent implements OnInit {
       next: dto => {
         this.removeIngredientsDto = dto;
         this.removeIngredientsDtoReset = JSON.parse(JSON.stringify(this.removeIngredientsDto));
-        this.selectedPantryIngredients=this.removeIngredientsDtoReset.recipeItems;
+        this.selectedPantryIngredients = this.removeIngredientsDtoReset.recipeItems;
         this.group = {...this.group};
-        console.log("SELECTED ITEMS " +this.selectedPantryIngredients);
+        console.log("SELECTED ITEMS " + this.selectedPantryIngredients);
         console.log(dto);
       }, error: error => {
         this.printError(error);
@@ -191,21 +201,27 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   getColor(item: ItemDetailDto) {
-    let pantryMatching = this.findMatchingPantryItems(item);
-    let shoppingListMatching = this.findMatchingShoppingListItem(item);
+    if (!this.addItemToShoppingListDto.pantryItems) {
 
-    if (pantryMatching.amount + shoppingListMatching.amount < item.amount) {
-      return 'bg-red-50';
-    } else if (pantryMatching.amount >= item.amount) {
-      return 'bg-green-50'
-    } else if (pantryMatching.amount + shoppingListMatching.amount >= item.amount) {
-      return 'bg-orange-50'
+      return '';
+    } else {
+      let pantryMatching = this.findMatchingPantryItems(item);
+      let shoppingListMatching = this.findMatchingShoppingListItem(item);
+
+      if (pantryMatching.amount + shoppingListMatching.amount < item.amount) {
+        return 'bg-red-50';
+      } else if (pantryMatching.amount >= item.amount) {
+        return 'bg-green-50'
+      } else if (pantryMatching.amount + shoppingListMatching.amount >= item.amount) {
+        return 'bg-orange-50'
+      }
     }
   }
+
   getPantryColor(item: ItemDetailDto) {
     let pantryMatching = this.findMatchingPantryItemsForRemove(item);
 
-    if ( pantryMatching.amount - item.amount < 0) {
+    if (pantryMatching.amount - item.amount < 0) {
       return 'bg-red-50';
     } else {
       return '';
@@ -214,13 +230,13 @@ export class RecipeDetailComponent implements OnInit {
 
 
   reset() {
-    if(this.addItemToShoppingListDtoReset) {
+    if (this.addItemToShoppingListDtoReset) {
       this.addItemToShoppingListDto = JSON.parse(JSON.stringify(this.addItemToShoppingListDtoReset));
 
     }
-    if(this.removeIngredientsDtoReset) {
+    if (this.removeIngredientsDtoReset) {
       this.removeIngredientsDto = JSON.parse(JSON.stringify(this.removeIngredientsDtoReset));
-      this.portion=this.recipe.portionSize;
+      this.portion = this.recipe.portionSize;
     }
   }
 
@@ -234,14 +250,16 @@ export class RecipeDetailComponent implements OnInit {
       };
       list.push(dto);
     }
+    let listCopy: ShoppingListListDto = {...this.shoppingList};
     this.shoppingListService.addShoppingListItemsToShoppingList(this.authService.getUserId(), this.shoppingList.id, list).subscribe({
       next: res => {
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
-          detail: `${list.length} items added to ${this.shoppingList.name}`,
+          detail: `${list.length} items added to ${listCopy.name}`,
           life: 3000
         });
+        this.router.navigate(['shopping-list/', listCopy.id]);
         console.log(res);
       }, error: err => {
         console.log(err)
@@ -250,10 +268,11 @@ export class RecipeDetailComponent implements OnInit {
     });
 
   }
+
   onRemovePantrySubmit() {
     let result: PantryItemDetailDto[] = [];
 
-    for(let i=0; i<this.selectedPantryIngredients.length; i++) {
+    for (let i = 0; i < this.selectedPantryIngredients.length; i++) {
       let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(p => p.description === this.selectedPantryIngredients[i].description
         && p.unit === this.selectedPantryIngredients[i].unit);
 
@@ -268,17 +287,20 @@ export class RecipeDetailComponent implements OnInit {
         result.push(copy);
       }
     }
-    this.pantryService.updateItems(result,this.group.id).subscribe(
-      { next: data => {
-          this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe Ingredients have been successfully removed from your Pantry`});
-
+    let groupId: number = this.group.id;
+    this.pantryService.updateItems(result, this.group.id).subscribe(
+      {
+        next: data => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Recipe Ingredients have been successfully removed from your Pantry`
+          });
+          this.router.navigate(['group/', groupId]);
         }, error: error => {
           this.printError(error);
         }
-
-      }
-    );
-
+      });
   }
 
   printError(error): void {
@@ -312,7 +334,7 @@ export class RecipeDetailComponent implements OnInit {
       detail: `Recipe successfully deleted`,
       life: 3000
     });
-      this.router.navigate(['/home/recipes']);
+    this.router.navigate(['/home/recipes']);
   }
 
 
@@ -324,7 +346,11 @@ export class RecipeDetailComponent implements OnInit {
 
         },
         error: error => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `You are liking too fast. This like will not be saved`
+          });
         }
       });
     if (this.recipe.dislikedByUser) {
@@ -336,12 +362,9 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   public updatePortion() {
-
-
-
-      for(let i=0; i<this.removeIngredientsDto.recipeItems.length; i++) {
-        this.removeIngredientsDto.recipeItems[i].amount= this.recipe.ingredients[i].amount * (this.portion/this.recipe.portionSize);
-      }
+    for (let i = 0; i < this.removeIngredientsDto.recipeItems.length; i++) {
+      this.removeIngredientsDto.recipeItems[i].amount = this.recipe.ingredients[i].amount * (this.portion / this.recipe.portionSize);
+    }
   }
 
   public isOwner(): boolean {
@@ -356,7 +379,11 @@ export class RecipeDetailComponent implements OnInit {
 
         },
         error: error => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `You are disliking too fast. This dislike will not be saved`
+          });
         }
       });
     if (this.recipe.likedByUser) {
@@ -366,20 +393,6 @@ export class RecipeDetailComponent implements OnInit {
     this.recipe.dislikedByUser = true;
     this.recipe.dislikes++;
 
-  }
-
-
-  public removeRecipeIngredientsFromPantry() {
-    this.service.removeRecipeIngredientsFromPantry(this.group.id,this.recipe.id, this.portion).subscribe(
-      {
-        next: data => {
-            this.messageService.add({severity: 'success', summary: 'Success', detail: `Ingredients successfully removed from Pantry`});
-        },
-        error: error => {
-          this.printError(error)
-        }
-      }
-    );
   }
 
   get formattedDescription(): string {
@@ -413,10 +426,10 @@ export class RecipeDetailComponent implements OnInit {
 
   closeUsePantryDialog() {
     this.reset();
-    this.group=null;
-    this.selectedPantryIngredients=[];
-    this.removeIngredientsDtoReset=null;
-    this.removeIngredientsDto=null;
+    this.group = null;
+    this.selectedPantryIngredients = [];
+    this.removeIngredientsDtoReset = null;
+    this.removeIngredientsDto = null;
     this.isPantryDialogVisible = false;
   }
 
@@ -471,15 +484,15 @@ export class RecipeDetailComponent implements OnInit {
   getPdf() {
     let data = this.service.exportRecipe(this.recipeId).subscribe(
       {
-        next:data => {
-          const blob = new Blob([data], { type: 'application/pdf' });
+        next: data => {
+          const blob = new Blob([data], {type: 'application/pdf'});
 
           console.log(blob);
 
 
           saveAs(blob, this.recipe.name + '.pdf');
         },
-        error:error => {
+        error: error => {
           this.printError(error);
         }
 
@@ -489,18 +502,11 @@ export class RecipeDetailComponent implements OnInit {
 
   }
 
-
-
-
   protected readonly Unit = Unit;
   protected readonly clone = clone;
 
   protected readonly DisplayedUnit = DisplayedUnit;
   protected readonly getSuffixForCreateEdit = getSuffixForCreateEdit;
-  protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
   protected readonly formatAmount = formatAmount;
   protected readonly Object = Object;
-  protected readonly formatLowerLimit = formatLowerLimit;
-  protected readonly getSuffix = getSuffix;
-  protected readonly getStepSize = getStepSize;
 }

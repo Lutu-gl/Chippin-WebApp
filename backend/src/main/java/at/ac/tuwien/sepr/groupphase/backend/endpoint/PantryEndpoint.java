@@ -111,16 +111,6 @@ public class PantryEndpoint {
         return itemMapper.itemToItemDto(pantryService.mergeItems(itemMergeDto, pantryId));
     }
 
-    /*
-    @Secured("ROLE_USER")
-    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
-    @GetMapping("/{pantryId}/pantry/recipes")
-    public List<RecipeListDto> getRecipes(@PathVariable long pantryId) {
-        LOGGER.trace("GET /api/v1/group/{}/pantry/recipes", pantryId);
-        return pantryService.getRecipes(pantryId);
-    }
-     */
-
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @PostMapping("/{pantryId}/pantry/recipes/user/{userId}")
@@ -132,7 +122,7 @@ public class PantryEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @GetMapping("/{pantryId}/pantry/missing")
-    public List<ItemDto> findAllMissingItems(@PathVariable long pantryId) {
+    public List<PantryItemDto> findAllMissingItems(@PathVariable long pantryId) {
         return pantryService.findAllMissingItems(pantryId);
     }
 
