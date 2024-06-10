@@ -6,10 +6,12 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.BudgetMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.BudgetValidator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public class BudgetServiceImpl implements BudgetService {
     private final BudgetRepository budgetRepository;
     private final GroupRepository groupRepository;
     private final BudgetMapper budgetMapper;
+    private final BudgetValidator budgetValidator;
 
     @Override
     @Transactional
@@ -69,8 +72,10 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     @Transactional
-    public Budget createBudget(BudgetCreateDto budget, long groupId) {
+    public Budget createBudget(BudgetCreateDto budget, long groupId) throws ConflictException {
         LOGGER.trace("Creating new budget for group ID {}", groupId);
+        budgetValidator.validateForCreation(budget, groupId);
+
         GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
@@ -90,8 +95,9 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     @Transactional
-    public Budget updateBudget(BudgetDto budgetDto, long groupId) {
+    public Budget updateBudget(BudgetDto budgetDto, long groupId) throws ConflictException {
         LOGGER.trace("Updating budget ID {} for group ID {}", budgetDto.getId(), groupId);
+        budgetValidator.validateForUpdate(budgetDto, groupId);
         Budget budget = budgetRepository.findByIdAndGroupId(budgetDto.getId(), groupId)
             .orElseThrow(() -> new NotFoundException("Budget not found with ID: " + budgetDto.getId() + " for group ID: " + groupId));
 
