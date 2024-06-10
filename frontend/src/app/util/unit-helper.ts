@@ -1,23 +1,11 @@
-import {DisplayedUnit, PantryItemCreateDisplayDto, PantryItemDetailDto, Unit} from "../dtos/item";
-
-export function displayQuantity(unit: Unit, amount: number): [DisplayedUnit, number] {
-  switch (unit) {
-    case Unit.Gram:
-      return amount >= 1000
-        ? [DisplayedUnit.Kilogram, amount / 1000]
-        : [DisplayedUnit.Gram, amount];
-    case Unit.Milliliter:
-      return amount >= 1000
-        ? [DisplayedUnit.Liter, amount / 1000]
-        : [DisplayedUnit.Milliliter, amount];
-    case Unit.Piece:
-      return amount > 1
-        ? [DisplayedUnit.Pieces, amount]
-        : [DisplayedUnit.Piece, amount];
-    default:
-      return [null, null];
-  }
-}
+import {
+  DisplayedUnit,
+  ItemCreateDto, ItemDetailDto,
+  PantryItemCreateDisplayDto,
+  PantryItemCreateDto,
+  PantryItemDetailDto,
+  Unit
+} from "../dtos/item";
 
 export function convertQuantity(displayUnit: DisplayedUnit, amount: number): [Unit, number] {
   let factor: number = 1;
@@ -58,7 +46,7 @@ export function unitToDisplayedUnit(unit: Unit): DisplayedUnit {
   }
 }
 
-export function getStepSize(item: PantryItemDetailDto): number {
+export function getStepSize(item: PantryItemDetailDto | ItemCreateDto): number {
   switch (item.unit) {
     case Unit.Piece:
       return item.amount > 100 ? 10 : 1;
@@ -103,9 +91,9 @@ export function getAmountForCreateEdit(item: PantryItemCreateDisplayDto) {
 export function getSuffixForCreateEdit(item: PantryItemCreateDisplayDto): String {
   switch (item.unit) {
     case DisplayedUnit.Piece:
-      return item.amount == 1 ? " Piece" : " Pieces";
+      return item.amount == 1 ? "pc" : "pcs";
     case DisplayedUnit.Pieces:
-      return item.amount == 1 ? " Piece" : " Pieces";
+      return item.amount == 1 ? "pc" : "pcs";
     case DisplayedUnit.Gram:
       return "g";
     case DisplayedUnit.Kilogram:
@@ -119,10 +107,10 @@ export function getSuffixForCreateEdit(item: PantryItemCreateDisplayDto): String
       return "";
   }
 }
-export function getSuffix(item: PantryItemDetailDto): String {
+export function getSuffix(item: PantryItemDetailDto | PantryItemCreateDto | ItemDetailDto): String {
   switch (item.unit) {
     case Unit.Piece:
-      return item.amount == 1 ? " Piece" : " Pieces";
+      return item.amount == 1 ? "pc" : "pcs";
     case Unit.Gram:
       return item.amount < 1000 ? "g" : "kg";
     case Unit.Milliliter:
@@ -136,7 +124,7 @@ export function getSuffix(item: PantryItemDetailDto): String {
 export function getLimitSuffix(item: PantryItemDetailDto): String {
   switch (item.unit) {
     case Unit.Piece:
-      return item.lowerLimit == 1 ? " Piece" : " Pieces";
+      return item.lowerLimit == 1 ? "pc" : "pcs";
     case Unit.Gram:
       return item.lowerLimit < 1000 ? "g" : "kg";
     case Unit.Milliliter:
@@ -147,7 +135,7 @@ export function getLimitSuffix(item: PantryItemDetailDto): String {
   }
 }
 
-function getAmount(item: PantryItemDetailDto): number {
+function getAmount(item: PantryItemDetailDto | ItemDetailDto): number {
   switch (item.unit) {
     case Unit.Piece:
       return item.amount;
@@ -175,7 +163,7 @@ function getLowerLimit(item: PantryItemDetailDto): number {
   }
 }
 
-export function formatAmount(item: PantryItemDetailDto): String {
+export function formatAmount(item: PantryItemDetailDto | ItemDetailDto): String {
   return getAmount(item).toLocaleString('de-DE') + getSuffix(item);
 }
 
