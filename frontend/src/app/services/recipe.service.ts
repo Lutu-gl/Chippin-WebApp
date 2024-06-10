@@ -204,6 +204,10 @@ export class RecipeService {
     return this.httpClient.get<AddItemToShoppingListDto>(`${this.recipeBaseUri}/recipe/${recipeId}/shoppinglist/${shoppingListId}/pantry/${pantryId}`);
   }
 
+  selectIngredientsForShoppingList(recipeId: number, shoppingListId: number): Observable<AddItemToShoppingListDto> {
+    return this.httpClient.get<AddItemToShoppingListDto>(`${this.recipeBaseUri}/recipe/${recipeId}/shoppinglist/${shoppingListId}`);
+  }
+
   exportRecipe(recipeId:number) {
     return this.httpClient.get(`${this.globals.backendUri}/recipe/${recipeId}/pdf`, {responseType: "blob"});
   }
