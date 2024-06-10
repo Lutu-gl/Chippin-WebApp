@@ -65,6 +65,8 @@ export class GroupInfoComponent implements OnInit {
   budgetDialogMode: BudgetCreateEditMode;
   budgetDialogBudgetId: number;
 
+  isFileUploadDialogVisible: boolean = false;
+
   constructor(
     private groupService: GroupService,
     private debtService: DebtService,
@@ -88,6 +90,15 @@ export class GroupInfoComponent implements OnInit {
     console.log("closeCreateBudgetDialog")
     this.isBudgetDialogVisible = false;
     this.budgetDialogMode = BudgetCreateEditMode.info;
+    this.ngOnInit();
+  }
+
+  openFileUploadDialog(): void {
+    this.isFileUploadDialogVisible = true;
+  }
+
+  closeFileUploadDialog(): void {
+    this.isFileUploadDialogVisible = false;
     this.ngOnInit();
   }
 
@@ -194,8 +205,9 @@ export class GroupInfoComponent implements OnInit {
         label: 'Import Data',
         icon: 'pi pi-file-import',
         command: () => {
-          this.authService.logoutUser()
-          this.router.navigate(['/login'])
+          this.openFileUploadDialog();
+          // this.authService.logoutUser()
+          // this.router.navigate(['/login'])
         }
       },
       {
@@ -410,7 +422,6 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
     return transactions;
   }
 
@@ -424,7 +435,6 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
     return transactions;
   }
 
