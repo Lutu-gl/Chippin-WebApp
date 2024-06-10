@@ -188,6 +188,47 @@ public class ImportExportServiceImpl implements ImportExportService {
     }
 
     @Override
+    @Transactional
+    public byte[] exportCsv(long groupId, String username) {
+
+        ApplicationUser user = userRepository.findByEmail(username);
+        GroupEntity group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Could not find Group"));
+        if (!group.getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to export from this group!");
+        }
+        List<Expense> expenses = expenseRepository.findAllByGroupId(groupId);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            baos.write("Date;Description;Category;Cost;Currency;".getBytes());
+            for (ApplicationUser u : group.getUsers()) {
+                baos.write((u.getEmail() + ";").getBytes());
+            }
+            baos.write("\n".getBytes());
+            for (Expense expense : expenses) {
+                baos.write((expense.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ";").getBytes());
+                baos.write((expense.getName() + ";").getBytes());
+                baos.write((expense.getCategory().name() + ";").getBytes());
+                baos.write((expense.getAmount() + ";").getBytes());
+                baos.write("EUR;".getBytes());
+
+                for (ApplicationUser u : group.getUsers()) {
+                    if (u.equals(expense.getPayer())) {
+                        baos.write((String.format("%.2f", expense.getAmount() - expense.getParticipants().get(u) * expense.getAmount()) + ";").getBytes());
+                    } else if (expense.getParticipants().containsKey(u)) {
+                        baos.write((String.format("%.2f", expense.getParticipants().get(u) * expense.getAmount() * (-1)) + ";").getBytes());
+                    } else {
+                        baos.write("0;".getBytes());
+                    }
+                }
+                baos.write("\n".getBytes());
+            }
+            return baos.toByteArray();
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
     public byte[] exportRecipe(long recipeId) {
         Optional<Recipe> optional = recipeRepository.findById(recipeId);
 

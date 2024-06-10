@@ -273,8 +273,23 @@ export class GroupInfoComponent implements OnInit {
         label: 'Export Data',
         icon: 'pi pi-file-export',
         command: () => {
-          this.authService.logoutUser()
-          this.router.navigate(['/login'])
+          this.importExportService.exportData(this.group.id).subscribe({
+            next: data => {
+              const url = window.URL.createObjectURL(data);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'export.csv';
+              a.click();
+              window.URL.revokeObjectURL(url);
+            },
+            error: error => {
+              if (error && error.error && error.error.errors) {
+                this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors.join('; ')}`});
+              } else {
+                this.messageService.add({severity: 'error', summary: 'Error', detail: `Export did not work!`});
+              }
+            }
+          });
         }
       },
       {
