@@ -9,7 +9,7 @@ import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
 import {ChartData, ChartOptions} from "chart.js";
 import {
-  getRandomColor,
+  getHighestMonthAndSum,
   getRandomColorForEmail,
   groupExpensesByUserEmail,
   sumExpensesPerUserPerMonth
@@ -525,23 +525,6 @@ export class VisualizationComponent implements OnInit {
       })
     }
 
-
-
-    // Mock data
-    // const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-    // const datasets = [
-    //   {
-    //     label: 'User 1',
-    //     data: [65, 59, 80, 81, 56, 55, 40],
-    //     backgroundColor: '#0f518a'
-    //   },
-    //   {
-    //     label: 'User 2',
-    //     data: [28, 48, 40, 19, 86, 27, 90],
-    //     backgroundColor: '#4bc0c0'
-    //   }
-    // ];
-
     graphData = {labels, datasets};
     graphOptions = {
       responsive: true,
@@ -557,7 +540,6 @@ export class VisualizationComponent implements OnInit {
         },
         title: {
           display: true,
-          text: 'Expenses per User per Month',
           color: this.textColor
         }
       },
@@ -572,8 +554,15 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
-    let finalData: {data: ChartData<"bar">, options: ChartOptions<"bar">, type: "bar"} = {data: graphData, options: graphOptions, type: "bar"};
-    this.charts.unshift(finalData);
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "bar",
+      title: "Expenses per user per month",
+      description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>" +
+        "The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
+    };
+    this.charts.push(finalData);
   }
 
   backToGroup() {
