@@ -9,3 +9,11 @@ export interface AddItemToShoppingListDto {
 
   pantryItems: PantryItemDetailDto[];
 }
+
+export interface RemoveRecipeIngredientsFromPantryDto {
+
+  recipeItems: ItemDetailDto[];
+
+
+  pantryItems: PantryItemDetailDto[];
+}

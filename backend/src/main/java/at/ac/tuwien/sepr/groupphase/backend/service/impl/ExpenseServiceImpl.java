@@ -194,6 +194,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsRecovered(existingExpense);
 
+        budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+
         existingExpense.setDeleted(false);
 
         Activity activityForExpenseRecover = Activity.builder()

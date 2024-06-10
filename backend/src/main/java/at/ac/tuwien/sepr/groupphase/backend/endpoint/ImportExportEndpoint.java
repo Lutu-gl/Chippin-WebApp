@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.EmailSuggestionsAndContentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importExport.ImportDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -17,7 +16,15 @@ import org.springframework.security.access.annotation.Secured;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -50,6 +57,7 @@ public class ImportExportEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canAccessRecipe(#id)")
     @GetMapping(value = "recipe/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public byte[] exportRecipe(@PathVariable long id) {
         LOGGER.trace("GET /api/v1/recipe/{}/pdf", id);

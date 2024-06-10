@@ -1,10 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -113,6 +113,16 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
+    public List<Item> updateItems(List<PantryItem> items, long pantryId) {
+        List<Item> result = new ArrayList<>();
+        for (PantryItem item : items) {
+            result.add(updateItem(item, pantryId));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional
     public Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException {
         if (itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
             throw new ConflictException("Merging Error", List.of("Can not merge item with itself"));
@@ -135,10 +145,6 @@ public class PantryServiceImpl implements PantryService {
         }
     }
 
-    @Override
-    public List<RecipeListDto> getRecipes(Long pantryId) {
-        return recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findRecipeByPantry(pantryId));
-    }
 
     @Override
     @Transactional
@@ -179,28 +185,27 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion) {
-        List<PantryItem> pantryItems = pantryItemRepository.findMatchingRecipeItemsInPantry(groupId, recipeId);
-        Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
-        List<Item> recipeItems = optionalRecipe.get().getIngredients();
-        double ratio = (double) portion / optionalRecipe.get().getPortionSize();
-        List<String> changedItems = new ArrayList<>();
-        Item currentRecipeItem;
-        for (PantryItem pantryItem : pantryItems) {
-            Optional<Item> optional = recipeItems.stream()
-                .filter(o ->
-                    o.getDescription().equals(pantryItem.getDescription())
-                        && o.getUnit().equals(pantryItem.getUnit())).findFirst();
-            if (optional.isPresent()) {
-                currentRecipeItem = optional.get();
-                //If Amount would be negative set it to 0, otherwise reduce amount by recipe amount * ratio
-                pantryItem.setAmount(Math.max((int) Math.ceil(pantryItem.getAmount() - (currentRecipeItem.getAmount() * ratio)), 0));
-                changedItems.add(pantryItem.getDescription());
-                itemRepository.save(pantryItem);
+    public RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(long pantryId, long recipeId, int portion) {
+        //Get Recipe
+        List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
+
+        //Get Pantry
+        List<PantryItem> pantryItems = new ArrayList<>();
+        if (pantryId != -1L) {
+            pantryItems = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
+        }
+
+        List<PantryItem> result = new ArrayList<>();
+        for (PantryItem item : pantryItems) {
+            if (recipe.stream().anyMatch(o -> item.getDescription().equals(o.getDescription())
+                && item.getUnit().equals(o.getUnit()))) {
+
+                result.add(item);
             }
         }
 
-        return changedItems;
+
+        return RemoveIngredientsFromPantryDto.builder().recipeItems(recipe).pantryItems(result).build();
     }
 
     @Override

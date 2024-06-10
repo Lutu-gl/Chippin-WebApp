@@ -70,6 +70,17 @@ export class PantryService {
   }
 
   /**
+   * Updates items in a pantry.
+   *
+   * @param itemsToUpdate the items to update
+   * @param pantryId the pantry id
+   */
+  updateItems(itemsToUpdate: PantryItemDetailDto[], pantryId: number) {
+    console.log(itemsToUpdate)
+    return this.httpClient.put<PantryItemDetailDto[]>(`${this.pantryBaseUri}/${pantryId}/pantry/multiple`, itemsToUpdate);
+  }
+
+  /**
    * Updates itemMergeDto.result in the pantry and removes the item with id itemMergeDto.itemToDeleteId
    *
    * @param itemMergeDto contains the new item and the id of the item to delete

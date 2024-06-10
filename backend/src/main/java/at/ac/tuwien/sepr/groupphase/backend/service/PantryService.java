@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
@@ -58,6 +59,15 @@ public interface PantryService {
     Item updateItem(PantryItem item, long pantryId);
 
     /**
+     * Updates items in a pantry.
+     *
+     * @param items    the list of items to update
+     * @param pantryId the pantry id
+     * @return the updated items
+     */
+    List<Item> updateItems(List<PantryItem> items, long pantryId);
+
+    /**
      * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
      *
      * @param itemMergeDto contains the item to update and the id of the item to delete
@@ -67,13 +77,6 @@ public interface PantryService {
      */
     Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
 
-    /**
-     * Get recipes with ingredients that are stored in the pantry.
-     *
-     * @param pantryId the id of the pantry
-     * @return a list of recipes
-     */
-    List<RecipeListDto> getRecipes(Long pantryId);
 
     /**
      * Get recipes with ingredients matching the selected items.
@@ -92,7 +95,7 @@ public interface PantryService {
      * @param recipeId the recipe that has the ingredients
      * @param portion  how many people ate the recipe
      */
-    List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
+    RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
 
     /**
      * Find all items in the pantry with a quantity less than the minimum quantity.
