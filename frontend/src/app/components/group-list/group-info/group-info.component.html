@@ -80,18 +80,7 @@
   <p-footer></p-footer>
 </p-dialog>
 
-<!-- Modal for uploading a file-->
-<p-dialog 
-  header="Upload File" 
-  [(visible)]="isFileUploadDialogVisible" 
-  [modal]="true" 
-  [style]="{ width: '50vw' }">
 
-
-  <app-file-upload
-    (closeDialog)="closeFileUploadDialog()"  
-  ></app-file-upload>
-</p-dialog>
 
 
 <!-- Modal for making sure to leave the gorup -->
