@@ -32,4 +32,13 @@ public interface ImportExportService {
      * @return the Pdf as ByeArrayInputStream
      */
     byte[] exportRecipe(long recipeId);
+
+    /**
+     * This exports the expenses of a group as a .csv file.
+     *
+     * @param groupId the id of the group
+     * @param username the email of the user who requests the export
+     * @return a csv file as byte array
+     */
+    byte[] exportCsv(long groupId, String username);
 }

@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 
 import org.springframework.security.core.Authentication;
@@ -54,6 +56,17 @@ public class ImportExportEndpoint {
         LOGGER.trace("POST: /api/v1/import/splitwise : {}", importDto);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         importExportService.importSplitwise(importDto, authentication.getName());
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping(value = "export/{id}")
+    public ResponseEntity<byte[]> exportCsv(@PathVariable long id) {
+        LOGGER.trace("GET /api/v1/export/{}", id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=export.csv");
+        headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return new ResponseEntity<>(importExportService.exportCsv(id, authentication.getName()), headers, HttpStatus.OK);
     }
 
     @Secured("ROLE_USER")

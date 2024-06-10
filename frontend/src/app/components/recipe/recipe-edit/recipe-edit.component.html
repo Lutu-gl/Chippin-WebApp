@@ -31,11 +31,14 @@
       <p-inputNumber
         id="amount"
         [(ngModel)]="newIngredient.amount"
-        [min]="0"
+        [min]="1"
         [max]="1000000"
         required/>
       <small class="p-error" *ngIf="submitted && !newIngredient.amount">
         Amount is required.
+      </small>
+      <small class="p-error" *ngIf="submitted && tooSmall">
+        The amount cannot be 0.
       </small>
     </div>
   </ng-template>
@@ -92,11 +95,14 @@
       <p-inputNumber
         id="camount"
         [(ngModel)]="itemToEdit.amount"
-        [min]="0"
+        [min]="1"
         [max]="1000000"
         required/>
       <small class="p-error" *ngIf="submitted && !newIngredient.amount">
         Amount is required.
+      </small>
+      <small class="p-error" *ngIf="submitted && tooSmall">
+        The amount cannot be 0.
       </small>
     </div>
   </ng-template>
@@ -166,7 +172,6 @@
               Portion Size is missing.
             </small>
 
-            <div (click)="changeIsPublic()"> Change is Public</div>
           </div>
           <div class="upper flex" *ngIf="recipe.name!==''">
 

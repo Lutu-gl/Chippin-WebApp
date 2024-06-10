@@ -44,6 +44,9 @@
       <small class="p-error" *ngIf="submitted && !newIngredient.amount">
         Amount is required.
       </small>
+      <small class="p-error" *ngIf="submitted && tooSmall">
+        The amount cannot be 0.
+      </small>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">

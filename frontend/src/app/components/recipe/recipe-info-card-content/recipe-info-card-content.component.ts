@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf, SlicePipe} from "@angular/common";
-import {RecipeDetailDto, RecipeListDto} from "../../../dtos/recipe";
+import {RecipeListDto} from "../../../dtos/recipe";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {RecipeService} from "../../../services/recipe.service";
 import {ToastrService} from "ngx-toastr";

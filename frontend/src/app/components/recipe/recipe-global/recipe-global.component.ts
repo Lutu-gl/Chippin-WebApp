@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../../dtos/recipe";
+import {RecipeGlobalListDto, RecipeSearch} from "../../../dtos/recipe";
 
 import {RecipeService} from "../../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
@@ -16,7 +16,6 @@ import {MessageService} from "primeng/api";
 export class RecipeGlobalComponent implements OnInit {
   recipes: RecipeGlobalListDto[] = [];
   error = false;
-  errorMessage = '';
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
 
