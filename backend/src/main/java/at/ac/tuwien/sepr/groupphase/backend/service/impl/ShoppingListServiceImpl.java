@@ -261,7 +261,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .orElseThrow(
                 () -> new NotFoundException(String.format("Item with id %d not found in shopping list with id %d", itemId, shoppingListId))
             );
-        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), group.getPantry());
+        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), null);
         log.debug("Adding item to pantry: {}", pantryItem);
         pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         shoppingList.getItems().remove(shoppingListItem);
@@ -284,7 +284,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
         // Add checked items to pantry
         checkedItems.forEach(item -> {
-            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), group.getPantry());
+            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), null);
             log.debug("Adding item to pantry: {}", pantryItem);
             pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         });

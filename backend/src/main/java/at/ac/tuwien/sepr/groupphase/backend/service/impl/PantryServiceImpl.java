@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
@@ -210,13 +210,14 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
-    public List<ItemDto> findAllMissingItems(long pantryId) {
+    public List<PantryItemDto> findAllMissingItems(long pantryId) {
         var item = pantryItemRepository.findAllMissingItems(pantryId);
+        var itemList = itemMapper.listOfPantryItemsToListOfPantryItemDto(item);
         //Change quantity to the missing quantity
-        for (PantryItem pantryItem : item) {
+        for (PantryItemDto pantryItem : itemList) {
             pantryItem.setAmount((int) (pantryItem.getLowerLimit() - pantryItem.getAmount()));
         }
-        return itemMapper.listOfPantryItemDtosToListOfItemDto(pantryItemRepository.findAllMissingItems(pantryId));
+        return itemList;
     }
 
 }
