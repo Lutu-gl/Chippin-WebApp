@@ -114,7 +114,7 @@ export class RecipeDetailComponent implements OnInit {
   onSelectShoppingList() {
     console.log(this.shoppingList)
 
-    if(!this.shoppingList.groupId) {
+    if (!this.shoppingList.groupId) {
       this.service.selectIngredientsForShoppingList(this.recipeId, this.shoppingList.id).subscribe({
         next: dto => {
           this.addItemToShoppingListDto = dto;
@@ -125,7 +125,7 @@ export class RecipeDetailComponent implements OnInit {
           this.printError(error);
         }
       })
-    } else{
+    } else {
       this.service.selectIngredientsForShoppingListWithPantry(this.recipeId, this.shoppingList.id, this.shoppingList.groupId).subscribe({
         next: dto => {
           this.addItemToShoppingListDto = dto;
@@ -201,7 +201,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   getColor(item: ItemDetailDto) {
-    if(!this.addItemToShoppingListDto.pantryItems){
+    if (!this.addItemToShoppingListDto.pantryItems) {
 
       return '';
     } else {
@@ -287,6 +287,7 @@ export class RecipeDetailComponent implements OnInit {
         result.push(copy);
       }
     }
+    let groupId: number = this.group.id;
     this.pantryService.updateItems(result, this.group.id).subscribe(
       {
         next: data => {
@@ -295,14 +296,11 @@ export class RecipeDetailComponent implements OnInit {
             summary: 'Success',
             detail: `Recipe Ingredients have been successfully removed from your Pantry`
           });
-
+          this.router.navigate(['group/', groupId]);
         }, error: error => {
           this.printError(error);
         }
-
-      }
-    );
-
+      });
   }
 
   printError(error): void {
