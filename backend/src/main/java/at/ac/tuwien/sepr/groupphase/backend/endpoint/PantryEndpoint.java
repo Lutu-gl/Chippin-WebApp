@@ -122,7 +122,7 @@ public class PantryEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#pantryId)")
     @GetMapping("/{pantryId}/pantry/missing")
-    public List<ItemDto> findAllMissingItems(@PathVariable long pantryId) {
+    public List<PantryItemDto> findAllMissingItems(@PathVariable long pantryId) {
         return pantryService.findAllMissingItems(pantryId);
     }
 
