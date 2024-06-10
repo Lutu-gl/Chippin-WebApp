@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.BudgetMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class BudgetEndpoint {
     @Secured("ROLE_USER")
     @PostMapping("/{groupId}/budget")
     @ResponseStatus(HttpStatus.CREATED)
-    public BudgetDto createBudget(@PathVariable long groupId, @Valid @RequestBody BudgetCreateDto budgetCreateDto) {
+    public BudgetDto createBudget(@PathVariable long groupId, @Valid @RequestBody BudgetCreateDto budgetCreateDto) throws ConflictException {
         LOGGER.trace("POST /api/v1/group/{}/budget", groupId);
         //Budget budget = budgetMapper.budgetCreateDtoToBudget(budgetCreateDto);
         return budgetMapper.budgetToDto(budgetService.createBudget(budgetCreateDto, groupId));
@@ -64,7 +65,7 @@ public class BudgetEndpoint {
 
     @Secured("ROLE_USER")
     @PutMapping("/{groupId}/budget/{budgetId}")
-    public BudgetDto updateBudget(@PathVariable long groupId, @PathVariable long budgetId, @Valid @RequestBody BudgetDto budgetDto) {
+    public BudgetDto updateBudget(@PathVariable long groupId, @PathVariable long budgetId, @Valid @RequestBody BudgetDto budgetDto) throws ConflictException {
         LOGGER.trace("PUT /api/v1/group/{}/budget/{}", groupId, budgetId);
         return budgetMapper.budgetToDto(budgetService.updateBudget(budgetDto, groupId));
     }

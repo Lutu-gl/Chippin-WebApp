@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface BudgetService {
      * @param groupId the ID of the group where the budget will be created
      * @return the created budget
      */
-    Budget createBudget(BudgetCreateDto budget, long groupId);
+    Budget createBudget(BudgetCreateDto budget, long groupId) throws ConflictException;
 
     /**
      * Update an existing budget in a group.
@@ -33,7 +34,7 @@ public interface BudgetService {
      * @param groupId the ID of the group where the budget exists
      * @return the updated budget
      */
-    Budget updateBudget(BudgetDto budget, long groupId);
+    Budget updateBudget(BudgetDto budget, long groupId) throws ConflictException;
 
     /**
      * Add the amount of an expense.
