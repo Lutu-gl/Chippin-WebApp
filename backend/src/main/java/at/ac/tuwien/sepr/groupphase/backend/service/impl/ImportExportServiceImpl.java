@@ -331,6 +331,13 @@ public class ImportExportServiceImpl implements ImportExportService {
     // Sanitize CSV field to prevent CSV Injection
     private String sanitizeCsvField(String field) {
         // Wrap each cell field in double quotes, prepend with a single quote, and escape every double quote
+        field = field.replace("=", "");
+        field = field.replace("+", "");
+        field = field.replace("-", "");
+        field = field.replace("@", "");
+        field = field.replace("\t", "");
+        field = field.replace("\r", "");
+        field = field.replace("'", "\"'\"");
         return "\"" + field.replace("\"", "\"\"") + "\"";
     }
 
