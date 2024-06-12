@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { Category } from 'src/app/dtos/category';
 import { ExpenseCreateDto } from 'src/app/dtos/expense';
@@ -48,6 +48,7 @@ export class ExpenseCreateComponent implements OnChanges {
   constructor(
     private groupService: GroupService,
     private expenseService: ExpenseService,
+    private confirmationService: ConfirmationService,
     private route: ActivatedRoute,
     private messageService: MessageService
   ) {
@@ -80,7 +81,15 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
   openDeleteDialog(): void {
-    this.isDeleteDialogVisible = true;
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this expense ?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteExistingExpense()
+      }
+    });
+    //this.isDeleteDialogVisible = true;
   }
 
   closeDeleteDialog(): void {
@@ -193,7 +202,7 @@ export class ExpenseCreateComponent implements OnChanges {
       });
       return [];
   }
-  
+
   // checkIfExceedsBudget(): Promise<boolean> {
   //   console.log("checkIfExceedsBudget")
   //   console.log(this.groupId);
@@ -265,7 +274,7 @@ export class ExpenseCreateComponent implements OnChanges {
 
 
   public onSubmit(): void {
-    
+
     if (!this.submitValidation()) {
       return;
     }
@@ -284,7 +293,7 @@ export class ExpenseCreateComponent implements OnChanges {
           }
         }
       }
-      
+
       this.finishSubmit();
 
     }, error => {
