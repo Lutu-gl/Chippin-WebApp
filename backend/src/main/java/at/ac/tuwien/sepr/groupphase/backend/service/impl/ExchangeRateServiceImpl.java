@@ -36,7 +36,11 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         ExchangeRate rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
 
         if (rate.getLastUpdated().isBefore(LocalDate.now().minusDays(2))) {
-            getExchangeRates();
+            try {
+                getExchangeRates();
+            } catch (RuntimeException e) {
+                LOGGER.error("Could not fetch Exchange rates because of: {}", e.getMessage());
+            }
             rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
         }
 
@@ -44,8 +48,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     }
 
     public void getExchangeRates() {
-        //TODO MAYBE @Scheduled verwenden
-        //TODO RISIKOANALYSE/FALLBACK FALLS API NICHT VERFÜGBAR
         LOGGER.trace("FETCHING Exchange Rates from api");
 
 
