@@ -44,23 +44,32 @@ export class VisualizationComponent implements OnInit {
   // documentStyle: any;
 
   // different data sets for visualization
-  personExpenseMap = new Map<string, number>();
+  personExpensePayedMap = new Map<string, number>();
 
-  personExpenseFoodMap = new Map<string, number>();
-  personExpenseTravelMap = new Map<string, number>();
-  personExpenseEntertainmentMap = new Map<string, number>();
-  personExpenseOtherMap = new Map<string, number>();
-  personExpenseHealthMap = new Map<string, number>();
-  personExpenseShoppingMap = new Map<string, number>();
+  personExpensePayedFoodMap = new Map<string, number>();
+  personExpensePayedTravelMap = new Map<string, number>();
+  personExpensePayedEntertainmentMap = new Map<string, number>();
+  personExpensePayedOtherMap = new Map<string, number>();
+  personExpensePayedHealthMap = new Map<string, number>();
+  personExpensePayedShoppingMap = new Map<string, number>();
 
-  personExpenseMapCash = new Map<string, number>();
+  personExpensePayedMapCash = new Map<string, number>();
 
-  personExpenseFoodMapCash = new Map<string, number>();
-  personExpenseTravelMapCash = new Map<string, number>();
-  personExpenseEntertainmentMapCash = new Map<string, number>();
-  personExpenseOtherMapCash = new Map<string, number>();
-  personExpenseHealthMapCash = new Map<string, number>();
-  personExpenseShoppingMapCash = new Map<string, number>();
+  personExpensePayedFoodMapCash = new Map<string, number>();
+  personExpensePayedTravelMapCash = new Map<string, number>();
+  personExpensePayedEntertainmentMapCash = new Map<string, number>();
+  personExpensePayedOtherMapCash = new Map<string, number>();
+  personExpensePayedHealthMapCash = new Map<string, number>();
+  personExpensePayedShoppingMapCash = new Map<string, number>();
+
+  personAmountPayedMapCash = new Map<string, number>();
+
+  personAmountSpendFoodMap = new Map<string, number>();
+  personAmountSpendTravelMap = new Map<string, number>();
+  personAmountSpendEntertainmentMap = new Map<string, number>();
+  personAmountSpendOtherMap = new Map<string, number>();
+  personAmountSpendHealthMap = new Map<string, number>();
+  personAmountSpendShoppingMap = new Map<string, number>();
 
   categoryExpenseMap = new Map<string, number>();
 
@@ -119,9 +128,10 @@ export class VisualizationComponent implements OnInit {
       next: res => {
         this.expenses = res;
         this.formatDataForGraphs();
-        this.formatDataForSpendEuroInCategory();
-        this.formatDataExpensesMadePerPerson()
-        this.formatDataExpensesMadePerPersonCash()
+        this.formatDataForSpendEuroInCategory()
+        this.formatDataExpensesPayedPerPerson()
+        this.formatDataExpensesPayedPerPersonCash()
+        this.formatDataAmountSpendPerPerson()
         this.formatDataForExpensesPerUserPerMonth()
       },
       error: error => {
@@ -141,7 +151,7 @@ export class VisualizationComponent implements OnInit {
     })
   }
 
-  formatDataExpensesMadePerPerson() {
+  formatDataExpensesPayedPerPerson() {
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
     const colorsCat = this.getCategoryColor(0.8)
 
@@ -166,7 +176,7 @@ export class VisualizationComponent implements OnInit {
       });
 
       console.log(data);
-      console.log(this.personExpenseMap);
+      console.log(this.personExpensePayedMap);
 
       graphData.datasets.push({
         label: label,
@@ -177,21 +187,22 @@ export class VisualizationComponent implements OnInit {
       });
     });
 
+
     let graphOptions = {
+      indexAxis: 'y',
       maintainAspectRatio: true,
       responsive: false,
       plugins: {
         tooltip: {
           enabled: true,
           mode: 'index',
-          intersect: false,
           callbacks: {
             title: function (tooltipItems) {
               return tooltipItems[0].label;
             },
             label: function (context) {
               let label = context.dataset.label;
-              let value = context.parsed.y;
+              let value = context.parsed.x;
               if (value == 0 || value == '0') {
                 return ''
               }
@@ -214,7 +225,13 @@ export class VisualizationComponent implements OnInit {
           grid: {
             color: this.surfaceBorder,
             drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Amount of expenses payed',
+            color: this.textColor
           }
+
         },
         y: {
           stacked: true,
@@ -224,6 +241,11 @@ export class VisualizationComponent implements OnInit {
           grid: {
             color: this.surfaceBorder,
             drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Members of group',
+            color: this.textColor
           }
         }
       }
@@ -235,21 +257,21 @@ export class VisualizationComponent implements OnInit {
       options: graphOptions,
       type: "bar",
       description: this.getDescriptionForExpensesMadePerPerson(),
-      title: "Expenses created by group member"
+      title: "Number of Expenses payed by group member"
     };
     this.charts.push(finalData);
   }
 
   private getDescriptionForExpensesMadePerPerson() {
-    let map = this.personExpenseMap;
+    let map = this.personExpensePayedMap;
 
-    let string = "This graph shows the amount of expenses each person has made in each category <br>" +
+    let string = "This graph shows the amount of expenses each person has payed in each category <br>" +
       "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
 
     return string;
   }
 
-  formatDataExpensesMadePerPersonCash() {
+  formatDataExpensesPayedPerPersonCash() {
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
     const colorsCat = this.getCategoryColor(0.8)
 
@@ -274,7 +296,7 @@ export class VisualizationComponent implements OnInit {
       });
 
       console.log(data);
-      console.log(this.personExpenseMap);
+      console.log(this.personExpensePayedMap);
 
       graphData.datasets.push({
         label: label,
@@ -322,7 +344,13 @@ export class VisualizationComponent implements OnInit {
           grid: {
             color: this.surfaceBorder,
             drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Members of group',
+            color: this.textColor
           }
+
         },
         y: {
           stacked: true,
@@ -332,6 +360,11 @@ export class VisualizationComponent implements OnInit {
           grid: {
             color: this.surfaceBorder,
             drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Amount of money spent in €',
+            color: this.textColor
           }
         }
       }
@@ -342,13 +375,13 @@ export class VisualizationComponent implements OnInit {
       options: graphOptions,
       type: "bar",
       description: this.getDescriptionForExpensesMadePerPersonCash(),
-      title: "Spent by group member per category"
+      title: "Amount of Expenses payed by group member"
     };
     this.charts.push(finalData);
   }
 
   private getDescriptionForExpensesMadePerPersonCash() {
-    let map = this.personExpenseMapCash;
+    let map = this.personExpensePayedMapCash;
 
     let string = "This graph shows the amount of money each person has spent in each category <br>" +
       "The person who has spent the most money in total is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "€</strong> spent."
@@ -359,17 +392,17 @@ export class VisualizationComponent implements OnInit {
   getExpenseMapForCategory(category: string): Map<string, number> {
     switch (category) {
       case "Food":
-        return this.personExpenseFoodMap;
+        return this.personExpensePayedFoodMap;
       case "Travel":
-        return this.personExpenseTravelMap;
+        return this.personExpensePayedTravelMap;
       case "Entertainment":
-        return this.personExpenseEntertainmentMap;
+        return this.personExpensePayedEntertainmentMap;
       case "Health":
-        return this.personExpenseHealthMap;
+        return this.personExpensePayedHealthMap;
       case "Shopping":
-        return this.personExpenseShoppingMap;
+        return this.personExpensePayedShoppingMap;
       case "Other":
-        return this.personExpenseOtherMap;
+        return this.personExpensePayedOtherMap;
       default:
         return new Map<string, number>(); // Save Fallback-Option
     }
@@ -378,17 +411,36 @@ export class VisualizationComponent implements OnInit {
   getExpenseMapForCategoryCash(category: string): Map<string, number> {
     switch (category) {
       case "Food":
-        return this.personExpenseFoodMapCash;
+        return this.personExpensePayedFoodMapCash;
       case "Travel":
-        return this.personExpenseTravelMapCash;
+        return this.personExpensePayedTravelMapCash;
       case "Entertainment":
-        return this.personExpenseEntertainmentMapCash;
+        return this.personExpensePayedEntertainmentMapCash;
       case "Health":
-        return this.personExpenseHealthMapCash;
+        return this.personExpensePayedHealthMapCash;
       case "Shopping":
-        return this.personExpenseShoppingMapCash;
+        return this.personExpensePayedShoppingMapCash;
       case "Other":
-        return this.personExpenseOtherMapCash;
+        return this.personExpensePayedOtherMapCash;
+      default:
+        return new Map<string, number>(); // Save Fallback-Option
+    }
+  }
+
+  getAmountSpendMapForCategoryCash(category: string): Map<string, number> {
+    switch (category) {
+      case "Food":
+        return this.personAmountSpendFoodMap;
+      case "Travel":
+        return this.personAmountSpendTravelMap;
+      case "Entertainment":
+        return this.personAmountSpendEntertainmentMap;
+      case "Health":
+        return this.personAmountSpendHealthMap;
+      case "Shopping":
+        return this.personAmountSpendShoppingMap;
+      case "Other":
+        return this.personAmountSpendOtherMap;
       default:
         return new Map<string, number>(); // Save Fallback-Option
     }
@@ -495,6 +547,121 @@ export class VisualizationComponent implements OnInit {
     return string;
   }
 
+  private formatDataAmountSpendPerPerson() {
+    const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
+    const colorsCat = this.getCategoryColor(0.8)
+
+    let graphData = {
+      labels: [],
+      datasets: []
+    };
+
+    const sortedMembers = [...this.group.members].sort();
+
+    graphData.labels = sortedMembers;
+
+    labelsCat.forEach((label, index) => {
+      let data = new Array(sortedMembers.length).fill(0);
+      let map = this.getAmountSpendMapForCategoryCash(label);
+
+      map.forEach((value, key) => {
+        let memberIndex = sortedMembers.findIndex(member => member === key);
+        if (memberIndex !== -1) {
+          data[memberIndex] = value;
+        }
+      });
+
+      console.log(data);
+      console.log(this.personExpensePayedMap);
+
+      graphData.datasets.push({
+        label: label,
+        data: data,
+        fill: false,
+        borderColor: '4bc0c0',
+        backgroundColor: colorsCat[index]
+      });
+    });
+
+    let graphOptions = {
+      maintainAspectRatio: true,
+      responsive: false,
+      plugins: {
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: function (tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function (context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0 || value == '0') {
+                return ''
+              }
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        legend: {
+          labels: {
+            color: this.textColor
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Members of group',
+            color: this.textColor
+          }
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+            drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Amount of money spent in €',
+            color: this.textColor
+          }
+        }
+      }
+    };
+
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "bar",
+      description: this.getDescriptionForAmountSpendPerPerson(),
+      title: "Amount of money spend by group member"
+    };
+    this.charts.push(finalData);
+  }
+
+  getDescriptionForAmountSpendPerPerson() {
+    let map = this.personExpensePayedMapCash;
+
+    let string = "This graph shows the amount of money each person has spent in each category"
+    return string;
+  }
+
   // Add chart for amount of expenses paid per user
   // This will be a stacked bar chart with the x-axis being the months and the y-axis being the amount of expenses paid
   // Each user will have a different color in the bar chart
@@ -572,16 +739,21 @@ export class VisualizationComponent implements OnInit {
   private formatDataForGraphs(): void {
     this.initAllMaps();
 
-    for (let expense of this.expenses) {
+    for (let expense of this.expenses.filter(expense => !expense.deleted)) {
       // Update category expense map
       this.updateMap(this.categoryExpenseMap, expense.category, expense.amount);
 
       // Update person expense map for num expenses
-      this.updateMap(this.personExpenseMap, expense.payerEmail, 1);
+      this.updateMap(this.personExpensePayedMap, expense.payerEmail, 1);
 
       // Update person expense map for cash
-      this.updateMap(this.personExpenseMapCash, expense.payerEmail, expense.amount);
+      this.updateMap(this.personExpensePayedMapCash, expense.payerEmail, expense.amount);
 
+      // Update person amount spend
+      this.updateMapAmount(this.personAmountPayedMapCash, expense.payerEmail, expense);
+
+      // Update person amount spend per category
+      this.fillInCategoryAmountSpendMap(expense);
 
       // Update category payer expense map based on the category
       this.fillInCategoryPayerExpenseMap(expense);
@@ -601,14 +773,13 @@ export class VisualizationComponent implements OnInit {
     this.categoryExpenseMap.set('Shopping', 0);
     this.categoryExpenseMap.set('Other', 0);
 
-    this.personExpenseMap = new Map<string, number>();
-    for (let member of this.group.members) {
-      this.personExpenseMap.set(member, 0);
-    }
+    this.personExpensePayedMap = new Map<string, number>();
+    this.personExpensePayedMapCash = new Map<string, number>();
 
-    this.personExpenseMapCash = new Map<string, number>();
     for (let member of this.group.members) {
-      this.personExpenseMapCash.set(member, 0);
+      this.personExpensePayedMap.set(member, 0);
+      this.personExpensePayedMapCash.set(member, 0);
+      this.personAmountPayedMapCash.set(member, 0);
     }
   }
 
@@ -622,20 +793,25 @@ export class VisualizationComponent implements OnInit {
     this.updateMap(map, expense.payerEmail, expense.amount);
   }
 
+  private fillInCategoryAmountSpendMap(expense: ExpenseDetailDto) {
+    const map = this.getAmountSpendMapForCategoryCash(expense.category);
+    this.updateMapAmount(map, expense.payerEmail, expense);
+  }
+
   private getMapForCategory(category: string): Map<string, number> {
     switch (category) {
       case "Food":
-        return this.personExpenseFoodMap;
+        return this.personExpensePayedFoodMap;
       case "Travel":
-        return this.personExpenseTravelMap;
+        return this.personExpensePayedTravelMap;
       case "Entertainment":
-        return this.personExpenseEntertainmentMap;
+        return this.personExpensePayedEntertainmentMap;
       case "Health":
-        return this.personExpenseHealthMap;
+        return this.personExpensePayedHealthMap;
       case "Shopping":
-        return this.personExpenseShoppingMap;
+        return this.personExpensePayedShoppingMap;
       case "Other":
-        return this.personExpenseOtherMap;
+        return this.personExpensePayedOtherMap;
       default:
         throw new Error(`Unknown category: ${category}`);
     }
@@ -646,6 +822,15 @@ export class VisualizationComponent implements OnInit {
     map.set(key, currentValue + increment);
   }
 
+  private updateMapAmount(personAmountPayedMapCash: Map<string, number>, payerEmail: string, expense: ExpenseDetailDto) {
+    for (let participant in expense.participants) {
+      if (participant !== payerEmail) {
+        let amount = expense.participants[participant];
+        let currentAmount = personAmountPayedMapCash.get(participant) || 0;
+        personAmountPayedMapCash.set(participant, Number((currentAmount + amount * expense.amount).toFixed(2)));
+      }
+    }
+  }
   private getCategoryColor(alpha): string[] {
     return ['rgba(15, 81, 138, ' + alpha + ')', 'rgba(75, 192, 192, ' + alpha + ')', 'rgba(54, 162, 235, ' + alpha + ')', 'rgba(255, 205, 86, ' + alpha + ')', 'rgba(255, 99, 132, ' + alpha + ')', 'rgba(255, 159, 64, ' + alpha + ')'];
   }
