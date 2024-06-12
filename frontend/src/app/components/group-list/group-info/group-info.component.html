@@ -14,11 +14,11 @@
 
   <div *ngIf="!emailSuggestions && !importRequestLoading">
     <p-fileUpload
-      name="file" 
-      [url]="importUrl" 
+      name="file"
+      [url]="importUrl"
       (onUpload)="importSuccessful($event)"
       (onError)="importError($event)"
-      accept="text/csv" 
+      accept="text/csv"
       maxFileSize="1000000"
       chooseLabel="Select CSV file"
       uploadLabel="Import"
@@ -34,10 +34,10 @@
     <span class="block text-gray-700 mb-4">Please make sure that all Names from the csv file are matched with the correct user</span>
     <div *ngFor="let entry of emailSuggestions" class="mb-6">
       <label class="block text-gray-600 mb-1">{{ entry.name }}</label>
-      <p-autoComplete 
-        [(ngModel)]="entry.email" 
-        [dropdown]="true" 
-        [suggestions]="entry.filteredSuggestions" 
+      <p-autoComplete
+        [(ngModel)]="entry.email"
+        [dropdown]="true"
+        [suggestions]="entry.filteredSuggestions"
         (completeMethod)="filterImportEmail($event, entry)"
       />
     </div>
@@ -83,9 +83,11 @@
 
 
 
+<p-confirmDialog>
+</p-confirmDialog>
 
 <!-- Modal for making sure to leave the gorup -->
-<p-confirmDialog>
+<p-confirmDialog key="leaveGroup">
   <ng-template pTemplate="message" let-message>
     <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
       <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
@@ -96,7 +98,7 @@
 
 <!-- Modal for delete confirmation -->
 <p-dialog
-  header="Delete Expense"
+  header="Delete Payment"
   [modal]="true"
   [(visible)]="isDeleteDialogVisible"
   [style]="{ width: '25rem' }"
@@ -200,10 +202,9 @@
     </div>
     <br>
     <br>
-    <div class="flex justify-content-end gap-2">
-      <p-button label="Cancel" severity="secondary" (click)="goBackFromSettleDebts($event)" />
-      <p-button label="Save" [disabled]="(!form.valid || !selectedDebtMemberVar)" (click)="paymentCreationSave(form)" />
-    </div>
+      <div style="display: grid; place-items: end;">
+        <p-button label="Save" [disabled]="(!form.valid || !selectedDebtMemberVar)" (click)="paymentCreationSave(form)" />
+      </div>
     </form>
   </div>
 
@@ -228,7 +229,7 @@
 
   <label *ngIf="paymentIsArchived()" class="flex items-center text-red-500 font-bold">
     <i class="pi pi-exclamation-triangle mr-2"></i>
-    Oooops! This Payment is marked as archived!
+    This Payment is marked as archived!
   </label>
   <label *ngIf="paymentIsArchived()" class="block text-sm font-medium text-gray-700">A member of the payment has left the group, thus it is not possible to make changes.</label>
 
@@ -276,10 +277,18 @@
 
     <!-- Buttons -->
 
-    <div *ngIf="paymentModeIsEdit() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
-      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
-        <i class="pi pi-trash mr-2"></i> Delete Payment
-      </button>
+    <div *ngIf="paymentModeIsEdit() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end gap-2">
+<!--      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
+<!--        <i class="pi pi-trash mr-2"></i> Delete Payment-->
+<!--      </button>-->
+      <p-button
+        label="Delete Payment"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
+
+
       <p-button
         label="Save Changes"
         icon = "pi pi-check"
@@ -287,10 +296,14 @@
         (click)="paymentModalSaveChanges()"
       ></p-button>
     </div>
-    <div *ngIf="paymentModeIsInfo() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
-      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
-        <i class="pi pi-trash mr-2"></i> Delete Payment
-      </button>
+    <div *ngIf="paymentModeIsInfo() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end gap-2">
+      <p-button
+        label="Delete Payment"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
+
       <p-button
         label="Edit Payment"
         icon="pi pi-pencil"
@@ -502,7 +515,7 @@
   <p-progressBar [value]="50" />
   </div>   -->
 
-  
+
 
     <!-- Budget tab -->
     <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
@@ -515,12 +528,12 @@
         <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
           <a class="text-black rounded-md outline outline-1 outline-slate-300">
             <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
-              <p-progressBar 
+              <p-progressBar
                 [value]="getBudgetPercentage(budget)"
                 [ngClass]="getProgressBarColor(budget)"
                 >
-                <ng-template pTemplate="content" let-value> 
-                <span>{{value}}%</span>    
+                <ng-template pTemplate="content" let-value>
+                <span>{{value}}%</span>
                 </ng-template>
               </p-progressBar>
                 <div>{{budget.category}}</div>

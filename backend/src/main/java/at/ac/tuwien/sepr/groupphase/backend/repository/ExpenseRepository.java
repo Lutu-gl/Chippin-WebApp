@@ -31,54 +31,33 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
 
     /**
-     * Calculates the balances for a user in a group with its members. This query does not take the payments into account.
+     * Calculates and returns the consolidated financial balances of expenses and payments
+     * for a specified user within a given group. This method aggregates both the expenses
+     * incurred by the user as a participant and the payments made or received by the user
+     * within the group. It ensures that all transactions, including those with no financial
+     * activity, are represented with a default balance of zero if no transactions exist.
+     * Here is an example of what the query returns:
+     * Group has 3 members: luca, emil, max
+     * luca owes emil 10€
+     * emil owes max 5€
+     * max owes luca 3€
+     * the query returns the following if the user luca is selected for the parameter email
+     * [emil, -10], [max, 3]
+     * if the query is called with emil as the email parameter, the result is:
+     * [luca, 10], [max, -5]
      *
-     * @param email   email of the user who wants to see the balances.
-     * @param groupId group id of the group for which the balances should be calculated.
-     * @return a list of objects containing the email of the user and the total amount of money the user owes or is owed by other users in the group.
+     * @param email   The email address of the user for whom the balances are being calculated. This parameter identifies the user within the system and is used to filter the transactions related to this user.
+     * @param groupId The ID of the group within which the financial balances are calculated. This parameter helps filter the transactions to those associated only with the specified group.
+     * @return A list of {@code Object[]} where each array has 2 elements: the 1 element is the email of a user and the 2 element is the sum of the total amount representing the user's financial status(expenses/payments) within the group.
      */
-    // Idea is: First calc how user gets from other members, then how much user owes to other members
-    // Then union both results and the right join is for listing all users in the group (except the user itself) also with amount 0
-    @Query(value = "SELECT ug.email em, COALESCE(SUM(am), 0) total_amount\n"
-        + "FROM (\n"
-        + "    SELECT u.email em, SUM(p.amount * e.amount) am\n"
-        + "    FROM expense e \n"
-        + "    JOIN expense_participants p ON e.id = p.expense_id \n"
-        + "    JOIN application_user u ON p.user_id = u.id \n"
-        + "    WHERE e.group_id = :groupId AND e.deleted = false\n"
-        + "      AND e.payer_id = (SELECT id FROM application_user WHERE email = :email)\n"
-        + "      AND e.payer_id != p.user_id\n"
-        + "    GROUP BY u.email\n"
-        + "    UNION ALL\n"
-        + "    SELECT (SELECT email FROM application_user WHERE id = e.payer_id) em, SUM(-p.amount * e.amount) am\n"
-        + "    FROM expense e \n"
-        + "    JOIN expense_participants p ON e.id = p.expense_id \n"
-        + "    WHERE e.group_id = :groupId AND e.deleted = false\n"
-        + "      AND p.user_id = (SELECT id FROM application_user WHERE email = :email)\n"
-        + "      AND e.payer_id != p.user_id\n"
-        + "    GROUP BY e.payer_id\n"
-        + ") result\n"
-        + "RIGHT JOIN (\n"
-        + "    SELECT u.email email\n"
-        + "    FROM application_user u\n"
-        + "    JOIN user_group ug ON u.id = ug.user_id and u.id != (SELECT id FROM application_user WHERE email = :email)\n"
-        + "    WHERE ug.group_id = :groupId\n"
-        + ") ug ON result.em = ug.email\n"
-        + "GROUP BY ug.email", nativeQuery = true)
-    List<Object[]> calculateBalancesExpensesForUser(@Param("email") String email, @Param("groupId") Long groupId);
 
-
-    /**
-     * Calculates the balances for a user in a group with its members. This query takes  payments into account.
-     *
-     * @param email   email of the user who wants to see the balances.
-     * @param groupId group id of the group for which the balances should be calculated.
-     * @return a list of objects containing the email of the user and the total amount of money the user owes or is owed by other users in the group.
-     */
-    // Idea is: First calc debt from users from expenses data like explained above
-    // Then calc debt from payments data with bascially the same query
-    // finally union both results and the right join is for listing all users in the group (except the user itself) also with amount 0
-    @Query(value = "SELECT em, sum(total_amount) from\n"
+    // In detail the query works as follows:
+    // The first part of the query calculates the debt from expenses.
+    //  It first calculates how much the user gets from other members and then how much the user owes to other members.
+    // The second part of the query calculates the debt from payments.
+    //  It first calculates how much the user receives from other members and then how much the user pays to other members.
+    // Finally, the results of both parts are combined using a UNION ALL operation and then a RIGHT JOIN operation is performed to list all users in the group (except the user itself) with a balance of 0.
+    @Query(value = "SELECT em, sum(total_amount) from\n" // part of the query calculates the expenses
         + "(SELECT ug.email em, COALESCE(SUM(am), 0) total_amount\n"
         + "FROM (\n"
         + "    SELECT u.email em, SUM(p.amount * e.amount) am\n"
@@ -106,6 +85,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         + ") ug ON result.em = ug.email\n"
         + "GROUP BY ug.email\n"
         + "UNION ALL\n"
+        // part of the query calculates the payments
         + "SELECT \n"
         + "    u.email em,\n"
         + "    COALESCE(SUM(p.amount), 0) AS total_amount\n"
