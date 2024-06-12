@@ -40,7 +40,6 @@ import {
 } from "../../util/unit-helper";
 import {inRange} from "lodash";
 import {TabMenuModule} from "primeng/tabmenu";
-import {max} from "@popperjs/core/lib/utils/math";
 
 @Component({
   selector: 'app-pantry',
@@ -291,7 +290,7 @@ export class PantryComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Successful',
-            detail: `$Items merged`,
+            detail: `Items merged`,
             life: 3000
           });
           this.getPantry(this.id);

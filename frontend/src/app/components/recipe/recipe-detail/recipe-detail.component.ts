@@ -153,7 +153,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   findMatchingShoppingListItem(item: ItemDetailDto): any {
-    let dto = this.addItemToShoppingListDto.shoppingListItems.find(i => i.item.description === item.description);
+    let dto = this.addItemToShoppingListDto.shoppingListItems.find(i => i.item.description === item.description && i.item.unit === item.unit);
     if (!dto) {
       return {
         amount: 0,
@@ -166,7 +166,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   findMatchingPantryItems(item: ItemDetailDto): PantryItemDetailDto {
-    let dto: PantryItemDetailDto = this.addItemToShoppingListDto.pantryItems.find(i => i.description === item.description);
+    let dto: PantryItemDetailDto = this.addItemToShoppingListDto.pantryItems.find(i => i.description === item.description && i.unit === item.unit);
     if (!dto) {
       return {
         amount: 0,
@@ -180,7 +180,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   findMatchingPantryItemsForRemove(item: ItemDetailDto): PantryItemDetailDto {
-    let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(i => i.description === item.description);
+    let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(i => i.description === item.description && i.unit === item.unit);
     if (!dto) {
       return {
         amount: 0,
@@ -220,7 +220,6 @@ export class RecipeDetailComponent implements OnInit {
       return '';
     }
   }
-
 
   reset() {
     if (this.addItemToShoppingListDtoReset) {
