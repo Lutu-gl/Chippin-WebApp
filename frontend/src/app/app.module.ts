@@ -93,6 +93,7 @@ import {VisualizationComponent} from "./components/visualization/visualization.c
 import {CarouselModule} from "primeng/carousel";
 import {FileUploadModule} from "primeng/fileupload";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {ImageModule} from "primeng/image";
 
 
 @NgModule({
@@ -126,30 +127,30 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
     VisualizationComponent
   ],
 
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        FormsModule,
-        BrowserAnimationsModule, ToastrModule.forRoot(),
-        ShoppingListComponent,
-        BrowserAnimationsModule,
-        ToastrModule.forRoot(),
-        ShoppingListComponent,
-        MenuCardComponent,
-        InputTextModule,
-        InputNumberModule,
-        ProgressBarModule,
-        GroupInfoCardContentComponent,
-        FriendsInfoCardContentComponent,
-        ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
-        RecipeInfoCardContentComponent,
-        DropdownModule,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgbModule,
+    FormsModule,
+    BrowserAnimationsModule, ToastrModule.forRoot(),
+    ShoppingListComponent,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    ShoppingListComponent,
+    MenuCardComponent,
+    InputTextModule,
+    InputNumberModule,
+    ProgressBarModule,
+    GroupInfoCardContentComponent,
+    FriendsInfoCardContentComponent,
+    ExpenseInfoCardContentComponent,
+    ItemListInfoCardContentComponent,
+    RecipeInfoCardContentComponent,
+    DropdownModule,
+    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, ImageModule
+  ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
     exports: [
