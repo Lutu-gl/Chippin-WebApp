@@ -529,6 +529,8 @@ export class GroupInfoComponent implements OnInit {
   amountOfSelectedDebtMember: number;
 
   showDialogSettleDebts() {
+    this.selectedDebtMemberVar = undefined;
+    this.amountOfSelectedDebtMember = undefined;
     this.visibleModalSettleDebts = true;
   }
 
