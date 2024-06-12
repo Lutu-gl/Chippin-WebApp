@@ -148,7 +148,6 @@ tooSmall=false;
         this.recipe.ingredients.splice(index, 1);
         this.service.deleteIngredient(this.recipeId,id).subscribe({
           next: res => {
-            console.log('deleted recipe: ', res);
             this.messageService.add({
               severity: 'success',
               summary: 'Successful',
@@ -205,22 +204,31 @@ tooSmall=false;
 
 
   deleteRecipe() {
-    this.service.deleteRecipe(this.recipe.id).subscribe({
-      next: res => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: `Recipe successfully deleted`,
-          life: 3000
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + this.recipe.name + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.service.deleteRecipe(this.recipe.id).subscribe({
+          next: res => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: `Recipe successfully deleted`,
+              life: 3000
+            });
+
+          },
+          error: err => {
+            this.printError(err);
+          }
         });
 
-      },
-      error: err => {
-        this.printError(err);
+        this.router.navigate(['/recipe']);
       }
     });
 
-    this.router.navigate(['/recipe']);
+
   }
   printError(error): void {
     if (error && error.error && error.error.errors) {
