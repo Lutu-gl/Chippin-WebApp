@@ -4,9 +4,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Random;
 
 @Component
 @AllArgsConstructor
@@ -26,11 +29,12 @@ public class RecipeDataGenerator implements DataGenerator {
     UserService userService;
     ItemRepository itemRepository;
     RecipeRepository recipeRepository;
+    RecipeService recipeService;
 
 
     @Override
     @Transactional
-    public void generateData() {
+    public void generateData() throws AlreadyRatedException {
         LOGGER.debug("generating data for recipes");
         List<ApplicationUser> users = userRepository.findAll();
 
@@ -1860,6 +1864,19 @@ public class RecipeDataGenerator implements DataGenerator {
         user1.addRecipe(newRecipe26);
         recipeRepository.saveAndFlush(newRecipe26);
         userRepository.saveAndFlush(user1);
+
+        List<Recipe> recipes = recipeRepository.findByIsPublicTrueOrderByLikesDesc();
+
+        Random random = new Random();
+        random.setSeed(12345);
+
+        for (Recipe recipe : recipes) {
+            for (ApplicationUser user : users) {
+                if (random.nextBoolean()) {
+                    recipeService.likeRecipe(recipe.getId(), user);
+                }
+            }
+        }
     }
 
     @Override
