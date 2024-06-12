@@ -70,6 +70,9 @@
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"/>
       </div>
+      <div class="field pt-5" *ngIf="displayMergeWarning(createEditItem)">
+        <small style="color: #ffc107"><i class="pi pi-exclamation-triangle"></i> Item with the same name and unit already exists. Items will be merged.</small>
+      </div>
     </div>
     <div *ngIf="isMergeSelected()">
       <div class="field">

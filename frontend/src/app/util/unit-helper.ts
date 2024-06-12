@@ -1,6 +1,7 @@
 import {
   DisplayedUnit,
-  ItemCreateDto, ItemDetailDto,
+  ItemCreateDto,
+  ItemDetailDto,
   PantryItemCreateDisplayDto,
   PantryItemCreateDto,
   PantryItemDetailDto,
@@ -43,6 +44,23 @@ export function unitToDisplayedUnit(unit: Unit): DisplayedUnit {
       return DisplayedUnit.Milliliter;
     case Unit.Gram:
       return DisplayedUnit.Gram;
+  }
+}
+
+export function displayedUnitToUnit(unit: DisplayedUnit): Unit {
+  switch (unit){
+    case DisplayedUnit.Piece:
+      return Unit.Piece;
+    case DisplayedUnit.Pieces:
+      return Unit.Piece;
+    case DisplayedUnit.Milliliter:
+      return Unit.Milliliter;
+    case DisplayedUnit.Liter:
+      return Unit.Milliliter;
+    case DisplayedUnit.Gram:
+      return Unit.Gram;
+    case DisplayedUnit.Kilogram:
+      return Unit.Gram;
   }
 }
 

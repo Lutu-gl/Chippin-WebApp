@@ -31,6 +31,7 @@ import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {
+  displayedUnitToUnit,
   formatAmount,
   formatLowerLimit,
   getAmountForCreateEdit,
@@ -507,6 +508,10 @@ export class PantryComponent implements OnInit {
 
   mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
     return this.items.filter(i => i.id != item.id);
+  }
+
+  displayMergeWarning(item: PantryItemCreateDisplayDto) {
+    return this.items.find(i => i.unit === displayedUnitToUnit(item.unit) && i.description === item.description && i.id !== item?.id) !== undefined;
   }
 
   protected readonly getStepSize = getStepSize;
