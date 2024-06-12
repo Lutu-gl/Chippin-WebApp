@@ -127,12 +127,18 @@ public class ImportExportServiceImpl implements ImportExportService {
         }
 
         String[] lines = content.split("\n");
-        String[] firstLine = lines[0].split(";");
+        String[] firstLine = sanitizeCsvField(lines[0]).split(";");
         importExportValidator.validateSplitwiseFirstLine(firstLine);
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         for (int i = 1; i < lines.length; i++) {
             String[] line = lines[i].split(";");
+
+
+            // Sanitize each field of the CSV
+            for (int j = 0; j < line.length; j++) {
+                line[j] = sanitizeCsvField(line[j]);
+            }
 
             //TODO Create expense here, dont forget to use currency converter
             Expense expense = Expense.builder()
@@ -320,6 +326,12 @@ public class ImportExportServiceImpl implements ImportExportService {
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF", e);
         }
+    }
+
+    // Sanitize CSV field to prevent CSV Injection
+    private String sanitizeCsvField(String field) {
+        // Wrap each cell field in double quotes, prepend with a single quote, and escape every double quote
+        return "\"" + field.replace("\"", "\"\"") + "\"";
     }
 
 
