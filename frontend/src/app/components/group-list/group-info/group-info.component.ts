@@ -168,7 +168,7 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.expenseCreateComponent.resetMode();
-    this.expenseCreateComponent.ngOnChanges(null);
+    // this.expenseCreateComponent.ngOnChanges(null);
   }
 
   closeCreateExpenseDialog(): void {
@@ -181,7 +181,7 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.info;
     this.expenseCreateComponent.resetMode();
-    this.expenseCreateComponent.ngOnChanges(null);
+    // this.expenseCreateComponent.ngOnChanges(null);
   }
 
   expenseModalHided(): void {

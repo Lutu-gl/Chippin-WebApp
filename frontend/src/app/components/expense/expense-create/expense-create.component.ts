@@ -187,14 +187,24 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.mode === ExpenseCreateEditMode.create) {
+
+    if (changes.mode && changes.mode.currentValue === ExpenseCreateEditMode.create) {
       this.prepareGroupOnCreate();
-    } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
+    } else if (changes.mode && (changes.mode.currentValue === ExpenseCreateEditMode.info || changes.mode.currentValue === ExpenseCreateEditMode.edit)) {
       this.prepareWholeExpense();
     }
+
+
+    // if (this.mode === ExpenseCreateEditMode.create) {
+    //   this.prepareGroupOnCreate();
+    // } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
+    //   this.prepareWholeExpense();
+    // }
   }
 
   private prepareGroupOnCreate(): void {
+    console.log("prepareGroupOnCreate")
+
     this.expenseDeleted = false;
     this.expenseName = undefined;
     this.expenseAmount = undefined;
@@ -202,7 +212,7 @@ export class ExpenseCreateComponent implements OnChanges {
     this.selectedPayer = { name: '' };
     this.imageUrl = null;
     this.selectedFile = null;
-    
+
     const groupId = Number(this.route.snapshot.paramMap.get('id'));
     if (groupId) {
       this.groupService.getById(groupId).subscribe({
@@ -231,6 +241,8 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
   private prepareWholeExpense(): void {
+    console.log("prepareWholeExpense")
+
     if (!this.expenseId) {
       return;
     }
@@ -253,7 +265,7 @@ export class ExpenseCreateComponent implements OnChanges {
           .sort((a, b) => a.email.localeCompare(b.email));
         this.allPayers = this.group.members.map(member => ({name: member["email"]}))
           .sort((a, b) => a.name.localeCompare(b.name));
-        
+
         if (data.containsBill) {
           this.expenseService.getExpenseBillById(this.expenseId).subscribe({
             next: blob => {
