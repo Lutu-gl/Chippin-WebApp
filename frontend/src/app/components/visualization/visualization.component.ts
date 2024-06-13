@@ -726,8 +726,8 @@ export class VisualizationComponent implements OnInit {
       options: graphOptions,
       type: "bar",
       title: "Expenses per user per month",
-      description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>" +
-        "The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
+      description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>
+        The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
     };
     this.charts.push(finalData);
   }

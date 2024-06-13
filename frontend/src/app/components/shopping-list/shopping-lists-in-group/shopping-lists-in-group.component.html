@@ -7,7 +7,7 @@
   <div *ngFor="let list of getSortedShoppingLists()" [routerLink]="['/shopping-list', list.id]"
        class="flex flex-col justify-between p-4 bg-blue-50 rounded-lg shadow hover:cursor-pointer">
     <h1 class="font-semibold">
-      {{ list.groupName }}
+      {{ list.name }}
     </h1>
     <div class="font-light">
       {{list.itemCount - list.checkedItemCount}} item{{list.itemCount - list.checkedItemCount === 1 ? "" : "s"}} left
