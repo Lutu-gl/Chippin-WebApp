@@ -38,25 +38,26 @@ public class PantryDataGenerator implements DataGenerator {
             {
                 pantryItems = List.of(
                     PantryItem.builder().description("Blackberry Jam").unit(Unit.Gram).amount(300).lowerLimit(null).build(),
-                    PantryItem.builder().description("Rice").unit(Unit.Gram).amount(2000).lowerLimit(null).build(),
+                    PantryItem.builder().description("Rice").unit(Unit.Gram).amount(2000).lowerLimit(1000L).build(),
                     PantryItem.builder().description("Salt").unit(Unit.Gram).amount(300).lowerLimit(50L).build(),
                     PantryItem.builder().description("Pasta").unit(Unit.Gram).amount(750).lowerLimit(null).build(),
                     PantryItem.builder().description("Chocolate").unit(Unit.Gram).amount(400).lowerLimit(100L).build(),
                     PantryItem.builder().description("Tea Bags").unit(Unit.Piece).amount(50).lowerLimit(null).build(),
                     PantryItem.builder().description("Canned Tuna").unit(Unit.Piece).amount(3).lowerLimit(null).build(),
-                    PantryItem.builder().description("Lemon").unit(Unit.Piece).amount(4).lowerLimit(null).build(),
-                    PantryItem.builder().description("Onion").unit(Unit.Piece).amount(6).lowerLimit(1L).build(),
+                    PantryItem.builder().description("Lemon").unit(Unit.Piece).amount(2).lowerLimit(null).build(),
+                    PantryItem.builder().description("Apple").unit(Unit.Piece).amount(6).lowerLimit(null).build(),
+                    PantryItem.builder().description("Onion").unit(Unit.Piece).amount(3).lowerLimit(4L).build(),
                     PantryItem.builder().description("Pine Nuts").unit(Unit.Gram).amount(200).lowerLimit(null).build(),
                     PantryItem.builder().description("Brown Sugar").unit(Unit.Gram).amount(500).lowerLimit(null).build(),
                     PantryItem.builder().description("Oatmeal").unit(Unit.Gram).amount(1000).lowerLimit(200L).build(),
                     PantryItem.builder().description("Peanuts").unit(Unit.Gram).amount(300).lowerLimit(null).build(),
                     PantryItem.builder().description("Milk").unit(Unit.Milliliter).amount(1500).lowerLimit(null).build(),
                     PantryItem.builder().description("Potato").unit(Unit.Piece).amount(5).lowerLimit(null).build(),
+                    PantryItem.builder().description("Tomato").unit(Unit.Piece).amount(4).lowerLimit(null).build(),
                     PantryItem.builder().description("Cereal").unit(Unit.Gram).amount(800).lowerLimit(null).build(),
                     PantryItem.builder().description("Eggs").unit(Unit.Piece).amount(18).lowerLimit(4L).build(),
                     PantryItem.builder().description("Black Tea").unit(Unit.Gram).amount(100).lowerLimit(null).build(),
                     PantryItem.builder().description("Rice").unit(Unit.Gram).amount(2500).lowerLimit(200L).build(),
-                    PantryItem.builder().description("Apple").unit(Unit.Piece).amount(6).lowerLimit(null).build(),
                     PantryItem.builder().description("Bread").unit(Unit.Piece).amount(1).lowerLimit(null).build(),
                     PantryItem.builder().description("Yogurt").unit(Unit.Gram).amount(300).lowerLimit(null).build(),
                     PantryItem.builder().description("Chicken Breast").unit(Unit.Gram).amount(900).lowerLimit(null).build(),
@@ -65,7 +66,6 @@ public class PantryDataGenerator implements DataGenerator {
                     PantryItem.builder().description("Salmon Fillet").unit(Unit.Gram).amount(400).lowerLimit(null).build(),
                     PantryItem.builder().description("Canned Beans").unit(Unit.Piece).amount(3).lowerLimit(null).build(),
                     PantryItem.builder().description("Lettuce").unit(Unit.Piece).amount(1).lowerLimit(null).build(),
-                    PantryItem.builder().description("Tomato").unit(Unit.Piece).amount(4).lowerLimit(null).build(),
                     PantryItem.builder().description("Cheese").unit(Unit.Gram).amount(200).lowerLimit(null).build(),
                     PantryItem.builder().description("Banana").unit(Unit.Piece).amount(4).lowerLimit(null).build(),
                     PantryItem.builder().description("Peanut Butter").unit(Unit.Gram).amount(400).lowerLimit(100L).build(),
@@ -524,7 +524,6 @@ public class PantryDataGenerator implements DataGenerator {
             }
         int itemsPerPantry = pantryItems.size() / groups.size();
 
-
         int listIndex = 0;
         for (GroupEntity group : groups) {
             Pantry pantry = Pantry.builder()
@@ -532,51 +531,14 @@ public class PantryDataGenerator implements DataGenerator {
                 .build();
             pantry.setGroup(group);
             group.setPantry(pantry);
+            group = groupRepository.save(group); //save to generate id
 
-            if (group.getGroupName().equals("PantryTestGroup1")) {
-                PantryItem item1 = PantryItem.builder()
-                    .description("PantryTest-Potato")
-                    .unit(Unit.Piece)
-                    .amount(2)
-                    .build();
-                group.getPantry().addItem(item1);
-
-                PantryItem item2 = PantryItem.builder()
-                    .description("PantryTest-Milk")
-                    .unit(Unit.Milliliter)
-                    .amount(500)
-                    .build();
-                group.getPantry().addItem(item2);
-
-                PantryItem item3 = PantryItem.builder()
-                    .description("PantryTest-Tea")
-                    .unit(Unit.Gram)
-                    .amount(250)
-                    .build();
-                group.getPantry().addItem(item3);
-
-                PantryItem item4 = PantryItem.builder()
-                    .description("PantryTest-Bread")
-                    .unit(Unit.Gram)
-                    .amount(900)
-                    .build();
-                group.getPantry().addItem(item4);
-            } else if (group.getGroupName().equals("PantryTestGroup2")) {
-                PantryItem item5 = PantryItem.builder()
-                    .description("PantryTest-Potato")
-                    .unit(Unit.Piece)
-                    .amount(2)
-                    .build();
-                group.getPantry().addItem(item5);
-            } else if (!group.getGroupName().equals("PantryTestGroup3")) {
-                group = groupRepository.save(group);
-                pantry = pantryRepository.getReferenceById(group.getId());
-                for (int i = listIndex; i < itemsPerPantry; i++) {
-                    pantryService.addItemToPantry(pantryItems.get(i), pantry.getId());
-                    listIndex = i;
-                }
+            pantry = pantryRepository.getReferenceById(group.getId());
+            for (int i = listIndex; i < itemsPerPantry; i++) {
+                pantryService.addItemToPantry(pantryItems.get(i), pantry.getId());
+                listIndex = i;
             }
-            groupRepository.save(group); // update groups
+            groupRepository.save(group); //save changes
         }
     }
 

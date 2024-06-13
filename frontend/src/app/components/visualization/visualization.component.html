@@ -4,7 +4,7 @@
     {{ group.groupName }}
   </div>
 
-  <div *ngIf="charts.length < 3" class="w-full min-h-96 flex justify-center items-center">
+  <div *ngIf="charts.length < 5" class="w-full min-h-96 flex justify-center items-center">
     <p-progressSpinner [style]="{'width': '60px'}"></p-progressSpinner>
   </div>
 
@@ -14,6 +14,16 @@
     <ng-template let-chart pTemplate="item">
       <div class="flex flex-col items-center" style="width: 100%; height: 700px;">
         <p class="m-6 text-4xl font-bold" [innerHTML]="chart.title"></p>
+        <label for="dataRange">Select dates</label>
+        <p-calendar
+          id="dataRange"
+          [(ngModel)]="rangeDates"
+          selectionMode="range"
+          [readonlyInput]="true"
+          [minDate]="minDate"
+          [maxDate]="today"
+          [numberOfMonths]="2"
+          (ngModelChange)="getExpenses(rangeDates)"/>
         <p-chart [type]="chart.type" [data]="chart.data" [options]="chart.options" width="1200px"
                  height="500px"></p-chart>
         <p class="mt-2" [innerHTML]="chart.description"></p>

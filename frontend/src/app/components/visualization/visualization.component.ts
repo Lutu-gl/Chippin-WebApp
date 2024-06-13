@@ -14,6 +14,7 @@ import {
   groupExpensesByUserEmail,
   sumExpensesPerUserPerMonth
 } from "./chartHelper";
+import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/segment_marker";
 
 @Component({
   selector: 'app-visualization',
@@ -75,7 +76,9 @@ export class VisualizationComponent implements OnInit {
 
 
   charts: any[] = [];
-
+  rangeDates: Date[] | undefined;
+  today: Date = new Date();
+  minDate: Date = new Date();
 
   ngOnInit(): void {
     this.documentStyle = getComputedStyle(document.documentElement);
@@ -103,7 +106,7 @@ export class VisualizationComponent implements OnInit {
           }
         })
         //load expenses
-        this.getExpenses()
+        this.getExpenses([new Date(1970), new Date()])
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -122,11 +125,28 @@ export class VisualizationComponent implements OnInit {
     });
   }
 
-  getExpenses() {
-
+  getExpenses(dates: Date[]) {
+    console.log("EXPENSES")
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
-        this.expenses = res;
+
+        //Convert date from backend to Date()
+        res.forEach(e => {
+          let date: String[] = e.date.toString().split('-');
+          date[2] = date[2].split('T')[0];
+          e.date = new Date(+date[0], +date[1], +date[2]);
+          if(e.date.getTime() < this.minDate.getTime()) {
+            this.minDate = e.date;
+          }
+        })
+
+        if(!this.rangeDates) {
+          this.rangeDates = [this.minDate, this.today];
+        }
+
+        //filter date
+        this.expenses = res.filter(e => e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= dates[1].getTime());
+
         this.formatDataForGraphs();
         this.formatDataForSpendEuroInCategory()
         this.formatDataExpensesPayedPerPerson()
@@ -252,14 +272,22 @@ export class VisualizationComponent implements OnInit {
     };
 
 
+    let dates: Date[] | undefined = [this.minDate, this.today];
+
     let finalData = {
       data: graphData,
       options: graphOptions,
       type: "bar",
       description: this.getDescriptionForExpensesMadePerPerson(),
-      title: "Number of Expenses payed by group member"
+      title: "Number of Expenses payed by group member",
+      dates: dates
     };
-    this.charts.push(finalData);
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if(chart !== -1){
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
   }
 
   private getDescriptionForExpensesMadePerPerson() {
@@ -370,14 +398,22 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
+    let dates: Date[] | undefined = [this.minDate, this.today];
+
     let finalData = {
       data: graphData,
       options: graphOptions,
       type: "bar",
       description: this.getDescriptionForExpensesMadePerPersonCash(),
-      title: "Amount of Expenses payed by group member"
+      title: "Amount of Expenses payed by group member",
+      dates: dates
     };
-    this.charts.push(finalData);
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if(chart !== -1){
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
   }
 
   private getDescriptionForExpensesMadePerPersonCash() {
@@ -529,14 +565,22 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
+    let dates: Date[] | undefined = [this.minDate, this.today];
+
     let finalData: any = {
       data: graphData,
       options: graphOptions,
       type: type,
       description: this.getDescriptionForSpendEuroInCategory(data, labels),
-      title: "Expenses by category"
+      title: "Expenses by category",
+      dates: dates
     };
-    this.charts.push(finalData);
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if(chart !== -1){
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
   }
 
   getDescriptionForSpendEuroInCategory(data, labels) {
@@ -645,14 +689,22 @@ export class VisualizationComponent implements OnInit {
       }
     };
 
+    let dates: Date[] | undefined = [this.minDate, this.today];
+
     let finalData = {
       data: graphData,
       options: graphOptions,
       type: "bar",
       description: this.getDescriptionForAmountSpendPerPerson(),
-      title: "Amount of money spend by group member"
+      title: "Amount of money spend by group member",
+      dates: dates
     };
-    this.charts.push(finalData);
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if(chart !== -1){
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
   }
 
   getDescriptionForAmountSpendPerPerson() {
@@ -729,7 +781,12 @@ export class VisualizationComponent implements OnInit {
       description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>
         The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
     };
-    this.charts.push(finalData);
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if(chart !== -1){
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
   }
 
   backToGroup() {
