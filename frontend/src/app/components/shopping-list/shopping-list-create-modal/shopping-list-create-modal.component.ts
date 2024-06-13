@@ -33,6 +33,7 @@ export class ShoppingListCreateModalComponent implements OnInit {
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() update = new EventEmitter();
+  @Input() preChosenGroupId: number | null = null;
   categories: string[] = [];
   filteredGroups: GroupDetailDto[];
   allGroups: GroupDetailDto[] = [];
@@ -51,7 +52,9 @@ export class ShoppingListCreateModalComponent implements OnInit {
   ) {
   }
 
-  ngOnInit(): void {
+  ngOnInit() {}
+
+  ngOnChanges(): void {
     this.categories = valuesIn(Category);
     this.groupService.getGroups().subscribe({
         next: data => {
@@ -63,6 +66,17 @@ export class ShoppingListCreateModalComponent implements OnInit {
         }
       }
     );
+    if (this.preChosenGroupId) {
+      this.groupService.getById(this.preChosenGroupId).subscribe({
+        next: group => {
+          this.shoppingListToCreate.group = group;
+        },
+        error: error => {
+          console.error(error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load group'});
+        }
+      });
+    }
   }
 
   hide() {

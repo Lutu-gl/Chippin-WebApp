@@ -4,13 +4,23 @@
   <!--        <span class="text-xl mr-2">+</span> Add member-->
   <!--      </button>-->
   <!--    </div>-->
+  <p-button label="Create new shopping list" class="pb-4 mx-auto" (click)="showCreateModal = true"></p-button>
+  <div *ngIf="getSortedShoppingLists().length === 0" class="flex flex-col items-center gap-4">
+    <div class="text-lg font-bold">No shopping lists yet</div>
+    <div class="text-gray-500">Create a new shopping list to get started</div>
+  </div>
   <div *ngFor="let list of getSortedShoppingLists()" [routerLink]="['/shopping-list', list.id]"
        class="flex flex-col justify-between p-4 bg-blue-50 rounded-lg shadow hover:cursor-pointer">
     <h1 class="font-semibold">
-      {{ list.groupName }}
+      {{ list.name }}
     </h1>
     <div class="font-light">
-      {{list.itemCount - list.checkedItemCount}} item{{list.itemCount - list.checkedItemCount === 1 ? "" : "s"}} left
+      {{ list.itemCount - list.checkedItemCount }} item{{ list.itemCount - list.checkedItemCount === 1 ? "" : "s" }}
+      left
     </div>
   </div>
 </div>
+
+<app-shopping-list-create-modal [(visible)]="showCreateModal"
+                                [preChosenGroupId]="groupId"
+                                (update)="loadGroupShoppingLists()"></app-shopping-list-create-modal>
