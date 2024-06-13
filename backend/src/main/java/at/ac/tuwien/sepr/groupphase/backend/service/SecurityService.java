@@ -28,6 +28,7 @@ public class SecurityService {
      * @return true if the id corresponds to the currently authenticated user, false otherwise
      */
     public boolean hasCorrectId(Long userId) {
+        log.trace("hasCorrectId({})", userId);
         log.debug("Checking if the given id {} corresponds to the currently authenticated user", userId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (userId == null) {
@@ -50,6 +51,7 @@ public class SecurityService {
      */
     @Transactional
     public boolean isGroupMember(Long groupId) {
+        log.trace("isGroupMember({})", groupId);
         log.debug("Checking if the given group id corresponds to the currently authenticated user");
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (groupId == null) {
@@ -70,6 +72,7 @@ public class SecurityService {
 
     @Transactional
     public boolean canAccessShoppingList(Long shoppingListId) {
+        log.trace("canAccessShoppingList({})", shoppingListId);
         log.debug("Checking if the currently authenticated user can access the shopping list with id {}", shoppingListId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (shoppingListId == null) {
@@ -100,6 +103,7 @@ public class SecurityService {
 
     @Transactional
     public boolean canAccessRecipe(Long recipeId) {
+        log.trace("canAccessRecipe({})", recipeId);
         log.debug("Checking if the currently authenticated user can access the recipe with id {}", recipeId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (recipeId == null) {
@@ -127,6 +131,7 @@ public class SecurityService {
 
     @Transactional
     public boolean canEditRecipe(Long recipeId) {
+        log.trace("canEditRecipe({})", recipeId);
         log.debug("Checking if the currently authenticated user can access the recipe with id {}", recipeId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (recipeId == null) {
