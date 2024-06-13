@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExchangeRateService;
 import org.slf4j.Logger;
@@ -42,6 +43,9 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                 LOGGER.error("Could not fetch Exchange rates because of: {}", e.getMessage());
             }
             rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
+        }
+        if (rate == null) {
+            throw new NotFoundException("Could not find ExchangeRate for Currency: " + currency);
         }
 
         return amount / rate.getRate();
