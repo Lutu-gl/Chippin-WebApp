@@ -52,6 +52,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long ownerId) {
+        log.trace("createShoppingList({}, {})", shoppingListCreateDto, ownerId);
         log.debug("Creating shopping list {} for user {}", shoppingListCreateDto, ownerId);
         ShoppingList shoppingList = shoppingListMapper.shoppingListCreateDtoToShoppingList(shoppingListCreateDto);
         // Add owner to shopping list
@@ -72,6 +73,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public ShoppingList getShoppingList(Long id) {
+        log.trace("getShoppingList({})", id);
         log.debug("Getting shopping list with id {}", id);
         var shoppingList = shoppingListRepository.findById(id).orElseThrow(() -> new NotFoundException("Shopping list with id " + id + " not found"));
         log.debug("Found shopping list: {}", shoppingList);
@@ -94,6 +96,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * @param shoppingList the shopping list to merge the item into
      */
     public ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
+        log.trace("mergeNewItem({}, {})", item, shoppingList);
         log.debug("Merging item {} into shopping list {}", item, shoppingList);
         var updatedItem = item;
         var existingItem = shoppingList.getItems().stream()
@@ -118,6 +121,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) {
+        log.trace("addItemForUser({}, {}, {})", shoppingListId, itemCreateDto, userId);
         log.debug("Adding item {} to shopping list with id {}", itemCreateDto, shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
@@ -136,7 +140,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public Long deleteItem(Long shoppingListId, Long itemId) {
-        log.debug("Deleting item with id {} from shopping list with id {}", itemId, shoppingListId);
+        log.trace("deleteItem({}, {})", shoppingListId, itemId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
         );
@@ -153,6 +157,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public List<ShoppingList> getShoppingListsForGroup(Long groupId) {
+        log.trace("getShoppingListsForGroup({})", groupId);
         log.debug("Getting shopping lists for group {}", groupId);
         List<ShoppingList> shoppingLists = shoppingListRepository.findAllByGroupId(groupId);
         log.debug("Found {} shopping lists for group {}", shoppingLists.size(), groupId);
@@ -162,6 +167,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) throws ConflictException {
+        log.trace("updateShoppingList({}, {})", shoppingListId, shoppingList);
         log.debug("Updating shopping list with id {}", shoppingListId);
         var shoppingListEntity =
             shoppingListRepository.findById(shoppingListId).orElseThrow(() -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
@@ -182,6 +188,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public List<ShoppingList> getShoppingListsForUser(Long userId) {
+        log.trace("getShoppingListsForUser({})", userId);
         log.debug("Getting shopping lists for user {}", userId);
         var ownedShoppingLists = shoppingListRepository.findAllByOwnerId(userId);
         log.debug("Found {} shopping lists where user is owner", ownedShoppingLists.size());
@@ -196,7 +203,15 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         return ownedShoppingLists;
     }
 
+    /**
+     * Merge an item that already exists in a shopping list into that shopping list.
+     *
+     * @param item The item to merge
+     * @param shoppingList The shopping list to merge the item into
+     * @return The updated item
+     */
     private ShoppingListItem mergeExistingItem(ShoppingListItem item, ShoppingList shoppingList) {
+        log.trace("mergeExistingItem({}, {})", item, shoppingList);
         var updatedItem = item;
         // Check if item already exists in shopping list
         var existingItem = shoppingList.getItems().stream()
@@ -219,6 +234,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId) {
+        log.trace("updateItemForUser({}, {}, {}, {})", shoppingListId, itemId, shoppingListItemUpdateDto, userId);
         log.debug("Updating item with id {} in shopping list with id {} for user with id {}", itemId, shoppingListId, userId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
@@ -247,6 +263,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public void moveItemToPantry(Long shoppingListId, Long itemId) {
+        log.trace("moveItemToPantry({}, {})", shoppingListId, itemId);
         log.debug("Moving item with id {} to pantry from group in shopping list with id {}", itemId, shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
@@ -272,6 +289,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public void moveItemsToPantry(Long shoppingListId) {
+        log.trace("moveItemsToPantry({})", shoppingListId);
         log.debug("Moving all checked items to pantry from shopping list with id {}", shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
@@ -309,6 +327,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) {
+        log.trace("addItemsForUser({}, {}, {})", shoppingListId, items, userId);
         log.debug("Adding items to shopping list with id {} for user with id {}", shoppingListId, userId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
@@ -329,6 +348,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId) {
+        log.trace("selectIngredientsForShoppingList({}, {}, {})", recipeId, shoppingListId, pantryId);
         //Get Recipe
         List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
 
