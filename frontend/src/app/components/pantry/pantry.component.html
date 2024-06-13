@@ -348,13 +348,22 @@
               ></p-button>
             </td>
             <td>
-              <button type="button">
-                <p-tag
-                  [severity]="getTagSeverity(belowMinimum(item))"
-                  (click)="getTagSeverity(belowMinimum(item))">
-                  {{ formatLowerLimit(item) }}
-                </p-tag>
-              </button>
+              <div class="flex items-center gap-2">
+              <p-tag
+                [severity]="getTagSeverity(belowMinimum(item))"
+                (click)="getTagSeverity(belowMinimum(item))">
+                {{ formatLowerLimit(item) }}
+              </p-tag>
+              <!-- Quick add to shopping list -->
+              <p-tag
+                class="hover:cursor-pointer"
+                *ngIf="belowMinimum(item)"
+                pRipple
+                pTooltip="Add to shopping list"
+                icon="pi pi-shopping-cart"
+                severity="info">
+              </p-tag>
+              </div>
             </td>
             <td>
               <p-button
