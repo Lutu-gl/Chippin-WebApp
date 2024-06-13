@@ -4,6 +4,8 @@ import {ShoppingListListDto} from "../../../dtos/shoppingList";
 import {ShoppingListService} from "../../../services/shopping-list.service";
 import {MessageService} from "primeng/api";
 import {RouterLink} from "@angular/router";
+import {ButtonModule} from "primeng/button";
+import {ShoppingListCreateModalComponent} from "../shopping-list-create-modal/shopping-list-create-modal.component";
 
 @Component({
   selector: 'app-shopping-lists-in-group',
@@ -12,7 +14,9 @@ import {RouterLink} from "@angular/router";
     CurrencyPipe,
     NgForOf,
     NgIf,
-    RouterLink
+    RouterLink,
+    ButtonModule,
+    ShoppingListCreateModalComponent
   ],
   templateUrl: './shopping-lists-in-group.component.html',
   styleUrl: './shopping-lists-in-group.component.scss'
@@ -20,6 +24,7 @@ import {RouterLink} from "@angular/router";
 export class ShoppingListsInGroupComponent implements OnInit {
   @Input() groupId!: number;
   groupShoppingLists: ShoppingListListDto[] = [];
+  showCreateModal: boolean;
 
   constructor(
     private shoppingListService: ShoppingListService,
