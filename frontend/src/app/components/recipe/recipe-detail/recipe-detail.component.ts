@@ -114,6 +114,7 @@ export class RecipeDetailComponent implements OnInit {
         next: dto => {
           this.addItemToShoppingListDto = dto;
           this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+          this.selectedIngredients=this.addItemToShoppingListDtoReset.recipeItems;
           this.shoppingList = {...this.shoppingList};
           console.log(dto);
         }, error: error => {
