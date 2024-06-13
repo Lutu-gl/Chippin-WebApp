@@ -69,6 +69,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
+    private final ExchangeRateServiceImpl exchangeRateServiceImpl;
 
     @Override
     public EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException {
@@ -127,17 +128,23 @@ public class ImportExportServiceImpl implements ImportExportService {
         }
 
         String[] lines = content.split("\n");
-        String[] firstLine = lines[0].split(";");
+        String[] firstLine = sanitizeCsvField(lines[0]).split(";");
         importExportValidator.validateSplitwiseFirstLine(firstLine);
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         for (int i = 1; i < lines.length; i++) {
             String[] line = lines[i].split(";");
 
-            //TODO Create expense here, dont forget to use currency converter
+
+            // Sanitize each field of the CSV
+            for (int j = 0; j < line.length; j++) {
+                line[j] = sanitizeCsvField(line[j]);
+            }
+
             Expense expense = Expense.builder()
                 .name(line[1])
                 .category(getEnumConstantOrDefault(line[2], Category.class, Category.Other))
+                //.amount(exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line[3]), line[4]))
                 .amount(Double.parseDouble(line[3]))
                 .date(LocalDate.parse(line[0], dateTimeFormatter).atStartOfDay())
                 .payer(userRepository.findByEmail(firstLine[getPayerIndex(line)]))
@@ -320,6 +327,20 @@ public class ImportExportServiceImpl implements ImportExportService {
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF", e);
         }
+    }
+
+    // Sanitize CSV field to prevent CSV Injection
+    private String sanitizeCsvField(String field) {
+
+        field = field.replace("=", "");
+        field = field.replace("+", "");
+        field = field.replace("-", "");
+        field = field.replace("@", "");
+        field = field.replace("\t", "");
+        field = field.replace("\r", "");
+        field = field.replace("'", "\"'\"");
+        // Wrap each cell field in double quotes, prepend with a single quote, and escape every double quote
+        return "\"" + field.replace("\"", "\"\"") + "\"";
     }
 
 

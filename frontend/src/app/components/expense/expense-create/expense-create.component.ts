@@ -401,7 +401,7 @@ export class ExpenseCreateComponent implements OnChanges {
   private createNewExpense(expense: ExpenseCreateDto): void {
     this.expenseService.createExpense(expense).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Created expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense created  successfully!'});
         this.expenseName = undefined;
         this.expenseAmount = undefined;
         this.selectedCategory = {name: ''};
@@ -418,7 +418,7 @@ export class ExpenseCreateComponent implements OnChanges {
   private editExistingExpense(expenseId: number, expense: ExpenseCreateDto): void {
     this.expenseService.updateExpense(expenseId, expense).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Updated expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully updated!'});
         this.mode = ExpenseCreateEditMode.info;
         this.closeDialog.emit();
       },
@@ -431,7 +431,7 @@ export class ExpenseCreateComponent implements OnChanges {
   public deleteExistingExpense(): void {
     this.expenseService.deleteExpense(this.expenseId).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Deleted expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully deleted!'});
         this.expenseDeleted = true;
         this.closeDeleteDialog();
         this.closeDialog.emit();
@@ -446,7 +446,7 @@ export class ExpenseCreateComponent implements OnChanges {
   public recoverDeletedExpense(): void {
     this.expenseService.recoverExpense(this.expenseId).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Recovered expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully recovered!'});
         this.expenseDeleted = false;
         this.closeDialog.emit();
       },
