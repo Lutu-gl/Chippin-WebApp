@@ -18,11 +18,33 @@ export class ExpenseService {
   }
 
   createExpense(expense: ExpenseCreateDto): Observable<ExpenseCreateDto> {
-    return this.httpClient.post<ExpenseCreateDto>(this.expenseBaseUri, expense);
+
+    const formData = new FormData();
+    formData.append('name', expense.name);
+    formData.append('amount', expense.amount ? expense.amount.toString() : '');
+    formData.append('category', expense.category ? expense.category : '');
+    formData.append('payerEmail', expense.payerEmail ? expense.payerEmail : '');
+    formData.append('groupId', expense.groupId ? expense.groupId.toString() : '');
+    formData.append('participants', JSON.stringify(expense.participants));
+    if (expense.bill) {
+      formData.append('bill', expense.bill, expense.bill.name);
+    }
+
+    return this.httpClient.post<ExpenseCreateDto>(this.expenseBaseUri, formData);
   }
 
   updateExpense(expenseId: number, expense: ExpenseCreateDto): Observable<ExpenseCreateDto> {
-    return this.httpClient.put<ExpenseCreateDto>(this.expenseBaseUri + `/${expenseId}`, expense);
+    const formData = new FormData();
+    formData.append('name', expense.name);
+    formData.append('amount', expense.amount ? expense.amount.toString() : '');
+    formData.append('category', expense.category ? expense.category : '');
+    formData.append('payerEmail', expense.payerEmail ? expense.payerEmail : '');
+    formData.append('groupId', expense.groupId ? expense.groupId.toString() : '');
+    formData.append('participants', JSON.stringify(expense.participants));
+    if (expense.bill) {
+      formData.append('bill', expense.bill, expense.bill.name);
+    }
+    return this.httpClient.put<ExpenseCreateDto>(this.expenseBaseUri + `/${expenseId}`, formData);
   }
 
   deleteExpense(expenseId: number): Observable<void> {
@@ -40,6 +62,10 @@ export class ExpenseService {
         response.group.members = members;
         return response;
       }));
+  }
+
+  getExpenseBillById(expenseId: number): Observable<Blob> {
+    return this.httpClient.get(this.expenseBaseUri + `/bill/${expenseId}`, { responseType: 'blob' });
   }
 
   getExpensesByGroupId(groupId: number): Observable<ExpenseDetailDto[]> {

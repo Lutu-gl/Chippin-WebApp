@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode
 @Builder
+@ToString
 public class ExpenseCreateDto {
 
     private Long id;
@@ -43,4 +46,6 @@ public class ExpenseCreateDto {
 
     @NotNull(message = "Participants must be given")
     private Map<String, Double> participants;
+
+    private MultipartFile bill;
 }

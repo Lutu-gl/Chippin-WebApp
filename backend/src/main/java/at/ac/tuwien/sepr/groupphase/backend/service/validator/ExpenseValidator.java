@@ -39,6 +39,7 @@ public class ExpenseValidator {
         List<String> validationErrors = new ArrayList<>();
 
         checkPercentagesAddsUpTo1(expense, validationErrors);
+        checkIfFileIsImage(expense, validationErrors);
 
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of expense for creation failed", validationErrors);
@@ -145,6 +146,46 @@ public class ExpenseValidator {
             validationErrors.add("Percentages do not add up to 1");
             return false;
         }
+        return true;
+    }
+
+    private boolean checkIfFileIsImage(ExpenseCreateDto expense, List<String> validationErrors) {
+        if (expense.getBill() == null) {
+            return true;
+        }
+
+        if (expense.getBill().getContentType() == null || !expense.getBill().getContentType().startsWith("image")) {
+            validationErrors.add("Bill is not an image");
+            return false;
+        }
+
+        // check the file extension to be an image
+        String[] allowedExtensions = new String[] { "jpg", "jpeg", "png", "gif" };
+        String fileName = expense.getBill().getOriginalFilename();
+        if (fileName == null) {
+            validationErrors.add("Bill file name is null");
+            return false;
+        }
+
+        boolean validExtension = false;
+        for (String extension : allowedExtensions) {
+            if (fileName.endsWith(extension)) {
+                validExtension = true;
+                break;
+            }
+        }
+
+        if (!validExtension) {
+            validationErrors.add("Bill file is not an image");
+            return false;
+        }
+
+        // check the file size
+        if (expense.getBill().getSize() > 10 * 1024 * 1024) {
+            validationErrors.add("Bill file is too large");
+            return false;
+        }
+
         return true;
     }
 }
