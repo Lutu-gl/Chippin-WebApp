@@ -23,4 +23,5 @@ public class ExpenseDetailDto {
     private Map<String, Double> participants;
     private Boolean deleted;
     private Boolean archived;
+    private Boolean containsBill;
 }
