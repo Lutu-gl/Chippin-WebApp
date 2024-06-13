@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExchangeRateService;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ExchangeRateTest {
+public class ExchangeRateTest extends BaseTest {
     @Autowired
     private ExchangeRateRepository exchangeRateRepository;
     @Autowired
