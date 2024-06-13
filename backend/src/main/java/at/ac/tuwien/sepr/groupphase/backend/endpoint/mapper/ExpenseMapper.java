@@ -95,6 +95,7 @@ public abstract class ExpenseMapper {
     @Mapping(target = "payerEmail", source = "payer", qualifiedByName = "usersToEmail")
     @Mapping(target = "group", source = "group", qualifiedByName = "groupEntityToGroupDetailDto")
     @Mapping(target = "participants", source = "participants", qualifiedByName = "applicationUserToParticipantsEmail")
+    @Mapping(target = "containsBill", source = "billPath", qualifiedByName = "billToContainsBill")
     public abstract ExpenseDetailDto expenseEntityToExpenseDetailDto(Expense expense);
 
     @Named("groupEntityToGroupDetailDto")
@@ -103,5 +104,10 @@ public abstract class ExpenseMapper {
             return null;
         }
         return groupMapper.groupEntityToGroupCreateDto(group);
+    }
+
+    @Named("billToContainsBill")
+    Boolean billToContainsBill(String billPath) {
+        return billPath != null;
     }
 }

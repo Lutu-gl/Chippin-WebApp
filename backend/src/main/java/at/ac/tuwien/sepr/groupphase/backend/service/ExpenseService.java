@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense.ExpenseDetailDt
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.http.ResponseEntity;
 
 public interface ExpenseService {
 
@@ -17,6 +18,16 @@ public interface ExpenseService {
      * @throws NotFoundException if the expense is not found
      */
     ExpenseDetailDto getById(Long id, String requesterEmail) throws NotFoundException;
+
+    /**
+     * Get the bill of a specific expense.
+     *
+     * @param id the id of the expense
+     * @param requesterEmail the email address of the user who requests the bill
+     * @return a response entity with the bill as byte array and the appropriate headers set
+     * @throws NotFoundException if the expense is not found
+     */
+    ResponseEntity<byte[]> getBill(Long id, String requesterEmail) throws NotFoundException;
 
     /**
      * Creates a new expense.

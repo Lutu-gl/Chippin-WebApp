@@ -25,65 +25,107 @@
   </label>
   <label *ngIf="expenseIsArchived()" class="block text-sm font-medium text-gray-700">A member of the expense has left the group, thus it is not possible to make changes.</label>
 
-  <!-- Input fields -->
-  <div class="space-y-4">
-    <!-- Expense name -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Expense Name</label>
-      <input type="text" pInputText
-        [(ngModel)]="expenseName"
-        [readonly]="modeIsInfo()"
+  <!-- Container for the form and the image upload -->
+  <div class="flex">
+    <!-- Existing input fields (left side) -->
+    <div class="space-y-4 w-1/2">
+      <!-- Expense name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Expense Name</label>
+        <input type="text" pInputText
+          [(ngModel)]="expenseName"
+          [readonly]="modeIsInfo()"
+        />
+      </div>
+      <!-- Expense amount -->
+      <div>
+        <label for="currency-germany" class="block text-sm font-medium text-gray-700">Total Amount (€)</label>
+        <p-inputNumber
+          [(ngModel)]="expenseAmount"
+          (onInput)="expenseAmountChange($event)"
+          [readonly]="modeIsInfo()"
+          mode="currency"
+          inputId="currency-germany"
+          currency="EUR"
+          locale="de-DE"
+          [min]="0.01"
+          [max]="9999999.99"
+        />
+      </div>
+      <!-- Expense category -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Category</label>
+        <input type="text" pInputText
+          *ngIf="modeIsInfo()"
+          [(ngModel)]="selectedCategory.name"
+          [readonly]="modeIsInfo()" />
+        <p-autoComplete
+          *ngIf="!modeIsInfo()"
+          [(ngModel)]="selectedCategory"
+          [dropdown]="true"
+          [suggestions]="filteredCategories"
+          (completeMethod)="filterCategory($event)"
+          [forceSelection]="true"
+          field="name"
+        />
+      </div>
+      <!-- Expense payer -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Payer</label>
+        <input type="text" pInputText
+          *ngIf="modeIsInfo()"
+          [(ngModel)]="selectedPayer.name"
+          [readonly]="modeIsInfo()" />
+        <p-autoComplete
+          *ngIf="!modeIsInfo()"
+          [(ngModel)]="selectedPayer"
+          [dropdown]="true"
+          [suggestions]="filteredPayers"
+          (completeMethod)="filterPayer($event)"
+          [forceSelection]="true"
+          field="name"
+        />
+      </div>
+    </div>
+    
+    <!-- Image display in info mode -->
+    <div *ngIf="modeIsInfo() && imageUrl" class="w-1/2 pl-4 pt-4">
+      <label class="block text-sm font-medium text-gray-700"></label>
+      <p-image 
+        [src]="imageUrl" 
+        alt="Image" 
+        height="192" 
+        [preview]="true"
       />
     </div>
-    <!-- Expense amount -->
-    <div>
-      <label for="currency-germany" class="block text-sm font-medium text-gray-700">Total Amount (€)</label>
-      <p-inputNumber
-        [(ngModel)]="expenseAmount"
-        (onInput)="expenseAmountChange($event)"
-        [readonly]="modeIsInfo()"
-        mode="currency"
-        inputId="currency-germany"
-        currency="EUR"
-        locale="de-DE"
-        [min]="0.01"
-        [max]="9999999.99"
-      />
+
+    <!-- Image upload -->
+    <div *ngIf="!modeIsInfo()" class="w-1/2 pl-4 pt-4">
+      <div *ngIf="!imageUrl" class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md relative"
+           (dragover)="onDragOver($event)" 
+           (dragleave)="onDragLeave($event)" 
+           (drop)="onDrop($event)"
+           [class.bg-gray-100]="isDragging">
+        <div class="space-y-1 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M28 8h10l2 2v30l-2 2H10l-2-2V10l2-2h10m4 0v30m8-14h-8m0 0l4 4m-4-4l-4-4m4 4H16" />
+          </svg>
+          <div class="flex text-sm text-gray-600">
+            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+              <span>Upload bill</span>
+              <input id="file-upload" name="file-upload" type="file" accept="image/*" class="sr-only" (change)="onFileSelected($event)">
+            </label>
+            <p class="pl-1">or drag and drop</p>
+          </div>
+          <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+        </div>
+      </div>
+      <div class="relative" *ngIf="imageUrl">
+        <img [src]="imageUrl" alt="Uploaded Image" class="mx-auto h-48 w-auto"/>
+        <p-button icon="pi pi-times" class="p-button-rounded p-button-danger absolute top-0 right-0" (click)="removeImage()"></p-button>
+      </div>
     </div>
-    <!-- Expense category -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Category</label>
-      <input type="text" pInputText
-        *ngIf="modeIsInfo()"
-        [(ngModel)]="selectedCategory.name"
-        [readonly]="modeIsInfo()" />
-      <p-autoComplete
-        *ngIf="!modeIsInfo()"
-        [(ngModel)]="selectedCategory"
-        [dropdown]="true"
-        [suggestions]="filteredCategories"
-        (completeMethod)="filterCategory($event)"
-        [forceSelection]="true"
-        field="name"
-      />
-    </div>
-    <!-- Expense payer -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Payer</label>
-      <input type="text" pInputText
-        *ngIf="modeIsInfo()"
-        [(ngModel)]="selectedPayer.name"
-        [readonly]="modeIsInfo()" />
-      <p-autoComplete
-        *ngIf="!modeIsInfo()"
-        [(ngModel)]="selectedPayer"
-        [dropdown]="true"
-        [suggestions]="filteredPayers"
-        (completeMethod)="filterPayer($event)"
-        [forceSelection]="true"
-        field="name"
-      />
-    </div>
+
   </div>
 
   <!-- Mitglieder der Gruppe -->
@@ -120,9 +162,9 @@
     <p-button (click)="onSubmit()"> Create Expense</p-button>
   </div>
   <div *ngIf="modeIsEdit() && !expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end gap-2">
-<!--    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
-<!--      <i class="pi pi-trash mr-2"></i> Delete Expense-->
-<!--    </button>-->
+  <!--    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
+  <!--      <i class="pi pi-trash mr-2"></i> Delete Expense-->
+  <!--    </button>-->
     <p-button
       label="Delete Expense"
       icon="pi pi-trash"
@@ -138,9 +180,9 @@
     ></p-button>
   </div>
   <div *ngIf="modeIsInfo() && !expenseIsDeleted() && !expenseIsArchived()" class="flex justify-end gap-2">
-<!--    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
-<!--      <i class="pi pi-trash mr-2"></i> Delete Expense-->
-<!--    </button>-->
+  <!--    <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
+  <!--      <i class="pi pi-trash mr-2"></i> Delete Expense-->
+  <!--    </button>-->
     <p-button
       label="Delete Expense"
       icon="pi pi-trash"
