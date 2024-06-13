@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @ToString
+@Slf4j
 public class ShoppingList {
 
     @Id
@@ -79,12 +81,14 @@ public class ShoppingList {
 
     @PrePersist
     public void prePersist() {
+        log.trace("prePersist()");
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void preUpdate() {
+        log.trace("preUpdate()");
         this.updatedAt = LocalDateTime.now();
     }
 

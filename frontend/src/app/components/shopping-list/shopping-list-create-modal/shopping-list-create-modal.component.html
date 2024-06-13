@@ -5,16 +5,21 @@
   <div class="p-fluid">
     <div class="p-field">
       <label for="name">Name</label>
-      <input id="name" type="text" placeholder="e.g. List for upcoming trip" [(ngModel)]="shoppingListToCreate.name" pInputText required>
+      <input id="name" type="text" placeholder="e.g. List for upcoming trip" [(ngModel)]="shoppingListToCreate.name"
+             pInputText required>
     </div>
     <div>
       <label for="categories">Categories</label>
-      <p-multiSelect scrollHeight="150px" filter="false" placeholder="Select categories" id="categories" [(ngModel)]="shoppingListToCreate.categories" [options]="categories"></p-multiSelect>
+      <p-multiSelect scrollHeight="150px" filter="false" placeholder="Select categories" id="categories"
+                     [(ngModel)]="shoppingListToCreate.categories" [options]="categories"></p-multiSelect>
     </div>
     <div>
       <label for="group">Group</label>
-      <p-autoComplete id="group" forceSelection="true" [suggestions]="filteredGroups" scrollHeight="150px" optionLabel="groupName" [(ngModel)]="shoppingListToCreate.group" (completeMethod)="filterGroups($event)"
-        [minLength]="1" placeholder="Select a group" [dropdown]="true"></p-autoComplete>
+      <p-autoComplete id="group" forceSelection="true" [suggestions]="filteredGroups" scrollHeight="150px"
+                      optionLabel="groupName" [(ngModel)]="shoppingListToCreate.group"
+                      (completeMethod)="filterGroups($event)"
+                      [disabled]="!!preChosenGroupId"
+                      [minLength]="1" placeholder="Select a group" [dropdown]="true"></p-autoComplete>
     </div>
   </div>
   <p-footer>
