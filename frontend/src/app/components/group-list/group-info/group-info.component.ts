@@ -243,7 +243,7 @@ export class GroupInfoComponent implements OnInit {
     }
     return ret;
   }
-  
+
   getProgressBarColor(budget: any): string {
     let percentage = (this.getBudgetPercentage(budget));
     if (percentage < 50) {
@@ -529,6 +529,8 @@ export class GroupInfoComponent implements OnInit {
   amountOfSelectedDebtMember: number;
 
   showDialogSettleDebts() {
+    this.selectedDebtMemberVar = undefined;
+    this.amountOfSelectedDebtMember = undefined;
     this.visibleModalSettleDebts = true;
   }
 
@@ -634,6 +636,7 @@ export class GroupInfoComponent implements OnInit {
 
   confirmToLeaveGroup() {
     this.confirmationService.confirm({
+      key: 'leaveGroup',
       header: 'Attention!',
       message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
@@ -694,7 +697,15 @@ export class GroupInfoComponent implements OnInit {
   }
 
   openDeleteDialog(): void {
-    this.isDeleteDialogVisible = true;
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this payment ?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteExistingPayment()
+      }
+    });
+    // this.isDeleteDialogVisible = true;
   }
   closeDeleteDialog(): void {
     this.isDeleteDialogVisible = false;
