@@ -52,6 +52,17 @@ public class FriendshipDataGeneratorTest implements DataGenerator {
                 }
             }
         }
+
+        ApplicationUser user1 = userRepository.findByEmail("importUser1@example.com");
+        for (int i = 1; i < 6; i++) {
+            friendshipRepository.save(Friendship.builder()
+                .sender(user1)
+                .receiver(userRepository.findByEmail("importUser" + (i + 1) + "@example.com"))
+                .friendshipStatus(FriendshipStatus.ACCEPTED)
+                .sentAt(LocalDateTime.now())
+                .build());
+        }
+
     }
 
     @Override

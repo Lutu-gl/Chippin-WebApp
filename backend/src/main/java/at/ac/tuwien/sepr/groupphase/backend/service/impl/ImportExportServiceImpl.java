@@ -138,14 +138,19 @@ public class ImportExportServiceImpl implements ImportExportService {
         importExportValidator.validateSplitwiseFirstLine(firstLine);
         importExportValidator.validateSplitwiseGroupMembers(firstLine, group);
 
+        int realLength = 0;
         for (int i = 2; i < lines.length; i++) {
             // split and validate line
+            if (lines[i].trim().isEmpty()) {
+                realLength = i;
+                break;
+            }
             List<String> line = splitCsv(lines[i]);
             importExportValidator.validateSplitwiseLine(line, firstLine.size(), i + 1);
         }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        for (int i = 2; i < lines.length; i++) {
+        for (int i = 2; i < realLength; i++) {
             // break on second empty line
             if (lines[i].trim().isEmpty()) {
                 break;
