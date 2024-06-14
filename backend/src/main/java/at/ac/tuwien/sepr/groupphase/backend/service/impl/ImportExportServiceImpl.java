@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -16,6 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.FriendshipRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
@@ -51,9 +53,11 @@ import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,6 +74,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
     private final ExchangeRateServiceImpl exchangeRateServiceImpl;
+    private final PaymentRepository paymentRepository;
 
     @Override
     public EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException {
@@ -138,14 +143,19 @@ public class ImportExportServiceImpl implements ImportExportService {
         importExportValidator.validateSplitwiseFirstLine(firstLine);
         importExportValidator.validateSplitwiseGroupMembers(firstLine, group);
 
+        int realLength = 0;
         for (int i = 2; i < lines.length; i++) {
             // split and validate line
+            if (lines[i].trim().isEmpty()) {
+                realLength = i;
+                break;
+            }
             List<String> line = splitCsv(lines[i]);
             importExportValidator.validateSplitwiseLine(line, firstLine.size(), i + 1);
         }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        for (int i = 2; i < lines.length; i++) {
+        for (int i = 2; i < realLength; i++) {
             // break on second empty line
             if (lines[i].trim().isEmpty()) {
                 break;
@@ -256,28 +266,73 @@ public class ImportExportServiceImpl implements ImportExportService {
             throw new AccessDeniedException("You do not have permission to export from this group!");
         }
         List<Expense> expenses = expenseRepository.findAllByGroupId(groupId);
+        List<Payment> payments = paymentRepository.findAllByGroupId(groupId);
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            baos.write("Date;Description;Category;Cost;Currency;".getBytes());
+            baos.write("Date,Description,Category,Cost,Currency,".getBytes());
+            List<String> users = new ArrayList<>();
             for (ApplicationUser u : group.getUsers()) {
-                baos.write((u.getEmail() + ";").getBytes());
+                users.add(u.getEmail());
             }
+            baos.write(String.join(",", users).getBytes());
             baos.write("\n".getBytes());
+
+            List<List<String>> lines = new ArrayList<>();
             for (Expense expense : expenses) {
-                baos.write((expense.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ";").getBytes());
-                baos.write((expense.getName() + ";").getBytes());
-                baos.write((expense.getCategory().name() + ";").getBytes());
-                baos.write((expense.getAmount() + ";").getBytes());
-                baos.write("EUR;".getBytes());
+                if (expense.isDeleted()) {
+                    continue;
+                }
+                List<String> line = new ArrayList<>();
+
+                line.add(expense.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                line.add(expense.getName());
+                line.add(expense.getCategory().name());
+                line.add(String.valueOf(expense.getAmount()));
+                line.add("EUR");
 
                 for (ApplicationUser u : group.getUsers()) {
                     if (u.equals(expense.getPayer())) {
-                        baos.write((String.format("%.2f", expense.getAmount() - expense.getParticipants().get(u) * expense.getAmount()) + ";").getBytes());
+                        line.add(String.format(Locale.US, "%.2f", expense.getAmount() - expense.getParticipants().get(u) * expense.getAmount()));
                     } else if (expense.getParticipants().containsKey(u)) {
-                        baos.write((String.format("%.2f", expense.getParticipants().get(u) * expense.getAmount() * (-1)) + ";").getBytes());
+                        line.add(String.format(Locale.US, "%.2f", expense.getParticipants().get(u) * expense.getAmount() * (-1)));
                     } else {
-                        baos.write("0;".getBytes());
+                        line.add("0.00");
                     }
                 }
+
+                lines.add(line);
+            }
+
+            for (Payment payment : payments) {
+                if (payment.isDeleted()) {
+                    continue;
+                }
+                List<String> line = new ArrayList<>();
+
+                line.add(payment.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                line.add("Settle debts");
+                line.add("Payment");
+                line.add(String.valueOf(payment.getAmount()));
+                line.add("EUR");
+
+                for (ApplicationUser u : group.getUsers()) {
+                    if (u.equals(payment.getPayer())) {
+                        line.add(String.format(Locale.US, "%.2f", payment.getAmount()));
+                    } else if (u.equals(payment.getReceiver())) {
+                        line.add(String.format(Locale.US, "%.2f", payment.getAmount() * (-1)));
+                    } else {
+                        line.add("0.00");
+                    }
+                }
+
+                lines.add(line);
+            }
+
+            // sort by date ascending
+            lines.sort(Comparator.comparing(List::getFirst));
+
+            for (List<String> line : lines) {
+                baos.write(String.join(",", line).getBytes());
                 baos.write("\n".getBytes());
             }
             return baos.toByteArray();

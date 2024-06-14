@@ -26,6 +26,14 @@ public class UserDataGeneratorTest implements DataGenerator {
                 .admin(false)
                 .build());
         }
+
+        for (int i = 0; i < 6; i++) {
+            userRepository.save(ApplicationUser.builder()
+                .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
+                .email("importUser" + (i + 1) + "@example.com")
+                .admin(true)
+                .build());
+        }
     }
 
     @Override
