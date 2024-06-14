@@ -89,18 +89,24 @@ public class ImportExportServiceImpl implements ImportExportService {
             //firstLine[5] - firstLine[max] are the Usernames and need to be transformed
             String firstLineRaw = reader.readLine();
             content.add(firstLineRaw);
-            String[] firstLine = firstLineRaw.split(";");
+            List<String> firstLine = splitCsv(firstLineRaw);
             importExportValidator.validateSplitwiseFirstLine(firstLine);
-            for (int i = 5; i < firstLine.length; i++) {
-                if (user.getEmail().toLowerCase().contains(firstLine[i].toLowerCase())) {
-                    emailSuggestions.put(firstLine[i], user.getEmail());
+            for (int i = 5; i < firstLine.size(); i++) {
+                if (user.getEmail().toLowerCase().contains(firstLine.get(i).toLowerCase())) {
+                    emailSuggestions.put(firstLine.get(i), user.getEmail());
                     continue;
                 }
-                String similarEmail = friendshipRepository.findFriendWithSimilarEmail(firstLine[i], user);
-                emailSuggestions.put(firstLine[i], similarEmail);
+                String similarEmail = friendshipRepository.findFriendWithSimilarEmail(firstLine.get(i), user);
+                emailSuggestions.put(firstLine.get(i), similarEmail);
             }
             String line;
+            reader.readLine(); // skip second line
+            content.add("");
             while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    break;
+                }
+                importExportValidator.validateSplitwiseLine(splitCsv(line), firstLine.size(), content.size() + 1);
                 content.add(line);
             }
         } catch (java.io.IOException e) {
@@ -128,26 +134,34 @@ public class ImportExportServiceImpl implements ImportExportService {
         }
 
         String[] lines = content.split("\n");
-        String[] firstLine = sanitizeCsvField(lines[0]).split(";");
+        List<String> firstLine = splitCsv(lines[0]);
         importExportValidator.validateSplitwiseFirstLine(firstLine);
+        importExportValidator.validateSplitwiseGroupMembers(firstLine, group);
+
+        for (int i = 2; i < lines.length; i++) {
+            // split and validate line
+            List<String> line = splitCsv(lines[i]);
+            importExportValidator.validateSplitwiseLine(line, firstLine.size(), i + 1);
+        }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        for (int i = 1; i < lines.length; i++) {
-            String[] line = lines[i].split(";");
-
-
-            // Sanitize each field of the CSV
-            for (int j = 0; j < line.length; j++) {
-                line[j] = sanitizeCsvField(line[j]);
+        for (int i = 2; i < lines.length; i++) {
+            // break on second empty line
+            if (lines[i].trim().isEmpty()) {
+                break;
             }
 
+            // split line
+            List<String> line = splitCsv(lines[i]);
+
+            ApplicationUser payer = userRepository.findByEmail(firstLine.get(getPayerIndex(line, i + 1)));
             Expense expense = Expense.builder()
-                .name(line[1])
-                .category(getEnumConstantOrDefault(line[2], Category.class, Category.Other))
+                .name(line.get(1))
+                .category(getEnumConstantOrDefault(line.get(2), Category.class, Category.Other))
                 //.amount(exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line[3]), line[4]))
-                .amount(Double.parseDouble(line[3]))
-                .date(LocalDate.parse(line[0], dateTimeFormatter).atStartOfDay())
-                .payer(userRepository.findByEmail(firstLine[getPayerIndex(line)]))
+                .amount(Double.parseDouble(line.get(3)))
+                .date(LocalDate.parse(line.get(0), dateTimeFormatter).atStartOfDay())
+                .payer(payer)
                 .group(group)
                 .participants(getParticipants(line, firstLine))
                 .deleted(false)
@@ -161,20 +175,20 @@ public class ImportExportServiceImpl implements ImportExportService {
                 .expense(expenseSaved)
                 .timestamp(expenseSaved.getDate())
                 .group(expenseSaved.getGroup())
-                .user(user)
+                .user(payer)
                 .build();
 
             activityRepository.save(activityForExpense);
         }
     }
 
-    private int getPayerIndex(String[] line) throws ValidationException {
-        for (int i = 5; i < line.length; i++) {
-            if (Double.parseDouble(line[i]) > 0) {
+    private int getPayerIndex(List<String> line, int lineNumber) throws ValidationException {
+        for (int i = 5; i < line.size(); i++) {
+            if (Double.parseDouble(line.get(i)) > 0) {
                 return i;
             }
         }
-        throw new ValidationException("Validation for import failed!", List.of("No payer found"));
+        throw new ValidationException("Validation for import failed!", List.of("No payer found in line " + lineNumber));
     }
 
     private <T extends Enum<T>> T getEnumConstantOrDefault(String input, Class<T> enumClass, T defaultValue) {
@@ -185,13 +199,51 @@ public class ImportExportServiceImpl implements ImportExportService {
         }
     }
 
-    private Map<ApplicationUser, Double> getParticipants(String[] line, String[] firstLine) {
-        double amount = Double.parseDouble(line[3]);
+    private Map<ApplicationUser, Double> getParticipants(List<String> line, List<String> firstLine) throws ValidationException {
+        double totalAmount = Double.parseDouble(line.get(3));
         Map<ApplicationUser, Double> participants = new HashMap<>();
-        for (int i = 5; i < line.length; i++) {
-            participants.put(userRepository.findByEmail(firstLine[i]), Math.abs(Double.parseDouble(line[i])) / amount);
+        for (int i = 5; i < line.size(); i++) {
+            double amount = Double.parseDouble(line.get(i));
+            ApplicationUser user = userRepository.findByEmail(firstLine.get(i));
+            if (user == null) {
+                throw new ValidationException("Validation for import failed!", List.of("User " + firstLine.get(i) + " not found"));
+            }
+            if (amount < 0) {
+                participants.put(user, Math.abs(amount) / totalAmount);
+            } else if (amount > 0) {
+                participants.put(user, (totalAmount - amount) / totalAmount);
+            }
         }
         return participants;
+    }
+
+    private List<String> splitCsv(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        int length = line.length();
+
+        for (int i = 0; i < length; i++) {
+            char ch = line.charAt(i);
+            if (ch == '\"') {
+                if (inQuotes && i + 1 < length && line.charAt(i + 1) == '\"') {
+                    // Handle escaped double quote
+                    current.append('\"');
+                    i++; // Skip the next quote
+                } else {
+                    inQuotes = !inQuotes; // Toggle inQuotes flag
+                }
+            } else if (ch == ',' && !inQuotes) {
+                result.add(current.toString().trim());
+                current.setLength(0); // Clear the current StringBuilder
+            } else {
+                current.append(ch);
+            }
+        }
+
+        result.add(current.toString().trim()); // Add the last element
+
+        return result;
     }
 
     @Override
