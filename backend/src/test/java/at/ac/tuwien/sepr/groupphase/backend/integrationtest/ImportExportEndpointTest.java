@@ -147,11 +147,13 @@ public class ImportExportEndpointTest extends BaseTest {
         debtDto = debtService.getById("importUser4@example.com", group.getId());
         Map<String, Double> debtsAfter = debtDto.getMembersDebts();
 
-        assertEquals(debtsBefore.get("importUser1@example.com") + 5, debtsAfter.get("importUser1@example.com"));
-        assertEquals(debtsBefore.get("importUser2@example.com"), debtsAfter.get("importUser2@example.com"));
-        assertEquals(debtsBefore.get("importUser3@example.com"), debtsAfter.get("importUser3@example.com"));
-        assertEquals(debtsBefore.get("importUser5@example.com") - 12.90, debtsAfter.get("importUser5@example.com"));
-        assertEquals(debtsBefore.get("importUser6@example.com"), debtsAfter.get("importUser6@example.com"));
+
+        double delta = 0.0001;
+        assertEquals(debtsBefore.get("importUser1@example.com") + 5, debtsAfter.get("importUser1@example.com"), delta);
+        assertEquals(debtsBefore.get("importUser2@example.com"), debtsAfter.get("importUser2@example.com"), delta);
+        assertEquals(debtsBefore.get("importUser3@example.com"), debtsAfter.get("importUser3@example.com"), delta);
+        assertEquals(debtsBefore.get("importUser5@example.com") - 12.90, debtsAfter.get("importUser5@example.com"), delta);
+        assertEquals(debtsBefore.get("importUser6@example.com"), debtsAfter.get("importUser6@example.com"), delta);
 
     }
 }
