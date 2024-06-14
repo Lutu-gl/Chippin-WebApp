@@ -23,7 +23,7 @@ public class ExchangeRateDataGenerator implements DataGenerator {
     ExchangeRateRepository exchangeRateRepository;
 
     private static final LocalDate lastUpdated = LocalDate.MAX;
-    //This data has been accessed and is not being updated for testing purposes (01.06.2024)8
+    //This data has been accessed and is not being updated for testing purposes (01.06.2024)
     private static Map<String, Double> rates = new HashMap<>();
 
 

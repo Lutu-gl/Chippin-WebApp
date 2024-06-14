@@ -136,7 +136,7 @@ export class GroupInfoComponent implements OnInit {
     const keys = Object.keys(this.emailSuggestions);
     for (let key of keys) {
       const obj = this.emailSuggestions[key];
-      this.importContent[0] = this.importContent[0].replace(`;${obj.name}`, `;${obj.email}`);
+      this.importContent[0] = this.importContent[0].replace(`,${obj.name}`, `,${obj.email}`);
     }
     const importDto: ImportDto = {groupId: this.group.id, content: this.importContent.join('\n')};
 
@@ -152,6 +152,7 @@ export class GroupInfoComponent implements OnInit {
         } else {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `Import did not work!`});
         }
+        this.closeImportDialog();
       }
     });
   }
@@ -168,7 +169,7 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.expenseCreateComponent.resetMode();
-    this.expenseCreateComponent.ngOnChanges(null);
+    // this.expenseCreateComponent.ngOnChanges(null);
   }
 
   closeCreateExpenseDialog(): void {
@@ -181,7 +182,7 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.info;
     this.expenseCreateComponent.resetMode();
-    this.expenseCreateComponent.ngOnChanges(null);
+    // this.expenseCreateComponent.ngOnChanges(null);
   }
 
   expenseModalHided(): void {

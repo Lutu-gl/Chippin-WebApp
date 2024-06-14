@@ -60,5 +60,6 @@ public class Expense {
 
     private boolean deleted;
     private Boolean archived;
+    private String billPath;
 
 }

@@ -111,11 +111,14 @@ public class ExpenseEndpointTest {
 
         when(expenseService.createExpense(any(), anyString())).thenReturn(newTestExpense);
 
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders
-                .post("/api/v1/expense")
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
                 //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1@example.com", ADMIN_ROLES))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newTestExpense)))
+                .param("name", "NewTestExpense")
+                .param("category", Category.Other.toString())
+                .param("amount", "10.0")
+                .param("payerEmail", "test@email.com")
+                .param("groupId", "1")
+                .param("participants", objectMapper.writeValueAsString(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsByteArray();
 
@@ -149,11 +152,14 @@ public class ExpenseEndpointTest {
 
         when(expenseService.updateExpense(anyLong(), any(), anyString())).thenReturn(newTestExpense);
 
-        byte[] body = mockMvc.perform(MockMvcRequestBuilders
-                .put("/api/v1/expense/1")
+        byte[] body = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/expense/1")
                 //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("test@email.com", ADMIN_ROLES))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newTestExpense)))
+                .param("name", "NewTestExpense")
+                .param("category", Category.Other.toString())
+                .param("amount", "10.0")
+                .param("payerEmail", "test@email.com")
+                .param("groupId", "1")
+                .param("participants", objectMapper.writeValueAsString(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsByteArray();
 

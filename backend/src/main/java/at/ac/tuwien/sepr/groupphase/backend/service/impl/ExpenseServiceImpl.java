@@ -23,12 +23,21 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -65,9 +74,80 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
         }
 
+        return expenseMapper.expenseEntityToExpenseDetailDto(expense);
+    }
 
-        ExpenseDetailDto expenseDetailDto = expenseMapper.expenseEntityToExpenseDetailDto(expense);
-        return expenseDetailDto;
+    @Override
+    @Transactional
+    public ResponseEntity<byte[]> getBill(Long expenseId, String requesterEmail) throws NotFoundException {
+        LOGGER.trace("getBill({}, {})", expenseId, requesterEmail);
+
+        System.out.println("REACHED 1");
+
+        ApplicationUser user = userRepository.findByEmail(requesterEmail);
+        System.out.println("REACHED 2");
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
+        System.out.println("REACHED 3");
+        if (!expense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to access this bill");
+        }
+        System.out.println("REACHED 4");
+        if (expense.getBillPath() == null) {
+            throw new NotFoundException("No bill found for this expense");
+        }
+        System.out.println("REACHED 5");
+        Path path = Paths.get(System.getProperty("user.dir") + expense.getBillPath());
+        System.out.println("\n\n\n");
+        System.out.println(path);
+        System.out.println("\n\n\n");
+        HttpHeaders headers = getHttpHeaders(expense);
+
+        try {
+            return ResponseEntity.ok().headers(headers).body(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new NotFoundException("Error while reading the bill");
+        }
+
+    }
+
+    private static HttpHeaders getHttpHeaders(Expense expense) {
+        String extension = expense.getBillPath().substring(expense.getBillPath().lastIndexOf("."));
+        String contentType = switch (extension) {
+            case ".gif" -> "image/gif";
+            case ".png" -> "image/png";
+            case ".jpg", ".jpeg" -> "image/jpeg";
+            default -> "application/octet-stream";
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bill" + extension);
+        return headers;
+    }
+
+    private String generateRandomFileName() {
+        LOGGER.trace("generateRandomFileName()");
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Random random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(40);
+        for (int i = 0; i < 40; i++) {
+            int index = random.nextInt(alphabet.length());
+            sb.append(alphabet.charAt(index));
+        }
+        return sb.toString();
+    }
+
+    private String saveBill(ExpenseCreateDto expenseCreateDto) throws ValidationException {
+        String fileExtension = Objects.requireNonNull(expenseCreateDto.getBill().getOriginalFilename()).substring(expenseCreateDto.getBill().getOriginalFilename().lastIndexOf("."));
+        String fileName = "/uploads/" + generateRandomFileName() + fileExtension;
+        Path path = Paths.get(System.getProperty("user.dir") + fileName);
+        try {
+            Files.createDirectories(path.getParent());
+            Files.write(path, expenseCreateDto.getBill().getBytes());
+            return fileName;
+        } catch (IOException e) {
+            throw new ValidationException("Error while saving the bill", List.of(e.getMessage()));
+        }
     }
 
     @Override
@@ -86,7 +166,10 @@ public class ExpenseServiceImpl implements ExpenseService {
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
-
+        if (expenseCreateDto.getBill() != null) {
+            String fileName = saveBill(expenseCreateDto);
+            expense.setBillPath(fileName);
+        }
 
         budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
 
@@ -128,7 +211,25 @@ public class ExpenseServiceImpl implements ExpenseService {
             budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
             budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
         }
+        expense.setDeleted(existingExpense.isDeleted());
         expense.setArchived(existingExpense.getArchived());
+
+        // delete the old bill
+        if (existingExpense.getBillPath() != null) {
+            Path oldPath = Paths.get(System.getProperty("user.dir") + existingExpense.getBillPath());
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                throw new ValidationException("Error while deleting the old bill", List.of(e.getMessage()));
+            }
+        }
+
+        // save the new bill
+        if (expenseCreateDto.getBill() != null) {
+            String fileName = saveBill(expenseCreateDto);
+            expense.setBillPath(fileName);
+        }
+
         Expense expenseSaved = expenseRepository.save(expense);
 
         Activity activityForExpenseUpdate = Activity.builder()

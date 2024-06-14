@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class GeneralDataGenerator implements DataGenerator {
     private final ExchangeRateDataGenerator exchangeRateDataGenerator;
 
     @PostConstruct
-    public void generateData() {
+    public void generateData() throws AlreadyRatedException {
         LOGGER.debug("generating all data");
         cleanData();
         userDataGenerator.generateData();

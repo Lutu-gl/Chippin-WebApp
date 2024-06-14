@@ -45,6 +45,10 @@ export class ExpenseCreateComponent implements OnChanges {
 
   isDeleteDialogVisible: boolean = false;
 
+  imageUrl: string | ArrayBuffer | null = null;
+  isDragging: boolean = false;
+  selectedFile: File | null = null;
+
   constructor(
     private groupService: GroupService,
     private expenseService: ExpenseService,
@@ -127,16 +131,88 @@ export class ExpenseCreateComponent implements OnChanges {
     activeMembers[0].amount += rest;
   }
 
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.mode === ExpenseCreateEditMode.create) {
-      this.prepareGroupOnCreate();
-    } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
-      this.prepareWholeExpense();
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file && this.isValidImage(file)) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageUrl = reader.result;
+        this.selectedFile = file;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.messageService.add({severity:'warn', summary:'Invalid File', detail:'Please upload a valid image file (PNG, JPG, GIF).'});
     }
   }
 
+  onDragOver(event: DragEvent): void {
+    if (!this.imageUrl) {
+      event.preventDefault();
+      this.isDragging = true;
+    }
+  }
+
+  onDragLeave(event: DragEvent): void {
+    if (!this.imageUrl) {
+      event.preventDefault();
+      this.isDragging = false;
+    }
+  }
+
+  onDrop(event: DragEvent): void {
+    if (!this.imageUrl) {
+      event.preventDefault();
+      this.isDragging = false;
+      const file = event.dataTransfer?.files[0];
+      if (file && this.isValidImage(file)) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.imageUrl = reader.result;
+          this.selectedFile = file;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        this.messageService.add({severity:'warn', summary:'Invalid File', detail:'Please upload a valid image file (PNG, JPG, GIF).'});
+      }
+    }
+  }
+
+  removeImage(): void {
+    this.imageUrl = null;
+    this.selectedFile = null;
+  }
+
+  isValidImage(file: File): boolean {
+    return file.type.startsWith('image/');
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if (changes.mode && changes.mode.currentValue === ExpenseCreateEditMode.create) {
+      this.prepareGroupOnCreate();
+    } else if (changes.mode && (changes.mode.currentValue === ExpenseCreateEditMode.info || changes.mode.currentValue === ExpenseCreateEditMode.edit)) {
+      this.prepareWholeExpense();
+    }
+
+
+    // if (this.mode === ExpenseCreateEditMode.create) {
+    //   this.prepareGroupOnCreate();
+    // } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
+    //   this.prepareWholeExpense();
+    // }
+  }
+
   private prepareGroupOnCreate(): void {
+    console.log("prepareGroupOnCreate")
+
+    this.expenseDeleted = false;
+    this.expenseName = undefined;
+    this.expenseAmount = undefined;
+    this.selectedCategory = { name: '' };
+    this.selectedPayer = { name: '' };
+    this.imageUrl = null;
+    this.selectedFile = null;
+
     const groupId = Number(this.route.snapshot.paramMap.get('id'));
     if (groupId) {
       this.groupService.getById(groupId).subscribe({
@@ -146,11 +222,14 @@ export class ExpenseCreateComponent implements OnChanges {
           this.expenseAmount = undefined;
           this.selectedCategory = { name: '' };
           this.selectedPayer = { name: '' };
+          this.imageUrl = null;
+          this.selectedFile = null;
           this.group = data;
           this.members = this.group.members
             .map(member => ({email: member, isParticipating: true, amount: undefined}))
             .sort((a, b) => a.email.localeCompare(b.email));
-          this.allPayers = this.group.members.map(member => ({name: member}));
+          this.allPayers = this.group.members.map(member => ({name: member}))
+            .sort((a, b) => a.name.localeCompare(b.name));
         },
         error: error => {
           console.error(error);
@@ -162,6 +241,8 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
   private prepareWholeExpense(): void {
+    console.log("prepareWholeExpense")
+
     if (!this.expenseId) {
       return;
     }
@@ -182,6 +263,28 @@ export class ExpenseCreateComponent implements OnChanges {
             amount: this.roundDownTo2Decimals(percentage * data.amount) || undefined
           }))
           .sort((a, b) => a.email.localeCompare(b.email));
+        this.allPayers = this.group.members.map(member => ({name: member["email"]}))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (data.containsBill) {
+          this.expenseService.getExpenseBillById(this.expenseId).subscribe({
+            next: blob => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                if (this.mode !== ExpenseCreateEditMode.create) {
+                  this.imageUrl = reader.result;
+                  this.selectedFile = new File([blob], 'bill.png', {type: 'image/png'});
+                }
+              };
+              reader.readAsDataURL(blob);
+            },
+            error: error => {
+              console.error(error);
+              this.messageService.add({severity:'error', summary:'Error', detail:'Could not get expense bill!'});
+            }
+          });
+        }
+
       },
       error: error => {
         console.error(error);
@@ -219,13 +322,17 @@ export class ExpenseCreateComponent implements OnChanges {
   submitValidation(): boolean {
     let returnValue = true;
     if (!this.expenseName || /^[a-zA-Z][a-zA-Z0-9 ]{0,254}$/.test(this.expenseName) === false) {
-      this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Name must be between 1 and 255 characters long and only contain letters, numbers and spaces!'});
+      this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Name must be between 1 and 255 characters long, start with a letter and only contain letters, numbers and spaces!'});
       returnValue = false;
     }
 
     if (!this.expenseAmount || this.expenseAmount < 0.01 || this.expenseAmount > 9999999) {
       this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Amount must be between 0.01 and 9999999!'});
       returnValue = false;
+    }
+
+    if (!this.selectedCategory) {
+      this.selectedCategory = {name: "Other"};
     }
 
     if (!this.selectedPayer || !this.selectedPayer.name) {
@@ -258,7 +365,8 @@ export class ExpenseCreateComponent implements OnChanges {
         .reduce((acc, m) => {
           acc[m.email] = m.amount / this.expenseAmount;
           return acc;
-        }, {})
+        }, {}),
+      bill: this.selectedFile
     };
 
     // const participant = Object.keys(submitExpense.participants)[0];
@@ -305,7 +413,7 @@ export class ExpenseCreateComponent implements OnChanges {
   private createNewExpense(expense: ExpenseCreateDto): void {
     this.expenseService.createExpense(expense).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Created expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense created  successfully!'});
         this.expenseName = undefined;
         this.expenseAmount = undefined;
         this.selectedCategory = {name: ''};
@@ -322,7 +430,7 @@ export class ExpenseCreateComponent implements OnChanges {
   private editExistingExpense(expenseId: number, expense: ExpenseCreateDto): void {
     this.expenseService.updateExpense(expenseId, expense).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Updated expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully updated!'});
         this.mode = ExpenseCreateEditMode.info;
         this.closeDialog.emit();
       },
@@ -335,7 +443,7 @@ export class ExpenseCreateComponent implements OnChanges {
   public deleteExistingExpense(): void {
     this.expenseService.deleteExpense(this.expenseId).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Deleted expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully deleted!'});
         this.expenseDeleted = true;
         this.closeDeleteDialog();
         this.closeDialog.emit();
@@ -350,7 +458,7 @@ export class ExpenseCreateComponent implements OnChanges {
   public recoverDeletedExpense(): void {
     this.expenseService.recoverExpense(this.expenseId).subscribe({
       next: data => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Recovered expense successfully!'});
+        this.messageService.add({severity:'success', summary:'Success', detail:'Expense successfully recovered!'});
         this.expenseDeleted = false;
         this.closeDialog.emit();
       },
