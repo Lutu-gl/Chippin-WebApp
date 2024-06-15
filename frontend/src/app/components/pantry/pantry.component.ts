@@ -3,15 +3,17 @@ import {ActivatedRoute} from "@angular/router";
 import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
+  ItemCreateDto,
   PantryItemCreateDisplayDto,
   pantryItemCreateDisplayDtoToPantryItemCreateDto,
   pantryItemCreateDisplayDtoToPantryItemDetailDto,
   PantryItemDetailDto,
   pantryItemDetailDtoToPantryItemCreateDisplayDto,
   PantryItemMergeDto,
+  Unit,
 } from "../../dtos/item";
 import {KeyValuePipe, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
 import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
@@ -39,8 +41,12 @@ import {
   getSuffix,
   getSuffixForCreateEdit
 } from "../../util/unit-helper";
-import {inRange} from "lodash";
+import {inRange, valuesIn} from "lodash";
 import {TabMenuModule} from "primeng/tabmenu";
+import {AutoCompleteModule} from "primeng/autocomplete";
+import {ShoppingListListDto} from "../../dtos/shoppingList";
+import {ShoppingListService} from "../../services/shopping-list.service";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-pantry',
@@ -67,7 +73,9 @@ import {TabMenuModule} from "primeng/tabmenu";
     InputNumberModule,
     ConfirmDialogModule,
     TabMenuModule,
-    NgClass
+    NgClass,
+    AutoCompleteModule,
+    ReactiveFormsModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
@@ -92,12 +100,19 @@ export class PantryComponent implements OnInit {
   searchChangedObservable = new Subject<void>();
   id: number;
   recipes: RecipeByItemsDto[];
+  itemToAdd: ItemCreateDto;
+  addItemToShoppingListModalOpen: boolean;
+  allShoppingLists: ShoppingListListDto[];
+  selectedShoppingList: ShoppingListListDto;
+  unitsForItems: any[];
 
   constructor(
     private route: ActivatedRoute,
     private service: PantryService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private shoppingListService: ShoppingListService,
+    private authService: AuthService,
   ) {
   }
 
@@ -152,6 +167,21 @@ export class PantryComponent implements OnInit {
     this.searchChangedObservable
       .pipe(debounceTime(300))
       .subscribe({next: () => this.filterPantry()});
+
+    // Retrieve shopping lists
+    this.shoppingListService.getShoppingListsForGroup(this.id).subscribe({
+      next: shoppingLists => {
+        this.allShoppingLists = shoppingLists;
+        console.log(shoppingLists)
+      },
+      error: err => {
+        this.messageService.add({severity: "error", summary: "Error", detail: "Could not load shopping lists"})
+      }
+    })
+
+    this.unitsForItems = valuesIn(DisplayedUnit).map(unit => {
+      return {label: unit, value: unit}
+    });
   }
 
   hideDialog() {
@@ -523,4 +553,41 @@ export class PantryComponent implements OnInit {
   protected readonly getAmountForCreateEdit = getAmountForCreateEdit;
   protected readonly formatLowerLimit = formatLowerLimit;
   protected readonly formatAmount = formatAmount
+  addItemForm: FormGroup;
+
+  addToShoppingList(item: PantryItemDetailDto) {
+    this.selectedShoppingList = null;
+    this.itemToAdd = {
+      amount: item.lowerLimit - item.amount,
+      unit: item.unit,
+      description: item.description
+    }
+
+    this.addItemToShoppingListModalOpen = true;
+  }
+
+  addItem() {
+    this.shoppingListService.addShoppingListItemToShoppingList(this.authService.getUserId(), this.selectedShoppingList.id, this.itemToAdd).subscribe({
+      next: () => {
+        this.addItemToShoppingListModalOpen = false;
+        this.messageService.add({severity: "success", summary: "Success", detail: "Added item to shopping list"})
+      },
+      error: error => {
+        console.log(error)
+        console.log(error.error)
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not add items to shopping list', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not add item to shopping list!`});
+        }
+      }
+    })
+  }
 }

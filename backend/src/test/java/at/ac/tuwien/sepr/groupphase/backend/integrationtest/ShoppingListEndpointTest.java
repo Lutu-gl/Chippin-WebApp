@@ -4,7 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapperImpl;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -66,7 +66,7 @@ public class ShoppingListEndpointTest extends BaseTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private GroupMapperImpl groupMapperImpl;
+    private GroupMapper groupMapper;
 
     @Test
     @WithMockUser(username = "user1@example.com")
@@ -102,7 +102,7 @@ public class ShoppingListEndpointTest extends BaseTest {
         List<ApplicationUser> all = userRepository.findAll();
 
         Long userId = userRepository.findByEmail("user1@example.com").getId();
-        GroupDetailDto group = groupMapperImpl.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
+        GroupDetailDto group = groupMapper.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
 
         when(securityService.hasCorrectId(userId)).thenReturn(true);
         when(securityService.isGroupMember(group.getId())).thenReturn(true);
