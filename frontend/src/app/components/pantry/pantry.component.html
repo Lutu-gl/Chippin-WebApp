@@ -71,7 +71,8 @@
           [suffix]="getSuffixForCreateEdit(createEditItem)"/>
       </div>
       <div class="field pt-5" *ngIf="displayMergeWarning(createEditItem)">
-        <small style="color: #ffc107"><i class="pi pi-exclamation-triangle"></i> Item with the same name and unit already exists. Items will be merged.</small>
+        <small style="color: #ffc107"><i class="pi pi-exclamation-triangle"></i> Item with the same name and unit
+          already exists. Items will be merged.</small>
       </div>
     </div>
     <div *ngIf="isMergeSelected()">
@@ -214,28 +215,33 @@
     </div>
   </ng-template>
   <ng-template pTemplate="content">
-    <p-table [value]="recipes">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Recipe</th>
-          <th>Number of Ingredients</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-recipe>
-        <tr>
-          <td>
-            <button type="button" [routerLink]="['/recipe/viewer/', recipe.id]">
-              <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
-                     severity="secondary" value="{{recipe.name}}">
-              </p-tag>
-            </button>
-          </td>
-          <td>
-            {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <div *ngIf="recipes && recipes.length !== 0">
+      <p-table [value]="recipes">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Recipe</th>
+            <th>Number of Ingredients</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-recipe>
+          <tr>
+            <td>
+              <button type="button" [routerLink]="['/recipe/viewer/', recipe.id]">
+                <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
+                       severity="secondary" value="{{recipe.name}}">
+                </p-tag>
+              </button>
+            </td>
+            <td>
+              {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div *ngIf="!recipes || recipes.length === 0">
+      <p>No recipes found.</p>
+    </div>
   </ng-template>
 </p-dialog>
 
@@ -400,29 +406,31 @@
   <!-- Choose which shopping list to add the item to -->
   <div class="flex flex-col">
     <label for="shoppingList">Shopping List</label>
-    <p-dropdown appendTo="body" id="shoppingList" [options]="allShoppingLists" [(ngModel)]="selectedShoppingList" optionLabel="name" placeholder="Select a shopping list" ></p-dropdown>
+    <p-dropdown appendTo="body" id="shoppingList" [options]="allShoppingLists" [(ngModel)]="selectedShoppingList"
+                optionLabel="name" placeholder="Select a shopping list"></p-dropdown>
   </div>
   <!-- Add new item (name, amount, unit) -->
   <div class="flex flex-col gap-4 p-4" *ngIf="!!selectedShoppingList">
-      <div class="flex flex-col gap-2">
-        <label for="description">Name</label>
-        <input id="description" type="text" [(ngModel)]="itemToAdd.description" pInputText placeholder="e.g. Milk" [minLength]="2"
-               [maxLength]="60">
+    <div class="flex flex-col gap-2">
+      <label for="description">Name</label>
+      <input id="description" type="text" [(ngModel)]="itemToAdd.description" pInputText placeholder="e.g. Milk"
+             [minLength]="2"
+             [maxLength]="60">
+    </div>
+    <div class="pb-8">
+      <label for="amount">Amount</label>
+      <div class="flex pb-4">
+        <p-inputNumber [(ngModel)]="itemToAdd.amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
+                       [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+        <p-dropdown [(ngModel)]="itemToAdd.unit" [options]="unitsForItems" optionLabel="label" placeholder="Unit"
+                    [scrollHeight]="'120px'"
+                    optionValue="value"></p-dropdown>
       </div>
-      <div class="pb-8">
-        <label for="amount">Amount</label>
-        <div class="flex pb-4">
-          <p-inputNumber [(ngModel)]="itemToAdd.amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
-                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
-          <p-dropdown [(ngModel)]="itemToAdd.unit" [options]="unitsForItems" optionLabel="label" placeholder="Unit"
-                      [scrollHeight]="'120px'"
-                      optionValue="value"></p-dropdown>
-        </div>
-      </div>
-      <div class="flex justify-end gap-4 pb-8">
-        <p-button label="Cancel" icon="pi pi-times" (click)="addItemToShoppingListModalOpen = false"
-                  severity="secondary"></p-button>
-        <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
-      </div>
+    </div>
+    <div class="flex justify-end gap-4 pb-8">
+      <p-button label="Cancel" icon="pi pi-times" (click)="addItemToShoppingListModalOpen = false"
+                severity="secondary"></p-button>
+      <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
+    </div>
   </div>
 </p-dialog>
