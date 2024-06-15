@@ -391,13 +391,23 @@ export class PantryComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        //TODO: mass delete in backend + count does not work
-        let count = 0;
+        //TODO: mass delete in backend
+        let count = this.selectedItems.length;
+        let length = this.selectedItems.length;
         for (let item of this.selectedItems) {
           this.service.deleteItem(this.id, item.id).subscribe({
             next: res => {
-              count++;
+              count--;
+              console.log(count);
               this.getPantry(this.id);
+              if(count < 1) {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Items Deleted',
+                  detail: `Deleted ${length} items`,
+                  life: 3000
+                });
+              }
             },
             error: err => {
               console.error(err);
@@ -410,12 +420,6 @@ export class PantryComponent implements OnInit {
             }
           });
         }
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Items Deleted',
-          detail: `Deleted ${count} items`,
-          life: 3000
-        });
         this.selectedItems = null;
       }
     });
@@ -516,7 +520,7 @@ export class PantryComponent implements OnInit {
   }
 
   belowMinimum(item: PantryItemDetailDto): boolean | null {
-    if(item.lowerLimit === null) {
+    if(item.lowerLimit === null || item.lowerLimit === 0) {
       return null;
     }
     return item.amount < item.lowerLimit;
