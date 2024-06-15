@@ -41,11 +41,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -231,6 +227,101 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Test
     @WithMockUser(username = "user1@example.com")
+    public void whenAddItemToPantry_andItemWithCreatedItemNameAndUnitExists_thenItemAutoMerged() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup2").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("PantryTest-Potato").build();
+        String body = objectMapper.writeValueAsString(itemCreateDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/group/{0}/pantry", groupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
+        PantryItem item = pantryItemRepository.findById(itemDto.getId()).get();
+
+        assertAll(
+            () -> assertNotNull(item),
+            () -> assertEquals(itemCreateDto.getDescription(), item.getDescription()),
+            () -> assertEquals(5, item.getAmount()),
+            () -> assertEquals(itemCreateDto.getUnit(), item.getUnit())
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenAddItemToPantry_andItemWithCreatedItemNameButNotUnitExists_thenItemNotAutoMerged() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup2").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Gram).description("PantryTest-Potato").build();
+        String body = objectMapper.writeValueAsString(itemCreateDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/group/{0}/pantry", groupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
+        PantryItem item = pantryItemRepository.findById(itemDto.getId()).get();
+
+        assertAll(
+            () -> assertNotNull(item),
+            () -> assertEquals(itemCreateDto.getDescription(), item.getDescription()),
+            () -> assertEquals(itemCreateDto.getAmount(), item.getAmount()),
+            () -> assertEquals(itemCreateDto.getUnit(), item.getUnit()),
+            () -> assertEquals(2, pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup2").getPantry()).size())
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenAddItemToPantry_andItemWithCreatedItemUnitButNotNameExists_thenItemNotAutoMerged() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup2").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("PantryTest-NewName").build();
+        String body = objectMapper.writeValueAsString(itemCreateDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/group/{0}/pantry", groupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        ItemDto itemDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto.class);
+        PantryItem item = pantryItemRepository.findById(itemDto.getId()).get();
+
+        assertAll(
+            () -> assertNotNull(item),
+            () -> assertEquals(itemCreateDto.getDescription(), item.getDescription()),
+            () -> assertEquals(itemCreateDto.getAmount(), item.getAmount()),
+            () -> assertEquals(itemCreateDto.getUnit(), item.getUnit()),
+            () -> assertEquals(2, pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup2").getPantry()).size())
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
     public void givenNothing_whenAddInvalidItemToPantry_then400() throws Exception {
 
         Long id = userRepository.findByEmail("user1@example.com").getId();
@@ -342,7 +433,39 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Test
     @WithMockUser(username = "user1@example.com")
-    public void givenNothing_whenMerge_thenItemWithAllPropertiesAndOtherItemDeleted() throws Exception {
+    public void whenUpdate_andItemWithUpdatedItemNameAndUnitExists_thenItemAutoMerged() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup1").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        GroupEntity group = groupRepository.findByGroupName("PantryTestGroup1");
+        PantryItem item = group.getPantry().getItems().get(1); //PantryTest-Milk
+        ItemDto dto = ItemDto.builder().id(item.getId()).amount(item.getAmount()).unit(Unit.Gram).description("PantryTest-Tea").build();
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/pantry", group.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+
+        PantryItem mergedInto = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs("PantryTest-Tea", Unit.Gram, group.getPantry()).get(0);
+
+        assertAll(
+            () -> assertFalse(pantryItemRepository.findById(dto.getId()).isPresent()),
+            () -> assertEquals(750, mergedInto.getAmount()),
+            () -> assertEquals(Unit.Gram, mergedInto.getUnit()),
+            () -> assertEquals(dto.getDescription(), mergedInto.getDescription()),
+            () -> assertNotEquals(dto.getId(), mergedInto.getId())
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenMerge_thenItemWithAllPropertiesAndOtherItemDeleted() throws Exception {
 
         Long id = userRepository.findByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
@@ -379,6 +502,72 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
             () -> assertEquals(fromRepository.getDescription(), returned.getDescription()),
             () -> assertEquals(fromRepository.getId(), returned.getId()),
             () -> assertFalse(itemRepository.existsById(item2.getId()))
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenMerge_andIdOfItemsToMergeIsTheSame_then409() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup1").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        PantryItem item1 = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup1").getPantry()).get(0);
+        PantryItemDto itemDto = PantryItemDto.builder()
+            .unit(item1.getUnit())
+            .lowerLimit(item1.getLowerLimit())
+            .description(item1.getDescription())
+            .amount(item1.getAmount() + 100)
+            .id(item1.getId()).build();
+
+        PantryItemMergeDto mergeDto = PantryItemMergeDto.builder().itemToDeleteId(item1.getId()).result(itemDto).build();
+        String body = objectMapper.writeValueAsString(mergeDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/{0}/pantry/merged", groupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(409, response.getStatus())
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenMerge_andIdOfItemsToMergeDoNotExist_then404() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup1").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        PantryItem item1 = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup1").getPantry()).get(0);
+        PantryItemDto itemDto = PantryItemDto.builder()
+            .unit(item1.getUnit())
+            .lowerLimit(item1.getLowerLimit())
+            .description(item1.getDescription())
+            .amount(item1.getAmount() + 100)
+            .id(-1L).build();
+
+        PantryItemMergeDto mergeDto = PantryItemMergeDto.builder().itemToDeleteId(-2L).result(itemDto).build();
+        String body = objectMapper.writeValueAsString(mergeDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/{0}/pantry/merged", groupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(404, response.getStatus())
         );
     }
 

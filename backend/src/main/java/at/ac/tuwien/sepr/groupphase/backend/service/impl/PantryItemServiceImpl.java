@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class PantryItemServiceImpl implements PantryItemService {
     public PantryItem pantryAutoMerge(PantryItem pantryItem, Pantry pantry) {
         LOGGER.debug("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
         List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(pantryItem.getDescription(), pantryItem.getUnit(), pantry);
+
         if (pantryItems.size() == 0) {
             if (pantryItem.getPantry() == null) {
                 pantry.addItem(pantryItem);
