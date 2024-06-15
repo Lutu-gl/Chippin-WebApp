@@ -534,9 +534,10 @@ public class PantryDataGenerator implements DataGenerator {
             group = groupRepository.save(group); //save to generate id
 
             pantry = pantryRepository.getReferenceById(group.getId());
-            for (int i = listIndex; i < itemsPerPantry; i++) {
-                pantryService.addItemToPantry(pantryItems.get(i), pantry.getId());
-                listIndex = i;
+            for (int i = 0; i < itemsPerPantry; i++) {
+                //pantry.addItem((pantryItems.get(i + listIndex)));
+                pantryService.addItemToPantry(pantryItems.get(listIndex), pantry.getId());
+                listIndex++;
             }
             groupRepository.save(group); //save changes
         }
