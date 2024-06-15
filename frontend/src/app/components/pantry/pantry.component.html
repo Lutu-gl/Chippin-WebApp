@@ -50,9 +50,9 @@
         </p-dropdown>
       </div>
       <div class="field pt-5">
-        <label for="amount">Amount</label>
+        <label for="amountCreate">Amount</label>
         <p-inputNumber
-          id="amount"
+          id="amountCreate"
           [(ngModel)]="createEditItem.amount"
           [min]="0"
           [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
@@ -65,7 +65,7 @@
         <p-inputNumber
           id="lowerLimit"
           [(ngModel)]="createEditItem.lowerLimit"
-          [min]="0"
+          [min]="1"
           [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"/>
@@ -170,7 +170,7 @@
               <p-inputNumber
                 id="itemToMergeWithLowerLimit"
                 [(ngModel)]="itemMergeEdit.lowerLimit"
-                [min]="0"
+                [min]="1"
                 [max]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 1000 : 1000000"
                 [minFractionDigits]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 2 : 0"
                 [suffix]="getSuffixForCreateEdit(itemMergeEdit)"/>
