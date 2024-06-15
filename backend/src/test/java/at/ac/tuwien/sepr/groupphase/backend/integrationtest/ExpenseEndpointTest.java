@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -94,12 +93,13 @@ public class ExpenseEndpointTest extends BaseTest {
             .participants(Map.of("EXuser1@example.com", 0.6, "EXuser2@example.com", 0.4))
             .build();
 
-
-        String body = objectMapper.writeValueAsString(newTestExpense);
-
         String res = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
+                .param("name", "NewTestExpense")
+                .param("category", "Other")
+                .param("amount", "10.0")
+                .param("payerEmail", "EXuser1@example.com")
+                .param("groupId", saved.getId().toString())
+                .param("participants", objectMapper.writeValueAsString(Map.of("EXuser1@example.com", 0.6, "EXuser2@example.com", 0.4)))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
@@ -121,21 +121,12 @@ public class ExpenseEndpointTest extends BaseTest {
 
         groupRepository.save(group);
 
-        ExpenseCreateDto newTestExpense = ExpenseCreateDto.builder()
-            .name("NewTestExpense")
-            .category(Category.Other)
-            .amount(10.0)
-            .payerEmail("EXuser1@example.com")
-            .groupId(1L)
-            .participants(Map.of("EXuser1@example.com", 0.6, "user2@email.com", 0.4))
-            .build();
-
-
-        String body = objectMapper.writeValueAsString(newTestExpense);
-
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
+                .param("name", "NewTestExpense")
+                .param("amount", "10.0")
+                .param("payerEmail", "EXuser1@example.com")
+                .param("groupId", "1")
+                .param("participants", objectMapper.writeValueAsString(Map.of("EXuser1@example.com", 0.6, "user2@email.com", 0.4)))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isConflict());
     }
@@ -163,9 +154,13 @@ public class ExpenseEndpointTest extends BaseTest {
         String body = objectMapper.writeValueAsString(newTestExpense);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/expense")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
+                .param("name", "!!!!")
+                .param("category", "Other")
+                .param("amount", "10.0")
+                .param("payerEmail", "EXuser1@example.com")
+                .param("groupId", "1")
+                .param("participants", objectMapper.writeValueAsString(Map.of("EXuser1@example.com", 0.6, "EXuser2@example.com", 0.4)))
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isUnprocessableEntity());
     }
 }

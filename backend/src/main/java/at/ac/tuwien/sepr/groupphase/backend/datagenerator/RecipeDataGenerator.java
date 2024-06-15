@@ -4,11 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
-import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -16,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 @Component
@@ -30,15 +29,13 @@ public class RecipeDataGenerator implements DataGenerator {
     UserService userService;
     ItemRepository itemRepository;
     RecipeRepository recipeRepository;
-
-    private final Random random = new Random();
+    RecipeService recipeService;
 
 
     @Override
     @Transactional
-    public void generateData() {
+    public void generateData() throws AlreadyRatedException {
         LOGGER.debug("generating data for recipes");
-        random.setSeed(12345);
         List<ApplicationUser> users = userRepository.findAll();
 
         Recipe recipe1 = Recipe.builder()
@@ -94,100 +91,8 @@ public class RecipeDataGenerator implements DataGenerator {
         recipeRepository.saveAndFlush(recipe2);
         userRepository.saveAndFlush(users.getFirst());
 
-        Random random = new Random();
-        random.setSeed(12345);
-        Faker faker = new Faker(Locale.getDefault(), random);
 
-        recipeRepository.saveAndFlush(Recipe.builder()
-            .name(faker.lorem().word())
-            .description(faker.lorem().paragraph())
-            .isPublic(true)
-            .portionSize(1)
-            .owner(users.get(5))
-            .ingredients(new ArrayList<>())
-            .likes(0).dislikes(0).build());
-
-        String[] descriptions = {
-            "Milk", "Chocolate", "Banana", "Butter", "Honey", "Egg", "Cheese", "Bread",
-            "Apple", "Orange", "Pear", "Grapes", "Strawberries", "Blueberries", "Raspberries",
-            "Tomato", "Cucumber", "Lettuce", "Carrot", "Potato", "Onion", "Garlic", "Pepper",
-            "Chicken", "Beef", "Pork", "Fish", "Shrimp", "Tofu", "Beans", "Rice", "Pasta",
-            "Bread", "Bagel", "Muffin", "Donut", "Cake", "Pie", "Ice Cream", "Yogurt",
-            "Coffee", "Tea", "Juice", "Water", "Soda", "Beer", "Wine", "Whiskey"
-        };
-        Unit[] units = {Unit.Milliliter, Unit.Gram, Unit.Piece};
-        ApplicationUser user = users.stream().filter(o -> o.getEmail().equals("rafael@chippin.com")).findFirst().get();
-        for (int i = 0; i < 30; i++) {
-            Recipe recipe = Recipe.builder()
-                .name(faker.lorem().word())
-                .description(faker.lorem().paragraph())
-                .isPublic(random.nextBoolean())
-                .portionSize(random.nextInt(10) + 1)
-                .owner(user)
-                .build();
-
-
-            for (int j = 0; j < 5; j++) {
-                String description = descriptions[random.nextInt(descriptions.length)];
-                Unit unit = units[new Random().nextInt(units.length)];
-                int amount = new Random().nextInt(500) + 1;
-                var item = Item.builder().description(description).unit(unit).amount(amount).build();
-                recipe.addIngredient(item);
-            }
-            recipeRepository.saveAndFlush(recipe);
-        }
-
-        //Recipes for Pantry Tests
         ApplicationUser user1 = userRepository.findByEmail("rafael@chippin.com");
-        Recipe pantryTestRecipe1 = Recipe.builder()
-            .owner(user1)
-            .isPublic(false)
-            .portionSize(1)
-            .description(faker.lorem().paragraph())
-            .name(faker.lorem().word()).build();
-        pantryTestRecipe1.addIngredient(
-            Item.builder()
-                .description(descriptions[random.nextInt(descriptions.length)])
-                .amount(2)
-                .unit(Unit.Piece).build());
-        pantryTestRecipe1.addIngredient(
-            Item.builder()
-                .description(descriptions[random.nextInt(descriptions.length)])
-                .amount(200)
-                .unit(Unit.Milliliter).build());
-        user1.addRecipe(pantryTestRecipe1);
-        recipeRepository.saveAndFlush(pantryTestRecipe1);
-        userRepository.saveAndFlush(user1);
-
-        Recipe pantryTestRecipe2 = Recipe.builder()
-            .owner(user1)
-            .isPublic(false)
-            .portionSize(1)
-            .description(faker.lorem().paragraph())
-            .name(faker.lorem().word()).build();
-        pantryTestRecipe2.addIngredient(
-            Item.builder()
-                .description(descriptions[random.nextInt(descriptions.length)])
-                .amount(2)
-                .unit(Unit.Piece).build());
-        user1.addRecipe(pantryTestRecipe1);
-        recipeRepository.saveAndFlush(pantryTestRecipe2);
-        userRepository.saveAndFlush(user1);
-
-        Recipe pantryTestRecipe3 = Recipe.builder()
-            .owner(user1)
-            .isPublic(false)
-            .portionSize(1)
-            .description(faker.lorem().paragraph())
-            .name(faker.lorem().word()).build();
-        pantryTestRecipe3.addIngredient(
-            Item.builder()
-                .description(descriptions[random.nextInt(descriptions.length)])
-                .amount(2)
-                .unit(Unit.Piece).build());
-        user1.addRecipe(pantryTestRecipe1);
-        recipeRepository.saveAndFlush(pantryTestRecipe3);
-        userRepository.saveAndFlush(user1);
 
 
         Recipe newRecipe1 = Recipe.builder()
@@ -1959,6 +1864,19 @@ public class RecipeDataGenerator implements DataGenerator {
         user1.addRecipe(newRecipe26);
         recipeRepository.saveAndFlush(newRecipe26);
         userRepository.saveAndFlush(user1);
+
+        List<Recipe> recipes = recipeRepository.findByIsPublicTrueOrderByLikesDesc();
+
+        Random random = new Random();
+        random.setSeed(12345);
+
+        for (Recipe recipe : recipes) {
+            for (ApplicationUser user : users) {
+                if (random.nextBoolean()) {
+                    recipeService.likeRecipe(recipe.getId(), user);
+                }
+            }
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExchangeRateService;
 import org.slf4j.Logger;
@@ -36,16 +37,21 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         ExchangeRate rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
 
         if (rate.getLastUpdated().isBefore(LocalDate.now().minusDays(2))) {
-            getExchangeRates();
+            try {
+                getExchangeRates();
+            } catch (RuntimeException e) {
+                LOGGER.error("Could not fetch Exchange rates because of: {}", e.getMessage());
+            }
             rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
+        }
+        if (rate == null) {
+            throw new NotFoundException("Could not find ExchangeRate for Currency: " + currency);
         }
 
         return amount / rate.getRate();
     }
 
     public void getExchangeRates() {
-        //TODO MAYBE @Scheduled verwenden
-        //TODO RISIKOANALYSE/FALLBACK FALLS API NICHT VERFÜGBAR
         LOGGER.trace("FETCHING Exchange Rates from api");
 
 

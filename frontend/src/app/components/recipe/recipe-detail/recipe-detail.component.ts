@@ -8,7 +8,7 @@ import {GroupDto} from "../../../dtos/group";
 import {debounceTime} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {ShoppingListListDto} from "../../../dtos/shoppingList";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {
   formatAmount,
   getSuffixForCreateEdit
@@ -56,6 +56,7 @@ export class RecipeDetailComponent implements OnInit {
   isPantryDialogVisible = false;
   isShoppingListDialogVisible = false;
 
+
   constructor(
     private route: ActivatedRoute,
     private service: RecipeService,
@@ -64,7 +65,8 @@ export class RecipeDetailComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private shoppingListService: ShoppingListService,
-    private authService: AuthService
+    private authService: AuthService,
+    private confirmationService: ConfirmationService
   ) {
   }
 
@@ -112,6 +114,7 @@ export class RecipeDetailComponent implements OnInit {
         next: dto => {
           this.addItemToShoppingListDto = dto;
           this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+          this.selectedIngredients=this.addItemToShoppingListDtoReset.recipeItems;
           this.shoppingList = {...this.shoppingList};
           console.log(dto);
         }, error: error => {
@@ -311,22 +314,31 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   deleteRecipe() {
-    this.service.deleteRecipe(this.recipe.id).subscribe({
-      next: res => {
-        console.log('deleted recipe: ', res);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + this.recipe.name + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.service.deleteRecipe(this.recipe.id).subscribe({
+          next: res => {
+            console.log('deleted recipe: ', res);
 
-      },
-      error: err => {
-        this.printError(err);
+          },
+          error: err => {
+            this.printError(err);
+          }
+        });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: `Recipe successfully deleted`,
+          life: 3000
+        });
+        this.router.navigate(['/home/recipes']);
       }
     });
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Successful',
-      detail: `Recipe successfully deleted`,
-      life: 3000
-    });
-    this.router.navigate(['/home/recipes']);
+
+
   }
 
 

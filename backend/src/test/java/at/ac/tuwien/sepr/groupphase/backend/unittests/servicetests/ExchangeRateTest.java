@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ExchangeRateService;
@@ -7,15 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * A simple test to see if getting the exchange rate getting works.
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ExchangeRateTest {
+public class ExchangeRateTest extends BaseTest {
     @Autowired
     private ExchangeRateRepository exchangeRateRepository;
     @Autowired
@@ -32,6 +32,7 @@ public class ExchangeRateTest {
     //TODO VOR MR3 AKTIVIEREN
     //Add @Test manually if it needs testing
     //@Test
+    @Rollback
     public void getExchangeRatesFromApi_ThenRatesInPersistence() {
 
         exchangeRateRepository.deleteAll();
@@ -50,4 +51,19 @@ public class ExchangeRateTest {
         );
 
     }
+
+    /*@Test
+    public void givenAmountInDifferentCurrency_WhenConvertToEuro_ConvertsSuccessfully() {
+        Double fromEUR = exchangeRateService.convertToEuro(5, "EUR");
+
+        Double fromUSD = exchangeRateService.convertToEuro(5, "USD");
+
+        Double fromCHF = exchangeRateService.convertToEuro(5, "CHF");
+
+        assertAll(
+            () -> assertEquals(5, fromEUR),
+            () -> assertEquals(5 / 1.0844, fromUSD),
+            () -> assertEquals(5 / 0.9798, fromCHF)
+        );
+    }*/
 }
