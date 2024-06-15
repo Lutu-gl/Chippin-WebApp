@@ -67,33 +67,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ex.getMessage();
     }
 
-    /**
-     * Override methods from ResponseEntityExceptionHandler to send a customized HTTP response for a know exception
-     * from e.g. Spring
-     */
-//    @Override
-//    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-//                                                                  HttpHeaders headers,
-//                                                                  HttpStatusCode status, WebRequest request) {
-//        Map<String, Object> body = new LinkedHashMap<>();
-//        //Get all errors
-//        List<String> errors = ex.getBindingResult()
-//            .getFieldErrors()
-//            .stream()
-//            .map(err -> err.getField() + " " + err.getDefaultMessage())
-//            .collect(Collectors.toList());
-//        body.put("errors", errors);
-//
-//        return new ResponseEntity<>(body.toString(), headers, status);
-//    }
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status,
                                                                   WebRequest request) {
-        List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .toList();
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
         return new ResponseEntity<>(new ValidationErrorRestDto(ex.getMessage(), errors), HttpStatus.BAD_REQUEST);
     }
 }
