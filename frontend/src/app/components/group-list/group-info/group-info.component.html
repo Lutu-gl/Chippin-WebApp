@@ -86,7 +86,97 @@
 <p-confirmDialog>
 </p-confirmDialog>
 
-<!-- Modal for making sure to leave the gorup -->
+<!-- Modal for edit group -->
+<p-dialog header="Edit Group" [(visible)]="editNewGroupModalVisible"
+          [modal]="true"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [draggable]="false"
+          [resizable]="false"
+          [style]="{ width: '60rem'}"
+>
+  <form #form="ngForm" class="flex flex-col gap-4 pt-16" (ngSubmit)="onSubmitModal(form)" name ="formOfGroupEdit">
+    <div class="flex flex-col gap-2 pl-6">
+      <label for="inputGroupName" class="font-medium w-64">Group Name</label>
+      <input pAutoFocus
+             [(ngModel)]="groupForEditModal.groupName"
+             #groupName="ngModel"
+             type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
+             required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$"
+             maxlength="20"
+      >
+      <div *ngIf="groupName.touched && groupName.errors?.required" class="text-red-500 text-xs">
+        Group name is required.
+      </div>
+      <div *ngIf="groupName.touched && groupName.errors?.pattern" class="text-red-500 text-xs">
+        Group name must only contain letters, numbers, and spaces.
+      </div>
+      <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
+        Group name must not have over 20 characters.
+      </div>
+      <br>
+
+      <label for="inputMembers" class="font-medium w-64">Current Members</label>
+      <div class="flex flex-wrap gap-4 mr-20">
+        <div *ngFor="let member of getSortedGroupMembersEmail(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="font-semibold">{{i+1}}:</div>
+              <div class="ml-4">{{member}}</div>
+            </div>
+            <!--          <button *ngIf="member !== authService.getEmail()" type="button" class="btn-light ml-5" (click)="removeMember(i)"-->
+            <!--                  [style.visibility]="member ? 'visible' : 'hidden'">-->
+            <!--            <i class="pi pi-trash"></i>-->
+            <!--          </button>-->
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <label for="inputMembers" class="font-medium w-64">Add new Members</label>
+      <p-autoComplete
+        [(ngModel)]="currentlySelected"
+        name="currentlySelected"
+        [suggestions]="filteredFriendsEdit"
+        (completeMethod)="filterMembersEdit($event)"
+        (onSelect)="addMemberEdit($event)"
+        [dropdown]="true"
+        [forceSelection]="friendsEdit"
+        id = "inputMembers"
+      />
+
+
+      <div>
+        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-64 max-h-64 overflow-auto">
+          <div *ngFor="let member of getMembersEmailEdit(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="font-semibold">{{i+1}}:</div>
+                <div class="ml-4">{{member}}</div>
+              </div>
+
+
+
+              <button *ngIf="member !== authService.getEmail()" type="button" class="btn-light ml-5" (click)="removeMemberEdit(i)"
+                      [style.visibility]="member ? 'visible' : 'hidden'">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+        <p-button severity="secondary" (click)="goBack($event)">Cancel</p-button>
+        <p-button severity="primary" [disabled]="(!form.valid || groupForEditModal === undefined)" (click)="onSubmitModal(form)">Save</p-button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Modal for making sure to leave the group -->
 <p-confirmDialog key="leaveGroup">
   <ng-template pTemplate="message" let-message>
     <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">

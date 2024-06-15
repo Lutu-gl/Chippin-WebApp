@@ -144,7 +144,7 @@ export class GroupCreateComponent implements OnInit {
       this.mode = data.mode;
     });
 
-    let emailString = this.userService.getUserEmail();
+    let emailString = this.authService.getEmail();
     if(emailString === null) {
       this.messageService.add({severity:'error', summary:'Error', detail:`You need to be logged in to create a group. Please logout and login again.`});
       return;

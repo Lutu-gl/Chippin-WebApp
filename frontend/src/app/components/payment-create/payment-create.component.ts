@@ -10,6 +10,7 @@ import {Observable} from "rxjs";
 import {GroupDto} from "../../dtos/group";
 import {PaymentService} from "../../services/payment.service";
 import {PaymentDto} from "../../dtos/payment";
+import {AuthService} from "../../services/auth.service";
 
 export enum PaymentCreateEditMode {
   create,
@@ -26,7 +27,7 @@ export class PaymentCreateComponent implements OnInit {
   paymentDeleted: boolean;
 
   payment: PaymentDto = {
-    payerEmail: this.userService.getUserEmail(),
+    payerEmail: this.authService.getEmail(),
     receiverEmail: this.route.snapshot.params.email,
     amount: this.route.snapshot.params.amount,
     groupId: this.route.snapshot.params.id,
@@ -40,6 +41,7 @@ export class PaymentCreateComponent implements OnInit {
 
   constructor(
     private service: PaymentService,
+    private authService: AuthService,
     protected userService: UserService,
     private friendshipService: FriendshipService,
     private router: Router,
@@ -95,7 +97,7 @@ export class PaymentCreateComponent implements OnInit {
     if (this.mode != PaymentCreateEditMode.create) {
       this.getPayment();
     } else {
-      let emailString = this.userService.getUserEmail();
+      let emailString = this.authService.getEmail();
       if(emailString === null) {
         this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
         return;
@@ -305,7 +307,7 @@ export class PaymentCreateComponent implements OnInit {
   }
 
   isUserInvolvedInPayment(): boolean {
-    const user = this.userService.getUserEmail();
+    const user = this.authService.getEmail();
     return this.payment && (this.payment.payerEmail === user || this.payment.receiverEmail === user);
   }
 }
