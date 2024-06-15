@@ -59,6 +59,7 @@
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"
           required/>
+        <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem)">Amount is merged.</small>
       </div>
       <div class="field pt-5">
         <label for="lowerLimit">Minimum</label>
@@ -69,10 +70,12 @@
           [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"/>
+        <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem) && createEditItem.lowerLimit">Lower limit is overwritten.</small>
       </div>
-      <div class="field pt-5" *ngIf="displayMergeWarning(createEditItem)">
-        <small style="color: #ffc107"><i class="pi pi-exclamation-triangle"></i> Item with the same name and unit
-          already exists. Items will be merged.</small>
+      <div class="field pt-5" *ngIf="displayMergeWarning(createEditItem)" style="color: #ffc107">
+        <i class="pi pi-exclamation-triangle"></i>
+        <small style="color: #ffc107"> Item with the same name and same unit
+          already exists. Items are merged.</small>
       </div>
     </div>
     <div *ngIf="isMergeSelected()">
