@@ -1,4 +1,4 @@
-<p-dialog [(visible)]="visible" [modal]="true" (visibleChange)="hide()" [style]="{width: '40vw', height: '50vh'}">
+<p-dialog (visibleChange)="hide()" [(visible)]="visible" [modal]="true">
   <p-header>
     <h2>Shopping List</h2>
   </p-header>
@@ -10,12 +10,13 @@
     </div>
     <div>
       <label for="categories">Categories</label>
-      <p-multiSelect scrollHeight="150px" filter="false" placeholder="Select categories" id="categories"
+      <p-multiSelect appendTo="body" filter="false" id="categories" placeholder="Select categories" scrollHeight="150px"
                      [(ngModel)]="shoppingListToCreate.categories" [options]="categories"></p-multiSelect>
     </div>
     <div>
       <label for="group">Group</label>
-      <p-autoComplete id="group" forceSelection="true" [suggestions]="filteredGroups" scrollHeight="150px"
+      <p-autoComplete [suggestions]="filteredGroups" appendTo="body" forceSelection="true" id="group"
+                      scrollHeight="150px"
                       optionLabel="groupName" [(ngModel)]="shoppingListToCreate.group"
                       (completeMethod)="filterGroups($event)"
                       [disabled]="!!preChosenGroupId"

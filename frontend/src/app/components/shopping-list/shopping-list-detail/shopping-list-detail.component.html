@@ -1,10 +1,10 @@
-<div *ngIf="shoppingListDetailDto?.id" class="px-28 flex flex-col gap-2 items-center">
+<div *ngIf="shoppingListDetailDto?.id" class="px-6 md:px-28 flex flex-col gap-2 items-center">
   <div class="flex justify-between pt-8 w-full">
     <div class="flex flex-col gap-2">
 
       <h1 class="text-4xl font-medium">{{ shoppingListDetailDto?.name }}</h1>
       <!-- Categories -->
-      <div *ngIf="shoppingListDetailDto?.categories.length > 0" class="flex gap-2 items-center">
+      <div *ngIf="shoppingListDetailDto?.categories.length > 0" class="flex flex-wrap gap-2 items-center">
         <h2>Categories: </h2>
         <p-tag *ngFor="let category of shoppingListDetailDto.categories" severity="info" value="{{category}}"></p-tag>
       </div>
@@ -36,10 +36,10 @@
                         [dropdown]="true" optionLabel="description" placeholder="Quick add item"/>
       </div>
     </div>
-    <div class="flex flex-col gap-1 items-end justify-center pr-6">
+    <div class="flex flex-col gap-1 items-end justify-center md:pr-6">
       <p-button label="Edit" icon="pi pi-pencil" severity="info" (click)="this.showEditModal = true"></p-button>
-      <p-confirmDialog></p-confirmDialog>
-      <div pTooltip="Only the owner can delete a shopping list" [tooltipDisabled]="shoppingListDetailDto.owner.id === userId">
+      <div [tooltipDisabled]="shoppingListDetailDto.owner.id === userId"
+           pTooltip="Only the owner can delete a shopping list">
         <p-button label="Delete" icon="pi pi-trash" severity="danger"
                   [disabled]="shoppingListDetailDto.owner.id !== userId" (click)="confirmDelete()"></p-button>
       </div>
@@ -55,13 +55,112 @@
   </div>
 
   <!-- Shopping list items and shopping cart -->
-  <div class="grid grid-cols-5 w-full 2xl:px-20">
+
+  <div class="md:hidden flex w-full justify-center">
+    <p-tabView>
+      <p-tabPanel header="Shopping list">
+        <div class="flex flex-col gap-4 py-4">
+          <div class="flex justify-between items-center">
+            <h3 class="w-fit pr-2">Shopping List</h3>
+            <div class="pr-8">
+              <p-button (click)="openAddItemDialog()" class="hidden md:block" icon="pi pi-plus" label="Add new item" severity="primary"
+                        size="small"></p-button>
+              <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item" severity="primary"
+                        size="small"></p-button>
+            </div>
+          </div>
+          <div *ngIf="getShoppingListItems().length === 0" class="flex justify-center items-center w-full h-32">
+            <!-- Nothing in shopping list -->
+            <p class="text-gray-500">Your shopping list is empty</p>
+          </div>
+          <div
+            *ngFor="let item of getShoppingListItems()"
+            class="flex justify-between items-center hover:outline outline-1 outline-slate-300 w-full bg-sky-100 px-6 py-4 gap-4 shadow-md shadow-gray-200 rounded-lg">
+            <div class="flex flex-col gap-1 w-1/3">
+              <h3 class="font-medium text-sm truncate">{{ item.item.description }}</h3>
+              <p
+                class="text-sm">{{ formatAmount(item.item) }}</p>
+            </div>
+            <div class="flex gap-8 justify-between items-center">
+              <p-button (click)="toggleChecked(item.id)" [outlined]="true" [text]="true" class="hidden md:block"
+                        icon="pi pi-shopping-cart" label="Move to cart"
+                        severity="info"
+                        size="small"></p-button>
+              <div class="flex flex-row">
+                <p-button (click)="toggleChecked(item.id)" [outlined]="true" [text]="true" class="md:hidden"
+                          icon="pi pi-shopping-cart" pTooltip="Move to cart"
+                          severity="info"
+                          size="small"></p-button>
+                <div>
+                  <p-button (click)="selectItem(item); shoppingListItemMenu.show($event)" [text]="true" icon="pi pi-ellipsis-v" severity="secondary"
+                            size="small"></p-button>
+                  <p-menu #shoppingListItemMenu [model]="shoppingListItemMenuItems" [popup]="true"></p-menu>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Shopping Cart">
+        <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2">
+          <div class="flex gap-2 justify-between items-center">
+            <h3>Shopping Cart</h3>
+            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group" [outlined]="true"
+                      [text]="true"
+                      class="hidden md:block" icon="pi pi-check-square"
+                      label="Move all to pantry"
+                      severity="primary"></p-button>
+            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group" [outlined]="true" [text]="true"
+                      class="md:hidden"
+                      icon="pi pi-check-square" label=""
+                      pTooltip="Move all to pantry"
+                      severity="primary"></p-button>
+            <p-button (click)="confirmDeleteAllInCart()" *ngIf="!shoppingListDetailDto.group" [outlined]="true"
+                      [text]="true" class="hidden md:block"
+                      icon="pi pi-trash"
+                      label="Delete all in cart"
+                      severity="primary"></p-button>
+            <p-button (click)="confirmDeleteAllInCart()" *ngIf="!shoppingListDetailDto.group" [outlined]="true"
+                      [text]="true" class="md:hidden"
+                      icon="pi pi-trash"
+                      pTooltip="Delete all in cart"
+                      severity="primary"></p-button>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
+              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg">Drag items
+                here</p>
+            </div>
+            <div *ngFor="let item of getShoppingCartItems()"
+                 class="flex bg-gray-200 hover:outline outline-1 outline-slate-300 justify-between rounded-md w-full px-2 py-1  shadow-md items-center">
+              <div class="flex gap-2 w-2/3">
+                <p
+                  class="text-sm w-1/4">{{ formatAmount(item.item) }}</p>
+                <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
+                    tooltipPosition="left">{{ item.item.description }}</h3>
+              </div>
+              <div>
+                <p-button (click)="selectItem(item); shoppingCartItemMenu.show($event)" [text]="true" icon="pi pi-ellipsis-v" severity="secondary"
+                          size="small"></p-button>
+                <p-menu #shoppingCartItemMenu [model]="shoppingCartItemMenuItems" [popup]="true"></p-menu>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <div class="hidden md:grid grid-cols-5 w-full 2xl:px-20">
     <div class="flex flex-col gap-4 py-4 px-8 col-span-3" pDroppable (onDrop)="dropToShoppingList()">
       <div class="flex justify-between items-center">
         <h3 class="w-fit pr-2">Shopping List</h3>
         <div class="pr-8">
-          <p-button label="Add new item" icon="pi pi-plus" size="small" severity="primary"
+          <p-button class="hidden md:block" icon="pi pi-plus" label="Add new item" severity="primary" size="small"
                     (click)="openAddItemDialog()"></p-button>
+          <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item" severity="primary"
+                    size="small"></p-button>
         </div>
       </div>
       <div *ngIf="getShoppingListItems().length === 0" class="flex justify-center items-center w-full h-32">
@@ -77,9 +176,14 @@
             class="text-sm">{{ formatAmount(item.item) }}</p>
         </div>
         <div class="flex gap-8 justify-between items-center">
-          <p-button label="Move to cart" size="small" icon="pi pi-shopping-cart" severity="info" [text]="true"
+          <p-button [text]="true" class="hidden md:block" icon="pi pi-shopping-cart" label="Move to cart" severity="info"
+                    size="small"
                     [outlined]="true"
                     (click)="toggleChecked(item.id)"></p-button>
+          <p-button (click)="toggleChecked(item.id)" [outlined]="true" [text]="true" class="md:hidden" icon="pi pi-shopping-cart"
+                    pTooltip="Move to cart"
+                    severity="info"
+                    size="small"></p-button>
           <div>
             <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
                       (click)="selectItem(item); shoppingListItemMenu.show($event)"></p-button>
@@ -92,14 +196,26 @@
     <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2" pDroppable (onDrop)="dropToPantry()">
       <div class="flex gap-2 justify-between items-center">
         <h3>Shopping Cart</h3>
-        <p-button *ngIf="!!shoppingListDetailDto.group" label="Move all to pantry" icon="pi pi-check-square"
+        <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group" [outlined]="true"
+                  [text]="true"
+                  class="hidden md:block" icon="pi pi-check-square"
+                  label="Move all to pantry"
+                  severity="primary"></p-button>
+        <p-button *ngIf="!!shoppingListDetailDto.group" class="md:hidden" icon="pi pi-check-square" label=""
+                  pTooltip="Move all to pantry"
                   severity="primary" [outlined]="true"
                   [text]="true"
                   (click)="confirmMoveAllItemsInCartToPantry()"></p-button>
-        <p-button *ngIf="!shoppingListDetailDto.group" label="Delete all in cart" icon="pi pi-trash" severity="primary"
+        <p-button *ngIf="!shoppingListDetailDto.group" class="hidden md:block" icon="pi pi-trash"
+                  label="Delete all in cart" severity="primary"
                   [outlined]="true"
                   [text]="true"
                   (click)="confirmDeleteAllInCart()"></p-button>
+        <p-button (click)="confirmDeleteAllInCart()" *ngIf="!shoppingListDetailDto.group" [outlined]="true"
+                  [text]="true" class="md:hidden"
+                  icon="pi pi-trash"
+                  pTooltip="Delete all in cart"
+                  severity="primary"></p-button>
       </div>
       <div class="flex flex-col gap-2">
         <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
@@ -128,26 +244,26 @@
 </div>
 
 <!-- Add new item dialog -->
-<p-dialog header="Add new item" [(visible)]="displayAddItemDialog" [modal]="true" [style]="{width: '35rem'}">
+<p-dialog [(visible)]="displayAddItemDialog" [modal]="true" class="max-w-min" header="Add new item">
   <!-- Add new item (name, amount, unit) -->
-  <div class="flex flex-col gap-4 p-4">
+  <div class="flex flex-col gap-4">
     <form [formGroup]="addItemForm">
       <div class="flex flex-col gap-2">
         <label for="description">Name</label>
         <input id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
                [maxLength]="60">
       </div>
-      <div class="pb-8">
+      <div class="">
         <label for="amount">Amount</label>
-        <div class="flex pb-4">
+        <div class="flex flex-col md:flex-row pb-4">
           <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
                          [max]="100000" placeholder="e.g. 1"></p-inputNumber>
-          <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
-                      [scrollHeight]="'120px'"
+          <p-dropdown [options]="units" appendTo="body" formControlName="unit" optionLabel="label" placeholder="Unit"
+
                       optionValue="value"></p-dropdown>
         </div>
       </div>
-      <div class="flex justify-end gap-4 pb-8">
+      <div class="flex justify-end gap-4">
         <p-button label="Cancel" icon="pi pi-times" (click)="displayAddItemDialog = false"
                   severity="secondary"></p-button>
         <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
@@ -158,9 +274,9 @@
 </p-dialog>
 
 <!-- Edit item dialog -->
-<p-dialog header="Edit item" [(visible)]="displayEditItemDialog" [modal]="true" [style]="{width: '35rem'}">
+<p-dialog [(visible)]="displayEditItemDialog" [modal]="true" header="Edit item">
   <!-- Edit item (name, amount, unit) -->
-  <div class="flex flex-col gap-4 p-4">
+  <div class="flex flex-col gap-4">
     <form [formGroup]="editItemForm">
       <div class="flex flex-col gap-2">
         <label for="editDescription">Name</label>
@@ -170,7 +286,7 @@
       </div>
       <div class="pb-8">
         <label for="editAmount">Amount</label>
-        <div class="flex pb-4">
+        <div class="flex flex-col md:flex-row">
           <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" inputId="amount" [min]="1"
                          [max]="100000" placeholder="e.g. 1"></p-inputNumber>
           <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
@@ -187,3 +303,4 @@
   </div>
 
 </p-dialog>
+<p-confirmDialog></p-confirmDialog>
