@@ -50,7 +50,7 @@ public class PantryItemServiceImpl implements PantryItemService {
         baseItem.setAmount(pantryItem.getAmount() + baseItem.getAmount());
 
         //overwrite lowerLimit when item has lower limit set, otherwise keep lower limit of base item
-        if(pantryItem.getLowerLimit() != null) {
+        if (pantryItem.getLowerLimit() != null) {
             baseItem.setLowerLimit(pantryItem.getLowerLimit());
         }
 
