@@ -109,10 +109,10 @@
             (onChange)="setItemToMerge(createEditItem)"
             [options]="mergeItemsSelectOptions(createEditItem)">
             <ng-template let-item pTemplate="item">
-              {{item.description}} {{formatAmount(item)}}
+              {{ item.description }} {{ formatAmount(item) }}
             </ng-template>
             <ng-template let-item pTemplate="selectedItem">
-              {{item.description}} {{formatAmount(item)}}
+              {{ item.description }} {{ formatAmount(item) }}
             </ng-template>
           </p-dropdown>
         </div>
@@ -228,7 +228,7 @@
             </button>
           </td>
           <td>
-            {{recipe.itemsInPantry?.length}} / {{recipe.ingredients?.length}}
+            {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
           </td>
         </tr>
       </ng-template>
@@ -349,20 +349,21 @@
             </td>
             <td>
               <div class="flex items-center gap-2">
-              <p-tag
-                [severity]="getTagSeverity(belowMinimum(item))"
-                (click)="getTagSeverity(belowMinimum(item))">
-                {{ formatLowerLimit(item) }}
-              </p-tag>
-              <!-- Quick add to shopping list -->
-              <p-tag
-                class="hover:cursor-pointer"
-                *ngIf="belowMinimum(item)"
-                pRipple
-                pTooltip="Add to shopping list"
-                icon="pi pi-shopping-cart"
-                severity="info">
-              </p-tag>
+                <p-tag
+                  [severity]="getTagSeverity(belowMinimum(item))"
+                  (click)="getTagSeverity(belowMinimum(item))">
+                  {{ formatLowerLimit(item) }}
+                </p-tag>
+                <!-- Quick add to shopping list -->
+                <p-tag
+                  class="hover:cursor-pointer"
+                  *ngIf="belowMinimum(item)"
+                  (click)="addToShoppingList(item)"
+                  pRipple
+                  pTooltip="Add to shopping list"
+                  icon="pi pi-shopping-cart"
+                  severity="info">
+                </p-tag>
               </div>
             </td>
             <td>
@@ -390,3 +391,35 @@
     </div>
   </div>
 </div>
+
+<p-dialog [(visible)]="addItemToShoppingListModalOpen">
+  <p-header>Add {{ itemToAdd?.description }} to a shopping list</p-header>
+  <!-- Choose which shopping list to add the item to -->
+  <div class="flex flex-col">
+    <label for="shoppingList">Shopping List</label>
+    <p-dropdown appendTo="body" id="shoppingList" [options]="allShoppingLists" [(ngModel)]="selectedShoppingList" optionLabel="name" placeholder="Select a shopping list" ></p-dropdown>
+  </div>
+  <!-- Add new item (name, amount, unit) -->
+  <div class="flex flex-col gap-4 p-4" *ngIf="!!selectedShoppingList">
+      <div class="flex flex-col gap-2">
+        <label for="description">Name</label>
+        <input id="description" type="text" [(ngModel)]="itemToAdd.description" pInputText placeholder="e.g. Milk" [minLength]="2"
+               [maxLength]="60">
+      </div>
+      <div class="pb-8">
+        <label for="amount">Amount</label>
+        <div class="flex pb-4">
+          <p-inputNumber [(ngModel)]="itemToAdd.amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
+                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-dropdown [(ngModel)]="itemToAdd.unit" [options]="unitsForItems" optionLabel="label" placeholder="Unit"
+                      [scrollHeight]="'120px'"
+                      optionValue="value"></p-dropdown>
+        </div>
+      </div>
+      <div class="flex justify-end gap-4 pb-8">
+        <p-button label="Cancel" icon="pi pi-times" (click)="addItemToShoppingListModalOpen = false"
+                  severity="secondary"></p-button>
+        <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
+      </div>
+  </div>
+</p-dialog>
