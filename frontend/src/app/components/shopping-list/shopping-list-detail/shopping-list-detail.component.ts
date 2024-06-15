@@ -29,7 +29,7 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {DialogModule} from "primeng/dialog";
 import {ChipsModule} from "primeng/chips";
 import {DropdownModule} from "primeng/dropdown";
-import {DisplayedUnit, ItemCreateDto, ItemDetailDto, PantryItemDetailDto} from "../../../dtos/item";
+import {DisplayedUnit, ItemCreateDto, ItemDetailDto} from "../../../dtos/item";
 import {valuesIn} from "lodash";
 import {InputGroupModule} from "primeng/inputgroup";
 import {PaginatorModule} from "primeng/paginator";
@@ -38,6 +38,7 @@ import {convertQuantity, formatAmount} from "../../../util/unit-helper";
 import {ShoppingListEditModalComponent} from "../shopping-list-edit-modal/shopping-list-edit-modal.component";
 import {AutoCompleteCompleteEvent, AutoCompleteModule, AutoCompleteSelectEvent} from "primeng/autocomplete";
 import {PantryService} from "../../../services/pantry.service";
+import {TabViewModule} from "primeng/tabview";
 
 @Component({
   selector: 'app-shopping-list-detail',
@@ -73,6 +74,7 @@ import {PantryService} from "../../../services/pantry.service";
     ReactiveFormsModule,
     ShoppingListEditModalComponent,
     AutoCompleteModule,
+    TabViewModule,
   ],
   templateUrl: './shopping-list-detail.component.html',
   styleUrl: './shopping-list-detail.component.scss'
