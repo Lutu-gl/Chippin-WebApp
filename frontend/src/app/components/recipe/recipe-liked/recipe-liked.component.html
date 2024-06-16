@@ -28,6 +28,7 @@
       </div>
 
     </div>
+    <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)"></p-paginator>
     <p>
     You can find more Recipes, that you like from the Popular Recipe page!
     </p>

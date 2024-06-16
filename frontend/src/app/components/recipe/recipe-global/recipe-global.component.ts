@@ -17,6 +17,10 @@ export class RecipeGlobalComponent implements OnInit {
   error = false;
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
+  rows:number=20;
+  currentPage:number=1;
+  totalRecords:number;
+  paginatedRecipes:RecipeGlobalListDto[]=[];
 
   constructor(
     private service: RecipeService,
@@ -30,6 +34,8 @@ export class RecipeGlobalComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipes = data;
+          this.totalRecords=this.recipes.length;
+          this.paginate({ first: 0, rows: this.rows });
 
         },
         error: error => {
@@ -44,6 +50,11 @@ export class RecipeGlobalComponent implements OnInit {
 
   searchChanged() {
     this.searchChangedObservable.next();
+  }
+
+  paginate(event: any) {
+    this.currentPage = event.first / event.rows + 1;
+    this.paginatedRecipes = this.recipes.slice(event.first, event.first + event.rows);
   }
 
   public like(id: number) {
@@ -113,6 +124,8 @@ export class RecipeGlobalComponent implements OnInit {
     this.service.searchGlobalRecipes(search).subscribe({
       next: res => {
         this.recipes = res;
+        this.totalRecords=this.recipes.length;
+        this.paginate({ first: 0, rows: this.rows });
       },
       error: err => {
         this.printError(err);
