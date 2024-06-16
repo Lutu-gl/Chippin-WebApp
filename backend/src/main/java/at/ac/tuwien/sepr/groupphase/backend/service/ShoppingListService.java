@@ -135,9 +135,18 @@ public interface ShoppingListService {
      * Add multiple items to a shopping list.
      *
      * @param shoppingListId the id of the shopping list
-     * @param items the items to add
-     * @param userId the id of the user adding the items
+     * @param items          the items to add
+     * @param userId         the id of the user adding the items
      * @return the added items
      */
     List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
+
+    /**
+     * Get the amount of a specific item in all shopping lists of a group.
+     *
+     * @param groupId the id of the group
+     * @param item    the item to check
+     * @return the amount of the item (matching description and unit) in all shopping lists of the group
+     */
+    Long getAmountOfItemInGroupShoppingLists(Long groupId, ItemDto item);
 }

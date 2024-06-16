@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemDto;
@@ -162,6 +163,17 @@ public class ShoppingListEndpoint {
     public void deleteCheckedItems(@PathVariable Long userId, @PathVariable Long shoppingListId) {
         log.trace("deleteCheckedItems({}, {})", userId, shoppingListId);
         shoppingListService.deleteCheckedItems(shoppingListId);
+    }
+
+    /**
+     * Retrieve the amount of a specific item that is in all the shopping lists of a group combined.
+     */
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#groupId)")
+    @GetMapping("/groups/{groupId}/shopping-lists/item-amount")
+    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestBody ItemDto item) {
+        log.trace("getAmountOfItemInGroupShoppingLists({}, {})", groupId, item);
+        return shoppingListService.getAmountOfItemInGroupShoppingLists(groupId, item);
     }
 
 }
