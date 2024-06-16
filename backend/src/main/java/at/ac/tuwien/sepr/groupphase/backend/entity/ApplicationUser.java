@@ -1,8 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -61,7 +59,6 @@ public class ApplicationUser {
     private Set<GroupEntity> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
-    //, cascade = CascadeType.ALL
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
