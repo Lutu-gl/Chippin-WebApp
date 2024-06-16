@@ -189,13 +189,11 @@
         #dt
         [rows]="10"
         [value]="recipe.ingredients"
-        [paginator]="true"
         [globalFilterFields]="['description', 'amount', 'min']"
         [(selection)]="selectedItems"
         [tableStyle]="{ 'min-width': '75rem' }"
         [rowHover]="true"
         dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="caption">
