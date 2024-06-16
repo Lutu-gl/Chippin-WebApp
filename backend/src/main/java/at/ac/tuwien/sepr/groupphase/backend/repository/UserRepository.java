@@ -33,4 +33,7 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
     @Query("SELECT u.recipes FROM ApplicationUser u WHERE u.email = :email")
     List<Recipe> findRecipesByUserEmail(String email);
 
+    List<ApplicationUser> findApplicationUserByLikedRecipesContains(Recipe recipe);
+
+    List<ApplicationUser> findApplicationUserByDislikedRecipesContains(Recipe recipe);
 }

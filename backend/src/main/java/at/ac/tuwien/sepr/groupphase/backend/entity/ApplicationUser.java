@@ -1,8 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.CascadeType;
@@ -27,7 +28,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.likedRecipes",
+        attributeNodes = @NamedAttributeNode("likedRecipes")
+    ),
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.dislikedRecipes",
+        attributeNodes = @NamedAttributeNode("dislikedRecipes")
+    ),
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.all",
+        attributeNodes = {
+            @NamedAttributeNode("likedRecipes"),
+            @NamedAttributeNode("dislikedRecipes")
+        }
+    )
+})
 @Entity
 @Getter
 @Setter
@@ -61,7 +78,6 @@ public class ApplicationUser {
     private Set<GroupEntity> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
-    //, cascade = CascadeType.ALL
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 

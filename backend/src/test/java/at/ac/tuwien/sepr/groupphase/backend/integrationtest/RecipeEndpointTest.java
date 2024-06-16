@@ -18,9 +18,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,6 +105,9 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @SpyBean
     private SecurityService securityService;
@@ -387,11 +394,14 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
         ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
-        assertEquals(1, result.getLikedByUsers().size());
+        assertEquals(1, result.getLikes());
         assertTrue(resultUser.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
         assertEquals(resultUser.getLikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(resultUser.getId(), result.getLikedByUsers().iterator().next().getId());
+
+        List<ApplicationUser> users = userRepository.findApplicationUserByLikedRecipesContains(result);
+
+        assertTrue(users.stream().anyMatch(o -> o.getId().equals(resultUser.getId())));
     }
 
     @Test
@@ -414,11 +424,14 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
         ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
-        assertEquals(1, result.getDislikedByUsers().size());
+        assertEquals(1, result.getDislikes());
         assertTrue(resultUser.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
         assertEquals(resultUser.getDislikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(resultUser.getId(), result.getDislikedByUsers().iterator().next().getId());
+
+        List<ApplicationUser> users = userRepository.findApplicationUserByDislikedRecipesContains(result);
+
+        assertTrue(users.stream().anyMatch(o -> o.getId().equals(resultUser.getId())));
     }
 
     @Test

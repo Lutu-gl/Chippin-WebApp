@@ -150,6 +150,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user) {
+        LOGGER.debug("Get by Id with info: {}", id);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
             Recipe result = optionalRecipe.get();
