@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {},
   },
-  important: true,
+  // important: true,
   plugins: [],
 }
 

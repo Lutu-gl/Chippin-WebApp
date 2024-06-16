@@ -96,7 +96,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * @param item         the item to merge
      * @param shoppingList the shopping list to merge the item into
      */
-    public ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
+    private ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
         log.trace("mergeNewItem({}, {})", item, shoppingList);
         log.debug("Merging item {} into shopping list {}", item, shoppingList);
         var updatedItem = item;
