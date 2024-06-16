@@ -782,6 +782,9 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         throws Exception {
 
 
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
+
+
         Item item = recipe.getIngredients().getFirst();
         ItemDto dto = ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build();
         String body = objectMapper.writeValueAsString(dto);

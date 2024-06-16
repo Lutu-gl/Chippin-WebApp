@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -18,23 +17,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
 
     List<Recipe> findByIsPublicTrueOrderByLikesDesc();
-
-    /**
-     * Finds all recipes that use ingredients that are stored in the pantry.
-     *
-     * @param groupId the id of the group
-     * @return list of recipes
-     */
-    @Query("SELECT r "
-        + "FROM Recipe r "
-        + "JOIN r.ingredients i "
-        + "JOIN Pantry p ON p.group.id = :groupId "
-        + "JOIN p.items pi "
-        + "WHERE i.description=pi.description "
-        + "AND i.unit=pi.unit "
-        + "GROUP BY r.id "
-        + "ORDER BY COUNT(i.id) DESC")
-    List<Recipe> findRecipeByPantry(long groupId);
 
     /**
      * Finds all recipes that use ingredients from a list of ingredients.

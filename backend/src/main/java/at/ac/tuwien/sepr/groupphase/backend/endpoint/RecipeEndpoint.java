@@ -162,6 +162,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#recipeId)")
     @PutMapping("/{recipeId}/recipe")
     public ItemDto updateItem(@PathVariable long recipeId, @Valid @RequestBody ItemDto itemDto) {
         LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", recipeId, itemDto);
