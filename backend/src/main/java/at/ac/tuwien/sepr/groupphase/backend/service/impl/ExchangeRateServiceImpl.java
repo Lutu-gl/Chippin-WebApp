@@ -34,7 +34,20 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
     public double convertToEuro(double amount, String currency) {
         LOGGER.trace("Converting {} {} to EUR", amount, currency);
-        ExchangeRate rate = exchangeRateRepository.findExchangeRateByCurrency(currency);
+        ExchangeRate rate = exchangeRateRepository.findExchangeRateByCurrency(currency.trim());
+
+        if (rate == null) {
+            try {
+                getExchangeRates();
+                rate = exchangeRateRepository.findExchangeRateByCurrency(currency.trim());
+            } catch (RuntimeException e) {
+                LOGGER.error("Could not fetch Exchange rates because of: {}", e.getMessage());
+            }
+        }
+
+        if (rate == null) {
+            throw new NotFoundException("Could not find ExchangeRate for Currency: " + currency);
+        }
 
         if (rate.getLastUpdated().isBefore(LocalDate.now().minusDays(2))) {
             try {
