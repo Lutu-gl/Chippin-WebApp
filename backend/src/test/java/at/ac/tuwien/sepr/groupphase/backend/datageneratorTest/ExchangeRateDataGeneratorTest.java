@@ -1,5 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
+package at.ac.tuwien.sepr.groupphase.backend.datageneratorTest;
 
+import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 @Component
 @AllArgsConstructor
-public class ExchangeRateDataGenerator implements DataGenerator {
+public class ExchangeRateDataGeneratorTest implements DataGenerator {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

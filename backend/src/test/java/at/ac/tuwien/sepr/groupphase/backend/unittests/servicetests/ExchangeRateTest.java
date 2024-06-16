@@ -52,7 +52,7 @@ public class ExchangeRateTest extends BaseTest {
 
     }
 
-    /*@Test
+    @Test
     public void givenAmountInDifferentCurrency_WhenConvertToEuro_ConvertsSuccessfully() {
         Double fromEUR = exchangeRateService.convertToEuro(5, "EUR");
 
@@ -65,5 +65,5 @@ public class ExchangeRateTest extends BaseTest {
             () -> assertEquals(5 / 1.0844, fromUSD),
             () -> assertEquals(5 / 0.9798, fromCHF)
         );
-    }*/
+    }
 }
