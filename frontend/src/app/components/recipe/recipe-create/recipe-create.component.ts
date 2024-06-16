@@ -115,6 +115,10 @@ export class RecipeCreateComponent implements OnInit {
     this.recipe.description += '\n';
   }
 
+  changeIsPublic() {
+    this.recipe.isPublic=!this.recipe.isPublic;
+  }
+
 
   printError(error): void {
     if (error && error.error && error.error.errors) {
