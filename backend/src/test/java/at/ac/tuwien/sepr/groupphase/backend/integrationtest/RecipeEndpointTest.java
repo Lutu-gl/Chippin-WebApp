@@ -661,6 +661,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
         GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
         pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+        pantryService.addItemToPantry(PantryItem.builder().description("Strawberries").amount(200).unit(Unit.Piece).build(), group.getId());
 
         Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
@@ -680,6 +681,12 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         recipeService.addItemToRecipe(Item.builder().description("Blueberries")
                 .amount(100000).unit(Unit.Piece).build()
             , blueberryRecipe.getId());
+
+        recipeService.addItemToRecipe(Item.builder().description("Raspberries")
+                .amount(100000).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
+
+
         MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/recipe/{0}/pantry/{1}/{2}", blueberryRecipe.getId(), group.getId(), 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -692,10 +699,13 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         RemoveIngredientsFromPantryDto result = objectMapper.readValue(response.getContentAsByteArray(), RemoveIngredientsFromPantryDto.class);
         assertAll(
             () -> assertNotNull(result),
-            () -> assertEquals(1, result.getRecipeItems().size()),
+            () -> assertEquals(2, result.getRecipeItems().size()),
             () -> assertEquals(1, result.getPantryItems().size()),
+            () -> assertFalse(result.getPantryItems().stream().anyMatch(o -> o.getDescription().equals("Raspberries"))),
+            () -> assertFalse(result.getPantryItems().stream().anyMatch(o -> o.getDescription().equals("Strawberries"))),
             () -> assertTrue(result.getPantryItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries"))),
-            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries")))
+            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries"))),
+            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Raspberries")))
         );
 
 
@@ -735,6 +745,10 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
                 .amount(100).unit(Unit.Piece).build()
             , blueberryRecipe.getId());
 
+        recipeService.addItemToRecipe(Item.builder().description("Raspberries")
+                .amount(100).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
+
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/{0}/shoppinglist/{1}/pantry/{2}",
                 blueberryRecipe.getId(), shoppingList.getId(), group.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -750,10 +764,13 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         assertNotNull(result);
 
         assertAll(
-            () -> assertEquals(1, result.getRecipeItems().size()),
+            () -> assertEquals(2, result.getRecipeItems().size()),
             () -> assertEquals(1, result.getShoppingListItems().size()),
             () -> assertEquals(1, result.getPantryItems().size()),
-            () -> assertTrue(result.getRecipeItems().getFirst().getDescription().contains("Blueberries")),
+            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries"))),
+            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Raspberries"))),
+            () -> assertFalse(result.getPantryItems().stream().anyMatch(o -> o.getDescription().equals("Raspberries"))),
+            () -> assertFalse(result.getShoppingListItems().stream().anyMatch(o -> o.getItem().getDescription().equals("Raspberries"))),
             () -> assertTrue(result.getPantryItems().getFirst().getDescription().contains("Blueberries")),
             () -> assertTrue(result.getShoppingListItems().getFirst().getItem().getDescription().contains("Blueberries"))
         );
