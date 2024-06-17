@@ -16,10 +16,12 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -44,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/group")
@@ -56,17 +57,20 @@ public class RecipeEndpoint {
     private final UserService userService;
     private final PantryService pantryService;
     private final ShoppingListService shoppingListService;
+    private final UserRepository userRepository;
 
 
     @Autowired
     public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService,
-                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService) {
+                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService,
+                          UserRepository userRepository) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
         this.recipeMapper = recipeMapper;
         this.userService = userService;
         this.pantryService = pantryService;
         this.shoppingListService = shoppingListService;
+        this.userRepository = userRepository;
     }
 
 
@@ -190,6 +194,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @PutMapping("recipe/{recipeId}/like")
+    @Transactional
     public RecipeDetailDto likeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/like", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -200,6 +205,7 @@ public class RecipeEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @PutMapping("recipe/{recipeId}/dislike")
+    @Transactional
     public RecipeDetailDto dislikeRecipe(@PathVariable long recipeId) throws AlreadyRatedException {
         LOGGER.trace("PUT /api/v1/group/recipe/{}/dislike", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

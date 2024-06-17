@@ -393,7 +393,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
-        ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
+        ApplicationUser resultUser = userRepository.findApplicationUserByIdWithLikeInfo(userDetailService.findApplicationUserByEmail("tester@at").getId());
         assertEquals(1, result.getLikes());
         assertTrue(resultUser.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
@@ -423,7 +423,7 @@ public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
-        ApplicationUser resultUser = userDetailService.findApplicationUserByEmail("tester@at");
+        ApplicationUser resultUser = userRepository.findApplicationUserByIdWithLikeInfo(userDetailService.findApplicationUserByEmail("tester@at").getId());
         assertEquals(1, result.getDislikes());
         assertTrue(resultUser.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 

@@ -37,19 +37,16 @@ import java.util.Set;
 @NamedEntityGraphs({
     @NamedEntityGraph(
         name = "graph.Recipe.likedByUsers",
-        attributeNodes = @NamedAttributeNode("likedByUsers")
-    ),
+        attributeNodes = @NamedAttributeNode("likedByUsers")),
     @NamedEntityGraph(
         name = "graph.Recipe.dislikedByUsers",
-        attributeNodes = @NamedAttributeNode("dislikedByUsers")
-    ),
+        attributeNodes = @NamedAttributeNode("dislikedByUsers")),
     @NamedEntityGraph(
         name = "graph.Recipe.likedAndDislikedByUsers",
         attributeNodes = {
             @NamedAttributeNode("likedByUsers"),
             @NamedAttributeNode("dislikedByUsers")
-        }
-    )
+        })
 })
 @Entity
 @Getter

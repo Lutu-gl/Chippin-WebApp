@@ -28,22 +28,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 @NamedEntityGraphs({
     @NamedEntityGraph(
         name = "graph.ApplicationUser.likedRecipes",
-        attributeNodes = @NamedAttributeNode("likedRecipes")
-    ),
+        attributeNodes = @NamedAttributeNode("likedRecipes")),
     @NamedEntityGraph(
         name = "graph.ApplicationUser.dislikedRecipes",
-        attributeNodes = @NamedAttributeNode("dislikedRecipes")
-    ),
+        attributeNodes = @NamedAttributeNode("dislikedRecipes")),
     @NamedEntityGraph(
         name = "graph.ApplicationUser.all",
         attributeNodes = {
             @NamedAttributeNode("likedRecipes"),
             @NamedAttributeNode("dislikedRecipes")
-        }
-    )
+        })
 })
 @Entity
 @Getter
@@ -81,7 +79,7 @@ public class ApplicationUser {
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
     @JoinTable(
         name = "user_recipe_likes",
@@ -90,7 +88,7 @@ public class ApplicationUser {
     )
     private Set<Recipe> likedRecipes = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
     @JoinTable(

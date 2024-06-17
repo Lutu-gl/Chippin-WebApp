@@ -150,6 +150,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user) {
+        user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         LOGGER.debug("Get by Id with info: {}", id);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
@@ -199,6 +200,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public List<RecipeGlobalListDto> getPublicRecipeOrderedByLikes(ApplicationUser user) {
         LOGGER.debug("Get all public recipes");
+        user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         List<RecipeListDto> listDtos = recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findByIsPublicTrueOrderByLikesDesc());
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();
         for (RecipeListDto list : listDtos) {
@@ -251,6 +253,8 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto likeRecipe(long recipeId, ApplicationUser user) throws AlreadyRatedException {
+
+        user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         Optional<Recipe> optional = recipeRepository.findById(recipeId);
         if (optional.isPresent()) {
             Recipe recipe = optional.get();
@@ -260,8 +264,8 @@ public class RecipeServiceImpl implements RecipeService {
 
 
             // Remove dislike if it exists
-
-            if (recipe.getDislikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
+            long userid = user.getId();
+            if (recipe.getDislikedByUsers().stream().anyMatch(o -> o.getId().equals(userid))) {
                 recipe.removeDisliker(user);
                 user.removeDisLike(recipe);
 
@@ -292,16 +296,17 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto dislikeRecipe(long recipeId, ApplicationUser user) throws AlreadyRatedException {
+        user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         Optional<Recipe> optional = recipeRepository.findById(recipeId);
         if (optional.isPresent()) {
             Recipe recipe = optional.get();
-            if (user.getLikedRecipes().contains(recipe)) {
+            if (user.getDislikedRecipes().contains(recipe)) {
                 throw new AlreadyRatedException("User already liked the recipe");
             }
 
-
+            long userid = user.getId();
             // Remove like if it exists
-            if (recipe.getLikedByUsers().stream().anyMatch(o -> o.getId().equals(user.getId()))) {
+            if (recipe.getLikedByUsers().stream().anyMatch(o -> o.getId().equals(userid))) {
                 recipe.removeLiker(user);
                 user.removeLike(recipe);
             }
@@ -341,6 +346,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeGlobalListDto> searchGlobalRecipe(ApplicationUser user, String searchParams) {
+        user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         List<Recipe> recipeEntities = recipeRepository.findPublicRecipesBySearchParamOrderedByLikes(searchParams.toLowerCase());
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();
         for (Recipe recipe : recipeEntities) {
