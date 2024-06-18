@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RecipeServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,8 @@ public class RecipeServiceTest extends BaseTestGenAndClearBeforeAfterEach {
     private RecipeRepository recipeRepository;
     @Autowired
     private CustomUserDetailService customUserDetailService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     public void givenUser_whenLikingAlreadyDislikedRecipe_RemoveDislike() throws AlreadyRatedException {
@@ -95,7 +98,7 @@ public class RecipeServiceTest extends BaseTestGenAndClearBeforeAfterEach {
 
         recipeServiceImpl.dislikeRecipe(recipeId, user);
 
-        assertThrows(Exception.class, () -> recipeServiceImpl.dislikeRecipe(recipeId, user));
+        assertThrows(AlreadyRatedException.class, () -> recipeServiceImpl.dislikeRecipe(recipeId, user));
 
     }
 
@@ -125,7 +128,7 @@ public class RecipeServiceTest extends BaseTestGenAndClearBeforeAfterEach {
 
         recipeServiceImpl.deleteRecipe(recipe.getId());
 
-        ApplicationUser user = customUserDetailService.findApplicationUserByEmail(recipe.getOwner().getEmail());
+        ApplicationUser user = userRepository.findApplicationUserByIdWithLikeInfo(customUserDetailService.findApplicationUserByEmail(recipe.getOwner().getEmail()).getId());
 
         assertFalse(user.getRecipes().stream().anyMatch(o -> o.getId().equals(recipe.getId())));
 

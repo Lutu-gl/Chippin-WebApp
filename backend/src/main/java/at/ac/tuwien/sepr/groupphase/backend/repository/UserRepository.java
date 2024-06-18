@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import com.github.javafaker.App;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,6 +14,12 @@ import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
+
+    @Query("SELECT u FROM ApplicationUser u "
+        + "LEFT JOIN FETCH u.dislikedRecipes "
+        + "LEFT JOIN FETCH u.likedRecipes "
+        + "WHERE u.id = :id")
+    ApplicationUser findApplicationUserByIdWithLikeInfo(Long id);
 
     ApplicationUser findByEmail(String email);
 
@@ -34,4 +41,7 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
     @Query("SELECT u.recipes FROM ApplicationUser u WHERE u.email = :email")
     List<Recipe> findRecipesByUserEmail(String email);
 
+    List<ApplicationUser> findApplicationUserByLikedRecipesContains(Recipe recipe);
+
+    List<ApplicationUser> findApplicationUserByDislikedRecipesContains(Recipe recipe);
 }
