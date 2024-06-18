@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
@@ -1861,6 +1858,31 @@ public class RecipeDataGenerator implements DataGenerator {
                 .amount(15)
                 .unit(Unit.Milliliter)
                 .build());
+        user1.addRecipe(newRecipe26);
+        recipeRepository.saveAndFlush(newRecipe26);
+        userRepository.saveAndFlush(user1);
+
+        Recipe newRecipe27 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(8)
+            .description("Hearty and flavorful stew with a wide variety of ingredients. "
+                + "Instructions: \n1. Heat the olive oil in a large pot over medium heat. "
+                + "\n2. Add the onions, garlic, and cook until softened. "
+                + "\n3. Add the beef and cook until browned. "
+                + "\n4. Stir in the carrots, celery, potatoes, and all other vegetables. "
+                + "\n5. Add the tomatoes, broth, wine, and all seasonings. "
+                + "\n6. Bring to a boil, then reduce heat and simmer for 2 hours. "
+                + "\n7. Stir in the beans, corn, peas, and adjust seasoning as needed. "
+                + "\n8. Cook for another 30 minutes, then serve hot with crusty bread.")
+            .name("Ultimate Stew")
+            .build();
+        newRecipe27.addIngredient(Item.builder().description("Currypowder").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Coconut Milk").amount(500).unit(Unit.Milliliter).build());
+        newRecipe27.addIngredient(Item.builder().description("Vegetable Mix").amount(2).unit(Unit.Piece).build());
+        newRecipe27.addIngredient(Item.builder().description("Cumin").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Curcuma").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Creme Fraiche").amount(259).unit(Unit.Milliliter).build());
         user1.addRecipe(newRecipe26);
         recipeRepository.saveAndFlush(newRecipe26);
         userRepository.saveAndFlush(user1);
