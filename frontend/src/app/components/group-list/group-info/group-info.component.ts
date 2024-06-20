@@ -16,7 +16,7 @@ import { BudgetDto } from '../../../dtos/budget';
 import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
-import { BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
+import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
 import {PaymentCreateEditMode} from "../../payment-create/payment-create.component";
 import {ExpenseDetailDto} from "../../../dtos/expense";
 import {ExpenseService} from "../../../services/expense.service";
@@ -63,7 +63,7 @@ export class GroupInfoComponent implements OnInit {
   isDeleteDialogVisible: boolean = false;
   paymentDeleted: boolean = false;
 
-
+  @ViewChild(BudgetCreateComponent) budgetCreateComponent!: BudgetCreateComponent;
   isBudgetDialogVisible: boolean = false;
   budgetDialogMode: BudgetCreateEditMode;
   budgetDialogBudgetId: number;
@@ -95,6 +95,7 @@ export class GroupInfoComponent implements OnInit {
   openCreateBudgetDialog(): void {
     this.budgetDialogMode = BudgetCreateEditMode.create;
     this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
   }
 
   closeCreateBudgetDialog(): void {
@@ -160,9 +161,10 @@ export class GroupInfoComponent implements OnInit {
   budgetModalClose() {
     console.log('Modal closed');
     // Perform any additional actions you need here
-    this.isBudgetDialogVisible = false;
     this.budgetDialogMode = BudgetCreateEditMode.info;
     console.log(this.budgetDialogMode)
+    this.isBudgetDialogVisible = false;
+
   }
 
   openCreateExpenseDialog(): void {
@@ -232,9 +234,11 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
+    console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
     this.budgetDialogBudgetId = budgetId;
     this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
   }
 
   public budgetModeIsCreate(): boolean {
@@ -401,9 +405,22 @@ export class GroupInfoComponent implements OnInit {
     this.groupService.getGroupBudgets(id)
       .subscribe(budgets => {
         this.budgets = budgets;
+        this.budgets.forEach(budget => {
+          budget.daysUntilReset = this.calculateDaysUntilReset(budget.timestamp);
+        });
+        console.log(budgets)
       }, error => {
         console.error('Failed to load budgets', error);
       });
+  }
+
+  calculateDaysUntilReset(timestamp: string): number {
+    if(timestamp === null) return 0;
+
+    const now = new Date();
+    const resetDate = new Date(timestamp);
+    const timeDiff = resetDate.getTime() - now.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
   }
 
   getMembersWithDebtsSorted() {

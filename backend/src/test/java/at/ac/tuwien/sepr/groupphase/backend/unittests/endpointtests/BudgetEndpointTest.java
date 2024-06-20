@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.BudgetMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,6 +79,7 @@ public class BudgetEndpointTest extends BaseTest {
         BudgetCreateDto budgetDto = BudgetCreateDto.builder()
             .name("Rent")
             .amount(5000)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .build();
 
         GroupEntity group1 = GroupEntity.builder()

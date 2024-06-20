@@ -5,7 +5,7 @@
   [(visible)]="isDeleteDialogVisible"
   [style]="{ width: '25rem' }"
 >
-  <span class="p-text-secondary block mb-5">Do you really want to delete this budget?</span>
+  <span class="p-text-secondary block mb-5">DIES sollte nicht aufgerufen werden?</span>
   <div class="flex justify-content-end gap-2">
     <p-button label="No" severity="secondary" (click)="closeDeleteDialog()" />
     <p-button label="Yes" (click)="deleteExistingBudget()"/>
@@ -23,7 +23,7 @@
       <label class="block text-sm font-medium text-gray-700">Budget Name</label>
       <input type="text" pInputText
         [(ngModel)]="newBudget.name"
-        [readonly]="modeIsInfo()"
+        [disabled]="modeIsInfo()"
         class="w-full"
       />
     </div>
@@ -33,13 +33,13 @@
       <label class="block text-sm font-medium text-gray-700">Category</label>
       <p-dropdown
         [options]="categories2"
-        [readonly]="modeIsInfo()"
         [(ngModel)]="selectedCategory"
         name="categorySelection"
         optionLabel="label"
         placeholder="Select a Category"
         [style]="{ width: '100%' }"
         class="w-full"
+        [disabled]="modeIsInfo()"
       ></p-dropdown>
     </div>
 
@@ -58,11 +58,31 @@
         [max]="9999999.99"
         class="w-full"
         required
-        [readonly]="modeIsInfo()"
+        [disabled]="modeIsInfo()"
       ></p-inputNumber>
     </div>
 
-
+    <div class="flex items-center space-x-2">
+      <label class="block text-sm font-medium text-gray-700">Reset Frequency</label>
+      <div>
+        <p-radioButton
+          name="frequency"
+          [value]="ResetFrequency.WEEKLY"
+          label="Weekly"
+          [(ngModel)]="newBudget.resetFrequency"
+          [disabled]="modeIsInfo()"
+        ></p-radioButton>
+      </div>
+      <div>
+        <p-radioButton
+          name="frequency"
+          [value]="ResetFrequency.MONTHLY"
+          label="Monthly"
+          [(ngModel)]="newBudget.resetFrequency"
+          [disabled]="modeIsInfo()"
+        ></p-radioButton>
+      </div>
+    </div>
 
     <!-- Already Spent (if not in create mode) -->
     <div *ngIf="!modeIsCreate()" class="form-group">
@@ -87,10 +107,13 @@
     <div *ngIf="modeIsCreate()" class="flex justify-end">
       <p-button (click)="onSubmit()"> Create Budget</p-button>
     </div>
-    <div *ngIf="modeIsEdit()" class="flex justify-end">
-      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
-        <i class="pi pi-trash mr-2"></i> Delete Budget
-      </button>
+    <div *ngIf="modeIsEdit()" class="flex justify-end gap-2">
+      <p-button
+        label="Delete Budget"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
       <p-button
         label="Save Changes"
         icon = "pi pi-check"
@@ -99,10 +122,13 @@
       ></p-button>
     </div>
 
-    <div *ngIf="modeIsInfo()" class="flex justify-end">
-      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">
-        <i class="pi pi-trash mr-2"></i> Delete Budget
-      </button>
+    <div *ngIf="modeIsInfo()" class="flex justify-end gap-2">
+      <p-button
+        label="Delete Budget"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
       <p-button 
         label="Edit Budget" 
         icon="pi pi-pencil" 
@@ -111,9 +137,5 @@
       ></p-button>
     </div>
 
-    <!-- <div class="flex justify-end gap-2">
-      <p-button label="Back" icon="pi pi-chevron-left" class="p-button-secondary" (click)="closeDialog.emit()"></p-button>
-      <p-button label="Save" icon="pi pi-check" (click)="onSubmit()"></p-button>
-    </div> -->
   </div>
 </div>

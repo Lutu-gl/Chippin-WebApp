@@ -2,9 +2,11 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -32,6 +34,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -103,6 +106,7 @@ public class BudgetEndpointTest {
         BudgetCreateDto budgetDto = BudgetCreateDto.builder()
             .name("Fun Activities")
             .amount(150)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .build();
 
         String body = objectMapper.writeValueAsString(budgetDto);
@@ -145,6 +149,59 @@ public class BudgetEndpointTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testUpdateBudget_thenStatus200() throws Exception {
+
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setEmail("EXuser1@example.com");
+        user1.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setEmail("EXuser2@example.com");
+        user2.setPassword("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG");
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        GroupEntity group = GroupEntity.builder()
+            .groupName("EXTestGroup")
+            .users(new HashSet<>(Arrays.asList(user1, user2)))
+            .build();
+
+        GroupEntity saved = groupRepository.save(group);
+
+        Budget budget = Budget.builder()
+            .name("Fun Activities")
+            .amount(150)
+            .timestamp(LocalDateTime.now())
+            .group(group)
+            .resetFrequency(ResetFrequency.MONTHLY)
+            .build();
+
+        Budget savedBudget = budgetRepository.save(budget);
+
+        BudgetDto budgetDto = BudgetDto.builder()
+            .id(savedBudget.getId())
+            .name("Fun Activities")
+            .amount(200)
+            .resetFrequency(ResetFrequency.MONTHLY)
+            .build();
+
+        String body = objectMapper.writeValueAsString(budgetDto);
+
+        mockMvc.perform(put("/api/v1/group/" + saved.getId() + "/budget/" + savedBudget.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("EXuser1@example.com", ADMIN_ROLES)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Fun Activities"))
+            .andExpect(jsonPath("$.amount").value(200))
+            .andExpect(jsonPath("$.id").value(savedBudget.getId()));
+
     }
 
     @Test
@@ -195,6 +252,7 @@ public class BudgetEndpointTest {
             .amount(amount)
             .timestamp(LocalDateTime.now())
             .group(group)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .build();
 
         budgetRepository.save(budget);
