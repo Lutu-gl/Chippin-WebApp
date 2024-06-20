@@ -251,10 +251,8 @@ export class ExpenseCreateComponent {
   }
 
   private prepareWholeExpense(): void {
-    console.log("prepareWholeExpense")
 
     if (!this.expenseId) {
-      console.log("RETURNING!");
       return;
     }
 
@@ -304,8 +302,6 @@ export class ExpenseCreateComponent {
             }
           });
         }
-
-        console.log("DONE!");
 
       },
       error: error => {

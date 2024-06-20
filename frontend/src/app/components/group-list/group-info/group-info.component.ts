@@ -166,7 +166,6 @@ export class GroupInfoComponent implements OnInit {
   }
 
   openCreateExpenseDialog(): void {
-    console.log("OPEND CREATEEEE")
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.expenseCreateComponent.resetMode();
