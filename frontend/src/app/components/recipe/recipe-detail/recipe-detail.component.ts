@@ -238,11 +238,15 @@ export class RecipeDetailComponent implements OnInit {
   addSelectedIngredientsToShoppingList() {
     let list: ItemCreateDto[] = [];
     for (let ingredient of this.selectedIngredients) {
+      let selected: ItemDetailDto = this.addItemToShoppingListDto.recipeItems
+        .find(i => i.id === ingredient.id);
+
       let dto: ItemCreateDto = {
-        description: ingredient.description,
-        amount: ingredient.amount,
-        unit: ingredient.unit
+        description: selected.description,
+        amount: selected.amount,
+        unit: selected.unit
       };
+      console.log(dto)
       list.push(dto);
     }
     let listCopy: ShoppingListListDto = {...this.shoppingList};
@@ -271,13 +275,15 @@ export class RecipeDetailComponent implements OnInit {
       let dto: PantryItemDetailDto = this.removeIngredientsDto.pantryItems.find(p => p.description === this.selectedPantryIngredients[i].description
         && p.unit === this.selectedPantryIngredients[i].unit);
 
+      let ingredients = this.removeIngredientsDto.recipeItems.find(item => item.id === this.selectedPantryIngredients[i].id);
+
       if (dto) {
         let copy: PantryItemDetailDto = {
           id: dto.id,
           description: dto.description,
           unit: dto.unit,
           lowerLimit: dto.lowerLimit,
-          amount: (dto.amount - this.selectedPantryIngredients[i].amount < 0 ? 0 : dto.amount - this.selectedPantryIngredients[i].amount)
+          amount: (dto.amount - ingredients.amount < 0 ? 0 : dto.amount - ingredients.amount)
         }
         result.push(copy);
       }

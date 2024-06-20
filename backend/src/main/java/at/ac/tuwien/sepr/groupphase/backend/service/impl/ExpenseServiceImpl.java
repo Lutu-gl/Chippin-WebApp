@@ -82,24 +82,15 @@ public class ExpenseServiceImpl implements ExpenseService {
     public ResponseEntity<byte[]> getBill(Long expenseId, String requesterEmail) throws NotFoundException {
         LOGGER.trace("getBill({}, {})", expenseId, requesterEmail);
 
-        System.out.println("REACHED 1");
-
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
-        System.out.println("REACHED 2");
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
-        System.out.println("REACHED 3");
         if (!expense.getGroup().getUsers().contains(user)) {
             throw new AccessDeniedException("You do not have permission to access this bill");
         }
-        System.out.println("REACHED 4");
         if (expense.getBillPath() == null) {
             throw new NotFoundException("No bill found for this expense");
         }
-        System.out.println("REACHED 5");
         Path path = Paths.get(System.getProperty("user.dir") + expense.getBillPath());
-        System.out.println("\n\n\n");
-        System.out.println(path);
-        System.out.println("\n\n\n");
         HttpHeaders headers = getHttpHeaders(expense);
 
         try {

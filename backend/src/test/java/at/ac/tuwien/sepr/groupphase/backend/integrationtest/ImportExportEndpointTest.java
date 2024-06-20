@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -155,5 +156,25 @@ public class ImportExportEndpointTest extends BaseTest {
         assertEquals(debtsBefore.get("importUser5@example.com") - 12.90, debtsAfter.get("importUser5@example.com"), delta);
         assertEquals(debtsBefore.get("importUser6@example.com"), debtsAfter.get("importUser6@example.com"), delta);
 
+    }
+
+    @Test
+    public void testExport() throws Exception {
+        GroupEntity group = groupRepository.findByGroupName("ExportTestGroup");
+
+        byte[] response = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/export/" + group.getId())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("importUser1@example.com", ADMIN_ROLES)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsByteArray();
+
+        String text = new String(response);
+        assertNotNull(text);
+        String[] lines = text.split("\n");
+        assertEquals("Date,Description,Category,Cost,Currency,importUser1@example.com,importUser2@example.com,importUser3@example.com,importUser4@example.com,importUser5@example.com,importUser6@example.com", lines[0]);
+        assertEquals("testExpense0,Food,100.0,EUR,40.00,-40.00,0.00,0.00,0.00,0.00", lines[1].substring(11));
+        assertEquals("testExpense1,Food,100.0,EUR,50.00,-20.00,-30.00,0.00,0.00,0.00", lines[2].substring(11));
+        assertEquals("testExpense2,Food,100.0,EUR,-10.00,90.00,-80.00,0.00,0.00,0.00", lines[3].substring(11));
+        assertEquals("Settle debts,Payment,20.0,EUR,-20.00,20.00,0.00,0.00,0.00,0.00", lines[4].substring(11));
+        assertEquals("Settle debts,Payment,420.0,EUR,0.00,0.00,0.00,0.00,420.00,-420.00", lines[5].substring(11));
     }
 }

@@ -103,7 +103,7 @@ public class ImportExportValidator {
         if (fields.size() != lineLength) {
             validationErrors.add("Line " + lineNumber + " does not contain the required number of fields");
         }
-        if (!fields.get(0).matches("\\d{4}-\\d{2}-\\d{2}")) {
+        if (!fields.get(0).matches("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")) {
             validationErrors.add("Date in line " + lineNumber + " must be of format yyyy-MM-dd");
         }
         //if (!fields.get(1).matches("\"?((\"{2})|([a-zA-ZäöüÄÖÜß0-9+\\-*!?_,;/ ']))+\"?") || fields.get(1).length() > 255) {
@@ -120,12 +120,20 @@ public class ImportExportValidator {
             validationErrors.add("Currency in line " + lineNumber + " was not correct. Expected format is three capital letters");
         }
 
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation for import failed!", validationErrors);
+        }
+
         double totalAmount = Double.parseDouble(fields.get(3));
         double calculatedAmount = 0.0;
         boolean payerFound = false;
         for (int i = 5; i < lineLength; i++) {
             if (!fields.get(i).matches("-?\\d{1,7}(\\.\\d{2})?") || fields.get(i).length() > 255) {
-                validationErrors.add("Field " + i + " in line " + lineNumber + " was not correct");
+                validationErrors.add("Field " + (i + 1) + " in line " + lineNumber + " was not correct");
+            }
+
+            if (!validationErrors.isEmpty()) {
+                throw new ValidationException("Validation for import failed!", validationErrors);
             }
 
             double amount = Double.parseDouble(fields.get(i));

@@ -121,11 +121,11 @@
   [resizable]="false"
   (onHide)="budgetModalClose()"
 >
-<p-header>
-  <div
-  *ngIf="budgetModeIsCreate()"
-  class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
-</p-header>
+  <p-header>
+    <div
+    *ngIf="budgetModeIsCreate()"
+    class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
+  </p-header>
 
   <app-budget-create
   [groupId]="group.id"
@@ -134,7 +134,7 @@
   (closeDialog)="closeCreateBudgetDialog()"
   ></app-budget-create>
 
-  <p-footer></p-footer>
+    <p-footer></p-footer>
 </p-dialog>
 
 <!--Modal to settle debts in the top right corner -->
@@ -331,7 +331,7 @@
       <div class="w-2/3 flex justify-center">
         <div class="bg-blue-100 p-4 max-w-3xl mx-auto">
           <div class="flex items-end justify-around">
-            <div class="bg-blue-100 p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+            <div *ngIf="membersWithDebtsWithoutEven?.length > 0" class="bg-blue-100 p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
               <div class="flex items-end justify-around space-x-4">
                 <div *ngFor="let entry of membersWithDebtsWithoutEven" class="flex flex-col items-center space-y-2">
                   <div *ngIf="entry[1] > 0" class="bg-blue-300 p-4 rounded-t-lg shadow flex flex-col justify-between" [ngStyle]="{ height: calcChartHeight(entry[1]) }">
@@ -354,7 +354,6 @@
           <h2 class="text-2xl font-bold">{{ group.groupName }}</h2>
           <div class="text-sm">Transactions: {{ transactionsActivities.length }}</div>
           <div class="text-sm">Members: {{ group.members.length }}</div>
-          <div class="text-sm">Total spent: €343</div>
         </div>
         <div class="flex space-x-2 mt-4">
           <p-button label="Show charts" (click) = "showVisualizationPage()"></p-button>
@@ -511,12 +510,6 @@
   <app-shopping-lists-in-group *ngIf="isShoppingListsSelected()" [groupId]="group.id"></app-shopping-lists-in-group>
 
 
-  <!-- <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
-  <p-progressBar [value]="50" />
-  </div>   -->
-
-
-
     <!-- Budget tab -->
     <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
       <div class="flex justify-center mb-4">
@@ -524,10 +517,11 @@
           <span class="text-xl mr-2">+</span> Add Budget
         </button>
       </div>
-      <div class="h-96 overflow-y-auto overflow-x-hidden">
+      <div class="overflow-y-auto overflow-x-hidden">
         <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
           <a class="text-black rounded-md outline outline-1 outline-slate-300">
             <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
+              <div class="text-sm text-gray-600">{{budget.daysUntilReset}} day(s) until reset</div>
               <p-progressBar
                 [value]="getBudgetPercentage(budget)"
                 [ngClass]="getProgressBarColor(budget)"
