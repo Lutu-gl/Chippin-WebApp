@@ -42,23 +42,24 @@
       </small>
     </div>
   </ng-template>
-  <ng-template pTemplate="footer">
+  <p-footer>
     <p-button
       pRipple
-      label="Cancel"
       severity="danger"
+      label="Cancel"
       icon="pi pi-times"
       [text]="true"
       (click)="hideDialog()"/>
     <p-button
       pRipple
-      severity="info"
+      severity="success"
       label="Save"
       icon="pi pi-check"
       [text]="true"
       (click)="onIngredientSubmit()"
+
     />
-  </ng-template>
+  </p-footer>
 </p-dialog>
 
 
@@ -116,7 +117,7 @@
       (click)="hideEditDialog()"/>
     <p-button
       pRipple
-      severity="info"
+      severity="success"
       label="Save"
       icon="pi pi-check"
       [text]="true"
@@ -184,7 +185,7 @@
           </div>
 
           <div class="submit flex">
-            <p-button [pTooltip]="'Save your changes!'" severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+            <p-button [pTooltip]="'Save your changes!'" severity="success" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
             <div class="test">
             <p-button [pTooltip]="'Delete your Recipe'" tooltipPosition="left" severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
           </div>

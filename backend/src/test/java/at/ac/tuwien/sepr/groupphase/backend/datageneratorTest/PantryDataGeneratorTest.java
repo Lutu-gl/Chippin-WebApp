@@ -55,6 +55,7 @@ public class PantryDataGeneratorTest implements DataGenerator {
                     .description("PantryTest-Potato")
                     .unit(Unit.Piece)
                     .amount(2)
+                    .lowerLimit(2L)
                     .build();
                 group.getPantry().addItem(item1);
 
@@ -62,6 +63,7 @@ public class PantryDataGeneratorTest implements DataGenerator {
                     .description("PantryTest-Milk")
                     .unit(Unit.Milliliter)
                     .amount(500)
+                    .lowerLimit(800L)
                     .build();
                 group.getPantry().addItem(item2);
 

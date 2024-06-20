@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
@@ -19,11 +22,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.PreRemove;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.ToString;
 
 
 import java.util.ArrayList;
@@ -31,6 +34,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "graph.Recipe.likedByUsers",
+        attributeNodes = @NamedAttributeNode("likedByUsers")),
+    @NamedEntityGraph(
+        name = "graph.Recipe.dislikedByUsers",
+        attributeNodes = @NamedAttributeNode("dislikedByUsers")),
+    @NamedEntityGraph(
+        name = "graph.Recipe.likedAndDislikedByUsers",
+        attributeNodes = {
+            @NamedAttributeNode("likedByUsers"),
+            @NamedAttributeNode("dislikedByUsers")
+        })
+})
 @Entity
 @Getter
 @Setter
@@ -76,12 +93,12 @@ public class Recipe {
     @JsonBackReference
     private ApplicationUser owner;
 
-    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikedRecipes")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "dislikedRecipes")
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> dislikedByUsers = new HashSet<>();

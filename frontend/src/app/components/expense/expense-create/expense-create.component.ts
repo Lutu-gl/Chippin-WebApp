@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -20,7 +20,7 @@ export enum ExpenseCreateEditMode {
   templateUrl: './expense-create.component.html',
   styleUrl: './expense-create.component.scss'
 })
-export class ExpenseCreateComponent implements OnChanges {
+export class ExpenseCreateComponent {
 
   @Input() mode: ExpenseCreateEditMode = ExpenseCreateEditMode.create;
   @Input() groupId!: number;
@@ -57,6 +57,7 @@ export class ExpenseCreateComponent implements OnChanges {
     private messageService: MessageService
   ) {
   }
+  
 
   resetMode(): void {
     if (this.mode === ExpenseCreateEditMode.edit) {
@@ -186,11 +187,19 @@ export class ExpenseCreateComponent implements OnChanges {
     return file.type.startsWith('image/');
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
 
-    if (changes.mode && changes.mode.currentValue === ExpenseCreateEditMode.create) {
+  customInit(changes: any): void {
+
+    console.log("CUSTOM INIT!");
+    console.log(changes);
+
+    this.groupId = changes.groupId;
+    this.expenseId = changes.expenseId;
+
+    console.log("REACHES HERE!");
+    if (changes.mode === ExpenseCreateEditMode.create) {
       this.prepareGroupOnCreate();
-    } else if (changes.mode && (changes.mode.currentValue === ExpenseCreateEditMode.info || changes.mode.currentValue === ExpenseCreateEditMode.edit)) {
+    } else if (changes.mode === ExpenseCreateEditMode.info || changes.mode === ExpenseCreateEditMode.edit) {
       this.prepareWholeExpense();
     }
 
@@ -206,6 +215,7 @@ export class ExpenseCreateComponent implements OnChanges {
     console.log("prepareGroupOnCreate")
 
     this.expenseDeleted = false;
+    this.expenseArchived = false;
     this.expenseName = undefined;
     this.expenseAmount = undefined;
     this.selectedCategory = { name: '' };
@@ -241,11 +251,19 @@ export class ExpenseCreateComponent implements OnChanges {
   }
 
   private prepareWholeExpense(): void {
-    console.log("prepareWholeExpense")
 
     if (!this.expenseId) {
       return;
     }
+
+    this.expenseDeleted = false;
+    this.expenseArchived = false;
+    this.expenseName = undefined;
+    this.expenseAmount = undefined;
+    this.selectedCategory = { name: '' };
+    this.selectedPayer = { name: '' };
+    this.imageUrl = null;
+    this.selectedFile = null;
 
     this.expenseService.getExpenseById(this.expenseId).subscribe({
       next: data => {

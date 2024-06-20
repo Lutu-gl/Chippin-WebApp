@@ -1,13 +1,22 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@Setter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class GetRecipeDto {
-    //TODO: Validate no duplicates and item id exists
     @NotNull
-    List<Integer> itemIds;
+    @JsonProperty("itemIds")
+    Long[] itemIds;
 }

@@ -94,7 +94,9 @@ import {VisualizationComponent} from "./components/visualization/visualization.c
 import {CarouselModule} from "primeng/carousel";
 import {FileUploadModule} from "primeng/fileupload";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {CalendarModule} from "primeng/calendar";
 import {ImageModule} from 'primeng/image';
+import {PaginatorModule} from "primeng/paginator";
 
 
 @NgModule({
@@ -151,7 +153,7 @@ import {ImageModule} from 'primeng/image';
         RecipeInfoCardContentComponent,
         DropdownModule,
         RadioButtonModule,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, ImageModule
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
     ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
