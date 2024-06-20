@@ -281,7 +281,6 @@ tooSmall=false;
 
     this.service.updateItemInRecipe(this.itemToEdit, this.recipe.id).subscribe({
       next: dto => {
-        console.log("Updated item: ", dto);
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
