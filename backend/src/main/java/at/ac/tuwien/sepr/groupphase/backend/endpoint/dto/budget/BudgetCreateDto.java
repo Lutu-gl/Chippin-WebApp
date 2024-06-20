@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,4 +23,6 @@ public class BudgetCreateDto {
     private double amount;
 
     private Category category = Category.Other;
+    @NotNull(message = "Reset frequency must be given")
+    private ResetFrequency resetFrequency;
 }

@@ -82,6 +82,7 @@ import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {InputTextareaModule} from "primeng/inputtextarea";
+import { RadioButtonModule } from 'primeng/radiobutton';
 import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
@@ -149,6 +150,7 @@ import {ImageModule} from 'primeng/image';
         ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
         DropdownModule,
+        RadioButtonModule,
         ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, ImageModule
     ],
 

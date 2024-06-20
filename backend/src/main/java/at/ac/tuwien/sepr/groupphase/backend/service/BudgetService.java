@@ -71,5 +71,13 @@ public interface BudgetService {
      */
     Budget findByGroupIdAndBudgetId(long groupId, long budgetId);
 
-    Budget resetBudget(Budget budget);
+    /**
+     * Reset all monthly budgets.
+     */
+    void resetMonthlyBudgets();
+
+    /**
+     * Reset all weekly budgets.
+     */
+    void resetWeeklyBudgets();
 }

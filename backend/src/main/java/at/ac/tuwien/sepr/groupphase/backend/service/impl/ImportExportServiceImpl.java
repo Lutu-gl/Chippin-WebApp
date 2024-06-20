@@ -28,8 +28,12 @@ import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
 import jakarta.transaction.Transactional;
@@ -39,12 +43,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -179,6 +177,8 @@ public class ImportExportServiceImpl implements ImportExportService {
                 .build();
 
             Expense expenseSaved = expenseRepository.save(expense);
+
+            //BUDET AKTUALISIEREN
 
             Activity activityForExpense = Activity.builder()
                 .category(ActivityCategory.EXPENSE)

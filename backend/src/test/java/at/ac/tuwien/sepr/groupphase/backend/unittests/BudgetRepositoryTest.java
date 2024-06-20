@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import jakarta.transaction.Transactional;
@@ -54,6 +55,7 @@ public class BudgetRepositoryTest {
         Budget budget = Budget.builder()
             .name("Abos")
             .amount(30)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .group(group1)
             .build();
 
@@ -86,6 +88,7 @@ public class BudgetRepositoryTest {
         Budget budget = Budget.builder()
             .name("Food")
             .amount(250)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .group(group1)
             .build();
 
@@ -118,6 +121,7 @@ public class BudgetRepositoryTest {
         Budget budget = Budget.builder()
             .name("Food")
             .amount(250)
+            .resetFrequency(ResetFrequency.MONTHLY)
             .group(group1)
             .build();
 
