@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ImportExportValidator;
 import com.itextpdf.io.exceptions.IOException;
@@ -73,6 +74,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     private final ActivityRepository activityRepository;
     private final ExchangeRateServiceImpl exchangeRateServiceImpl;
     private final PaymentRepository paymentRepository;
+    private final BudgetService budgetService;
 
     @Override
     public EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException {
@@ -177,7 +179,10 @@ public class ImportExportServiceImpl implements ImportExportService {
 
             Expense expenseSaved = expenseRepository.save(expense);
 
-            //BUDET AKTUALISIEREN
+            // Check the date of the expense and update the budget accordingly
+            if (expenseSaved.getDate() != null) {
+                budgetService.addUsedAmount(groupId, expenseSaved.getAmount(), expenseSaved.getCategory(), expenseSaved.getDate());
+            }
 
             Activity activityForExpense = Activity.builder()
                 .category(ActivityCategory.EXPENSE)
