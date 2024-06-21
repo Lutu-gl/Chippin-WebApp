@@ -25,6 +25,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,6 +84,15 @@ public class PantryEndpoint {
     public void deleteItem(@PathVariable long pantryId, @PathVariable long itemId) {
         LOGGER.trace("DELETE /api/v1/group/{}/pantry/{}", pantryId, itemId);
         pantryService.deleteItem(pantryId, itemId);
+    }
+
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#pantryId)")
+    @DeleteMapping("/{pantryId}/pantry")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteItems(@PathVariable long pantryId, @RequestParam List<Long> itemIds) {
+        LOGGER.trace("DELETE /api/v1/group/{}/pantry", pantryId);
+        pantryService.deleteItems(pantryId, itemIds);
     }
 
     @Secured("ROLE_USER")
