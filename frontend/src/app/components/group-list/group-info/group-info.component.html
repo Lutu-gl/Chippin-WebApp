@@ -376,8 +376,20 @@
 
   <!-- Activities part -->
   <div *ngIf="isActivitiesSelected()" class="p-4 max-w-lg mx-auto">
+
+    <div class="flex justify-center mb-4">
+      <div class="relative w-full max-w-xs flex items-center">
+        <span class="absolute left-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 16.65a8 8 0 111.414-1.414 8 8 0 01-1.414 1.414z" />
+          </svg>
+        </span>
+        <input (keyup)="searchActivitiesChanged($event)" type="text" placeholder="Search activities..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
+      </div>
+    </div>
+
     <div class="space-y-4">
-      <div *ngFor="let transaction of getTransactionActivitiesVarSorted()">
+      <div *ngFor="let transaction of getTransactionActivitiesVarSortedAndPaginated()">
 
 <!--        For expenses -->
         <div *ngIf="transaction.expenseId !== null" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
@@ -400,8 +412,10 @@
           <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
         </div>
 
-
       </div>
+
+      <p-paginator [rows]="activitiesPaginationCount" [totalRecords]="getTransactionActivitiesVarSorted().length" (onPageChange)="paginateActivities($event)"></p-paginator>
+
     </div>
   </div>
 
@@ -419,57 +433,70 @@
 <!--  </div>-->
 
   <!-- Transactions tab -->
-    <div *ngIf="isTransactionsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
-      <div class="flex justify-center mb-4">
-        <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
-          <span class="text-xl mr-2">+</span> Add Expense
-        </button>
+  <div *ngIf="isTransactionsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
+    <div class="flex justify-center mb-4">
+      <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add Expense
+      </button>
+    </div>
+    
+    <div class="flex justify-center mb-4">
+      <div class="relative w-full max-w-xs flex items-center">
+        <span class="absolute left-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 16.65a8 8 0 111.414-1.414 8 8 0 01-1.414 1.414z" />
+          </svg>
+        </span>
+        <input (keyup)="searchTransactionsChanged($event)" type="text" placeholder="Search transactions..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
       </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let transaction of getTransactionVarSortedWithoutDeleted()">
-
-          <!--        For expenses -->
-          <div *ngIf="isExpense(transaction)" (click)="openInfoExpenseDialog(transaction.id)"  class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
-            <div class="flex items-center space-x-4">
-              <div>
-                <div class="font-normal text-sm"><b>{{ transaction.name }}</b></div>
-                <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
-              </div>
+    </div>
+  
+    <div class="space-y-4">
+      <div *ngFor="let transaction of getTransactionVarSortedWithoutDeletedAndPaginated()">
+  
+        <!-- For expenses -->
+        <div *ngIf="isExpense(transaction)" (click)="openInfoExpenseDialog(transaction.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm"><b>{{ transaction.name }}</b></div>
+              <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
             </div>
-            <div class="flex items-center space-x-4">
-              <div>
-                <div class="font-normal text-sm" *ngIf="transaction.payerEmail === authService.getEmail()" style="color: green;">
-                  You payed <span>{{transaction.amount | currency: 'EUR' }}</span>
-                </div>
-                <div class="font-normal text-sm"   *ngIf="transaction.payerEmail !== authService.getEmail()">{{ transaction.payerEmail }} payed {{transaction.amount | currency: 'EUR' }}</div>
-                <div class="text-xs" *ngIf="transaction.payerEmail === authService.getEmail()"></div>
-                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) !== '0'" style="color: red;">
-                  You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
-                </div>
-                <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) === '0'">
-                  You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
-                </div>
-              </div>
-            </div>
-<!--            <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>-->
           </div>
-          <!--          For payments-->
-          <div *ngIf="!isExpense(transaction)" (click)="openInfoPaymentDialog(transaction.id)" [ngClass]="getPaymentColor()" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
-            <div class="flex items-center space-x-4">
-              <div>
-                <div class="font-normal text-sm"><b>{{transaction.payerEmail}}</b> payed  <b>{{ transaction.receiverEmail }}</b> {{transaction.amount | currency: 'EUR'}}</div>
-                <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm" *ngIf="transaction.payerEmail === authService.getEmail()" style="color: green;">
+                You payed <span>{{transaction.amount | currency: 'EUR' }}</span>
+              </div>
+              <div class="font-normal text-sm" *ngIf="transaction.payerEmail !== authService.getEmail()">{{ transaction.payerEmail }} payed {{transaction.amount | currency: 'EUR' }}</div>
+              <div class="text-xs" *ngIf="transaction.payerEmail === authService.getEmail()"></div>
+              <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) !== '0'" style="color: red;">
+                You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
+              </div>
+              <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) === '0'">
+                You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
               </div>
             </div>
-<!--            <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>-->
           </div>
-
-
         </div>
+  
+        <!-- For payments -->
+        <div *ngIf="!isExpense(transaction)" (click)="openInfoPaymentDialog(transaction.id)" [ngClass]="getPaymentColor()" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm"><b>{{transaction.payerEmail}}</b> payed  <b>{{ transaction.receiverEmail }}</b> {{transaction.amount | currency: 'EUR'}}</div>
+              <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+  
       </div>
-
+  
+      <p-paginator [rows]="transactionsPaginationCount" [totalRecords]="getTransactionVarSortedWithoutDeleted().length" (onPageChange)="paginateTransactions($event)"></p-paginator>
+  
+    </div>
   </div>
+  
+  
 
 
 

@@ -59,6 +59,20 @@ export class PantryService {
   }
 
   /**
+   * Deletes items from a pantry
+   *
+   * @param pantryId the pantry id
+   * @param id the item ids
+   */
+  deleteItems(pantryId: number, ids: number[]): Observable<PantryItemDetailDto> {
+    let params = new HttpParams();
+    ids.forEach(id => {
+      params = params.append('itemIds', id.toString());
+    });
+    return this.httpClient.delete<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, {params});
+  }
+
+  /**
    * Updates an item in a pantry.
    *
    * @param itemToUpdate the item to update
@@ -99,6 +113,7 @@ export class PantryService {
   getRecipes(id: number, getRecipesDto: GetRecipesDto) {
     return this.httpClient.post<RecipeByItemsDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes/user/${this.authService.getUserId()}`, getRecipesDto);
   }
+
   //List<{RecipeName, RecipeId, ItemsInPantry, Ingredients}>
 
 

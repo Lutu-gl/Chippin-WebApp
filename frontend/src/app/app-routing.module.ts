@@ -35,11 +35,13 @@ import { FriendInfoComponent } from './components/friends/friend-info/friend-inf
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
 import {HomeComponent} from "./components/home/home.component";
 import {VisualizationComponent} from "./components/visualization/visualization.component";
+import { SettingsComponent } from './components/settings/settings.component';
 
 
 let routes: Routes;
 routes = [
   {path: 'login', component: LoginComponent},
+  {path: 'settings', canActivate: mapToCanActivate([AuthGuard]), component: SettingsComponent},
   {
     path: "shopping-list", canActivate: mapToCanActivate([AuthGuard]), children: [
       {path: 'create', component: ShoppingListCreateComponent, data: {mode: ShoppingListCreateEditMode.create}},

@@ -97,6 +97,7 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {CalendarModule} from "primeng/calendar";
 import {ImageModule} from 'primeng/image';
 import {PaginatorModule} from "primeng/paginator";
+import { SettingsComponent } from './components/settings/settings.component';
 
 
 @NgModule({
@@ -104,6 +105,7 @@ import {PaginatorModule} from "primeng/paginator";
     AppComponent,
     HeaderComponent,
     FooterComponent,
+    SettingsComponent,
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,

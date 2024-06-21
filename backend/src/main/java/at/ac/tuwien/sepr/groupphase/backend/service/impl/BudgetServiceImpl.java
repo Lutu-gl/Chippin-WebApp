@@ -93,6 +93,7 @@ public class BudgetServiceImpl implements BudgetService {
             .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
         Budget budgetEnt = budgetMapper.budgetCreateDtoToBudget(budget);
+        budgetEnt.setResetFrequency(budget.getResetFrequency());
         if (budget.getCategory() == null) {
             budgetEnt.setCategory(Category.Other);
         } else {

@@ -100,6 +100,15 @@ public class PantryServiceImpl implements PantryService {
 
     @Override
     @Transactional
+    public void deleteItems(long pantryId, List<Long> itemIds) {
+        LOGGER.debug("Delete pantryItems {} in pantry with ID {}", itemIds, pantryId);
+        for (long id : itemIds) {
+            deleteItem(pantryId, id);
+        }
+    }
+
+    @Override
+    @Transactional
     public Item updateItem(PantryItem item, long pantryId) {
         LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
