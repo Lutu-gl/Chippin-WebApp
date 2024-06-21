@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserChangePasswordDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
@@ -14,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.DebtService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +106,21 @@ public class CustomUserDetailService implements UserService {
         UserDetails userDetails = loadUserByUsername(userRegisterDto.getEmail());
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         return jwtTokenizer.getAuthToken(userDetails.getUsername(), roles);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(UserChangePasswordDto changePasswordDto, String username) {
+        LOGGER.trace("changePassword({})", changePasswordDto);
+        ApplicationUser applicationUser = userRepository.findByEmail(username);
+        if (applicationUser == null) {
+            throw new NotFoundException("User not found");
+        }
+        if (!passwordEncoder.matches(changePasswordDto.getCurrentPassword(), applicationUser.getPassword())) {
+            throw new BadCredentialsException("Old password is incorrect");
+        }
+        applicationUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        userRepository.save(applicationUser);
     }
 
     @Override
