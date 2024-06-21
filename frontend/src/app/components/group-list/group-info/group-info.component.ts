@@ -75,6 +75,13 @@ export class GroupInfoComponent implements OnInit {
   importContent: string[];
   importRequestLoading: boolean = false;
 
+  transactionsPaginationCount: number = 10;
+  transactionsPage: number = 0;
+  transactionsSearchFilter: string = '';
+
+  activitiesPaginationCount: number = 10;
+  activitiesPage: number = 0;
+  activitiesSearchFilter: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -506,11 +513,20 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getTransactionActivitiesVarSorted():ActivityDetailDto[] {
-    return this.transactionsActivities.sort((a, b) => {
+    let activities = this.transactionsActivities.sort((a, b) => {
       let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return bTime - aTime;
     });
+
+    activities = activities.filter(activity => activity.description.toLowerCase().includes(this.activitiesSearchFilter.toLowerCase()));
+
+    return activities;
+  }
+
+  getTransactionActivitiesVarSortedAndPaginated():ActivityDetailDto[] {
+    return this.getTransactionActivitiesVarSorted()
+      .slice(this.activitiesPage * this.activitiesPaginationCount, (this.activitiesPage + 1) * this.activitiesPaginationCount);
   }
 
   // combine expeneses and payments in one array and sort them by the date
@@ -529,7 +545,25 @@ export class GroupInfoComponent implements OnInit {
   getTransactionVarSortedWithoutDeleted() {
     let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
 
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
     transactions = transactions.filter(transaction => !transaction.deleted)
+
+    transactions = transactions.filter((transaction: any) => {
+      if (transaction.name && transaction.name.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.payerEmail && transaction.payerEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.receiverEmail && transaction.receiverEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
 
     transactions.sort((a, b) => {
       let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
@@ -539,6 +573,12 @@ export class GroupInfoComponent implements OnInit {
     //console.log(transactions)
     return transactions;
   }
+
+  getTransactionVarSortedWithoutDeletedAndPaginated() {
+    return this.getTransactionVarSortedWithoutDeleted()
+      .slice(this.transactionsPage * this.transactionsPaginationCount, (this.transactionsPage + 1) * this.transactionsPaginationCount);
+  }
+
 
   isExpense(transaction: any): boolean {
     return transaction.hasOwnProperty('category');
@@ -828,6 +868,23 @@ export class GroupInfoComponent implements OnInit {
   getPayerEmailForExpenseDescription(transaction: ExpenseDetailDto) {
     return transaction.payerEmail === this.authService.getEmail() ? "You" : transaction.payerEmail;
   }
+
+  paginateTransactions(event: any) {
+    this.transactionsPage = event.page;
+  }
+
+  searchTransactionsChanged(event: KeyboardEvent): void {
+    this.transactionsSearchFilter = (event.target as HTMLInputElement).value;
+  }
+
+  paginateActivities(event: any) {
+    this.activitiesPage = event.page;
+  }
+
+  searchActivitiesChanged(event: KeyboardEvent): void {
+    this.activitiesSearchFilter = (event.target as HTMLInputElement).value;
+  }
+
 }
 
 
