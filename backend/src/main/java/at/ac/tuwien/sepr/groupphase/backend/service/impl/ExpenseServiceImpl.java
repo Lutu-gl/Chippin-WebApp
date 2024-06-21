@@ -13,7 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
@@ -49,7 +48,6 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseValidator expenseValidator;
     private final UserRepository userRepository;
     private final BudgetService budgetService;
-    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -162,7 +160,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             expense.setBillPath(fileName);
         }
 
-        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder()
@@ -199,8 +197,8 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         if ((existingExpense.getAmount() != expense.getAmount()) || existingExpense.getCategory() != expense.getCategory()) {
-            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
-            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
         }
         expense.setDeleted(existingExpense.isDeleted());
         expense.setArchived(existingExpense.getArchived());
@@ -254,7 +252,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsDeleted(existingExpense);
 
-        budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+        if (existingExpense.getDate() != null) {
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
 
         Activity activityForExpenseDelete = Activity.builder()
             .category(ActivityCategory.EXPENSE_DELETE)
@@ -286,8 +286,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsRecovered(existingExpense);
 
-        budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
 
+        if (existingExpense.getDate() != null) {
+            budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
         existingExpense.setDeleted(false);
 
         Activity activityForExpenseRecover = Activity.builder()

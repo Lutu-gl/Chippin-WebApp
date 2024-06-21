@@ -141,7 +141,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public void addUsedAmount(long groupId, double amount, Category category) {
+    public void addUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate) {
         LOGGER.trace("Adding used amount of {} to all budgets for group ID {} and category {}", amount, groupId, category);
 
         List<Budget> budgets = this.findAllByGroupId(groupId);
@@ -149,18 +149,23 @@ public class BudgetServiceImpl implements BudgetService {
             return;
         }
 
+        LocalDateTime firstDayOfCurrentMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime firstDayOfWeek = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).withHour(0).withMinute(0).withSecond(0).withNano(0);
         budgets.forEach(budget -> {
             if (budget.getCategory() == category) {
-                double newUsedAmount = budget.getAlreadySpent() + amount;
-                budget.setAlreadySpent(newUsedAmount);
-                budgetRepository.save(budget);
+                if ((budget.getResetFrequency() == ResetFrequency.MONTHLY && firstDayOfCurrentMonth.isBefore(expenseDate))
+                    || (budget.getResetFrequency() == ResetFrequency.WEEKLY && firstDayOfWeek.isBefore(expenseDate))) {
+                    double newUsedAmount = budget.getAlreadySpent() + amount;
+                    budget.setAlreadySpent(newUsedAmount);
+                    budgetRepository.save(budget);
+                }
             }
         });
     }
 
     @Override
     @Transactional
-    public void removeUsedAmount(long groupId, double amount, Category category) {
+    public void removeUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate) {
         LOGGER.trace("Removing used amount of {} from all budgets for group ID {} and category {}", amount, groupId, category);
 
         List<Budget> budgets = this.findAllByGroupId(groupId);
@@ -168,11 +173,17 @@ public class BudgetServiceImpl implements BudgetService {
             return;
         }
 
+        LocalDateTime firstDayOfCurrentMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime firstDayOfWeek = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
         budgets.forEach(budget -> {
             if (budget.getCategory() == category) {
-                double newUsedAmount = budget.getAlreadySpent() - amount;
-                budget.setAlreadySpent(newUsedAmount);
-                budgetRepository.save(budget);
+                if ((budget.getResetFrequency() == ResetFrequency.MONTHLY && firstDayOfCurrentMonth.isBefore(expenseDate))
+                    || (budget.getResetFrequency() == ResetFrequency.WEEKLY && firstDayOfWeek.isBefore(expenseDate))) {
+                    double newUsedAmount = budget.getAlreadySpent() - amount;
+                    budget.setAlreadySpent(newUsedAmount);
+                    budgetRepository.save(budget);
+                }
             }
         });
 
