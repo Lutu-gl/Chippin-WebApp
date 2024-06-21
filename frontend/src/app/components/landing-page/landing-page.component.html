@@ -1,0 +1,105 @@
+<div class="bg-gray-50 flex flex-col items-center py-4 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl w-full space-y-8">
+    <div class="text-center">
+      <h1 class="text-6xl font-extrabold text-gray-900">Chippin</h1>
+      <p class="mt-4 text-lg text-gray-700">Experience the ultimate solution for group expense management with Chippin. Effortlessly organize your finances, transparently share expenses with friends, and always keep track of your shared budgets. With Chippin, planning, shopping, and managing become a breeze – giving you more time for the things that matter most. Discover now how Chippin can make your life simpler and more efficient!</p>
+    </div>
+    
+    <div class="flex justify-center space-x-4 mt-8">
+      <button pButton [routerLink]="['/register']" type="button" label="Get started" class="p-button-rounded p-button-primary text-xl px-6 py-3"></button>
+      <button *ngIf="!authService.isLoggedIn()" pButton [routerLink]="['/login']" type="button" label="Sign in" class="p-button-rounded p-button-secondary text-xl px-6 py-3"></button>
+    </div>
+    
+    <div class="mt-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Feature 1 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-users text-blue-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Create Groups with Friends</h2>
+            <p class="text-gray-600">Easily set up groups to manage expenses and activities with your friends.</p>
+          </div>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-money-bill text-green-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Split Expenses</h2>
+            <p class="text-gray-600">Divide costs among group members quickly and fairly.</p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-wallet text-yellow-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Set Budgets</h2>
+            <p class="text-gray-600">Keep track of your spending and stay within your budget.</p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-shopping-cart text-red-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Create Shopping Lists</h2>
+            <p class="text-gray-600">Organize your shopping with easy-to-manage lists.</p>
+          </div>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-box text-purple-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Manage Pantry</h2>
+            <p class="text-gray-600">Keep track of your pantry items and never run out of essentials.</p>
+          </div>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-book text-indigo-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Find Recipes</h2>
+            <p class="text-gray-600">Discover new recipes based on your pantry items or create your own.</p>
+          </div>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-chart-bar text-teal-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Visualize Data</h2>
+            <p class="text-gray-600">Get insights into your spending with detailed visualizations.</p>
+          </div>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <i class="pi pi-upload text-pink-500 text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Import/Export Data</h2>
+            <p class="text-gray-600">Easily import data from existing apps and export your data for backup or further analysis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

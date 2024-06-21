@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
     this.authService.loginUser(authRequest).subscribe({
       next: () => {
         localStorage.setItem('userEmail', authRequest.email);
-        this.router.navigate(['']);
+        this.router.navigate(['/home']);
       },
       error: error => {
         console.error(error.error);

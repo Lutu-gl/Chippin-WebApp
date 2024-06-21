@@ -98,6 +98,7 @@ import {CalendarModule} from "primeng/calendar";
 import {ImageModule} from 'primeng/image';
 import {PaginatorModule} from "primeng/paginator";
 import { SettingsComponent } from './components/settings/settings.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 
 @NgModule({
@@ -105,6 +106,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     AppComponent,
     HeaderComponent,
     FooterComponent,
+    LandingPageComponent,
     SettingsComponent,
     HomeComponent,
     AutocompleteComponent,

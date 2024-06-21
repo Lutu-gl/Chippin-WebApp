@@ -36,10 +36,12 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
 import {HomeComponent} from "./components/home/home.component";
 import {VisualizationComponent} from "./components/visualization/visualization.component";
 import { SettingsComponent } from './components/settings/settings.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 
 let routes: Routes;
 routes = [
+  {path: '', component: LandingPageComponent},
   {path: 'login', component: LoginComponent},
   {path: 'settings', canActivate: mapToCanActivate([AuthGuard]), component: SettingsComponent},
   {
