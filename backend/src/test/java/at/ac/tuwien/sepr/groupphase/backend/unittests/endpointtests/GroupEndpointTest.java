@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
+import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ public class GroupEndpointTest implements TestData {
 
     @MockBean
     private GroupService groupService;
+
+    @MockBean
+    private SecurityService securityService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -103,6 +107,9 @@ public class GroupEndpointTest implements TestData {
         when(groupService.update(any(), anyString())).thenReturn(mockResponse);
 
         String groupUpdateJson = "{\"name\":\"Test Group\",\"members\":[\"testUser1@example.com\",\"testUser2@example.com\"]}";
+
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
 
         byte[] body = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/1")

@@ -13,7 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
@@ -49,7 +48,6 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseValidator expenseValidator;
     private final UserRepository userRepository;
     private final BudgetService budgetService;
-    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -82,24 +80,15 @@ public class ExpenseServiceImpl implements ExpenseService {
     public ResponseEntity<byte[]> getBill(Long expenseId, String requesterEmail) throws NotFoundException {
         LOGGER.trace("getBill({}, {})", expenseId, requesterEmail);
 
-        System.out.println("REACHED 1");
-
         ApplicationUser user = userRepository.findByEmail(requesterEmail);
-        System.out.println("REACHED 2");
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
-        System.out.println("REACHED 3");
         if (!expense.getGroup().getUsers().contains(user)) {
             throw new AccessDeniedException("You do not have permission to access this bill");
         }
-        System.out.println("REACHED 4");
         if (expense.getBillPath() == null) {
             throw new NotFoundException("No bill found for this expense");
         }
-        System.out.println("REACHED 5");
         Path path = Paths.get(System.getProperty("user.dir") + expense.getBillPath());
-        System.out.println("\n\n\n");
-        System.out.println(path);
-        System.out.println("\n\n\n");
         HttpHeaders headers = getHttpHeaders(expense);
 
         try {
@@ -171,7 +160,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             expense.setBillPath(fileName);
         }
 
-        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder()
@@ -208,8 +197,8 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         if ((existingExpense.getAmount() != expense.getAmount()) || existingExpense.getCategory() != expense.getCategory()) {
-            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
-            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
         }
         expense.setDeleted(existingExpense.isDeleted());
         expense.setArchived(existingExpense.getArchived());
@@ -263,7 +252,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsDeleted(existingExpense);
 
-        budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+        if (existingExpense.getDate() != null) {
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
 
         Activity activityForExpenseDelete = Activity.builder()
             .category(ActivityCategory.EXPENSE_DELETE)
@@ -295,8 +286,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsRecovered(existingExpense);
 
-        budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
 
+        if (existingExpense.getDate() != null) {
+            budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
         existingExpense.setDeleted(false);
 
         Activity activityForExpenseRecover = Activity.builder()

@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeListDto, RecipeSearch} from "../../dtos/recipe";
+import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../dtos/recipe";
 import {RecipeService} from "../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
 import {MessageService} from "primeng/api";
@@ -17,6 +17,10 @@ export class RecipeComponent implements OnInit {
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
   hasRecipes = false;
+  rows:number=20;
+  currentPage:number=1;
+  totalRecords:number;
+  paginatedRecipes:RecipeListDto[]=[];
 
   constructor(
     private service: RecipeService,
@@ -33,6 +37,8 @@ export class RecipeComponent implements OnInit {
           if(data.length!=0) {
             this.hasRecipes=true;
           }
+          this.totalRecords=this.recipes.length;
+          this.paginate({ first: 0, rows: this.rows });
         },
         error: error => {
           this.printError(error)
@@ -57,11 +63,18 @@ export class RecipeComponent implements OnInit {
     this.service.searchOwnRecipes(search).subscribe({
       next: res => {
         this.recipes = res;
+        this.totalRecords=this.recipes.length;
+        this.paginate({ first: 0, rows: this.rows });
       },
       error: err => {
         this.printError(err);
       }
     });
+  }
+
+  paginate(event: any) {
+    this.currentPage = event.first / event.rows + 1;
+    this.paginatedRecipes = this.recipes.slice(event.first, event.first + event.rows);
   }
 
 

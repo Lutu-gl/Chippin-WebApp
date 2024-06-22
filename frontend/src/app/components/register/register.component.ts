@@ -110,7 +110,7 @@ export class RegisterComponent implements OnInit {
   registerUser(authRequest: AuthRequest) {
     this.authService.registerUser(authRequest).subscribe({
       next: () => {
-        this.router.navigate([""]);
+        this.router.navigate(["/home"]);
       },
       error: error => {
         console.warn(error);

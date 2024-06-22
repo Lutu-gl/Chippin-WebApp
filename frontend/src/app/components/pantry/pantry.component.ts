@@ -396,35 +396,28 @@ export class PantryComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        //TODO: mass delete in backend
-        let count = this.selectedItems.length;
-        let length = this.selectedItems.length;
-        for (let item of this.selectedItems) {
-          this.service.deleteItem(this.id, item.id).subscribe({
-            next: res => {
-              count--;
-              console.log(count);
-              this.getPantry(this.id);
-              if (count < 1) {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: 'Items Deleted',
-                  detail: `Deleted ${length} items`,
-                  life: 3000
-                });
-              }
-            },
-            error: err => {
-              console.error(err);
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Could not delete ${item.description}`,
-                life: 3000
-              });
-            }
-          });
-        }
+
+        let length: number = this.selectedItems.length;
+        this.service.deleteItems(this.id, this.selectedItems.map(i => i.id)).subscribe({
+          next: res => {
+            this.getPantry(this.id);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Items Deleted',
+              detail: length > 1 ? `Deleted ${length} items` : 'Deleted 1 item',
+              life: 3000
+            });
+          },
+          error: err => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Could not delete items`,
+              life: 3000
+            });
+          }
+        })
+
         this.selectedItems = null;
       }
     });

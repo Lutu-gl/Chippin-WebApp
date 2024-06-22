@@ -5,7 +5,8 @@ import { Category } from '../../../dtos/category';
 import { BudgetDto } from '../../../dtos/budget';
 import { GroupService } from '../../../services/group.service';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
-
+import { ResetFrequency } from 'src/app/dtos/ResetFrequency';
+import {ConfirmationService, MenuItem} from 'primeng/api';
 export enum BudgetCreateEditMode {
   create,
   edit,
@@ -18,22 +19,25 @@ export enum BudgetCreateEditMode {
   styleUrls: ['./budget-create.component.scss']
 })
 export class BudgetCreateComponent implements OnChanges {
-  @Input() mode: BudgetCreateEditMode = BudgetCreateEditMode.create;
+  @Input() mode: BudgetCreateEditMode;
   @Input() groupId!: number;
   @Input() budgetId?: number;
   @Output() closeDialog = new EventEmitter<void>();
 
-  newBudget: BudgetDto = { name: '', amount: undefined, category: '', alreadySpent: 0 };
+  newBudget: BudgetDto = { name: '', amount: undefined, category: '', alreadySpent: 0, resetFrequency: '' };
   categories2: { label: string, value: Category }[] = [];
   selectedCategory: any;
   allCategories: any[] = Object.values(Category).map(category => ({name: category}));
   filteredCategories: any[] = this.allCategories;
   isDeleteDialogVisible: boolean = false;
+  selectedFrequency: ResetFrequency;
+  ResetFrequency = ResetFrequency;
 
   constructor(
     private groupService: GroupService,
     private route: ActivatedRoute,
     private router: Router,
+    private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {
     this.categories2 = Object.keys(Category).map(key => ({ label: key, value: Category[key] }));
@@ -56,16 +60,25 @@ export class BudgetCreateComponent implements OnChanges {
   }
 
   private prepareNewBudget(): void {
-    this.newBudget = { name: '', amount: undefined, category: '', alreadySpent: 0 };
+    this.newBudget = { name: '', amount: undefined, category: '', alreadySpent: 0, resetFrequency: ResetFrequency.MONTHLY};
     this.selectedCategory = { label: '', value: '' };
+    console.log(this.newBudget.resetFrequency)
   }
 
   openDeleteDialog(): void {
-    this.isDeleteDialogVisible = true;
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this Budget ?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteExistingBudget()
+      }
+    });
   }
 
   closeDeleteDialog(): void {
     this.isDeleteDialogVisible = false;
+    this.resetState();
   }
 
   private prepareBudget(): void {
@@ -77,6 +90,8 @@ export class BudgetCreateComponent implements OnChanges {
       next: data => {
         this.newBudget = data;
         this.selectedCategory = this.categories2.find(category => category.value === this.newBudget.category);
+        this.selectedFrequency = this.newBudget.resetFrequency;
+        console.log(this.selectedFrequency)
       },
       error: error => {
         console.error(error);
@@ -104,6 +119,11 @@ export class BudgetCreateComponent implements OnChanges {
       returnValue = false;
     }
 
+    if (!this.newBudget.resetFrequency) {
+      this.messageService.add({ severity: 'warn', summary: 'Invalid Budget', detail: 'Reset Frequency must be selected!' });
+      returnValue = false;
+    }
+
     return returnValue;
   }
 
@@ -111,6 +131,8 @@ export class BudgetCreateComponent implements OnChanges {
 
 
   public onSubmit(): void {
+
+    console.log(this.newBudget)
 
     console.log("validation:")
     if (!this.submitValidation()) {
@@ -142,6 +164,7 @@ export class BudgetCreateComponent implements OnChanges {
 
   private updateBudget(): void {
     this.newBudget.category = this.selectedCategory.value;
+    // this.newBudget.resetFrequency = this.selectedFrequency;
     this.groupService.updateBudget(this.groupId, this.budgetId, this.newBudget).subscribe({
       next: budget => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully updated budget' });
@@ -181,6 +204,16 @@ export class BudgetCreateComponent implements OnChanges {
         return '?';
     }
   }
+
+
+
+public resetState(): void {
+  console.log("resetState")
+  if (this.mode === BudgetCreateEditMode.edit) {
+    this.mode = BudgetCreateEditMode.info;
+  }
+}
+
 
   public modeIsCreate(): boolean {
     return this.mode === BudgetCreateEditMode.create;

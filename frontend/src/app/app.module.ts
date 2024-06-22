@@ -82,6 +82,7 @@ import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {InputTextareaModule} from "primeng/inputtextarea";
+import { RadioButtonModule } from 'primeng/radiobutton';
 import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
@@ -95,6 +96,10 @@ import {FileUploadModule} from "primeng/fileupload";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {CalendarModule} from "primeng/calendar";
 import {ImageModule} from 'primeng/image';
+import {PaginatorModule} from "primeng/paginator";
+import { SettingsComponent } from './components/settings/settings.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { CounterComponent } from './components/landing-page/counter/counter.component';
 
 
 @NgModule({
@@ -102,6 +107,8 @@ import {ImageModule} from 'primeng/image';
     AppComponent,
     HeaderComponent,
     FooterComponent,
+    LandingPageComponent,
+    SettingsComponent,
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,
@@ -125,7 +132,8 @@ import {ImageModule} from 'primeng/image';
     RecipeLikedComponent,
     PaymentCreateComponent,
     ShoppingListCreateComponent,
-    VisualizationComponent
+    VisualizationComponent,
+    CounterComponent
   ],
 
     imports: [
@@ -150,7 +158,8 @@ import {ImageModule} from 'primeng/image';
         ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
         DropdownModule,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule
+        RadioButtonModule,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
     ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],

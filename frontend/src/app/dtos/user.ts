@@ -12,3 +12,8 @@ export interface UserRegisterDto {
   email: string;
   password: string;
 }
+
+export interface UserChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}

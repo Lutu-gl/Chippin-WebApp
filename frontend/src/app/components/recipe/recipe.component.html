@@ -1,10 +1,9 @@
 <div class="flex flex-col items-center p-4">
   <p-button [routerLink]="['/recipe/create']" class="text-black font-bold py-2 px-4 rounded mt-4 mb-6">Create a new Recipe</p-button>
 
-  <p-floatLabel>
-    <input pInputText id="recipe"  [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
-    <label for="recipe">Search</label>
-  </p-floatLabel>
+
+    <input pInputText id="recipe"  placeholder="Search" [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
+
 
 
   <!-- No recipes yet message -->
@@ -19,7 +18,7 @@
   <!-- Recipes -->
   <div *ngIf="recipes.length > 0" class="w-full max-w-md space-y-4 mt-6">
     <h3 class="font-bold mb-2">Recipes</h3>
-    <div *ngFor="let recipe of recipes" [routerLink]="['/recipe', 'owner', recipe.id]" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+    <div *ngFor="let recipe of paginatedRecipes" [routerLink]="['/recipe', 'owner', recipe.id]" class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
       <div class="flex items-center space-x-4">
         <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div>
         <div>
@@ -28,6 +27,7 @@
       </div>
 
     </div>
+    <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)"></p-paginator>
   </div>
 
  </div>

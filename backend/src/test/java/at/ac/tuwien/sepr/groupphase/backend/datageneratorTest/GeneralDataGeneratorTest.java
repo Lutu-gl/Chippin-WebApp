@@ -23,6 +23,7 @@ public class GeneralDataGeneratorTest implements DataGeneratorTest {
     private final PaymentDataGeneratorTest paymentDataGenerator;
     private final ShoppingListDataGeneratorTest shoppingListDataGenerator;
     private final BudgetDataGeneratorTest budgetDataGenerator;
+    private final ExchangeRateDataGeneratorTest exchangeRateDatagenerator;
 
     public void generateData() {
         LOGGER.debug("generating all data for test");
@@ -37,6 +38,7 @@ public class GeneralDataGeneratorTest implements DataGeneratorTest {
         paymentDataGenerator.generateData();
         activityDataGenerator.generateData();
         budgetDataGenerator.generateData();
+        exchangeRateDatagenerator.generateData();
 
         shoppingListDataGenerator.generateData();
         LOGGER.debug("finished generating all data for test");
@@ -54,6 +56,7 @@ public class GeneralDataGeneratorTest implements DataGeneratorTest {
         itemDataGenerator.cleanData();
         friendshipDataGenerator.cleanData();
         groupDataGenerator.cleanData();
+        exchangeRateDatagenerator.cleanData();
 
         userDataGenerator.cleanData();
         LOGGER.debug("finished cleaning all data for test");

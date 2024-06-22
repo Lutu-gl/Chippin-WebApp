@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ImportExportValidator;
 import com.itextpdf.io.exceptions.IOException;
@@ -28,8 +29,12 @@ import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
 import jakarta.transaction.Transactional;
@@ -39,12 +44,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -75,6 +74,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     private final ActivityRepository activityRepository;
     private final ExchangeRateServiceImpl exchangeRateServiceImpl;
     private final PaymentRepository paymentRepository;
+    private final BudgetService budgetService;
 
     @Override
     public EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException {
@@ -168,8 +168,7 @@ public class ImportExportServiceImpl implements ImportExportService {
             Expense expense = Expense.builder()
                 .name(line.get(1))
                 .category(getEnumConstantOrDefault(line.get(2), Category.class, Category.Other))
-                //.amount(exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line[3]), line[4]))
-                .amount(Double.parseDouble(line.get(3)))
+                .amount(exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line.get(3)), line.get(4)))
                 .date(LocalDate.parse(line.get(0), dateTimeFormatter).atStartOfDay())
                 .payer(payer)
                 .group(group)
@@ -179,6 +178,11 @@ public class ImportExportServiceImpl implements ImportExportService {
                 .build();
 
             Expense expenseSaved = expenseRepository.save(expense);
+
+            // Check the date of the expense and update the budget accordingly
+            if (expenseSaved.getDate() != null) {
+                budgetService.addUsedAmount(groupId, expenseSaved.getAmount(), expenseSaved.getCategory(), expenseSaved.getDate());
+            }
 
             Activity activityForExpense = Activity.builder()
                 .category(ActivityCategory.EXPENSE)
@@ -268,10 +272,13 @@ public class ImportExportServiceImpl implements ImportExportService {
         List<Expense> expenses = expenseRepository.findAllByGroupId(groupId);
         List<Payment> payments = paymentRepository.findAllByGroupId(groupId);
 
+        List<ApplicationUser> sortedUsers = new ArrayList<>(group.getUsers());
+        sortedUsers.sort(Comparator.comparing(ApplicationUser::getEmail));
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             baos.write("Date,Description,Category,Cost,Currency,".getBytes());
             List<String> users = new ArrayList<>();
-            for (ApplicationUser u : group.getUsers()) {
+            for (ApplicationUser u : sortedUsers) {
                 users.add(u.getEmail());
             }
             baos.write(String.join(",", users).getBytes());
@@ -290,7 +297,7 @@ public class ImportExportServiceImpl implements ImportExportService {
                 line.add(String.valueOf(expense.getAmount()));
                 line.add("EUR");
 
-                for (ApplicationUser u : group.getUsers()) {
+                for (ApplicationUser u : sortedUsers) {
                     if (u.equals(expense.getPayer())) {
                         line.add(String.format(Locale.US, "%.2f", expense.getAmount() - expense.getParticipants().get(u) * expense.getAmount()));
                     } else if (expense.getParticipants().containsKey(u)) {
@@ -315,7 +322,7 @@ public class ImportExportServiceImpl implements ImportExportService {
                 line.add(String.valueOf(payment.getAmount()));
                 line.add("EUR");
 
-                for (ApplicationUser u : group.getUsers()) {
+                for (ApplicationUser u : sortedUsers) {
                     if (u.equals(payment.getPayer())) {
                         line.add(String.format(Locale.US, "%.2f", payment.getAmount()));
                     } else if (u.equals(payment.getReceiver())) {
