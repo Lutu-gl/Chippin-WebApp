@@ -4,11 +4,12 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto, ShoppingListItemDto,
+  ShoppingListDetailDto,
+  ShoppingListItemDto,
   ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
-import {ItemCreateDto} from "../dtos/item";
+import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -147,4 +148,7 @@ export class ShoppingListService {
     return this.httpClient.delete<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/checked-items`);
   }
 
+  getAmountOfItemInGroup(groupId: number, item: ItemDetailDto): Observable<number> {
+    return this.httpClient.get<number>(`${this.shoppingListBaseUri}/groups/${groupId}/shopping-lists/item-amount?description=${item.description}&unit=${item.unit}`)
+  }
 }
