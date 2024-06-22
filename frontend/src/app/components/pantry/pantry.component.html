@@ -365,8 +365,8 @@
             <td>
               <div class="flex items-center gap-2">
                 <p-tag
-                  [severity]="getTagSeverity(belowMinimum(item))"
-                  (click)="getTagSeverity(belowMinimum(item))">
+                  [pTooltip]="getTagSeverity(belowMinimum(item), item) === 'warning' ? 'Item is already in a shopping list' : '' "
+                  [severity]="getTagSeverity(belowMinimum(item), item)">
                   {{ formatLowerLimit(item) }}
                 </p-tag>
                 <!-- Quick add to shopping list -->

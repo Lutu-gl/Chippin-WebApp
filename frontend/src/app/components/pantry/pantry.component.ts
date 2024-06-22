@@ -4,13 +4,13 @@ import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
   ItemCreateDto,
+  ItemDetailDto,
   PantryItemCreateDisplayDto,
   pantryItemCreateDisplayDtoToPantryItemCreateDto,
   pantryItemCreateDisplayDtoToPantryItemDetailDto,
   PantryItemDetailDto,
   pantryItemDetailDtoToPantryItemCreateDisplayDto,
   PantryItemMergeDto,
-  Unit,
 } from "../../dtos/item";
 import {KeyValuePipe, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -172,7 +172,6 @@ export class PantryComponent implements OnInit {
     this.shoppingListService.getShoppingListsForGroup(this.id).subscribe({
       next: shoppingLists => {
         this.allShoppingLists = shoppingLists;
-        console.log(shoppingLists)
       },
       error: err => {
         this.messageService.add({severity: "error", summary: "Error", detail: "Could not load shopping lists"})
@@ -219,7 +218,7 @@ export class PantryComponent implements OnInit {
       unit: DisplayedUnit.Piece,
       lowerLimit: null,
     };
-    this.createEditItemReset = {...this.createEditItem};
+    this.createEditItemReset = {...this.createEditItem}
     console.log(this.createEditItemReset);
     this.edit = true;
     this.itemToEditId = item.id;
@@ -367,6 +366,12 @@ export class PantryComponent implements OnInit {
     this.service.getPantryById(id).subscribe({
       next: res => {
         this.items = res.items;
+        this.items.forEach(item => {
+          let belowMinimum = this.belowMinimum(item)
+          if (belowMinimum !== null && belowMinimum === true) {
+            this.setAmountOfItemInGroup(item);
+          }
+        })
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -432,6 +437,8 @@ export class PantryComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not decrement item amount!`});
       }
     })
+    // Update amount in shopping lists
+    this.setAmountOfItemInGroup(item);
   }
 
   increment(item: PantryItemDetailDto) {
@@ -448,6 +455,8 @@ export class PantryComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not increment item amount!`});
       }
     })
+    // Update amount in shopping lists
+    this.setAmountOfItemInGroup(item);
   }
 
   getRecipes() {
@@ -513,27 +522,53 @@ export class PantryComponent implements OnInit {
   }
 
   belowMinimum(item: PantryItemDetailDto): boolean | null {
-    if(item.lowerLimit === null || item.lowerLimit === 0) {
+    if (item.lowerLimit === null || item.lowerLimit === 0) {
       return null;
     }
     return item.amount < item.lowerLimit;
   }
 
   getRowColor(belowMin: boolean | null): string {
-    if(belowMin === null) {
+    if (belowMin === null) {
       return '';
     }
     return belowMin ? 'bg-red-50' : '';
   }
 
-  getTagSeverity(belowMin: boolean | null): "success" | "secondary" | "danger" {
-    if(belowMin === null) {
+  getTagSeverity(belowMin: boolean | null, item: ItemDetailDto): "success" | "secondary" | "danger" | "warning" {
+    if (belowMin === null) {
       return "secondary";
     }
-    return belowMin ? "danger" : "success";
+    if (!belowMin) return "success"
+
+
+    if (!item.amountInShoppingLists || item.amountInShoppingLists < 1) {
+      return "danger";
+    }
+    return "warning";
+
   }
 
-  mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
+  setAmountOfItemInGroup(item: ItemDetailDto) {
+    this.shoppingListService.getAmountOfItemInGroup(this.id, item).subscribe({
+      next: amount => {
+        item.amountInShoppingLists = amount;
+      }
+      ,
+      error: error => {
+        console.error(error)
+        item.amountInShoppingLists = null;
+      }
+    })
+    item.amountInShoppingLists = null;
+
+  }
+
+  mergeItemsSelectOptions(item
+                            :
+                            PantryItemCreateDisplayDto
+  ):
+    PantryItemDetailDto[] {
     return this.items.filter(i => i.id != item.id);
   }
 
@@ -568,6 +603,7 @@ export class PantryComponent implements OnInit {
       next: () => {
         this.addItemToShoppingListModalOpen = false;
         this.messageService.add({severity: "success", summary: "Success", detail: "Added item to shopping list"})
+        this.getPantry(this.id);
       },
       error: error => {
         console.log(error)
@@ -582,9 +618,14 @@ export class PantryComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
         } else {
           console.error('Could not add items to shopping list', error);
-          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not add item to shopping list!`});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Could not add item to shopping list!`
+          });
         }
       }
     })
   }
+
 }
