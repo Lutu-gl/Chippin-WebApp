@@ -99,6 +99,7 @@ import {ImageModule} from 'primeng/image';
 import {PaginatorModule} from "primeng/paginator";
 import { SettingsComponent } from './components/settings/settings.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { CounterComponent } from './components/landing-page/counter/counter.component';
 
 
 @NgModule({
@@ -131,7 +132,8 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
     RecipeLikedComponent,
     PaymentCreateComponent,
     ShoppingListCreateComponent,
-    VisualizationComponent
+    VisualizationComponent,
+    CounterComponent
   ],
 
     imports: [

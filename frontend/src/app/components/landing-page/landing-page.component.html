@@ -1,7 +1,7 @@
 <div class="bg-gray-50 flex flex-col items-center py-4 px-4 sm:px-6 lg:px-8">
   <div class="max-w-4xl w-full space-y-8">
     <div class="text-center">
-      <h1 class="text-6xl font-extrabold text-gray-900">Chippin</h1>
+      <h1 class="text-6xl font-extrabold text-gray-900" style="font-family: 'Montserrat', sans-serif;">Chippin</h1>
       <p class="mt-4 text-lg text-gray-700">Experience the ultimate solution for group expense management with Chippin. Effortlessly organize your finances, transparently share expenses with friends, and always keep track of your shared budgets. With Chippin, planning, shopping, and managing become a breeze – giving you more time for the things that matter most. Discover now how Chippin can make your life simpler and more efficient!</p>
     </div>
     
@@ -99,6 +99,29 @@
             <p class="text-gray-600">Easily import data from existing apps and export your data for backup or further analysis.</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Counters Section -->
+    <div *ngIf="generalInformation !== null" class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+      <!-- User Counter -->
+      <div>
+        <app-counter [endValue]="generalInformation.amountUsers" label="Users"></app-counter>
+      </div>
+
+      <!-- Expenses Counter -->
+      <div>
+        <app-counter [endValue]="generalInformation.amountExpenses" label="Total Expenses"></app-counter>
+      </div>
+
+      <!-- Expenses Amount Counter -->
+      <div>
+        <app-counter [endValue]="generalInformation.expensesSum" label="Spent money" afterLabel="€"></app-counter>
+      </div>
+
+      <!-- Shopping Lists Counter -->
+      <div>
+        <app-counter [endValue]="generalInformation.amountShoppingLists" label="Shopping Lists"></app-counter>
       </div>
     </div>
   </div>
