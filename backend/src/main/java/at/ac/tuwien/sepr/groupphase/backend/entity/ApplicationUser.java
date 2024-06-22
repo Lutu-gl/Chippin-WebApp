@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -57,12 +58,12 @@ public class ApplicationUser {
     @JsonIgnore
     private Set<GroupEntity> groups = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     //, cascade = CascadeType.ALL
     @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
     @JoinTable(
         name = "user_recipe_likes",
@@ -71,7 +72,7 @@ public class ApplicationUser {
     )
     private Set<Recipe> likedRecipes = new HashSet<>();
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @Builder.Default
     @JsonIgnore
     @JoinTable(
