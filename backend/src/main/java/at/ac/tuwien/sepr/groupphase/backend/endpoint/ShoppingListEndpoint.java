@@ -172,8 +172,7 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @GetMapping("/groups/{groupId}/shopping-lists/item-amount")
-    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestParam String description, @RequestParam
-    Unit unit) {
+    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestParam String description, @RequestParam Unit unit) {
         log.trace("getAmountOfItemInGroupShoppingLists({}, {}, {})", groupId, description, unit);
         return shoppingListService.getAmountOfItemInGroupShoppingLists(groupId, description, unit);
     }
