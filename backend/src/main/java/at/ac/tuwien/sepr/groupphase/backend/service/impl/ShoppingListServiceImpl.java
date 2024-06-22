@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
@@ -12,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -346,10 +346,10 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    public Long getAmountOfItemInGroupShoppingLists(Long groupId, ItemDto item) {
-        log.trace("getAmountOfItemInGroupShoppingLists({}, {})", groupId, item);
-        log.debug("Getting amount of item {} in shopping lists of group with id {}", item, groupId);
-        return shoppingListItemRepository.getAmountOfItemInGroupShoppingLists(groupId, item.getDescription(), item.getUnit());
+    public Long getAmountOfItemInGroupShoppingLists(Long groupId, String description, Unit unit) {
+        log.trace("getAmountOfItemInGroupShoppingLists({}, {}, {})", groupId, description, unit);
+        log.debug("Getting amount of item with description {} and unit {} in shopping lists of group with id {}", description, unit, groupId);
+        return shoppingListItemRepository.getAmountOfItemInGroupShoppingLists(groupId, description, unit);
     }
 
 

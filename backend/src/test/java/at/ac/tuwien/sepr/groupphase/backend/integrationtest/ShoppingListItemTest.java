@@ -433,9 +433,8 @@ public class ShoppingListItemTest extends BaseTest {
 
         // Check the amount of the item in the group shopping lists
         var result = mockMvc.perform(
-                get("/api/v1/groups/{groupId}/shopping-lists/item-amount", group.getId())
-                    .contentType("application/json")
-                    .content(objectMapper.writeValueAsString(item.getItem())))
+                get("/api/v1/groups/{groupId}/shopping-lists/item-amount?description={description}&unit={unit}", group.getId(), item.getItem().getDescription(),
+                    item.getItem().getUnit()))
             .andExpect(status().isOk())
             .andReturn();
 

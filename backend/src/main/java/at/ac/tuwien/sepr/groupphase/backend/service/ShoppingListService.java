@@ -3,12 +3,12 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
@@ -144,9 +144,10 @@ public interface ShoppingListService {
     /**
      * Get the amount of a specific item in all shopping lists of a group.
      *
-     * @param groupId the id of the group
-     * @param item    the item to check
+     * @param groupId     the id of the group
+     * @param description the description of the item
+     * @param unit        the unit of the item
      * @return the amount of the item (matching description and unit) in all shopping lists of the group
      */
-    Long getAmountOfItemInGroupShoppingLists(Long groupId, ItemDto item);
+    Long getAmountOfItemInGroupShoppingLists(Long groupId, String description, Unit unit);
 }

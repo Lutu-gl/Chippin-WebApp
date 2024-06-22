@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemDto;
@@ -9,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import jakarta.validation.Valid;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -171,9 +172,10 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.isGroupMember(#groupId)")
     @GetMapping("/groups/{groupId}/shopping-lists/item-amount")
-    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestBody ItemDto item) {
-        log.trace("getAmountOfItemInGroupShoppingLists({}, {})", groupId, item);
-        return shoppingListService.getAmountOfItemInGroupShoppingLists(groupId, item);
+    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestParam String description, @RequestParam
+    Unit unit) {
+        log.trace("getAmountOfItemInGroupShoppingLists({}, {}, {})", groupId, description, unit);
+        return shoppingListService.getAmountOfItemInGroupShoppingLists(groupId, description, unit);
     }
 
 }
