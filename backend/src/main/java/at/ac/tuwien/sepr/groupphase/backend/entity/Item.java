@@ -57,6 +57,7 @@ public class Item {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "recipe_id")
     @JsonIgnore
+    @ToString.Exclude
     private Recipe recipe;
 }
 
