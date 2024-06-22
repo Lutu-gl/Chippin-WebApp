@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class DebtServiceImpl implements DebtService {
             }
 
             BigDecimal amount = (BigDecimal) result[1];
-            participantsMap.put(participantEmail, amount.doubleValue());
+            BigDecimal roundedAmount = amount.setScale(2, RoundingMode.HALF_UP);
+            participantsMap.put(participantEmail, roundedAmount.doubleValue());
         }
 
         return DebtGroupDetailDto.builder()

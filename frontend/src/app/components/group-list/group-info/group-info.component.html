@@ -101,14 +101,14 @@
              [(ngModel)]="groupForEditModal.groupName"
              #groupName="ngModel"
              type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
-             required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$"
+             required pattern="^[a-zA-Z0-9][a-zA-Z0-9 ]*$"
              maxlength="20"
       >
       <div *ngIf="groupName.touched && groupName.errors?.required" class="text-red-500 text-xs">
         Group name is required.
       </div>
       <div *ngIf="groupName.touched && groupName.errors?.pattern" class="text-red-500 text-xs">
-        Group name must only contain letters, numbers, and spaces.
+        Group name must only contain letters, numbers, spaces and start with a letter or number.
       </div>
       <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
         Group name must not have over 20 characters.
@@ -135,6 +135,7 @@
       <label for="inputMembers" class="font-medium w-64">Add new Members</label>
       <p-autoComplete
         [(ngModel)]="currentlySelected"
+        #inputSelection="ngModel"
         name="currentlySelected"
         [suggestions]="filteredFriendsEdit"
         (completeMethod)="filterMembersEdit($event)"

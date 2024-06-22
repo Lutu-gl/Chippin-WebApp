@@ -725,7 +725,7 @@ export class GroupInfoComponent implements OnInit {
     this.confirmationService.confirm({
       key: 'leaveGroup',
       header: 'Attention!',
-      message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
+      message: `All the Expenses and Payments you are part of get archived and will not be editable again.<br>With leaving all information about debts and expenses with the members in the group will be lost.<br><br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',

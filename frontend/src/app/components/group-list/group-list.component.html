@@ -27,18 +27,23 @@
     <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
       Group name must not have over 20 characters.
     </div>
-
-    <label for="inputMembers" class="font-medium w-64">Members</label>
+    <br>
+    <label for="inputMembers" class="font-medium w-64">Add up to 15 members</label>
     <p-autoComplete
       [(ngModel)]="currentlySelected"
+      #inputSelection="ngModel"
       name="currentlySelected"
       [suggestions]="filteredFriends"
       (completeMethod)="filterMembers($event)"
       (onSelect)="addMember($event)"
       [dropdown]="true"
+      [disabled]="membersEmails.length > 15"
       [forceSelection]="friends"
       id = "inputMembers"
     />
+    <div *ngIf="membersEmails.length <= 1" class="text-red-500 text-xs">
+      Please add at least one new member
+    </div>
 
 
     <div>

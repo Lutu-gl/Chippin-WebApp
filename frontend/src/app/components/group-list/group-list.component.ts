@@ -112,9 +112,6 @@ export class GroupListComponent implements OnInit {
 
   public onSubmitModal(form: NgForm): void {
     var memberGroupSaved = JSON.parse(JSON.stringify(this.group.members));
-    console.log(this.group.members)
-    console.log(this.membersEmails)
-    console.log(this.membersEmailsEdit)
 
     if (form.valid) {
       let observable: Observable<GroupDto>;
