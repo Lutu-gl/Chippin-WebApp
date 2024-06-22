@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
@@ -49,6 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -82,6 +86,9 @@ public class GroupEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @MockBean
+    private SecurityService securityService;
+
     @AfterEach
     public void afterEach() {
         userRepository.deleteAll();
@@ -94,6 +101,7 @@ public class GroupEndpointTest implements TestData {
 
     @Test
     @Rollback
+    @WithMockUser("user1GE@example.com")
     @Transactional
     public void whenUpdateGroup_withValidData_MemberLeaves_thenAllExpensesAndPaymentsMarkedAsArchived() throws Exception {
         userRepository.deleteAll();
@@ -107,6 +115,9 @@ public class GroupEndpointTest implements TestData {
                 .build();
 
         String body = objectMapper.writeValueAsString(groupUpdateDto);
+
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
 
         String res = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/group/%d", savedGroup.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,6 +153,7 @@ public class GroupEndpointTest implements TestData {
 
     @Test
     @Rollback
+    @WithMockUser("user1GE@example.com")
     @Transactional
     public void whenUpdateGroup_withValidData_MemberLeaves_thenCorrect() throws Exception {
         userRepository.deleteAll();
@@ -157,6 +169,9 @@ public class GroupEndpointTest implements TestData {
 
         userRepository.save(user1);
         userRepository.save(user2);
+
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
 
         GroupEntity group = GroupEntity.builder().groupName("NewGroup").users(new HashSet<>(Arrays.asList(user1, user2))).build();
         Pantry pantry = Pantry.builder().group(group).build();
@@ -188,6 +203,7 @@ public class GroupEndpointTest implements TestData {
 
     @Test
     @Rollback
+    @WithMockUser("user1GE@example.com")
     @Transactional
     public void whenUpdateGroup_withValidData_TwoMemberLeaves_thenCorrect() throws Exception {
         userRepository.deleteAll();
@@ -204,6 +220,9 @@ public class GroupEndpointTest implements TestData {
         userRepository.save(user1);
         userRepository.save(user2);
 
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
+
         GroupEntity group = GroupEntity.builder().groupName("NewGroup").users(new HashSet<>(Arrays.asList(user1, user2))).build();
         Pantry pantry = Pantry.builder().group(group).build();
         group.setPantry(pantry);
@@ -217,8 +236,7 @@ public class GroupEndpointTest implements TestData {
 
         String res = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/group/%d", savedGroup.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
+                .content(body))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
 
@@ -235,6 +253,7 @@ public class GroupEndpointTest implements TestData {
 
     @Test
     @Rollback
+    @WithMockUser("user1GE@example.com")
     @Transactional
     public void whenUpdateGroup_withValidData_thenStatus200() throws Exception {
         userRepository.deleteAll();
@@ -261,6 +280,9 @@ public class GroupEndpointTest implements TestData {
                 .build();
 
         String body = objectMapper.writeValueAsString(groupUpdateDto);
+
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
 
         String res = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/api/v1/group/%d", savedGroup.getId()))
                 .contentType(MediaType.APPLICATION_JSON)

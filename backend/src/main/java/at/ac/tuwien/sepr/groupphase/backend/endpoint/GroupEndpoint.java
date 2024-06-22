@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,7 @@ public class GroupEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.isGroupMember(#id)")
     @GetMapping("{id}")
     public GroupCreateDto getById(@PathVariable("id") long id) throws NotFoundException {
         LOGGER.trace("getById({})", id);
@@ -61,6 +63,7 @@ public class GroupEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.isGroupMember(#id)")
     @PutMapping("{id}")
     public GroupCreateDto updateGroup(@PathVariable("id") long id, @RequestBody GroupCreateDto groupCreateDto) throws ValidationException, ConflictException {
         LOGGER.trace("updateGroup({}, {})", id, groupCreateDto);
@@ -74,6 +77,7 @@ public class GroupEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.isGroupMember(#id)")
     @GetMapping("{id}/expenses")
     public List<ExpenseDetailDto> getAllExpensesById(@PathVariable("id") long id) throws NotFoundException {
         LOGGER.trace("getAllExpensesById({})", id);
@@ -82,6 +86,7 @@ public class GroupEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.isGroupMember(#id)")
     @GetMapping("{id}/payments")
     public List<PaymentDto> getAllPaymentsById(@PathVariable("id") long id) throws NotFoundException {
         LOGGER.trace("getAllPaymentsById({})", id);
