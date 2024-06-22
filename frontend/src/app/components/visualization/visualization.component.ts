@@ -44,6 +44,8 @@ export class VisualizationComponent implements OnInit {
   expenses: ExpenseDetailDto[];
   // documentStyle: any;
 
+  minimumExpensesSatisfied = false;
+
   // different data sets for visualization
   personExpensePayedMap = new Map<string, number>();
 
@@ -140,8 +142,14 @@ export class VisualizationComponent implements OnInit {
           }
         })
 
+
         if(!this.rangeDates) {
           this.rangeDates = [this.minDate, this.today];
+        }
+
+        if (res.length <= 10) {
+          this.minimumExpensesSatisfied = false;
+          return;
         }
 
         //filter date
