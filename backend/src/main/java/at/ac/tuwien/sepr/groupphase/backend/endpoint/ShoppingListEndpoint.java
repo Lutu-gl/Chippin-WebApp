@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -162,6 +164,17 @@ public class ShoppingListEndpoint {
     public void deleteCheckedItems(@PathVariable Long userId, @PathVariable Long shoppingListId) {
         log.trace("deleteCheckedItems({}, {})", userId, shoppingListId);
         shoppingListService.deleteCheckedItems(shoppingListId);
+    }
+
+    /**
+     * Retrieve the amount of a specific item that is in all the shopping lists of a group combined.
+     */
+    @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.isGroupMember(#groupId)")
+    @GetMapping("/groups/{groupId}/shopping-lists/item-amount")
+    public Long getAmountOfItemInGroupShoppingLists(@PathVariable Long groupId, @RequestParam String description, @RequestParam Unit unit) {
+        log.trace("getAmountOfItemInGroupShoppingLists({}, {}, {})", groupId, description, unit);
+        return shoppingListService.getAmountOfItemInGroupShoppingLists(groupId, description, unit);
     }
 
 }
