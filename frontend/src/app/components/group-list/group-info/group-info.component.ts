@@ -128,7 +128,8 @@ export class GroupInfoComponent implements OnInit {
     console.log("closeCreateBudgetDialog")
     this.isBudgetDialogVisible = false;
     this.budgetDialogMode = BudgetCreateEditMode.info;
-    this.ngOnInit();
+    this.getGroupBudgets();
+    // this.ngOnInit();
   }
 
   closeImportDialog(): void {
@@ -188,8 +189,9 @@ export class GroupInfoComponent implements OnInit {
     console.log('Modal closed');
     // Perform any additional actions you need here
     this.budgetDialogMode = BudgetCreateEditMode.info;
-    console.log(this.budgetDialogMode)
     this.isBudgetDialogVisible = false;
+    this.getGroupBudgets();
+    this.budgetCreateComponent.resetState();
 
   }
 
@@ -264,7 +266,7 @@ export class GroupInfoComponent implements OnInit {
     this.budgetDialogMode = BudgetCreateEditMode.info;
     this.budgetDialogBudgetId = budgetId;
     this.isBudgetDialogVisible = true;
-    this.budgetCreateComponent.resetState();
+    // this.budgetCreateComponent.resetState();
   }
 
   public budgetModeIsCreate(): boolean {
@@ -430,16 +432,28 @@ export class GroupInfoComponent implements OnInit {
   getGroupBudgets(): void {
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
+    console.log("budgets werden geladen")
     this.groupService.getGroupBudgets(id)
       .subscribe(budgets => {
         this.budgets = budgets;
+        console.log(budgets)
         this.budgets.forEach(budget => {
           budget.daysUntilReset = this.calculateDaysUntilReset(budget.timestamp);
         });
-        console.log(budgets)
       }, error => {
         console.error('Failed to load budgets', error);
       });
+  }
+
+  getRemainingBudget(budget: any): number {
+
+    const remaining = budget.amount - budget.alreadySpent;
+
+    if (remaining < 0) {
+        return 0;
+    }
+
+    return remaining; 
   }
 
   calculateDaysUntilReset(timestamp: string): number {

@@ -216,6 +216,10 @@
     <div
     *ngIf="budgetModeIsCreate()"
     class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
+    <div
+    *ngIf="!budgetModeIsCreate()"
+    class="text-2xl font-bold">Budget Info<span class="text-gray-700"></span></div>
+ 
   </p-header>
 
   <app-budget-create
@@ -639,7 +643,8 @@
         <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
           <a class="text-black rounded-md outline outline-1 outline-slate-300">
             <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
-              <div class="text-sm text-gray-600">{{budget.daysUntilReset}} day(s) until reset</div>
+              <div class="text-sm text-gray-600">{{budget.daysUntilReset}} day(s) until reset -  
+                {{getRemainingBudget(budget) | currency: 'EUR'}} left</div>
               <p-progressBar
                 [value]="getBudgetPercentage(budget)"
                 [ngClass]="getProgressBarColor(budget)"
