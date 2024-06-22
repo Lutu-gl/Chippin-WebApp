@@ -480,6 +480,12 @@
       </div>
     </div>
 
+    <div *ngIf="transactionsActivities.length === 0" class="flex flex-col items-center gap-4">
+      <br>
+      <div class="text-lg font-bold">No activities yet</div>
+      <div class="text-gray-500">Switch to transactions to get started</div>
+    </div>
+
     <div class="space-y-4">
       <div *ngFor="let transaction of getTransactionActivitiesVarSortedAndPaginated()">
 
@@ -506,7 +512,7 @@
 
       </div>
 
-      <p-paginator [rows]="activitiesPaginationCount" [totalRecords]="getTransactionActivitiesVarSorted().length" (onPageChange)="paginateActivities($event)"></p-paginator>
+      <p-paginator *ngIf="transactionsActivities.length > 0" [rows]="activitiesPaginationCount" [totalRecords]="getTransactionActivitiesVarSorted().length" (onPageChange)="paginateActivities($event)"></p-paginator>
 
     </div>
   </div>
@@ -542,6 +548,13 @@
         <input (keyup)="searchTransactionsChanged($event)" type="text" placeholder="Search transactions..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
       </div>
     </div>
+
+    <div *ngIf="expenses.length === 0 && payments.length === 0" class="flex flex-col items-center gap-4">
+        <br>
+        <div class="text-lg font-bold">No transactions yet</div>
+        <div class="text-gray-500">Create a new transactions to get started</div>
+    </div>
+
 
     <div class="space-y-4">
       <div *ngFor="let transaction of getTransactionVarSortedWithoutDeletedAndPaginated()">
@@ -583,7 +596,7 @@
 
       </div>
 
-      <p-paginator [rows]="transactionsPaginationCount" [totalRecords]="getTransactionVarSortedWithoutDeleted().length" (onPageChange)="paginateTransactions($event)"></p-paginator>
+      <p-paginator *ngIf="expenses.length > 0 || payments.length > 0" [rows]="transactionsPaginationCount" [totalRecords]="getTransactionVarSortedWithoutDeleted().length" (onPageChange)="paginateTransactions($event)"></p-paginator>
 
     </div>
   </div>
@@ -636,6 +649,13 @@
           <span class="text-xl mr-2">+</span> Add Budget
         </button>
       </div>
+
+      <div *ngIf="budgets.length === 0" class="flex flex-col items-center gap-4">
+        <br>
+        <div class="text-lg font-bold">No budgets yet</div>
+        <div class="text-gray-500">Create a new budget to get started</div>
+      </div>
+
       <div class="overflow-y-auto overflow-x-hidden">
         <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
           <a class="text-black rounded-md outline outline-1 outline-slate-300">

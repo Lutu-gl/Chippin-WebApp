@@ -559,7 +559,6 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
     return transactions;
   }
 
