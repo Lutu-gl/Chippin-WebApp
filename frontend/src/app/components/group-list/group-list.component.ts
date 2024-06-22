@@ -176,22 +176,6 @@ export class GroupListComponent implements OnInit {
     this.membersEmails.push(member.value);
   }
 
-  public addMemberEdit(member: AutoCompleteSelectEvent) {
-    setTimeout(() => {
-      this.currentlySelected = ""
-    });
-
-    if (!member.value) return;
-    if (this.membersEmailsEdit.includes(member.value)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `${member.value} is already in participant list`
-      });
-      return;
-    }
-    this.membersEmailsEdit.push(member.value);
-  }
 
   public removeMember(index: number) {
     if (this.authService.getEmail() == this.membersEmails[index]) {
@@ -202,14 +186,6 @@ export class GroupListComponent implements OnInit {
     this.membersEmails.splice(index, 1);
   }
 
-  public removeMemberEdit(index: number) {
-    if (this.authService.getEmail() == this.membersEmailsEdit[index]) {
-      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
-      return;
-    }
-
-    this.membersEmailsEdit.splice(index, 1);
-  }
 
   filterMembers(event: AutoCompleteCompleteEvent) {
 
@@ -226,21 +202,6 @@ export class GroupListComponent implements OnInit {
     this.filteredFriends = filtered;
   }
 
-  filterMembersEdit(event: AutoCompleteCompleteEvent) {
-
-    let filtered: any[] = [];
-    let query = event.query;
-
-    for (let i = 0; i < (this.friendsEdit as any[]).length; i++) {
-      let friend = (this.friendsEdit as any[])[i];
-      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-        filtered.push(friend);
-      }
-    }
-
-    this.filteredFriendsEdit = filtered;
-  }
-
   getMembersEmail(): string[] {
     return this.membersEmails;
   }
@@ -253,15 +214,6 @@ export class GroupListComponent implements OnInit {
     return this.group.members.sort((a, b) => a.localeCompare(b));
   }
 
-  // return only the members that are not in the group yet
-  getMembersEmailEdit(): string[] {
-    return this.membersEmailsEdit;
-    // return this.membersEmails.filter(member => !this.group.members.includes(member));
-  }
-  getSortedMembersEmailEdit(): string[] {
-    return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.group.members.includes(member));
-  }
-
   createNewGroupModalOpen() {
     this.createGroupModalNgOnInit();
 
@@ -272,16 +224,20 @@ export class GroupListComponent implements OnInit {
     this.createNewGroupModalVisible = true
   }
   goBack($event: MouseEvent) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to cancel the creation of the group ?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-          // this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Group creation canceled' });
-          this.group.members = [];
-          this.group.groupName = undefined;
-          this.createNewGroupModalVisible = false;
-      }
-    });
+    this.group.members = [];
+    this.group.groupName = undefined;
+    this.createNewGroupModalVisible = false;
+
+    // this.confirmationService.confirm({
+    //   message: 'Are you sure you want to cancel the creation of the group ?',
+    //   header: 'Confirm',
+    //   icon: 'pi pi-exclamation-triangle',
+    //   accept: () => {
+    //       this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Group creation canceled' });
+    //       this.group.members = [];
+    //       this.group.groupName = undefined;
+    //       this.createNewGroupModalVisible = false;
+    //   }
+    // });
   }
 }

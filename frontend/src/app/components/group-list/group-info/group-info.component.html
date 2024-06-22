@@ -146,7 +146,8 @@
 
 
       <div>
-        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-64 max-h-64 overflow-auto">
+<!--        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-64 max-h-64 overflow-auto">-->
+        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-32 max-h-64 overflow-auto">
           <div *ngFor="let member of getMembersEmailEdit(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
@@ -529,7 +530,7 @@
         <span class="text-xl mr-2">+</span> Add Expense
       </button>
     </div>
-    
+
     <div class="flex justify-center mb-4">
       <div class="relative w-full max-w-xs flex items-center">
         <span class="absolute left-3 text-gray-400">
@@ -540,10 +541,10 @@
         <input (keyup)="searchTransactionsChanged($event)" type="text" placeholder="Search transactions..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
       </div>
     </div>
-  
+
     <div class="space-y-4">
       <div *ngFor="let transaction of getTransactionVarSortedWithoutDeletedAndPaginated()">
-  
+
         <!-- For expenses -->
         <div *ngIf="isExpense(transaction)" (click)="openInfoExpenseDialog(transaction.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
           <div class="flex items-center space-x-4">
@@ -568,7 +569,7 @@
             </div>
           </div>
         </div>
-  
+
         <!-- For payments -->
         <div *ngIf="!isExpense(transaction)" (click)="openInfoPaymentDialog(transaction.id)" [ngClass]="getPaymentColor()" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
           <div class="flex items-center space-x-4">
@@ -578,15 +579,15 @@
             </div>
           </div>
         </div>
-  
+
       </div>
-  
+
       <p-paginator [rows]="transactionsPaginationCount" [totalRecords]="getTransactionVarSortedWithoutDeleted().length" (onPageChange)="paginateTransactions($event)"></p-paginator>
-  
+
     </div>
   </div>
-  
-  
+
+
 
 
 

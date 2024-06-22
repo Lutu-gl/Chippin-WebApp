@@ -729,7 +729,7 @@ export class GroupInfoComponent implements OnInit {
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
-      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      acceptButtonStyleClass: 'p-button-sm',
       accept: () => {
         this.groupService.leaveGroup(this.group).subscribe({
           next: () => {
@@ -992,6 +992,15 @@ export class GroupInfoComponent implements OnInit {
       });
       return;
     }
+    if (this.group.members.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already a member of the group`
+      });
+      return;
+    }
+
     this.membersEmailsEdit.push(member.value);
   }
 
@@ -1074,17 +1083,21 @@ export class GroupInfoComponent implements OnInit {
     this.editNewGroupModalVisible = true
   }
   goBack($event: MouseEvent) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to cancel the creation of the group ?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        // this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Group creation canceled' });
-        this.groupForEditModal.members = [];
-        this.groupForEditModal.groupName = undefined;
-        this.editNewGroupModalVisible = false;
-      }
-    });
+    this.groupForEditModal.members = [];
+    this.groupForEditModal.groupName = undefined;
+    this.editNewGroupModalVisible = false;
+
+    // this.confirmationService.confirm({
+    //   message: 'Are you sure you want to cancel the creation of the group ?',
+    //   header: 'Confirm',
+    //   icon: 'pi pi-exclamation-triangle',
+    //   accept: () => {
+    //     this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Edit of group canceled' });
+    //     this.groupForEditModal.members = [];
+    //     this.groupForEditModal.groupName = undefined;
+    //     this.editNewGroupModalVisible = false;
+    //   }
+    // });
   }
 
   paginateTransactions(event: any) {
