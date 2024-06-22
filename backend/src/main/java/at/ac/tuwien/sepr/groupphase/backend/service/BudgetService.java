@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BudgetService {
@@ -43,7 +44,7 @@ public interface BudgetService {
      * @param amount   the amount to be added
      * @param category the category of budgets
      */
-    void addUsedAmount(long groupId, double amount, Category category);
+    void addUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate);
 
     /**
      * Remove the amount of an expense which got deleted.
@@ -52,7 +53,7 @@ public interface BudgetService {
      * @param amount   the amount to be removed
      * @param category the category of budgets
      */
-    void removeUsedAmount(long groupId, double amount, Category category);
+    void removeUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate);
 
     /**
      * Delete a budget in a group.
@@ -71,5 +72,13 @@ public interface BudgetService {
      */
     Budget findByGroupIdAndBudgetId(long groupId, long budgetId);
 
-    Budget resetBudget(Budget budget);
+    /**
+     * Reset all monthly budgets.
+     */
+    void resetMonthlyBudgets();
+
+    /**
+     * Reset all weekly budgets.
+     */
+    void resetWeeklyBudgets();
 }

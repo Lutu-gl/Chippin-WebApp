@@ -59,7 +59,7 @@
       (click)="hideDialog()"/>
     <p-button
       pRipple
-      severity="info"
+      severity="success"
       label="Save"
       icon="pi pi-check"
       [text]="true"
@@ -126,7 +126,7 @@
 
           <!-- submit -->
           <div class="submit flex">
-            <p-button severity="info" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+            <p-button severity="success" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
           </div>
 
 

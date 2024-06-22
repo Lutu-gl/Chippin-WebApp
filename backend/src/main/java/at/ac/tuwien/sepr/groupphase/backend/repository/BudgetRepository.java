@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,6 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findByGroupId(Long groupId);
 
     Optional<Budget> findByIdAndGroupId(Long id, Long groupId);
+
+    List<Budget> findByResetFrequency(ResetFrequency resetFrequency);
 }

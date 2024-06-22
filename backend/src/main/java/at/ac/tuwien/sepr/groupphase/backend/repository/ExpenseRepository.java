@@ -112,4 +112,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         + "GROUP BY u.email)\n"
         + "group by em;", nativeQuery = true)
     List<Object[]> calculateBalancesExpensesAndPaymentsForUser(@Param("email") String email, @Param("groupId") Long groupId);
+
+    /**
+     * Query to get the total amount of all expenses.
+     *
+     * @return the amount of all expenses.
+     */
+    @Query("SELECT SUM(e.amount) FROM Expense e")
+    double getTotalAmountOfExpenses();
+
+    /**
+     * Query to get the count of all expenses.
+     *
+     * @return the amount of all expenses.
+     */
+    @Query("SELECT COUNT(e) FROM Expense e")
+    long count();
 }

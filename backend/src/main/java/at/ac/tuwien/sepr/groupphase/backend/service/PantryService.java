@@ -48,6 +48,14 @@ public interface PantryService {
     void deleteItem(long pantryId, long itemId);
 
     /**
+     * Deletes items in a pantry.
+     *
+     * @param pantryId the pantry id
+     * @param itemIds  the ids of the items to delete
+     */
+    void deleteItems(long pantryId, List<Long> itemIds);
+
+    /**
      * Updates an item in a pantry.
      *
      * @param item     the item to update

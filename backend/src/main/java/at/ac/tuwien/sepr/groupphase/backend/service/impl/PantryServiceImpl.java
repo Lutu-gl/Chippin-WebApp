@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -90,10 +91,19 @@ public class PantryServiceImpl implements PantryService {
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
-            PantryItem item = pantryItemRepository.getReferenceById(itemId);
+            PantryItem item = pantryItemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Pantry item with ID " + itemId + " not found"));
             pantry.removeItem(item);
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteItems(long pantryId, List<Long> itemIds) {
+        LOGGER.debug("Delete pantryItems {} in pantry with ID {}", itemIds, pantryId);
+        for (long id : itemIds) {
+            deleteItem(pantryId, id);
         }
     }
 
@@ -127,10 +137,11 @@ public class PantryServiceImpl implements PantryService {
         if (itemMergeDto.getItemToDeleteId().equals(itemMergeDto.getResult().getId())) {
             throw new ConflictException("Merging Error", List.of("Can not merge item with itself"));
         }
-        deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
+            deleteItem(pantryId, itemMergeDto.getItemToDeleteId());
             Pantry pantry = optionalPantry.get();
+            pantryItemRepository.findById(itemMergeDto.getResult().getId()).orElseThrow(() -> new NotFoundException("Item with ID " + itemMergeDto.getResult().getId() + " not found"));
             PantryItem updatedItem = PantryItem.builder()
                 .pantry(pantry)
                 .id(itemMergeDto.getResult().getId())
@@ -199,7 +210,7 @@ public class PantryServiceImpl implements PantryService {
         for (PantryItem item : pantryItems) {
             if (recipe.stream().anyMatch(o -> item.getDescription().equals(o.getDescription())
                 && item.getUnit().equals(o.getUnit()))) {
-                
+
                 result.add(item);
             }
         }

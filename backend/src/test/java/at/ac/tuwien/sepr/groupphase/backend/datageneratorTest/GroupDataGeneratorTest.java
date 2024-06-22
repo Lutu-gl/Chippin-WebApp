@@ -78,6 +78,19 @@ public class GroupDataGeneratorTest implements DataGenerator {
             ))
             .build();
         groupRepository.save(importTestGroup);
+
+        GroupEntity exportTestGroup = GroupEntity.builder()
+            .groupName("ExportTestGroup")
+            .users(Set.of(
+                userRepository.findByEmail("importUser1@example.com"),
+                userRepository.findByEmail("importUser2@example.com"),
+                userRepository.findByEmail("importUser3@example.com"),
+                userRepository.findByEmail("importUser4@example.com"),
+                userRepository.findByEmail("importUser5@example.com"),
+                userRepository.findByEmail("importUser6@example.com")
+            ))
+            .build();
+        groupRepository.save(exportTestGroup);
     }
 
     @Override

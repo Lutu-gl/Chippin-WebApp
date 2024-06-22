@@ -50,7 +50,7 @@ public class PaymentDataGeneratorTest implements DataGenerator {
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
             // spezial group where expenses are inserted manually to test (f.e. debt)
-            if (group.getGroupName().equals("groupExample0")) {
+            if (group.getGroupName().equals("groupExample0") || group.getGroupName().equals("ExportTestGroup")) {
 
                 Payment payment =
                     Payment.builder()

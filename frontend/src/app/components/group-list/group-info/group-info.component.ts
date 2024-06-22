@@ -16,7 +16,7 @@ import { BudgetDto } from '../../../dtos/budget';
 import {AuthService} from "../../../services/auth.service";
 import {PaymentService} from "../../../services/payment.service";
 import {NgForm} from "@angular/forms";
-import { BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
+import { BudgetCreateComponent, BudgetCreateEditMode } from '../../budget/budget-create/budget-create.component';
 import {PaymentCreateEditMode} from "../../payment-create/payment-create.component";
 import {ExpenseDetailDto} from "../../../dtos/expense";
 import {ExpenseService} from "../../../services/expense.service";
@@ -65,7 +65,7 @@ export class GroupInfoComponent implements OnInit {
   isDeleteDialogVisible: boolean = false;
   paymentDeleted: boolean = false;
 
-
+  @ViewChild(BudgetCreateComponent) budgetCreateComponent!: BudgetCreateComponent;
   isBudgetDialogVisible: boolean = false;
   budgetDialogMode: BudgetCreateEditMode;
   budgetDialogBudgetId: number;
@@ -78,6 +78,13 @@ export class GroupInfoComponent implements OnInit {
   importRequestLoading: boolean = false;
 
   protected readonly PaymentCreateEditMode = PaymentCreateEditMode;
+  transactionsPaginationCount: number = 10;
+  transactionsPage: number = 0;
+  transactionsSearchFilter: string = '';
+
+  activitiesPaginationCount: number = 10;
+  activitiesPage: number = 0;
+  activitiesSearchFilter: string = '';
 
   // for edit group modal
   editNewGroupModalVisible: boolean;
@@ -114,6 +121,7 @@ export class GroupInfoComponent implements OnInit {
   openCreateBudgetDialog(): void {
     this.budgetDialogMode = BudgetCreateEditMode.create;
     this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
   }
 
   closeCreateBudgetDialog(): void {
@@ -179,16 +187,21 @@ export class GroupInfoComponent implements OnInit {
   budgetModalClose() {
     console.log('Modal closed');
     // Perform any additional actions you need here
-    this.isBudgetDialogVisible = false;
     this.budgetDialogMode = BudgetCreateEditMode.info;
     console.log(this.budgetDialogMode)
+    this.isBudgetDialogVisible = false;
+
   }
 
   openCreateExpenseDialog(): void {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.create;
     this.expenseCreateComponent.resetMode();
-    // this.expenseCreateComponent.ngOnChanges(null);
+    this.expenseCreateComponent.customInit({
+      mode: ExpenseCreateEditMode.create,
+      groupId: this.group.id,
+      expenseId: undefined
+    });
   }
 
   closeCreateExpenseDialog(): void {
@@ -201,7 +214,11 @@ export class GroupInfoComponent implements OnInit {
     this.isExpenseDialogVisible = true;
     this.expenseDialogMode = ExpenseCreateEditMode.info;
     this.expenseCreateComponent.resetMode();
-    // this.expenseCreateComponent.ngOnChanges(null);
+    this.expenseCreateComponent.customInit({
+      mode: ExpenseCreateEditMode.info,
+      groupId: this.group.id,
+      expenseId: expenseId
+    });
   }
 
   expenseModalHided(): void {
@@ -243,9 +260,11 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
+    console.log(this.budgetDialogMode)
     this.budgetDialogMode = BudgetCreateEditMode.info;
     this.budgetDialogBudgetId = budgetId;
     this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
   }
 
   public budgetModeIsCreate(): boolean {
@@ -414,9 +433,22 @@ export class GroupInfoComponent implements OnInit {
     this.groupService.getGroupBudgets(id)
       .subscribe(budgets => {
         this.budgets = budgets;
+        this.budgets.forEach(budget => {
+          budget.daysUntilReset = this.calculateDaysUntilReset(budget.timestamp);
+        });
+        console.log(budgets)
       }, error => {
         console.error('Failed to load budgets', error);
       });
+  }
+
+  calculateDaysUntilReset(timestamp: string): number {
+    if(timestamp === null) return 0;
+
+    const now = new Date();
+    const resetDate = new Date(timestamp);
+    const timeDiff = resetDate.getTime() - now.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
   }
 
   getMembersWithDebtsSorted() {
@@ -502,11 +534,20 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getTransactionActivitiesVarSorted():ActivityDetailDto[] {
-    return this.transactionsActivities.sort((a, b) => {
+    let activities = this.transactionsActivities.sort((a, b) => {
       let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return bTime - aTime;
     });
+
+    activities = activities.filter(activity => activity.description.toLowerCase().includes(this.activitiesSearchFilter.toLowerCase()));
+
+    return activities;
+  }
+
+  getTransactionActivitiesVarSortedAndPaginated():ActivityDetailDto[] {
+    return this.getTransactionActivitiesVarSorted()
+      .slice(this.activitiesPage * this.activitiesPaginationCount, (this.activitiesPage + 1) * this.activitiesPaginationCount);
   }
 
   // combine expeneses and payments in one array and sort them by the date
@@ -525,7 +566,25 @@ export class GroupInfoComponent implements OnInit {
   getTransactionVarSortedWithoutDeleted() {
     let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
 
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
     transactions = transactions.filter(transaction => !transaction.deleted)
+
+    transactions = transactions.filter((transaction: any) => {
+      if (transaction.name && transaction.name.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.payerEmail && transaction.payerEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.receiverEmail && transaction.receiverEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
 
     transactions.sort((a, b) => {
       let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
@@ -535,6 +594,12 @@ export class GroupInfoComponent implements OnInit {
     //console.log(transactions)
     return transactions;
   }
+
+  getTransactionVarSortedWithoutDeletedAndPaginated() {
+    return this.getTransactionVarSortedWithoutDeleted()
+      .slice(this.transactionsPage * this.transactionsPaginationCount, (this.transactionsPage + 1) * this.transactionsPaginationCount);
+  }
+
 
   isExpense(transaction: any): boolean {
     return transaction.hasOwnProperty('category');
@@ -1020,6 +1085,22 @@ export class GroupInfoComponent implements OnInit {
         this.editNewGroupModalVisible = false;
       }
     });
+  }
+
+  paginateTransactions(event: any) {
+    this.transactionsPage = event.page;
+  }
+
+  searchTransactionsChanged(event: KeyboardEvent): void {
+    this.transactionsSearchFilter = (event.target as HTMLInputElement).value;
+  }
+
+  paginateActivities(event: any) {
+    this.activitiesPage = event.page;
+  }
+
+  searchActivitiesChanged(event: KeyboardEvent): void {
+    this.activitiesSearchFilter = (event.target as HTMLInputElement).value;
   }
 
 }

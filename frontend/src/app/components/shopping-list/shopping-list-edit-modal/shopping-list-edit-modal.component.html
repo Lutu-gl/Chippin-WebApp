@@ -1,4 +1,4 @@
-<p-dialog [(visible)]="visible" [modal]="true" (visibleChange)="hide()" [style]="{width: '40vw', height: '50vh'}">
+<p-dialog (visibleChange)="hide()" [(visible)]="visible" [modal]="true">
   <p-header>
     <h2>Shopping List</h2>
   </p-header>
@@ -9,11 +9,15 @@
     </div>
     <div>
       <label for="categories">Categories</label>
-      <p-multiSelect scrollHeight="150px" filter="false" placeholder="Select categories" id="categories" [(ngModel)]="shoppingListToEdit.categories" [options]="categories"></p-multiSelect>
+      <p-multiSelect [(ngModel)]="shoppingListToEdit.categories" [options]="categories" appendTo="body" filter="false"
+                     id="categories" placeholder="Select categories"></p-multiSelect>
     </div>
     <div pTooltip="Only the owner of the shopping list can update the group" [tooltipDisabled]="!isGroupSelectDisabled">
       <label for="group">Group</label>
-      <p-autoComplete id="group" [disabled]="isGroupSelectDisabled" forceSelection="true" [suggestions]="filteredGroups" scrollHeight="150px" optionLabel="groupName" [(ngModel)]="shoppingListToEdit.group" (completeMethod)="filterGroups($event)"
+      <p-autoComplete (completeMethod)="filterGroups($event)" [(ngModel)]="shoppingListToEdit.group" [disabled]="isGroupSelectDisabled" [suggestions]="filteredGroups"
+                      appendTo="body"
+                      forceSelection="true" id="group"
+                      optionLabel="groupName"
                       [minLength]="1" placeholder="Select a group" [dropdown]="true"></p-autoComplete>
     </div>
   </div>

@@ -50,25 +50,32 @@
         </p-dropdown>
       </div>
       <div class="field pt-5">
-        <label for="amount">Amount</label>
+        <label for="amountCreate">Amount</label>
         <p-inputNumber
-          id="amount"
+          id="amountCreate"
           [(ngModel)]="createEditItem.amount"
           [min]="0"
           [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"
           required/>
+        <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem)">Amount is merged.</small>
       </div>
       <div class="field pt-5">
         <label for="lowerLimit">Minimum</label>
         <p-inputNumber
           id="lowerLimit"
           [(ngModel)]="createEditItem.lowerLimit"
-          [min]="0"
+          [min]="1"
           [max]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 1000 : 1000000"
           [minFractionDigits]="createEditItem.unit === DisplayedUnit.Kilogram || createEditItem.unit === DisplayedUnit.Liter ? 2 : 0"
           [suffix]="getSuffixForCreateEdit(createEditItem)"/>
+        <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem) && createEditItem.lowerLimit">Lower limit is overwritten.</small>
+      </div>
+      <div class="field pt-5" *ngIf="displayMergeWarning(createEditItem)" style="color: #ffc107">
+        <i class="pi pi-exclamation-triangle"></i>
+        <small style="color: #ffc107"> Item with the same name and same unit
+          already exists. Items are merged.</small>
       </div>
     </div>
     <div *ngIf="isMergeSelected()">
@@ -107,12 +114,15 @@
             id="selectItemToMergeWith"
             [(ngModel)]="itemMergeEdit"
             (onChange)="setItemToMerge(createEditItem)"
+            [filter]="true"
+            filterBy="description"
+            placeholder="Select an item"
             [options]="mergeItemsSelectOptions(createEditItem)">
             <ng-template let-item pTemplate="item">
-              {{item.description}} {{formatAmount(item)}}
+              {{ item.description }} {{ formatAmount(item) }}
             </ng-template>
             <ng-template let-item pTemplate="selectedItem">
-              {{item.description}} {{formatAmount(item)}}
+              {{ item.description }} {{ formatAmount(item) }}
             </ng-template>
           </p-dropdown>
         </div>
@@ -166,7 +176,7 @@
               <p-inputNumber
                 id="itemToMergeWithLowerLimit"
                 [(ngModel)]="itemMergeEdit.lowerLimit"
-                [min]="0"
+                [min]="1"
                 [max]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 1000 : 1000000"
                 [minFractionDigits]="itemMergeEdit.unit === DisplayedUnit.Kilogram || itemMergeEdit.unit === DisplayedUnit.Liter ? 2 : 0"
                 [suffix]="getSuffixForCreateEdit(itemMergeEdit)"/>
@@ -211,28 +221,33 @@
     </div>
   </ng-template>
   <ng-template pTemplate="content">
-    <p-table [value]="recipes">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Recipe</th>
-          <th>Number of Ingredients</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-recipe>
-        <tr>
-          <td>
-            <button type="button" [routerLink]="['/recipe/viewer/', recipe.id]">
-              <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
-                     severity="secondary" value="{{recipe.name}}">
-              </p-tag>
-            </button>
-          </td>
-          <td>
-            {{recipe.itemsInPantry?.length}} / {{recipe.ingredients?.length}}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <div *ngIf="recipes && recipes.length !== 0">
+      <p-table [value]="recipes">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Recipe</th>
+            <th>Number of Ingredients</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-recipe>
+          <tr>
+            <td>
+              <button type="button" [routerLink]="['/recipe/viewer/', recipe.id]">
+                <p-tag styleClass="p-2 hover:shadow-md cursor-pointer" icon="pi pi-external-link"
+                       severity="secondary" value="{{recipe.name}}">
+                </p-tag>
+              </button>
+            </td>
+            <td>
+              {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div *ngIf="!recipes || recipes.length === 0">
+      <p>No recipes found.</p>
+    </div>
   </ng-template>
 </p-dialog>
 
@@ -348,13 +363,23 @@
               ></p-button>
             </td>
             <td>
-              <button type="button">
+              <div class="flex items-center gap-2">
                 <p-tag
                   [severity]="getTagSeverity(belowMinimum(item))"
                   (click)="getTagSeverity(belowMinimum(item))">
                   {{ formatLowerLimit(item) }}
                 </p-tag>
-              </button>
+                <!-- Quick add to shopping list -->
+                <p-tag
+                  class="hover:cursor-pointer"
+                  *ngIf="belowMinimum(item)"
+                  (click)="addToShoppingList(item)"
+                  pRipple
+                  pTooltip="Add to shopping list"
+                  icon="pi pi-shopping-cart"
+                  severity="info">
+                </p-tag>
+              </div>
             </td>
             <td>
               <p-button
@@ -381,3 +406,37 @@
     </div>
   </div>
 </div>
+
+<p-dialog [(visible)]="addItemToShoppingListModalOpen">
+  <p-header>Add {{ itemToAdd?.description }} to a shopping list</p-header>
+  <!-- Choose which shopping list to add the item to -->
+  <div class="flex flex-col">
+    <label for="shoppingList">Shopping List</label>
+    <p-dropdown appendTo="body" id="shoppingList" [options]="allShoppingLists" [(ngModel)]="selectedShoppingList"
+                optionLabel="name" placeholder="Select a shopping list"></p-dropdown>
+  </div>
+  <!-- Add new item (name, amount, unit) -->
+  <div class="flex flex-col gap-4 p-4" *ngIf="!!selectedShoppingList">
+    <div class="flex flex-col gap-2">
+      <label for="description">Name</label>
+      <input id="description" type="text" [(ngModel)]="itemToAdd.description" pInputText placeholder="e.g. Milk"
+             [minLength]="2"
+             [maxLength]="60">
+    </div>
+    <div class="pb-8">
+      <label for="amount">Amount</label>
+      <div class="flex pb-4">
+        <p-inputNumber [(ngModel)]="itemToAdd.amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
+                       [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+        <p-dropdown [(ngModel)]="itemToAdd.unit" [options]="unitsForItems" optionLabel="label" placeholder="Unit"
+                    [scrollHeight]="'120px'"
+                    optionValue="value"></p-dropdown>
+      </div>
+    </div>
+    <div class="flex justify-end gap-4 pb-8">
+      <p-button label="Cancel" icon="pi pi-times" (click)="addItemToShoppingListModalOpen = false"
+                severity="secondary"></p-button>
+      <p-button label="Add" icon="pi pi-plus" (click)="addItem()"></p-button>
+    </div>
+  </div>
+</p-dialog>
