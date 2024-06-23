@@ -62,15 +62,15 @@ label {
 }
 
 .public-button {
-  background-color: green;
+  background-color: #22c55e;
   color: white;
-  border: 1px solid green;
+  border: 1px solid #22c55e;
 }
 
 .private-button {
-  background-color: red;
+  background-color: #da463e;
   color: white;
-  border: 1px solid red;
+  border: 1px solid #da463e;
 }
 
 //@each $color in (info, warning, danger, success) {

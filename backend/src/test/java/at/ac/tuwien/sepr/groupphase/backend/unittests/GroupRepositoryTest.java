@@ -74,7 +74,6 @@ public class GroupRepositoryTest {
         groupRepository.save(group1);
 
         Set<GroupEntity> updatedGroups = userRepository.findGroupsByUserEmail(user.getEmail());
-        System.out.println(updatedGroups);
 
         assertAll(
             () -> assertNotNull(updatedGroups, "Groups should not be null"),
