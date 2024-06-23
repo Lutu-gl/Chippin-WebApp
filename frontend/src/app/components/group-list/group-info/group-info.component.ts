@@ -574,7 +574,16 @@ export class GroupInfoComponent implements OnInit {
       return bTime - aTime;
     });
 
-    activities = activities.filter(activity => activity.description.toLowerCase().includes(this.activitiesSearchFilter.toLowerCase()));
+    activities = activities.filter((activity: any) => {
+      if (activity.timestamp && this.formatDate(new Date(Date.parse(activity.timestamp))).includes(this.activitiesSearchFilter)) {
+        return true;
+      }
+      if (activity.description.toLowerCase().includes(this.activitiesSearchFilter.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
 
     return activities;
   }
@@ -596,6 +605,26 @@ export class GroupInfoComponent implements OnInit {
     return transactions;
   }
 
+  private formatDate(date) {
+    // Tag, Monat, Jahr, Stunden und Minuten extrahieren
+    let day = date.getDate();
+    let month = date.getMonth() + 1; // Monate sind nullbasiert
+    let year = date.getFullYear();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+  
+    // Sicherstellen, dass Tag und Monat zweistellig sind
+    day = day < 10 ? '0' + day : day;
+    month = month < 10 ? '0' + month : month;
+  
+    // Sicherstellen, dass Stunden und Minuten zweistellig sind
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+  
+    // Das Datum und die Zeit zusammenfügen
+    return `${day}.${month}.${year}, ${hours}:${minutes}`;
+  }
+
   getTransactionVarSortedWithoutDeleted() {
     let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
 
@@ -606,6 +635,9 @@ export class GroupInfoComponent implements OnInit {
     transactions = transactions.filter(transaction => !transaction.deleted)
 
     transactions = transactions.filter((transaction: any) => {
+      if (transaction.date && this.formatDate(new Date(Date.parse(transaction.date))).includes(this.transactionsSearchFilter)) {
+        return true;
+      }
       if (transaction.name && transaction.name.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
         return true;
       }

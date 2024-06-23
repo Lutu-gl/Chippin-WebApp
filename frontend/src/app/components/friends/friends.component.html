@@ -10,8 +10,8 @@
     </div>
   </div>
   <p-footer>
+    <p-button label="Cancel" (click)="closeAddFriendDialog()"></p-button>
     <p-button label="Send"  (click)="sendFriendRequest()"></p-button>
-    <p-button label="Cancel" severity="secondary" (click)="closeAddFriendDialog()"></p-button>
   </p-footer>
 </p-dialog>
 
@@ -19,7 +19,6 @@
 <p-dialog
   [(visible)]="isFriendInfoDialogVisible"
   [modal]="true"
-  [style]="{with: '5000px'}"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [style]="{ width: '50vw' }"
   [draggable]="false"
