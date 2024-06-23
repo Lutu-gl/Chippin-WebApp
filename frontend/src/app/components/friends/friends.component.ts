@@ -54,6 +54,26 @@ export class FriendsComponent implements OnInit {
     this.friendshipService.getFriendsWithDebtInfos().subscribe({
       next: async (data) => {
         this.friends = data;
+
+        this.friends.sort((a, b) => {
+          if (a.totalAmount === 0 && b.totalAmount !== 0) {
+            return 1;
+          } else if (b.totalAmount === 0 && a.totalAmount !== 0) {
+            return -1;
+          }
+
+          if (a.totalAmount < 0 && b.totalAmount < 0) {
+            return a.totalAmount - b.totalAmount;
+          }
+
+          if (a.totalAmount === b.totalAmount) {
+            return a.email.localeCompare(b.email);
+          } else {
+            return b.totalAmount - a.totalAmount;
+          }
+        });
+
+
         this.responseReceived = true;
       },
       error: (e) => {

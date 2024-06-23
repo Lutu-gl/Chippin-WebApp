@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
-
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExchangeRateRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,7 @@ public class ExchangeRateDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        LOGGER.debug("generating data for exchangeRate");
+        LOGGER.trace("generating data for exchangeRate");
         rates.put("EUR", 1.0);
         rates.put("AED", 3.9826);
         rates.put("AFN", 77.6785);

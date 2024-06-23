@@ -15,12 +15,15 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
 public class FriendshipDataGenerator implements DataGenerator {
+    private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     UserRepository userRepository;
@@ -30,20 +33,24 @@ public class FriendshipDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        LOGGER.debug("generating data for friendships");
+        LOGGER.trace("generating data for friendships");
         List<GroupEntity> groups = groupRepository.findAll();
 
         for (GroupEntity group : groups) {
             Set<ApplicationUser> users = group.getUsers();
-            for (int i = 0; i < users.size(); i++) {
-                for (int j = i + 1; j < users.size(); j++) {
-                    ApplicationUser user = (ApplicationUser) users.toArray()[i];
-                    ApplicationUser user2 = (ApplicationUser) users.toArray()[j];
+            List<ApplicationUser> sortedUsers = users.stream()
+                .sorted(Comparator.comparing(ApplicationUser::getEmail))
+                .collect(Collectors.toList());
+
+            for (int i = 0; i < sortedUsers.size(); i++) {
+                for (int j = i + 1; j < sortedUsers.size(); j++) {
+                    ApplicationUser user = sortedUsers.get(i);
+                    ApplicationUser user2 = sortedUsers.get(j);
 
                     Friendship friendship = Friendship.builder()
                         .sender(user)
                         .receiver(user2)
-                        .sentAt(LocalDateTime.now())
+                        .sentAt(fixedDateTime)
                         .friendshipStatus(FriendshipStatus.ACCEPTED)
                         .build();
 
@@ -55,7 +62,7 @@ public class FriendshipDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for friendships");
+        LOGGER.trace("cleaning data for friendships");
         friendshipRepository.deleteAll();
     }
 }
