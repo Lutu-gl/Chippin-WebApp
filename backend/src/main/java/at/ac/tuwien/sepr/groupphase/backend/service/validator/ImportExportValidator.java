@@ -40,7 +40,7 @@ public class ImportExportValidator {
 
     public void validateSplitwiseFirstLine(List<String> fields) throws ValidationException {
         if (fields.size() < 5) {
-            throw new ValidationException("Validation for import failed!", List.of("File does not contain the required fields Date, Description, Category, Cost and Currency", "This is just a test"));
+            throw new ValidationException("Validation for import failed!", List.of("File does not contain the required fields Date, Description, Category, Cost and Currency"));
         }
         List<String> validationErrors = new ArrayList<>();
         if (!fields.get(0).equals("Date")) {

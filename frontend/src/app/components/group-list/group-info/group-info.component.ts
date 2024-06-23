@@ -42,6 +42,7 @@ export class GroupInfoComponent implements OnInit {
   debt: DebtGroupDetailDto = { userEmail: '', groupId: 0, membersDebts: {} };
   membersWithDebts: any[] = [];
   membersWithDebtsWithoutEven: any[] = [];
+  membersWithDebtsOnlyNegative: any[] = [];
   maxDebt: number = 0;
   transactionsActivities: ActivityDetailDto[] = [];
 
@@ -388,7 +389,28 @@ export class GroupInfoComponent implements OnInit {
       console.log(debt);
       this.debt = debt;
       this.membersWithDebts = Object.entries(debt.membersDebts);
+      this.membersWithDebts.sort((a, b) => {
+        if (a[1] === 0 && b[1] !== 0) {
+          return 1;
+        } else if (b[1] === 0 && a[1] !== 0) {
+          return -1;
+        }
 
+        if (a[1] < 0 && b[1] < 0) {
+          return a[1] - b[1];
+        }
+
+        if (a[1] === b[1]) {
+          return a[0].localeCompare(b[0]);
+        } else {
+          return b[1] - a[1];
+        }
+      });
+
+
+
+      this.membersWithDebtsOnlyNegative = this.membersWithDebts.filter(([_, amount]) => amount < 0);
+      this.membersWithDebtsOnlyNegative;
      // add to debtMembers only the members that have a debt which is negative
       this.debtMembers = this.membersWithDebts.filter(([_, amount]) => amount < 0).map(([member, _]) => member);
 
@@ -449,7 +471,7 @@ export class GroupInfoComponent implements OnInit {
         return 0;
     }
 
-    return remaining; 
+    return remaining;
   }
 
   calculateDaysUntilReset(timestamp: string): number {
@@ -462,23 +484,25 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getMembersWithDebtsSorted() {
-    return this.membersWithDebts.sort((a, b) => {
-      if (a[1] < 0 && b[1] > 0) {
-        return -1;
-      } else if (a[1] > 0 && b[1] < 0) {
-        return 1;
-      } else if (a[1] === 0 && b[1] !== 0) {
-        return 1;
-      } else if (a[1] !== 0 && b[1] === 0) {
-        return -1;
-      } else {
-        return a[0].localeCompare(b[0]);
-      }
-    });
+    // return this.membersWithDebts.sort((a, b) => {
+    //   if (a[1] < 0 && b[1] > 0) {
+    //     return -1;
+    //   } else if (a[1] > 0 && b[1] < 0) {
+    //     return 1;
+    //   } else if (a[1] === 0 && b[1] !== 0) {
+    //     return 1;
+    //   } else if (a[1] !== 0 && b[1] === 0) {
+    //     return -1;
+    //   } else {
+    //     return a[0].localeCompare(b[0]);
+    //   }
+    // });
+    console.log(this.membersWithDebts)
+    return this.membersWithDebts;
   }
 
   getMembersOnlyNegativeDebts() {
-    return this.membersWithDebts.filter(([_, amount]) => amount < 0);
+    return this.membersWithDebtsOnlyNegative;
   }
 
   calcChartHeight(amount): string {
@@ -569,7 +593,6 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
     return transactions;
   }
 
@@ -731,7 +754,7 @@ export class GroupInfoComponent implements OnInit {
     this.confirmationService.confirm({
       key: 'leaveGroup',
       header: 'Attention!',
-      message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
+      message: `All the Expenses and Payments you are part of get archived and will not be editable again.<br>With leaving all information about debts and expenses with the members in the group will be lost.<br><br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
@@ -1104,6 +1127,7 @@ export class GroupInfoComponent implements OnInit {
 
   searchTransactionsChanged(event: KeyboardEvent): void {
     this.transactionsSearchFilter = (event.target as HTMLInputElement).value;
+    this.transactionsPage = 0;
   }
 
   paginateActivities(event: any) {
@@ -1112,6 +1136,7 @@ export class GroupInfoComponent implements OnInit {
 
   searchActivitiesChanged(event: KeyboardEvent): void {
     this.activitiesSearchFilter = (event.target as HTMLInputElement).value;
+    this.activitiesPage = 0;
   }
 
 }

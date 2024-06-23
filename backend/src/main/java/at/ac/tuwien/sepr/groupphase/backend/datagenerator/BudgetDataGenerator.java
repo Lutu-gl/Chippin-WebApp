@@ -22,6 +22,8 @@ import java.util.Random;
 @Component
 @AllArgsConstructor
 public class BudgetDataGenerator implements DataGenerator {
+    private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final GroupRepository groupRepository;
@@ -30,7 +32,7 @@ public class BudgetDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for budgets");
+        LOGGER.trace("generating data for budgets");
 
         List<GroupEntity> groups = groupRepository.findAll();
         Random random = new Random();
@@ -41,8 +43,7 @@ public class BudgetDataGenerator implements DataGenerator {
         };
 
         Category[] categories = Category.values();
-        LocalDateTime today = LocalDateTime.now();
-        LocalDateTime firstOfMonth = today.with(TemporalAdjusters.firstDayOfNextMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime firstOfMonth = fixedDateTime.with(TemporalAdjusters.firstDayOfNextMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         List<Expense> expenses;
 
@@ -135,7 +136,7 @@ public class BudgetDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for budgets");
+        LOGGER.trace("cleaning data for budgets");
         budgetRepository.deleteAll();
     }
 }

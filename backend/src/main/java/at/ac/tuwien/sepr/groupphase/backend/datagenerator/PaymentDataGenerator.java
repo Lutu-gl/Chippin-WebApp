@@ -23,6 +23,7 @@ import java.util.Random;
 @Component
 @AllArgsConstructor
 public class PaymentDataGenerator implements DataGenerator {
+    private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     ExpenseRepository expenseRepository;
@@ -34,7 +35,7 @@ public class PaymentDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        LOGGER.debug("generating data for payment");
+        LOGGER.trace("generating data for payment");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
 
@@ -49,7 +50,7 @@ public class PaymentDataGenerator implements DataGenerator {
             }
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
-            // spezial group where expenses are inserted manually to test (f.e. debt)
+            // special group where expenses are inserted manually to test (f.e. debt)
             if (group.getGroupName().equals("Chippin")) {
 
                 Payment payment =
@@ -57,7 +58,7 @@ public class PaymentDataGenerator implements DataGenerator {
                         .payer(usersInGroup.get(1))
                         .receiver(usersInGroup.get(0))
                         .amount(20.0)
-                        .date(LocalDateTime.now())
+                        .date(fixedDateTime.minus(8, java.time.temporal.ChronoUnit.DAYS))
                         .group(group)
                         .deleted(false)
                         .archived(false)
@@ -66,8 +67,8 @@ public class PaymentDataGenerator implements DataGenerator {
                 Payment paymentDeleted = Payment.builder()
                     .payer(usersInGroup.get(0))
                     .receiver(usersInGroup.get(1))
-                    .amount(420.0)
-                    .date(LocalDateTime.now())
+                    .amount(50.0)
+                    .date(fixedDateTime.minus(10, java.time.temporal.ChronoUnit.DAYS))
                     .group(group)
                     .deleted(true)
                     .archived(false)
@@ -91,7 +92,7 @@ public class PaymentDataGenerator implements DataGenerator {
                 .payer(user1)
                 .receiver(user2)
                 .amount(amount)
-                .date(LocalDateTime.now())
+                .date(fixedDateTime)
                 .group(group)
                 .deleted(false)
                 .archived(false)
@@ -103,7 +104,7 @@ public class PaymentDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for payment");
+        LOGGER.trace("cleaning data for payment");
         paymentRepository.deleteAll();
     }
 

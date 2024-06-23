@@ -20,7 +20,7 @@ public class ItemDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for items");
+        LOGGER.trace("generating data for items");
 
         Item item1 = Item.builder().description("Ground Beef").unit(Unit.Gram).amount(400).build();
         Item item2 = Item.builder().description("Onion").unit(Unit.Piece).amount(1).build();
@@ -57,7 +57,7 @@ public class ItemDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for items");
+        LOGGER.trace("cleaning data for items");
         itemRepository.deleteAll();
     }
 }

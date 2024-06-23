@@ -44,6 +44,8 @@ export class VisualizationComponent implements OnInit {
   expenses: ExpenseDetailDto[];
   // documentStyle: any;
 
+  minimumExpensesSatisfied = true;
+
   // different data sets for visualization
   personExpensePayedMap = new Map<string, number>();
 
@@ -140,8 +142,16 @@ export class VisualizationComponent implements OnInit {
           }
         })
 
+
         if(!this.rangeDates) {
           this.rangeDates = [this.minDate, this.today];
+        }
+
+        if (res.length > 10) {
+          this.minimumExpensesSatisfied = true;
+        } else {
+          this.minimumExpensesSatisfied = false;
+          return
         }
 
         //filter date
@@ -153,6 +163,9 @@ export class VisualizationComponent implements OnInit {
         this.formatDataExpensesPayedPerPersonCash()
         this.formatDataAmountSpendPerPerson()
         this.formatDataForExpensesPerUserPerMonth()
+
+        console.log(this.charts.length)
+        console.log(this.minimumExpensesSatisfied)
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -226,7 +239,7 @@ export class VisualizationComponent implements OnInit {
               if (value == 0 || value == '0') {
                 return ''
               }
-              return `${label}: ${value}`;
+              return `${label}: ${value} €`;
             }
           }
         },
@@ -291,10 +304,12 @@ export class VisualizationComponent implements OnInit {
   }
 
   private getDescriptionForExpensesMadePerPerson() {
-    let map = this.personExpensePayedMap;
+    // let map = this.personExpensePayedMap;
+    //
+    // let string = "This graph shows the amount of expenses each person has payed in each category <br>" +
+    //   "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
 
-    let string = "This graph shows the amount of expenses each person has payed in each category <br>" +
-      "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
+    let string = "This graph shows the number of expenses each person has payed in each category."
 
     return string;
   }
@@ -353,7 +368,7 @@ export class VisualizationComponent implements OnInit {
               if (value == 0 || value == '0') {
                 return ''
               }
-              return `${label}: ${value}`;
+              return `${label}: ${value} €`;
             }
           }
         },
@@ -417,10 +432,13 @@ export class VisualizationComponent implements OnInit {
   }
 
   private getDescriptionForExpensesMadePerPersonCash() {
-    let map = this.personExpensePayedMapCash;
+    // let map = this.personExpensePayedMapCash;
 
-    let string = "This graph shows the amount of money each person has spent in each category <br>" +
-      "The person who has spent the most money in total is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "€</strong> spent."
+    // let string = "This graph shows the amount of money each person has spent in each category <br>" +
+    //   "The person who has spent the most money in total is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "€</strong> spent."
+
+    let string = "This graph shows the amount of money a person who made a payment has spend in each category."
+
 
     return string;
   }
@@ -535,6 +553,16 @@ export class VisualizationComponent implements OnInit {
       maintainAspectRatio: false,
       responsive: true,
       plugins: {
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: function(tooltipItem) {
+              let label = tooltipItem.dataset.label || '';
+              let value = tooltipItem.raw;
+              return `Amount: ${value} €`;
+            }
+          }
+        },
         legend: {
           labels: {
             color: this.textColor
@@ -584,9 +612,11 @@ export class VisualizationComponent implements OnInit {
   }
 
   getDescriptionForSpendEuroInCategory(data, labels) {
-    let string = "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
-      + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
-      + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
+    // let string = "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
+    //   + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
+    //   + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
+
+    let string = "This graph shows the amount of money spent in each category."
 
     return string;
   }
@@ -645,7 +675,7 @@ export class VisualizationComponent implements OnInit {
               if (value == 0 || value == '0') {
                 return ''
               }
-              return `${label}: ${value}`;
+              return `${label}: ${value} €`;
             }
           }
         },
@@ -710,7 +740,7 @@ export class VisualizationComponent implements OnInit {
   getDescriptionForAmountSpendPerPerson() {
     let map = this.personExpensePayedMapCash;
 
-    let string = "This graph shows the amount of money each person has spent in each category"
+    let string = "This graph shows the amount of money each person has spent in each category."
     return string;
   }
 
@@ -746,29 +776,61 @@ export class VisualizationComponent implements OnInit {
 
     graphData = {labels, datasets};
     graphOptions = {
-      responsive: true,
+      maintainAspectRatio: true,
+      responsive: false,
       plugins: {
         tooltip: {
-          mode: "index",
-          intersect: false
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: function (tooltipItems) {
+              return tooltipItems[0].label;
+            },
+            label: function (context) {
+              let label = context.dataset.label;
+              let value = context.parsed.y;
+              if (value == 0) {
+                return ''
+              }
+              return `${label}: ${value} €`;
+            }
+          }
         },
         legend: {
           labels: {
             color: this.textColor
           }
-        },
-        title: {
-          display: true,
-          color: this.textColor
         }
       },
       scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+          },
+          title: {
+            display: true,
+            text: 'Months',
+            color: this.textColor
+          }
+        },
         y: {
           stacked: true,
-          beginAtZero: true,
-        },
-        x: {
-          stacked: true
+          ticks: {
+            color: this.textColorSecondary
+          },
+          grid: {
+            color: this.surfaceBorder,
+          },
+          title: {
+            display: true,
+            text: 'Amount of money spent in €',
+            color: this.textColor
+          }
         }
       }
     };
@@ -777,9 +839,8 @@ export class VisualizationComponent implements OnInit {
       data: graphData,
       options: graphOptions,
       type: "bar",
-      title: "Expenses per user per month",
-      description: `This graph shows the amount of money each user has spent per month. The x-axis represents the months and the y-axis represents the amount of money spent.<br/>
-        The monst money was spent in <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[0]}</strong> with <strong>${getHighestMonthAndSum(expensesPerUserPerMonth)[1]} €</strong>.`
+      title: "Amount of money spend per user per month",
+      description: `This graph shows the amount of money each user has spent per month.`
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
     if(chart !== -1){

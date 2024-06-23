@@ -28,7 +28,7 @@ public class GroupDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for group");
+        LOGGER.trace("generating data for group");
         final Random random = new Random();
         random.setSeed(12345);
 
@@ -81,7 +81,7 @@ public class GroupDataGenerator implements DataGenerator {
         List<ApplicationUser> wgUsers = new ArrayList<>();
 
         for (int i = 0; i < 20; i++) {
-            Collections.shuffle(applicationUsers);
+            Collections.shuffle(applicationUsers, random);
             Set<ApplicationUser> groupUsers = new HashSet<>();
 
             // retrive random group name from groupNames and remove name from the list
@@ -111,38 +111,11 @@ public class GroupDataGenerator implements DataGenerator {
 
             groupRepository.save(group);
         }
-
-        GroupEntity pantryTestGroup1 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup1);
-
-        GroupEntity pantryTestGroup2 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup2);
-
-        GroupEntity pantryTestGroup3 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup3);
     }
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for group");
+        LOGGER.trace("cleaning data for group");
         groupRepository.deleteAll();
     }
 }

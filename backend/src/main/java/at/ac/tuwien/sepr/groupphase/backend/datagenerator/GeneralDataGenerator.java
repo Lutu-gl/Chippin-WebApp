@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.ExchangeRate;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
@@ -32,7 +31,7 @@ public class GeneralDataGenerator implements DataGenerator {
 
     @PostConstruct
     public void generateData() throws AlreadyRatedException {
-        LOGGER.debug("generating all data");
+        LOGGER.trace("generating all data");
         cleanData();
         userDataGenerator.generateData();
         groupDataGenerator.generateData();
@@ -47,11 +46,11 @@ public class GeneralDataGenerator implements DataGenerator {
         exchangeRateDataGenerator.generateData();
 
         shoppingListDataGenerator.generateData();
-        LOGGER.debug("finished generating all data");
+        LOGGER.trace("finished generating all data");
     }
 
     public void cleanData() {
-        LOGGER.debug("cleaning all data");
+        LOGGER.trace("cleaning all data");
         budgetDataGenerator.cleanData();
         activityDataGenerator.cleanData();
         paymentDataGenerator.cleanData();
@@ -65,7 +64,7 @@ public class GeneralDataGenerator implements DataGenerator {
         exchangeRateDataGenerator.cleanData();
 
         userDataGenerator.cleanData();
-        LOGGER.debug("finished cleaning all data");
+        LOGGER.trace("finished cleaning all data");
     }
 
 }
