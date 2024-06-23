@@ -61,11 +61,10 @@ public class ExpenseDataGenerator implements DataGenerator {
         LOGGER.debug("generating data for expense");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
-        Random random = new Random();
-        random.setSeed(12345);
+        Random random = new Random(12345);
         Faker faker = new Faker(Locale.getDefault(), random);
 
-
+        groups.sort(Comparator.comparing(GroupEntity::getGroupName));
         Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
@@ -90,6 +89,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 }
 
                 List<ApplicationUser> participantsList = new ArrayList<>(uniqueParticipants);
+                participantsList.sort(Comparator.comparing(ApplicationUser::getEmail));
                 if (!participantsList.contains(payer)) {
                     participantsList.set(random.nextInt(3), payer);
                 }
