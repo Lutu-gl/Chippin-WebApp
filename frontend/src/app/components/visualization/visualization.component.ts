@@ -315,7 +315,7 @@ export class VisualizationComponent implements OnInit {
     // let string = "This graph shows the amount of expenses each person has payed in each category <br>" +
     //   "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
 
-    let string = "This bar chart shows the number of expenditures made by each group member in different categories. Each color in the chart represents a different spending category. The length of the bars represents the number of times each member has spent in each category."
+    let string = "This bar chart shows the number of expenditures made by each group member in different categories."
 
     return string;
   }
@@ -622,7 +622,7 @@ export class VisualizationComponent implements OnInit {
     //   + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
     //   + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
 
-    let string = "This pie chart shows the breakdown of your spending by category. Each color represents a different category. The different sections of the chart show the relative share of each spending category in the total budget."
+    let string = "This pie chart shows the breakdown of your spending by category. The different sections of the chart show the relative share of each spending category in the total budget."
 
     return string;
   }
@@ -746,7 +746,7 @@ export class VisualizationComponent implements OnInit {
   getDescriptionForAmountSpendPerPerson() {
     let map = this.personExpensePayedMapCash;
 
-    let string = "This stacked bar chart shows the spending of each group member, broken down by category. The colors of the bars correspond to different spending categories. The height of each colored segment in the bar represents the amount spent by each member in that category."
+    let string = "This stacked bar chart shows the spending of each group member, broken down by category."
     return string;
   }
 
@@ -846,7 +846,7 @@ export class VisualizationComponent implements OnInit {
       options: graphOptions,
       type: "bar",
       title: "Monthly Expenses Breakdown by Member",
-      description: `This stacked bar chart shows the monthly spending of each group member. The different colors represent different members and the height of the bars indicates the amount each member spent in each month.`
+      description: `This stacked bar chart shows the monthly spending of each group member.`
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
     if(chart !== -1){
