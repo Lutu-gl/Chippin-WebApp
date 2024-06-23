@@ -8,7 +8,7 @@
     <p class="text-xl">You need at least 5 expenses in the group to show charts</p>
   </div>
 
-  <div *ngIf="charts.length < 5 && this.minimumExpensesSatisfied" class="w-full min-h-96 flex justify-center items-center">
+  <div *ngIf="charts.length < 4 && this.minimumExpensesSatisfied" class="w-full min-h-96 flex justify-center items-center">
     <p-progressSpinner [style]="{'width': '60px'}"></p-progressSpinner>
   </div>
 
