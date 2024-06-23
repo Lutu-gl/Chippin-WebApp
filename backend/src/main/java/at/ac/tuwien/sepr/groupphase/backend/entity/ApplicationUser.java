@@ -10,11 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedEntityGraphs;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -78,6 +77,7 @@ public class ApplicationUser {
 
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Builder.Default
+    @ToString.Exclude
     private List<Recipe> recipes = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -87,6 +87,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> likedRecipes = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -97,6 +98,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> dislikedRecipes = new HashSet<>();
 
     public ApplicationUser addRecipe(Recipe recipe) {
