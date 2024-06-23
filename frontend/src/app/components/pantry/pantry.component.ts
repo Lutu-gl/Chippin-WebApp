@@ -12,7 +12,7 @@ import {
   pantryItemDetailDtoToPantryItemCreateDisplayDto,
   PantryItemMergeDto,
 } from "../../dtos/item";
-import {KeyValuePipe, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
+import {KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
@@ -47,6 +47,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {ShoppingListListDto} from "../../dtos/shoppingList";
 import {ShoppingListService} from "../../services/shopping-list.service";
 import {AuthService} from "../../services/auth.service";
+import {BadgeModule} from "primeng/badge";
 
 @Component({
   selector: 'app-pantry',
@@ -75,7 +76,9 @@ import {AuthService} from "../../services/auth.service";
     TabMenuModule,
     NgClass,
     AutoCompleteModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BadgeModule,
+    NgStyle
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
@@ -126,6 +129,22 @@ export class PantryComponent implements OnInit {
     };
     this.tabMenuActiveItem = event;
     this.itemMergeEditReset = {...this.itemMergeEdit};
+  }
+
+  getIngredientAmount(recipe: RecipeByItemsDto, ingredient: ItemDetailDto): string {
+    let find: ItemDetailDto | undefined = recipe.itemsInPantry.find(i => i.description === ingredient.description && i.unit === ingredient.unit);
+    if(find === undefined) {
+      return 0 + "/" + formatAmount(ingredient);
+    }
+    if(find.unit === ingredient.unit) {
+      return find.amount + "/" + formatAmount(ingredient);
+    }
+    return find.amount + "/" + ingredient.amount + ingredient.unit;
+  }
+
+  getIngredientMatch(recipe: RecipeByItemsDto, ingredient: ItemDetailDto): 'red' | 'orange' | 'green' {
+    let find: ItemDetailDto | undefined = recipe.itemsInPantry.find(i => i.description === ingredient.description && i.unit === ingredient.unit);
+    return find === undefined || find.amount === 0 ? "red" : find.amount >= ingredient.amount ? "green" : "orange";
   }
 
   isEditSelected(): boolean {

@@ -54,5 +54,5 @@ export interface RecipeByItemsDto {
   id: number
   name: String
   ingredients: ItemDetailDto[]
-  pantryItems: PantryItemDetailDto[]
+  itemsInPantry: PantryItemDetailDto[]
 }
