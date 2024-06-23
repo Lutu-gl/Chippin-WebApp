@@ -10,13 +10,9 @@ import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent, GroupCreateEditMode} from "./components/group-list/group-create/group-create.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {ItemListComponent} from "./components/item-list/item-list.component";
 import {
   RecipeCreateComponent
 } from "./components/recipe/recipe-create/recipe-create.component";
-import {
-  ItemListCreateEditComponent, ItemListCreateEditMode
-} from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {
   ShoppingListCreateComponent, ShoppingListCreateEditMode
@@ -118,19 +114,7 @@ routes = [
   {path: 'recipe/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component: RecipeEditComponent},
   {path: 'recipe/global', canActivate: mapToCanActivate([AuthGuard]), component: RecipeGlobalComponent},
   {path: 'recipe/liked', canActivate: mapToCanActivate([AuthGuard]), component: RecipeLikedComponent},
-  {path: 'itemList', component: ItemListComponent},
-  {
-    path: 'itemList/create',
-    canActivate: mapToCanActivate([AuthGuard]),
-    component: ItemListCreateEditComponent,
-    data: {mode: ItemListCreateEditMode.create}
-  },
-  {
-    path: 'itemList/:id/edit',
-    canActivate: mapToCanActivate([AuthGuard]),
-    component: ItemListCreateEditComponent,
-    data: {mode: ItemListCreateEditMode.edit}
-  },
+  ,
   {
     path: 'expenses/create',
     canActivate: mapToCanActivate([AuthGuard]),

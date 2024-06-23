@@ -98,7 +98,6 @@ export class FriendsComponent implements OnInit {
     this.friendInfoEmail = friend;
     const friendInfo = this.friends.find(f => f.email === friend);
     this.friendInfoTotalAmount = friendInfo.totalAmount;
-    console.log(friendInfo.groupAmounts);
     this.friendInfoGroupAmounts = Object.values(friendInfo.groupAmounts);
     this.isFriendInfoDialogVisible = true;
   }

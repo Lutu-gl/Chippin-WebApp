@@ -55,7 +55,6 @@ export class EditShoppingListItemModalComponent implements OnChanges {
       item: this.itemToEdit,
       checked: !!this.shoppingListItem.checkedById
     }
-    console.log(updateItem)
     this.shoppingListService.updateShoppingListItem(this.authService.getUserId(), this.shoppingListId, updateItem).subscribe({
         next: () => {
           this.notifications.success('Item updated');

@@ -128,7 +128,6 @@ export class VisualizationComponent implements OnInit {
   }
 
   getExpenses(dates: Date[]) {
-    console.log("EXPENSES")
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
 
@@ -164,8 +163,6 @@ export class VisualizationComponent implements OnInit {
         this.formatDataAmountSpendPerPerson()
         this.formatDataForExpensesPerUserPerMonth()
 
-        console.log(this.charts.length)
-        console.log(this.minimumExpensesSatisfied)
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -207,9 +204,6 @@ export class VisualizationComponent implements OnInit {
           data[memberIndex] = value;
         }
       });
-
-      console.log(data);
-      console.log(this.personExpensePayedMap);
 
       graphData.datasets.push({
         label: label,
@@ -304,11 +298,6 @@ export class VisualizationComponent implements OnInit {
   }
 
   private getDescriptionForExpensesMadePerPerson() {
-    // let map = this.personExpensePayedMap;
-    //
-    // let string = "This graph shows the amount of expenses each person has payed in each category <br>" +
-    //   "The person who has made the most expenses is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "</strong> expenses."
-
     let string = "This graph shows the number of expenses each person has payed in each category."
 
     return string;
@@ -338,8 +327,6 @@ export class VisualizationComponent implements OnInit {
         }
       });
 
-      console.log(data);
-      console.log(this.personExpensePayedMap);
 
       graphData.datasets.push({
         label: label,
@@ -432,10 +419,6 @@ export class VisualizationComponent implements OnInit {
   }
 
   private getDescriptionForExpensesMadePerPersonCash() {
-    // let map = this.personExpensePayedMapCash;
-
-    // let string = "This graph shows the amount of money each person has spent in each category <br>" +
-    //   "The person who has spent the most money in total is <strong>" + [...map].reduce((a, b) => a[1] > b[1] ? a : b)[0] + "</strong> with <strong>" + Math.max(...map.values()) + "€</strong> spent."
 
     let string = "This graph shows the amount of money a person who made a payment has spend in each category."
 
@@ -544,9 +527,7 @@ export class VisualizationComponent implements OnInit {
       fill: false
     };
 
-    console.log(dataset);
     datasets.push(dataset);
-    console.log(datasets)
 
     graphData = {labels: labels, datasets: datasets};
     graphOptions = {
@@ -612,9 +593,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   getDescriptionForSpendEuroInCategory(data, labels) {
-    // let string = "The group has spent a most money on <strong>" + labels[data.indexOf(Math.max(...data))] + "</strong>. Too be more precise, you spent <strong>"
-    //   + Math.max(...data) + "€</strong> on this category. " + "<br>The least money was spent on <strong>" + labels[data.indexOf(Math.min(...data))] + "</strong> with <strong>" + Math.min(...data) + "€</strong>."
-    //   + "<br> The total amount of money spent is <strong>" + data.reduce((a, b) => a + b, 0) + "€</strong>."
+
 
     let string = "This graph shows the amount of money spent in each category."
 
@@ -645,8 +624,6 @@ export class VisualizationComponent implements OnInit {
         }
       });
 
-      console.log(data);
-      console.log(this.personExpensePayedMap);
 
       graphData.datasets.push({
         label: label,
@@ -755,7 +732,6 @@ export class VisualizationComponent implements OnInit {
     let expensesByUser = groupExpensesByUserEmail(this.expenses);
 
     let expensesPerUserPerMonth = sumExpensesPerUserPerMonth(expensesByUser);
-    console.log(expensesPerUserPerMonth);
 
     // Create the data for the graph
     let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

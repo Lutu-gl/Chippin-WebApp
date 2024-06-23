@@ -59,14 +59,14 @@ export class ExpenseCreateComponent {
     public globals: Globals
   ) {
   }
-  
+
 
   resetMode(): void {
     if (this.mode === ExpenseCreateEditMode.edit) {
       this.mode = ExpenseCreateEditMode.info;
     }
 
-    
+
   }
 
   filterCategory(event: AutoCompleteCompleteEvent) {
@@ -98,7 +98,6 @@ export class ExpenseCreateComponent {
         this.deleteExistingExpense()
       }
     });
-    //this.isDeleteDialogVisible = true;
   }
 
   closeDeleteDialog(): void {
@@ -194,29 +193,17 @@ export class ExpenseCreateComponent {
 
   customInit(changes: any): void {
 
-    console.log("CUSTOM INIT!");
-    console.log(changes);
-
     this.groupId = changes.groupId;
     this.expenseId = changes.expenseId;
 
-    console.log("REACHES HERE!");
     if (changes.mode === ExpenseCreateEditMode.create) {
       this.prepareGroupOnCreate();
     } else if (changes.mode === ExpenseCreateEditMode.info || changes.mode === ExpenseCreateEditMode.edit) {
       this.prepareWholeExpense();
     }
-
-
-    // if (this.mode === ExpenseCreateEditMode.create) {
-    //   this.prepareGroupOnCreate();
-    // } else if (this.mode === ExpenseCreateEditMode.info || this.mode === ExpenseCreateEditMode.edit) {
-    //   this.prepareWholeExpense();
-    // }
   }
 
   private prepareGroupOnCreate(): void {
-    console.log("prepareGroupOnCreate")
 
     this.expenseDeleted = false;
     this.expenseArchived = false;
@@ -328,19 +315,6 @@ export class ExpenseCreateComponent {
       return [];
   }
 
-  // checkIfExceedsBudget(): Promise<boolean> {
-  //   console.log("checkIfExceedsBudget")
-  //   console.log(this.groupId);
-  //   try {
-  //     let budgets = this.getGroupBudgets();
-  //     console.log(budgets)
-  //     return null; // oder return true/false basierend auf Ihrer Logik
-  //   } catch (error) {
-  //     console.error('Failed to get budgets', error);
-  //     return false;
-  //   }
-  // }
-
   submitValidation(): boolean {
     let returnValue = true;
     if (!this.expenseName || /^[a-zA-Z][a-zA-Z0-9 ]{0,254}$/.test(this.expenseName) === false) {
@@ -391,9 +365,6 @@ export class ExpenseCreateComponent {
       bill: this.selectedFile
     };
 
-    // const participant = Object.keys(submitExpense.participants)[0];
-    // submitExpense.participants[participant] = this.roundDownTo2Decimals(submitExpense.participants[participant] + (1 - Object.values(submitExpense.participants).reduce((a, b) => a + b, 0)));
-
     if (this.mode === ExpenseCreateEditMode.create) {
       this.createNewExpense(submitExpense);
     } else if (this.mode === ExpenseCreateEditMode.edit) {
@@ -411,7 +382,6 @@ export class ExpenseCreateComponent {
 
     this.groupService.getGroupBudgets(this.groupId)
     .subscribe(budgets => {
-      // console.log(budgets)
       this.budgets =  budgets;
 
       for(let budget of this.budgets){

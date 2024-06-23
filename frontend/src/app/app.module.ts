@@ -19,12 +19,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ToastrModule} from "ngx-toastr";
 import {AutocompleteComponent} from "./components/autocomplete/autocomplete.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
-import {ItemListComponent} from "./components/item-list/item-list.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
 import {RecipeCreateComponent} from "./components/recipe/recipe-create/recipe-create.component";
-import {
-  ItemListCreateEditComponent
-} from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
 import {BudgetListComponent} from './components/budget/budget-list.component';
@@ -39,9 +35,6 @@ import {
 import {
   FriendsInfoCardContentComponent
 } from "./components/friends/friends-info-card-content/friends-info-card-content.component";
-import {
-  ItemListInfoCardContentComponent
-} from "./components/item-list/item-list-info-card-content/item-list-info-card-content.component";
 import {
   RecipeInfoCardContentComponent
 } from "./components/recipe/recipe-info-card-content/recipe-info-card-content.component";
@@ -119,8 +112,6 @@ import { CounterComponent } from './components/landing-page/counter/counter.comp
     GroupListComponent,
     GroupCreateComponent,
     GroupInfoComponent,
-    ItemListComponent,
-    ItemListCreateEditComponent,
     RecipeComponent,
     ExpenseCreateComponent,
     ExpenseListComponent,
@@ -156,7 +147,6 @@ import { CounterComponent } from './components/landing-page/counter/counter.comp
         GroupInfoCardContentComponent,
         FriendsInfoCardContentComponent,
         ExpenseInfoCardContentComponent,
-        ItemListInfoCardContentComponent,
         RecipeInfoCardContentComponent,
         DropdownModule,
         RadioButtonModule,

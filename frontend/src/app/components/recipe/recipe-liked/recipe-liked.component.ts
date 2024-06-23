@@ -31,7 +31,6 @@ export class RecipeLikedComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("Like");
     this.service.getLikedRecipesFromUser()
       .subscribe({
         next: data => {

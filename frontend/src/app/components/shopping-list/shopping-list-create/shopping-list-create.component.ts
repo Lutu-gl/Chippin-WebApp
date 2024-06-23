@@ -57,7 +57,6 @@ export class ShoppingListCreateComponent implements OnInit {
   }
 
   groupSuggestions = (input: string): Observable<any[]> => {
-    console.log(this.groupService.getGroups());
     if (!input) return this.groupService.getGroups();
     return this.groupService.getGroups().pipe(
       map(groups => groups.filter(group => group.groupName.toLowerCase().includes(input.toLowerCase())))
@@ -80,7 +79,6 @@ export class ShoppingListCreateComponent implements OnInit {
           next: group => {
             this.setGroup(group)
             this.dummyGroupSelectionModel = group;
-            console.log(this.shoppingListDto)
           },
           error: err => {
             console.error(err);
@@ -124,8 +122,6 @@ export class ShoppingListCreateComponent implements OnInit {
           group: shoppingList.group
         };
         this.dummyGroupSelectionModel = shoppingList.group;
-        console.log(this.shoppingListDto)
-        console.log(this.currentUserId)
       },
       error: err => {
         console.error(err);
@@ -174,7 +170,6 @@ export class ShoppingListCreateComponent implements OnInit {
       this.shoppingListService.updateShoppingList(this.shoppingListId, this.shoppingListDto).subscribe({
         next: response => {
           this.notification.success(`Shopping list ${this.shoppingListDto.name} updated successfully`);
-          console.log("Edit mode")
           this.router.navigate([`/shopping-list/${this.shoppingListId}`]);
         },
         error: err => {
@@ -188,7 +183,6 @@ export class ShoppingListCreateComponent implements OnInit {
     this.shoppingListService.createShoppingList(this.currentUserId, this.shoppingListDto).subscribe({
         next: response => {
           this.notification.success(`Shopping list ${this.shoppingListDto.name} created successfully`);
-          console.log("Create mode")
           this.router.navigate([`/shopping-list/${response.id}`]);
         },
         error: err => {

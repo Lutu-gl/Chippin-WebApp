@@ -314,7 +314,6 @@ export class ShoppingListDetailComponent implements OnInit {
   }
 
   selectItem(item: ShoppingListItemDto) {
-    console.log(item)
     this.selectedItem = item;
   }
 
