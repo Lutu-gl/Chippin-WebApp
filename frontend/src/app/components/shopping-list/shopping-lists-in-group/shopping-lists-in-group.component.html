@@ -4,7 +4,13 @@
   <!--        <span class="text-xl mr-2">+</span> Add member-->
   <!--      </button>-->
   <!--    </div>-->
-  <p-button label="Create new shopping list" class="pb-4 mx-auto" (click)="showCreateModal = true"></p-button>
+
+  <!-- <p-button label="Create new shopping list" class="pb-4 mx-auto" (click)="showCreateModal = true"></p-button> -->
+  <div class="flex justify-center mb-4">
+    <button (click)="showCreateModal = true" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center justify-center mx-auto">
+      <span class="text-xl mr-2">+</span> Create new shopping list
+    </button>
+  </div>
   <div *ngIf="getSortedShoppingLists().length === 0" class="flex flex-col items-center gap-4">
     <div class="text-lg font-bold">No shopping lists yet</div>
     <div class="text-gray-500">Create a new shopping list to get started</div>

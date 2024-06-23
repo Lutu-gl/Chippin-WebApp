@@ -74,6 +74,8 @@
           label="Weekly"
           [(ngModel)]="newBudget.resetFrequency"
           [disabled]="modeIsInfo()"
+          pTooltip="Budget will be reset every Monday at 00:00"
+          tooltipPosition="bottom"
         ></p-radioButton>
       </div>
       <div>
@@ -83,6 +85,8 @@
           label="Monthly"
           [(ngModel)]="newBudget.resetFrequency"
           [disabled]="modeIsInfo()"
+          pTooltip="Budget will be reset 1st of every Month at 00:00"
+          tooltipPosition="bottom"
         ></p-radioButton>
       </div>
     </div>

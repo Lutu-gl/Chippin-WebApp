@@ -111,35 +111,6 @@ public class GroupDataGenerator implements DataGenerator {
 
             groupRepository.save(group);
         }
-
-        // TODO: Are theese neccessary?
-
-        GroupEntity pantryTestGroup1 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup1);
-
-        GroupEntity pantryTestGroup2 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup2);
-
-        GroupEntity pantryTestGroup3 = GroupEntity.builder()
-            .groupName(groupNames[random.nextInt(groupNames.length)])
-            .users(Set.of(
-                userRepository.findByEmail("emil@chippin.com"),
-                userRepository.findByEmail("rafael@chippin.com")
-            ))
-            .build();
-        groupRepository.save(pantryTestGroup3);
     }
 
     @Override
