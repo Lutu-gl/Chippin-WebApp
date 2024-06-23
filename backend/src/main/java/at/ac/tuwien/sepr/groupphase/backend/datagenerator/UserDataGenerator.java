@@ -20,7 +20,7 @@ public class UserDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for user");
+        LOGGER.trace("generating data for user");
         Random random = new Random();
         random.setSeed(12345);
         final Faker faker = new Faker(Locale.getDefault(), random);
@@ -69,7 +69,7 @@ public class UserDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for user");
+        LOGGER.trace("cleaning data for user");
         userRepository.deleteAll();
     }
 

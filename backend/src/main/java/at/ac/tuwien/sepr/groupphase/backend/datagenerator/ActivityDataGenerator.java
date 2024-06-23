@@ -35,7 +35,7 @@ public class ActivityDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for activity");
+        LOGGER.trace("generating data for activity");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
@@ -110,7 +110,7 @@ public class ActivityDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for activity");
+        LOGGER.trace("cleaning data for activity");
         activityRepository.deleteAll();
     }
 

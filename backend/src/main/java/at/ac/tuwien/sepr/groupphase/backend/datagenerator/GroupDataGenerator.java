@@ -28,7 +28,7 @@ public class GroupDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for group");
+        LOGGER.trace("generating data for group");
         final Random random = new Random();
         random.setSeed(12345);
 
@@ -142,7 +142,7 @@ public class GroupDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for group");
+        LOGGER.trace("cleaning data for group");
         groupRepository.deleteAll();
     }
 }
