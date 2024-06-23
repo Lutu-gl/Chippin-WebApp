@@ -141,7 +141,7 @@
             [binary]="true"
             type="binary"
           />
-          <label class="block text-sm font-medium text-gray-700">{{ member.email }}</label>
+          <label class="block text-sm font-medium text-gray-700">{{ globals.truncateToChars(member.email, 20) }}</label>
         </div>
         <p-inputNumber
           [disabled]="modeIsInfo()"
