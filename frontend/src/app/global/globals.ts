@@ -14,6 +14,14 @@ export class Globals {
       return window.location.protocol + '//' + window.location.host + window.location.pathname + 'api/v1';
     }
   }
+
+  truncateToChars(text: string, amountOfChars: number): string {
+    if (text.length > amountOfChars) {
+      return text.substring(0, amountOfChars) + ' ...';
+    }
+    return text;
+  }
+
 }
 
 

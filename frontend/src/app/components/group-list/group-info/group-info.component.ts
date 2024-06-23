@@ -115,7 +115,7 @@ export class GroupInfoComponent implements OnInit {
     private paymentService: PaymentService,
     private expenseService: ExpenseService,
     private importExportService: ImportExportService,
-    private globals: Globals
+    public globals: Globals
   ){
   }
 
