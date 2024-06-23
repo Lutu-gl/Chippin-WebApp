@@ -146,7 +146,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
     private void generateDataForChippinExtended(GroupEntity group, List<ApplicationUser> usersInGroup, Random random, Category[] categories) {
         if (group.getGroupName().equals("Chippin")) {
-            LocalDateTime startDate = fixedDateTime.minusMonths(6);
+            LocalDateTime startDate = fixedDateTime.minusMonths(12);
             LocalDateTime endDate = fixedDateTime.minusDays(2);
 
 

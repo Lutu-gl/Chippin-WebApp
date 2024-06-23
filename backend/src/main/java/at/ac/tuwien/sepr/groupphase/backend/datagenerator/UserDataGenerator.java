@@ -61,10 +61,18 @@ public class UserDataGenerator implements DataGenerator {
         for (int i = 0; i < 25; i++) {
             userRepository.save(ApplicationUser.builder()
                 .password("$2a$10$CMt4NPOyYWlEUP6zg6yNxewo24xZqQnmOPwNGycH0OW4O7bidQ5CG")
-                .email(faker.internet().emailAddress())
+                .email(generateEmail(faker, 21))
                 .admin(false)
                 .build());
         }
+    }
+
+    public static String generateEmail(Faker faker, int maxLength) {
+        String email = faker.internet().emailAddress();
+        while (email.length() > maxLength) {
+            email = faker.internet().emailAddress();
+        }
+        return email;
     }
 
     @Override
