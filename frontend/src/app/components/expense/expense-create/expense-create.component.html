@@ -135,7 +135,7 @@
       <div *ngFor="let member of members" class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
           <p-checkbox
-            [readonly]="modeIsInfo()"
+            [disabled]="modeIsInfo()"
             [(ngModel)]="member.isParticipating"
             (onChange)="expenseAmountChange($event)"
             [binary]="true"
