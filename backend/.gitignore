@@ -8,6 +8,9 @@ log/
 /database/
 *.mv.db
 
+### Uploaded-Files ###
+uploads/
+
 ### Gradle ###
 .gradle
 build/
@@ -54,3 +57,5 @@ buildNumber.properties
 
 ### htmlReports ###
 htmlReport/
+### Test with limited API Usage should only be tested manually ###
+/src/test/java/at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests.ExchangeRateTest.java

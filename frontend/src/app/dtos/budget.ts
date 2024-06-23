@@ -5,5 +5,8 @@ export interface BudgetDto {
     name: string
     amount: number
     category: any
+    resetFrequency: any
     alreadySpent?: number
+    timestamp?: string
+    daysUntilReset?: number
   }

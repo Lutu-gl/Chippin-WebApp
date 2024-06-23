@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validator;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
@@ -110,6 +110,21 @@ public class GroupValidator {
         return true;
     }
 
+    private boolean checkOwnerMemberOfGroupUpdate(GroupCreateDto group, String ownerEmail, List<String> conflictErrors) {
+        GroupEntity existingGroup = groupRepository.findById(group.getId()).get();
+
+        if (existingGroup == null) { // is checked prior
+            return false;
+        }
+
+        // Check if ownerEmail is included in the members list
+        if (!existingGroup.getUsers().contains(userRepository.findByEmail(ownerEmail))) {
+            conflictErrors.add("You must be a member of the group.");
+            return false;
+        }
+        return true;
+    }
+
     public void validateForUpdate(GroupCreateDto groupCreateDto, String ownerEmail) throws ValidationException, ConflictException, NotFoundException {
         LOGGER.trace("validateForUpdate({})", groupCreateDto);
 
@@ -127,7 +142,7 @@ public class GroupValidator {
             }
         }
 
-        checkAtLeastTwoMembers(groupCreateDto, validationErrors);
+        //checkAtLeastTwoMembers(groupCreateDto, validationErrors); // This is not necessary for update
 
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of group for update failed", validationErrors);
@@ -135,7 +150,7 @@ public class GroupValidator {
 
         List<String> conflictErrors = new ArrayList<>();
 
-        checkOwnerMemberOfGroupAndNotEmptyGroup(groupCreateDto, ownerEmail, conflictErrors);
+        checkOwnerMemberOfGroupUpdate(groupCreateDto, ownerEmail, conflictErrors);
         checkGroupMembersExist(groupCreateDto, conflictErrors);
         //TODO: checkNobodyDeletedWithExpenses(groupCreateDto, conflictErrors);
 

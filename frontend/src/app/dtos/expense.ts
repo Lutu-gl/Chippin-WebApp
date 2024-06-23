@@ -7,7 +7,8 @@ export interface ExpenseCreateDto {
   amount: number,
   payerEmail: string,
   groupId: number,
-  participants: object
+  participants: object,
+  bill: File
 }
 
 export interface ExpenseDetailDto {
@@ -18,5 +19,9 @@ export interface ExpenseDetailDto {
   payerEmail: string,
   group: GroupDto,
   participants: object,
-  deleted: boolean
+  deleted: boolean,
+  archived: boolean,
+  date: Date,
+  containsBill: boolean
 }
+

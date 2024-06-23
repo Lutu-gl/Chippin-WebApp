@@ -1,0 +1,66 @@
+<!-- Modal for changing password -->
+<p-dialog
+  [(visible)]="isChangePasswordDialogVisible"
+  [modal]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '30vw', height: 'auto' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="resetFields()"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Change password</div>
+  </p-header>
+
+  <div class="p-4 space-y-6">
+    <!-- Old password -->
+    <div class="flex flex-col gap-2">
+      <label for="inputCurrentPassword" class="font-medium">Current Password</label>
+      <p-password [toggleMask]="true" [feedback]="false" id="inputCurrentPassword" [(ngModel)]="currentPassword"></p-password>
+    </div>
+
+    <!-- New password -->
+    <div class="flex flex-col gap-2">
+      <label for="inputPassword" class="font-medium">New Password</label>
+      <p-password [toggleMask]="true" [feedback]="true" id="inputPassword" [(ngModel)]="newPassword">
+        <ng-template pTemplate="footer">
+          <p-divider />
+          <p class="mt-2">Requirements</p>
+          <ul class="pl-4 ml-2 mt-0 text-sm text-gray-600" style="line-height: 1.5">
+            <li>At least one lowercase</li>
+            <li>At least one uppercase</li>
+            <li>At least one numeric</li>
+            <li>Minimum 8 characters</li>
+          </ul>
+        </ng-template>
+      </p-password>
+    </div>
+
+    <!-- Confirm new password -->
+    <div class="flex flex-col gap-2">
+      <label for="inputConfirmPassword" class="font-medium">Confirm Password</label>
+      <p-password [toggleMask]="true" [feedback]="false" id="inputConfirmPassword" [(ngModel)]="confirmPassword"></p-password>
+    </div>
+  </div>
+
+  <p-footer>
+    <div class="flex justify-end">
+      <p-button label="Change password" (click)="changePassword()" class="p-button-rounded p-button-primary"></p-button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<div class="p-6 max-w-lg mx-auto bg-white shadow rounded-lg mt-10">
+  <div class="flex flex-col items-center space-y-6">
+
+    <div class="w-24 h-24 flex items-center justify-center rounded-full bg-blue-100 text-4xl">
+      <span>{{ (email[0] || '').toUpperCase() }}</span>
+    </div>
+
+    <div class="text-2xl text-gray-700">
+      <span>{{ email }}</span>
+    </div>
+
+    <p-button (click)="openChangePasswordDialog()" type="button" label="Change password" icon="pi pi-key" class="p-button-rounded p-button-primary"></p-button>
+  </div>
+</div>

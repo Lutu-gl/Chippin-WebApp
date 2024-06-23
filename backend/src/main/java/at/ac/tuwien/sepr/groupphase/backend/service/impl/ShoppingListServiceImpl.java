@@ -1,26 +1,36 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -32,14 +42,18 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private final ShoppingListRepository shoppingListRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final RecipeRepository recipeRepository;
+    private final PantryItemRepository pantryItemRepository;
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final PantryService pantryService;
     private final ItemMapper itemMapper;
+    private final ShoppingListValidator shoppingListValidator;
 
 
     @Override
     @Transactional
     public ShoppingList createShoppingList(ShoppingListCreateDto shoppingListCreateDto, Long ownerId) {
+        log.trace("createShoppingList({}, {})", shoppingListCreateDto, ownerId);
         log.debug("Creating shopping list {} for user {}", shoppingListCreateDto, ownerId);
         ShoppingList shoppingList = shoppingListMapper.shoppingListCreateDtoToShoppingList(shoppingListCreateDto);
         // Add owner to shopping list
@@ -53,7 +67,6 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             shoppingList.setGroup(group);
         }
 
-        shoppingList.setItems(List.of());
         ShoppingList savedList = shoppingListRepository.save(shoppingList);
         log.debug("Shopping list created with id {}", savedList.getId());
         return savedList;
@@ -61,6 +74,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public ShoppingList getShoppingList(Long id) {
+        log.trace("getShoppingList({})", id);
         log.debug("Getting shopping list with id {}", id);
         var shoppingList = shoppingListRepository.findById(id).orElseThrow(() -> new NotFoundException("Shopping list with id " + id + " not found"));
         log.debug("Found shopping list: {}", shoppingList);
@@ -68,15 +82,47 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    public void deleteShoppingList(Long id) {
+    public void deleteShoppingList(Long id) throws ConflictException {
         log.debug("Deleting shopping list with id {}", id);
+        shoppingListValidator.validateForDelete(id);
         shoppingListRepository.deleteById(id);
         log.debug("Shopping list deleted");
     }
 
+    /**
+     * Merge item into shopping list.
+     * If an item with the same description, unit and checked-state exists in the shopping list, the quantity of the existing item is increased and the checked-state is updated.
+     *
+     * @param item         the item to merge
+     * @param shoppingList the shopping list to merge the item into
+     */
+    private ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
+        log.trace("mergeNewItem({}, {})", item, shoppingList);
+        log.debug("Merging item {} into shopping list {}", item, shoppingList);
+        var updatedItem = item;
+        var existingItem = shoppingList.getItems().stream()
+            .filter(i -> i.getItem().getDescription().equals(item.getItem().getDescription())
+                && i.getItem().getUnit().equals(item.getItem().getUnit())
+                && !i.getId().equals(item.getId())
+                && ((i.getCheckedBy() == null) == (item.getCheckedBy() == null)))
+            .findFirst();
+        if (existingItem.isPresent()) {
+            log.debug("Item already exists in shopping list. Merging quantities");
+            existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
+            existingItem.get().setCheckedBy(item.getCheckedBy());
+            updatedItem = existingItem.get();
+        } else {
+            log.debug("Item does not exist in shopping list. Adding item");
+            shoppingList.getItems().add(item);
+        }
+        return updatedItem;
+    }
+
+
     @Override
     @Transactional
     public ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) {
+        log.trace("addItemForUser({}, {}, {})", shoppingListId, itemCreateDto, userId);
         log.debug("Adding item {} to shopping list with id {}", itemCreateDto, shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
@@ -86,7 +132,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             () -> new NotFoundException("User with id " + userId + " not found")
         );
         var item = shoppingListMapper.itemCreateDtoAndUserToShoppingListItem(itemCreateDto, user);
-        shoppingList.getItems().add(item);
+        mergeNewItem(item, shoppingList);
         var savedShoppingList = shoppingListRepository.save(shoppingList);
         log.debug("Item added to shopping list: {}", savedShoppingList);
         return shoppingList.getItems().getLast();
@@ -95,7 +141,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public Long deleteItem(Long shoppingListId, Long itemId) {
-        log.debug("Deleting item with id {} from shopping list with id {}", itemId, shoppingListId);
+        log.trace("deleteItem({}, {})", shoppingListId, itemId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
         );
@@ -112,6 +158,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public List<ShoppingList> getShoppingListsForGroup(Long groupId) {
+        log.trace("getShoppingListsForGroup({})", groupId);
         log.debug("Getting shopping lists for group {}", groupId);
         List<ShoppingList> shoppingLists = shoppingListRepository.findAllByGroupId(groupId);
         log.debug("Found {} shopping lists for group {}", shoppingLists.size(), groupId);
@@ -120,17 +167,20 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     @Transactional
-    public ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) {
+    public ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) throws ConflictException {
+        log.trace("updateShoppingList({}, {})", shoppingListId, shoppingList);
         log.debug("Updating shopping list with id {}", shoppingListId);
         var shoppingListEntity =
             shoppingListRepository.findById(shoppingListId).orElseThrow(() -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
+        shoppingListValidator.validateForUpdateGroup(shoppingList, shoppingListEntity);
         shoppingListMapper.updateShoppingList(shoppingListEntity, shoppingList);
-        // Add group to shopping list
         if (shoppingList.getGroup() != null) {
             var group = groupRepository.findById(shoppingList.getGroup().getId())
                 .orElseThrow(() -> new NotFoundException("Group with id " + shoppingList.getGroup().getId() + " not found"));
             log.debug("Setting group of shopping list to: {}", group);
             shoppingListEntity.setGroup(group);
+        } else {
+            shoppingListEntity.setGroup(null);
         }
         var savedShoppingList = shoppingListRepository.save(shoppingListEntity);
         log.debug("Shopping list updated: {}", savedShoppingList);
@@ -139,6 +189,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     public List<ShoppingList> getShoppingListsForUser(Long userId) {
+        log.trace("getShoppingListsForUser({})", userId);
         log.debug("Getting shopping lists for user {}", userId);
         var ownedShoppingLists = shoppingListRepository.findAllByOwnerId(userId);
         log.debug("Found {} shopping lists where user is owner", ownedShoppingLists.size());
@@ -153,9 +204,38 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         return ownedShoppingLists;
     }
 
+    /**
+     * Merge an item that already exists in a shopping list into that shopping list.
+     *
+     * @param item         The item to merge
+     * @param shoppingList The shopping list to merge the item into
+     * @return The updated item
+     */
+    private ShoppingListItem mergeExistingItem(ShoppingListItem item, ShoppingList shoppingList) {
+        log.trace("mergeExistingItem({}, {})", item, shoppingList);
+        var updatedItem = item;
+        // Check if item already exists in shopping list
+        var existingItem = shoppingList.getItems().stream()
+            .filter(i -> i.getItem().getDescription().equals(item.getItem().getDescription())
+                && i.getItem().getUnit().equals(item.getItem().getUnit())
+                && ((i.getCheckedBy() == null) == (item.getCheckedBy() == null))
+                && (i.getId() != item.getId()))
+            .findFirst();
+        if (existingItem.isPresent()) {
+            // Merge quantities
+            existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
+            existingItem.get().setCheckedBy(item.getCheckedBy());
+            // Remove the old item from the shopping list
+            shoppingList.getItems().remove(item);
+            updatedItem = existingItem.get();
+        }
+        return updatedItem;
+    }
+
     @Override
     @Transactional
     public ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId) {
+        log.trace("updateItemForUser({}, {}, {}, {})", shoppingListId, itemId, shoppingListItemUpdateDto, userId);
         log.debug("Updating item with id {} in shopping list with id {} for user with id {}", itemId, shoppingListId, userId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found")
@@ -165,23 +245,26 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found in shopping list with id " + shoppingListId));
         // Update the item inside the shopping-list-item
-        var updatedItem = shoppingListMapper.updateShoppingListItem(shoppingListItem, shoppingListItemUpdateDto);
+        shoppingListMapper.updateShoppingListItem(shoppingListItem, shoppingListItemUpdateDto);
         // Add checkedBy if item is checked
         if (shoppingListItemUpdateDto.isChecked()) {
-            updatedItem.setCheckedBy(userRepository.findById(userId).orElseThrow(
+            shoppingListItem.setCheckedBy(userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id " + userId + " not found")
             ));
         } else {
-            updatedItem.setCheckedBy(null);
+            shoppingListItem.setCheckedBy(null);
         }
-        var savedShoppingList = shoppingListRepository.save(shoppingList);
-        log.debug("Item updated: {}", savedShoppingList);
-        return updatedItem;
+        // Merge item into shopping list
+        shoppingListItem = mergeExistingItem(shoppingListItem, shoppingList);
+        shoppingListRepository.save(shoppingList);
+        log.debug("Item updated: {}", shoppingListItem);
+        return shoppingListItem;
     }
 
     @Override
     @Transactional
     public void moveItemToPantry(Long shoppingListId, Long itemId) {
+        log.trace("moveItemToPantry({}, {})", shoppingListId, itemId);
         log.debug("Moving item with id {} to pantry from group in shopping list with id {}", itemId, shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
@@ -196,7 +279,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .orElseThrow(
                 () -> new NotFoundException(String.format("Item with id %d not found in shopping list with id %d", itemId, shoppingListId))
             );
-        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), group.getPantry());
+        var pantryItem = itemMapper.itemToPantryItem(shoppingListItem.getItem(), null);
         log.debug("Adding item to pantry: {}", pantryItem);
         pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         shoppingList.getItems().remove(shoppingListItem);
@@ -207,6 +290,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     @Transactional
     public void moveItemsToPantry(Long shoppingListId) {
+        log.trace("moveItemsToPantry({})", shoppingListId);
         log.debug("Moving all checked items to pantry from shopping list with id {}", shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
             () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
@@ -219,7 +303,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
         // Add checked items to pantry
         checkedItems.forEach(item -> {
-            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), group.getPantry());
+            var pantryItem = itemMapper.itemToPantryItem(item.getItem(), null);
             log.debug("Adding item to pantry: {}", pantryItem);
             pantryService.addItemToPantry(pantryItem, group.getPantry().getId());
         });
@@ -228,6 +312,77 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingListRepository.save(shoppingList);
 
         log.debug("Items moved to pantry");
+    }
+
+    @Override
+    @Transactional
+    public void deleteCheckedItems(Long shoppingListId) {
+        log.trace("deleteCheckedItems({})", shoppingListId);
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
+            () -> new NotFoundException(String.format("Shopping list with id %d not found", shoppingListId))
+        );
+        shoppingList.getItems().removeIf(item -> item.getCheckedBy() != null);
+        shoppingListRepository.save(shoppingList);
+    }
+
+    @Override
+    @Transactional
+    public List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) {
+        log.trace("addItemsForUser({}, {}, {})", shoppingListId, items, userId);
+        log.debug("Adding items to shopping list with id {} for user with id {}", shoppingListId, userId);
+        var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
+            () -> new NotFoundException("Shopping list with id " + shoppingListId + " not found"));
+        var user = userRepository.findById(userId).orElseThrow(
+            () -> new NotFoundException("User with id " + userId + " not found"));
+        List<ShoppingListItem> addedItems = new ArrayList<>();
+        for (var itemCreateDto : items) {
+            var item = shoppingListMapper.itemCreateDtoAndUserToShoppingListItem(itemCreateDto, user);
+            addedItems.add(mergeNewItem(item, shoppingList));
+        }
+        shoppingListRepository.save(shoppingList);
+        log.debug("Items added to shopping list");
+        return addedItems;
+
+    }
+
+    @Override
+    public Long getAmountOfItemInGroupShoppingLists(Long groupId, String description, Unit unit) {
+        log.trace("getAmountOfItemInGroupShoppingLists({}, {}, {})", groupId, description, unit);
+        log.debug("Getting amount of item with description {} and unit {} in shopping lists of group with id {}", description, unit, groupId);
+        return shoppingListItemRepository.getAmountOfItemInGroupShoppingLists(groupId, description, unit);
+    }
+
+
+    @Override
+    public AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId) {
+        log.trace("selectIngredientsForShoppingList({}, {}, {})", recipeId, shoppingListId, pantryId);
+        //Get Recipe
+        List<Item> recipe = recipeRepository.findAllIngredientsByRecipeId(recipeId);
+
+        //Get Pantry
+        List<PantryItem> pantry = new ArrayList<>();
+        if (pantryId == null) {
+            pantry = null;
+        } else {
+            pantry = pantryItemRepository.findMatchingRecipeItemsInPantry(pantryId, recipeId);
+        }
+        //Get Shopping List
+        Optional<ShoppingList> optional = shoppingListRepository.findById(shoppingListId);
+        if (optional.isEmpty()) {
+            throw new NotFoundException("Could not find shoppinglist");
+        }
+        //If shoppingListItem is in recipe, return it to the result dto
+        List<ShoppingListItem> shoppingList = new ArrayList<>();
+        for (ShoppingListItem item : optional.get().getItems()) {
+            if (recipe.stream().anyMatch(o -> item.getItem().getDescription().equals(o.getDescription())
+                && item.getItem().getUnit().equals(o.getUnit()))) {
+
+                shoppingList.add(item);
+            }
+        }
+
+
+        return AddRecipeItemToShoppingListDto.builder().recipeItems(recipe).pantryItems(pantry).shoppingListItems(shoppingList).build();
     }
 
 

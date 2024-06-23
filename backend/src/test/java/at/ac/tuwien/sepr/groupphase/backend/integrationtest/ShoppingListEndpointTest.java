@@ -1,10 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapperImpl;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,6 +48,9 @@ public class ShoppingListEndpointTest extends BaseTest {
     @SpyBean
     private SecurityService securityService;
 
+    @SpyBean
+    private ShoppingListValidator shoppingListValidator;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -61,7 +66,7 @@ public class ShoppingListEndpointTest extends BaseTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private GroupMapperImpl groupMapperImpl;
+    private GroupMapper groupMapper;
 
     @Test
     @WithMockUser(username = "user1@example.com")
@@ -97,7 +102,7 @@ public class ShoppingListEndpointTest extends BaseTest {
         List<ApplicationUser> all = userRepository.findAll();
 
         Long userId = userRepository.findByEmail("user1@example.com").getId();
-        GroupDetailDto group = groupMapperImpl.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
+        GroupDetailDto group = groupMapper.groupEntityToGroupDto(groupRepository.findByGroupName("groupExample1"));
 
         when(securityService.hasCorrectId(userId)).thenReturn(true);
         when(securityService.isGroupMember(group.getId())).thenReturn(true);
@@ -231,6 +236,7 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         when(securityService.hasCorrectId(userId)).thenReturn(true);
         when(securityService.canAccessShoppingList(any())).thenReturn(true);
+        doNothing().when(shoppingListValidator).validateForUpdateGroup(any(), any());
 
         // Find id of shopping list
         var shoppingList = shoppingListRepository.findAllByOwnerId(userId).stream().findFirst().orElseThrow();

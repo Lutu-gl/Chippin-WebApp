@@ -52,6 +52,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setDate(LocalDateTime.now());
+        payment.setDeleted(false);
+        payment.setArchived(false);
 
         Payment savedPayment = paymentRepository.save(payment);
         Activity activityForExpense = Activity.builder()
@@ -91,12 +93,17 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = paymentMapper.paymentDtoToPaymentEntity(paymentDto);
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
-        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to update this payment");
+        if (!payment.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to access this payment");
         }
+        //        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
+        //            throw new AccessDeniedException("You do not have permission to update this payment");
+        //        }
 
         payment.setId(paymentId);
         payment.setDate(existingPayment.getDate());
+        payment.setArchived(existingPayment.getArchived());
+        payment.setDeleted(existingPayment.isDeleted());
 
         Payment paymentSaved = paymentRepository.save(payment);
 
@@ -121,8 +128,11 @@ public class PaymentServiceImpl implements PaymentService {
         Payment existingPayment = paymentRepository.findById(paymentId).orElseThrow(() -> new NotFoundException("Payment not found"));
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
-        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to delete this payment");
+        //        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
+        //            throw new AccessDeniedException("You do not have permission to delete this payment");
+        //        }
+        if (!existingPayment.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to access this payment");
         }
 
         if (existingPayment.isDeleted()) {
@@ -151,8 +161,11 @@ public class PaymentServiceImpl implements PaymentService {
         final GroupEntity existingGroup = existingPayment.getGroup();
         ApplicationUser user = userRepository.findByEmail(creatorEmail);
 
-        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to recover this payment");
+        //        if (!existingPayment.getPayer().equals(user) && !existingPayment.getReceiver().equals(user)) {
+        //            throw new AccessDeniedException("You do not have permission to recover this payment");
+        //        }
+        if (!existingPayment.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to access this payment");
         }
 
         if (!existingPayment.isDeleted()) {

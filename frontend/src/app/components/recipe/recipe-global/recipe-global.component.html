@@ -1,67 +1,42 @@
-<h1>Popular Recipes</h1>
-
-<div class="d-flex flex-row w-auto">
-  <span style="flex: 1"></span>
-</div>
-
-<div class="mt-2">
-  <input type="text" id="searchDescription" name="searchDescription"
-         class="form-control col-9"
-         placeholder="Search for an item"
-         [(ngModel)]="searchString"
-         (ngModelChange)="searchChanged()"
-  >
-  <table class="table table-hover">
-    <thead>
-    <tr>
-      <th>Name</th>
-      <th class="min-width">Like/Dislike</th>
-      <th class="min-width">View Details</th>
-    </tr>
-    </thead>
-    <tbody>
-
-    <tr *ngFor="let recipe of recipes" class="center-td">
-      <td>{{recipe.name}}</td>
-      <td>
+<div class="flex flex-col items-center p-4">
 
 
-        <div class="btn-group">
-          <a class="btn btn-sm responsive-info-button "
-             aria-label="Show recipe details">
-
-              <button
-                (click)="like(recipe.id)"
-                [disabled]="recipe.likedByUser === true"
-                [ngClass]="{'disliked': recipe.likedByUser}">+</button>
-          </a>
-              <span>{{ getScore(recipe) }}</span>
-
-              <button (click)="dislike(recipe.id)"
-                      [disabled]="recipe.dislikedByUser === true"
-                      [ngClass]="{'disliked': recipe.dislikedByUser}"
-                      >-</button>
+    <input pInputText id="recipe"  placeholder="Search" [(ngModel)]="searchString" (ngModelChange)="searchChanged()" />
 
 
 
 
+
+  <div *ngIf="recipes.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>Looks like there aren't any matches, maybe try something else?</p>
+  </div>
+
+  <!-- Recipes -->
+  <div *ngIf="recipes.length > 0" class="w-full max-w-md space-y-4 mt-6">
+    <h3 class="font-bold mb-2">Most popular Recipes</h3>
+    <div *ngFor="let recipe of paginatedRecipes"  class="flex items-center justify-between p-4 bg-gray-100 rounded mb-4 cursor-pointer">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold" [routerLink]="['/recipe', 'viewer', recipe.id]">{{ recipe.name[0] }}</div>
+        <div [routerLink]="['/recipe', 'viewer', recipe.id]">
+          <div class="font-bold">{{ recipe.name }}</div>
         </div>
-      </td>
-      <td>
-        <div class="btn-group">
-        <a class="btn btn-sm responsive-info-button "
-           [routerLink]="['/recipe', 'viewer', recipe.id]"
-           aria-label="Show recipe details">
-          <i class="bi bi-info"></i>
-        </a>
       </div>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+      <div class="ml-auto flex items-center space-x-4">
+
+        <p-button *ngIf="!recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true" [raised]="true" severity="info" (click)="like(recipe.id)" [disabled]="recipe.likedByUser"></p-button>
+        <p-button *ngIf="recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true" [raised]="true" severity="info"></p-button>
+
+        <div class="score-container">
+        {{ getScore(recipe) }}
+        </div>
+
+          <p-button *ngIf="!recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true" [raised]="true" severity="danger" (click)="dislike(recipe.id)" [disabled]="recipe.dislikedByUser"></p-button>
+          <p-button *ngIf="recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true" [raised]="true" severity="danger"></p-button>
+
+      </div>
+    </div>
+    <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)"></p-paginator>
+  </div>
 </div>
-
-
-
 
 

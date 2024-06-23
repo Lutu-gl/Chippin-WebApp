@@ -1,12 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
 
@@ -34,7 +37,7 @@ public interface ShoppingListService {
      *
      * @param id the id of the shopping list
      */
-    void deleteShoppingList(Long id);
+    void deleteShoppingList(Long id) throws ConflictException;
 
     /**
      * Add an item to a shopping list.
@@ -69,8 +72,9 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param shoppingList   the shopping list to update
      * @return the updated shopping list
+     * @throws ConflictException if the user is not the owner of the shopping list and tries to update the group
      */
-    ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList);
+    ShoppingList updateShoppingList(Long shoppingListId, ShoppingListUpdateDto shoppingList) throws ConflictException;
 
 
     /**
@@ -108,4 +112,42 @@ public interface ShoppingListService {
      */
     void moveItemsToPantry(Long shoppingListId);
 
+    /**
+     * Return a suggestion for the user what items he can add to his shopping list.
+     * This function takes into account what already is in the selected shopping list and the optional pantry
+     *
+     * @param recipeId       the recipe with the ingredients
+     * @param shoppingListId the shopping list to add
+     * @param pantryId       the pantry the user wants to be considered
+     * @return a list of items with
+     */
+    AddRecipeItemToShoppingListDto selectIngredientsForShoppingList(long recipeId, long shoppingListId, Long pantryId);
+
+    /**
+     * Delete all checked items from a shopping list.
+     *
+     * @param shoppingListId the id of the shopping list
+     */
+
+    void deleteCheckedItems(Long shoppingListId);
+
+    /**
+     * Add multiple items to a shopping list.
+     *
+     * @param shoppingListId the id of the shopping list
+     * @param items          the items to add
+     * @param userId         the id of the user adding the items
+     * @return the added items
+     */
+    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
+
+    /**
+     * Get the amount of a specific item in all shopping lists of a group.
+     *
+     * @param groupId     the id of the group
+     * @param description the description of the item
+     * @param unit        the unit of the item
+     * @return the amount of the item (matching description and unit) in all shopping lists of the group
+     */
+    Long getAmountOfItemInGroupShoppingLists(Long groupId, String description, Unit unit);
 }

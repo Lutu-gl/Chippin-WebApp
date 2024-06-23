@@ -65,6 +65,20 @@ public class FriendshipRepository {
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
+    public List<ApplicationUser> findOutgoingFriendRequestsOfUser(ApplicationUser user) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApplicationUser> criteriaQuery = criteriaBuilder.createQuery(ApplicationUser.class);
+        Root<Friendship> root = criteriaQuery.from(Friendship.class);
+
+        Predicate senderEqualsUserPredicate = criteriaBuilder.equal(root.get("sender"), user);
+        Predicate friendshipStatusIsPendingPredicate = criteriaBuilder.equal(root.get("friendshipStatus"), FriendshipStatus.PENDING);
+
+        criteriaQuery.select(root.get("receiver"))
+            .where(criteriaBuilder.and(senderEqualsUserPredicate, friendshipStatusIsPendingPredicate));
+
+        return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
     public boolean pendingFriendRequestExists(ApplicationUser sender, ApplicationUser receiver) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Friendship> criteriaQuery = criteriaBuilder.createQuery(Friendship.class);
@@ -168,6 +182,41 @@ public class FriendshipRepository {
 
 
         return entityManager.createQuery(criteriaQuery).getResultList().size() > 0;
+    }
+
+    public String findFriendWithSimilarEmail(String friendName, ApplicationUser user) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Friendship> criteriaQuery = criteriaBuilder.createQuery(Friendship.class);
+        Root<Friendship> root = criteriaQuery.from(Friendship.class);
+
+        Predicate predicate1 = criteriaBuilder.and(
+            criteriaBuilder.equal(root.get("sender"), user),
+            criteriaBuilder.equal(root.get("friendshipStatus"), FriendshipStatus.ACCEPTED),
+            criteriaBuilder.like(criteriaBuilder.lower(root.get("receiver").get("email")), "%" + friendName.toLowerCase() + "%")
+        );
+
+        criteriaQuery.where(predicate1);
+        List<Friendship> resultList = entityManager.createQuery(criteriaQuery).getResultList();
+        if (!resultList.isEmpty()) {
+            return resultList.getFirst().getReceiver().getEmail();
+        }
+
+        CriteriaQuery<Friendship> criteriaQuery2 = criteriaBuilder.createQuery(Friendship.class);
+        Root<Friendship> root2 = criteriaQuery2.from(Friendship.class);
+
+        Predicate predicate2 = criteriaBuilder.and(
+            criteriaBuilder.equal(root2.get("receiver"), user),
+            criteriaBuilder.equal(root2.get("friendshipStatus"), FriendshipStatus.ACCEPTED),
+            criteriaBuilder.like(criteriaBuilder.lower(root2.get("sender").get("email")), "%" + friendName.toLowerCase() + "%")
+        );
+
+        criteriaQuery2.where(predicate2);
+        List<Friendship> resultList2 = entityManager.createQuery(criteriaQuery2).getResultList();
+        if (!resultList2.isEmpty()) {
+            return resultList2.getFirst().getSender().getEmail();
+        }
+
+        return null;
     }
 
     @Transactional

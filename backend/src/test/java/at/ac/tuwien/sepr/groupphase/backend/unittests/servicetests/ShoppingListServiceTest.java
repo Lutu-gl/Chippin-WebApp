@@ -1,17 +1,20 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBeforeAfterEach;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShoppingListServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.validator.ShoppingListValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -31,13 +36,16 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ShoppingListServiceTest extends BaseTest {
+public class ShoppingListServiceTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Mock
     private ShoppingListRepository shoppingListRepository;
 
     @Spy
     private ShoppingListMapperImpl shoppingListMapper;
+
+    @Mock
+    private ShoppingListValidator shoppingListValidator;
 
     @Mock
     private UserRepository userRepository;
@@ -100,7 +108,7 @@ public class ShoppingListServiceTest extends BaseTest {
     }
 
     @Test
-    public void givenValidShoppingListId_whenDeleteShoppingList_thenNoException() {
+    public void givenValidShoppingListId_whenDeleteShoppingList_thenNoException() throws ConflictException {
         shoppingListService.deleteShoppingList(-1L);
 
         verify(shoppingListRepository, times(1)).deleteById(any());
@@ -123,5 +131,41 @@ public class ShoppingListServiceTest extends BaseTest {
         shoppingListService.getShoppingListsForUser(-1L);
 
         verify(shoppingListRepository, times(1)).findAllByOwnerId(any());
+    }
+
+
+    @Test
+    public void givenValidShoppingListId_whenDeleteCheckedItems_thenNoException() {
+        Long shoppingListId = -1L;
+        var items = new ArrayList<ShoppingListItem>(){
+            {
+                add(ShoppingListItem.builder().id(1L).checkedBy(new ApplicationUser()).build());
+                add(ShoppingListItem.builder().id(2L).checkedBy(new ApplicationUser()).build());
+                add(ShoppingListItem.builder().id(3L).build());
+            }
+        };
+        ShoppingList shoppingList = ShoppingList.builder()
+            .id(shoppingListId)
+            .items(items)
+            .build();
+        when(shoppingListRepository.findById(shoppingListId)).thenReturn(Optional.of(shoppingList));
+
+        shoppingListService.deleteCheckedItems(-1L);
+
+        verify(shoppingListRepository, times(1)).findById(shoppingListId);
+        verify(shoppingListRepository, times(1)).save(any());
+        assertAll(
+            () -> assertThat(shoppingList.getItems()).hasSize(1),
+            () -> assertThat(shoppingList.getItems().getFirst().getId()).isEqualTo(3L)
+        );
+    }
+
+    @Test
+    public void givenInvalidShoppingListId_whenDeleteCheckedItems_thenNotFoundException() {
+        when(shoppingListRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> shoppingListService.deleteCheckedItems(-1L));
+
+        verify(shoppingListRepository, times(1)).findById(-1L);
     }
 }

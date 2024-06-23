@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +31,32 @@ public class DebtServiceImpl implements DebtService {
     public DebtGroupDetailDto getById(String userEmail, Long groupId) throws NotFoundException {
         LOGGER.trace("getById({}, {})", userEmail, groupId);
 
+
+        GroupEntity group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found"));
+
+
         List<Object[]> rawResults = expenseRepository.calculateBalancesExpensesAndPaymentsForUser(userEmail, groupId);
         if (rawResults.isEmpty()) {
-            throw new NotFoundException("No debts found for user in group");
+            return DebtGroupDetailDto.builder()
+                .userEmail(userEmail)
+                .groupId(groupId)
+                .membersDebts(new HashMap<>())
+                .build();
         }
 
         Map<String, Double> participantsMap = new HashMap<>();
+
         for (Object[] result : rawResults) {
+
+            // skip the result if the participantEmail is not in the group!
             String participantEmail = (String) result[0];
+            if (!group.getUsers().stream().anyMatch(user -> user.getEmail().equals(participantEmail))) {
+                continue;
+            }
+
             BigDecimal amount = (BigDecimal) result[1];
-            participantsMap.put(participantEmail, amount.doubleValue());
+            BigDecimal roundedAmount = amount.setScale(2, RoundingMode.HALF_UP);
+            participantsMap.put(participantEmail, roundedAmount.doubleValue());
         }
 
         return DebtGroupDetailDto.builder()

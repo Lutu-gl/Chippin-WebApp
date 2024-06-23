@@ -1,26 +1,31 @@
-<div class="tw-flex tw-justify-between tw-items-center">
-  <h2 class="tw-pt-2">Shopping Lists</h2>
-  <div class="tw-d-flex tw-flex-row tw-w-auto">
-    <span style="flex: 1"></span>
-    <a [queryParams]="{'groupId': groupId}" [routerLink]="['shoppingList', 'create']" aria-label="New Shopping List"
-       class="btn btn-secondary">
-      <i class="bi bi-plus-lg"></i>
-      New Shopping List
-    </a>
-    </div>
-</div>
+<div class="flex flex-col items-center p-4 pt-8">
+  <p-button label="" class="pb-4 mb-4" (click)="showCreateModal = true">Create a new shopping list</p-button>
 
-<div class="tw-h-96 tw-overflow-y-auto tw-overflow-x-hidden">
-  <div *ngFor="let shoppingList of shoppingLists"
-  class="">
-    <a [routerLink]="['shoppingList', shoppingList.id]"
-       class="tw-no-underline tw-text-black">
-      <div class="tw-p-2 tw-m-2 tw-rounded-md tw-outline tw-outline-1 tw-outline-slate-300
-    tw-flex tw-justify-between tw-items-center
-    hover:tw-bg-slate-100 hover:tw-cursor-pointer">
-      <div>{{shoppingList.name}}</div>
-        <div>{{ shoppingList.checkedItemCount }} / {{ shoppingList.itemCount }}</div>
+  <!-- No shopping lists yet message -->
+  <div *ngIf="shoppingLists.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center">
+    <div class="text-lg font-bold">No shopping lists yet</div>
+    <div class="text-gray-500">Create a new shopping list to get started</div>
+  </div>
+
+  <!-- Shopping-lists -->
+  <div *ngIf="shoppingLists.length > 0" class="w-full max-w-md space-y-4">
+    <div *ngFor="let groupedLists of shoppingListsGrouped">
+      <h2 class="font-bold pb-4">{{ groupedLists.groupName }}</h2>
+      <div *ngFor="let shoppingList of groupedLists.shoppingLists"
+           class="flex items-center justify-between p-4 bg-gray-200 rounded mb-4 cursor-pointer"
+           [routerLink]="['/shopping-list', shoppingList.id]">
+        <div class="flex items-center space-x-4">
+          <div>
+            <div class="font-bold">{{ shoppingList.name }}</div>
+            <span
+              class="text-sm font-medium text-gray-500"> {{ shoppingList.itemCount - shoppingList.checkedItemCount }}
+              items left</span>
+          </div>
+        </div>
+      </div>
     </div>
-    </a>
   </div>
 </div>
+
+<app-shopping-list-create-modal [(visible)]="showCreateModal"
+                                (update)="loadShoppingLists()"></app-shopping-list-create-modal>

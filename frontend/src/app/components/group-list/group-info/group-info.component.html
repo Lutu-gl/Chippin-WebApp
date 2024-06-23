@@ -1,72 +1,672 @@
-<h1 class="display-1">{{ group?.groupName }}</h1>
-<div *ngIf="group">
-  <div class="d-flex justify-content-between">
-    <h3 class="members">Members</h3>
-    <button type="button"
-            class="btn btn-secondary"
-            [routerLink]="['edit']">
-      <i class="bi bi-pencil"></i>
-      Edit
-    </button>
-  </div>
-  <div class="member-list">
-    <div *ngFor="let member of getSortedMembers()" class="member-list-item">
-      {{ member.email }}
-    </div>
-  </div>
-  <br>
-  <div class="h-52 overflow-y-auto overflow-x-hidden">
-    <ng-container *ngFor="let userEmail of objectKeys(debt.membersDebts)">
-      <div *ngIf="debt.membersDebts[userEmail] >= 0.01"
-           class="debt-list-item positive-debt d-flex align-items-center justify-content-between">
-        <span>{{ userEmail }} owes you {{ debt.membersDebts[userEmail] | number:'1.2-2' }} €</span>
-        <button type="button" class="btn btn-secondary me-2 small-button invisible-button">Settle debts</button>
-      </div>
-      <div *ngIf="debt.membersDebts[userEmail] <= -0.01"
-           class="debt-list-item negative-debt d-flex align-items-center justify-content-between">
-        <span>You owe {{ userEmail }} {{ -debt.membersDebts[userEmail] | number:'1.2-2' }} €</span>
-        <button type="button" class="btn btn-secondary me-2 small-button" [routerLink]="['payment', 'create', userEmail, parseFloat((-debt.membersDebts[userEmail]).toFixed(2))]">Settle debts</button>
-      </div>
-    </ng-container>
-  </div>
+<!-- Modal for importing data  -->
+<p-dialog
+  [(visible)]="isImportDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Import data for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
+  </p-header>
 
-  <br>
-
-  <div class="">
-    <app-expense-list [groupId]="group.id" [activityType]="ActivityType.expense"></app-expense-list>
-  </div>
-  <br>
-  <div class="">
-    <app-expense-list [groupId]="group.id" [activityType]="ActivityType.payment"></app-expense-list>
-  </div>
-  <br>
-
-
-
-  <div class="">
-    <app-budget-list [groupId]="group.id"></app-budget-list>
-  </div>
-
-  
-  <div class="">
-    <button type="button"
-            class="btn btn-secondary"
-            [routerLink]="['pantry']"
+  <div *ngIf="!emailSuggestions && !importRequestLoading">
+    <p-fileUpload
+      name="file"
+      [url]="importUrl"
+      (onUpload)="importSuccessful($event)"
+      (onError)="importError($event)"
+      accept="text/csv"
+      maxFileSize="1000000"
+      chooseLabel="Select CSV file"
+      uploadLabel="Import"
+      showCancelButton="false"
     >
-      Pantry
-    </button>
+        <ng-template pTemplate="content">
+          <span *ngIf="uploadedFile">{{ uploadedFile.name }} - {{ uploadedFile.size }} bytes</span>
+        </ng-template>
+    </p-fileUpload>
   </div>
-  <div class="">
-    <app-shopping-list [groupId]="group.id"></app-shopping-list>
+
+  <div *ngIf="emailSuggestions && !importRequestLoading" class="p-4 bg-gray-100 rounded-md shadow-md">
+    <span class="block text-gray-700 mb-4">Please make sure that all Names from the csv file are matched with the correct user</span>
+    <div *ngFor="let entry of emailSuggestions" class="mb-6">
+      <label class="block text-gray-600 mb-1">{{ entry.name }}</label>
+      <p-autoComplete
+        [(ngModel)]="entry.email"
+        [dropdown]="true"
+        [suggestions]="entry.filteredSuggestions"
+        (completeMethod)="filterImportEmail($event, entry)"
+      />
+    </div>
+    <p-button label="Import" (click)="importData()" />
   </div>
 
+  <div *ngIf="importRequestLoading" class="p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center space-y-4">
+    <span class="text-gray-800 font-semibold">Importing data...</span>
+    <p-progressSpinner ariaLabel="loading" />
+  </div>
+
+  <p-footer>
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" severity="secondary" (click)="closeImportDialog()" />
+    </div>
+  </p-footer>
+</p-dialog>
+
+<!-- Modal for creating new expense -->
+<p-dialog
+  [(visible)]="isExpenseDialogVisible"
+  [modal]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="expenseModalHided()"
+>
+  <p-header>
+    <div class="text-2xl font-bold">Expense for Group: <span class="text-gray-700">{{ group.groupName }}</span></div>
+  </p-header>
+
+  <app-expense-create
+    [groupId]="group.id"
+    [mode]="expenseDialogMode"
+    [expenseId]="expenseDialogExpenseId"
+    (closeDialog)="closeCreateExpenseDialog()"
+  ></app-expense-create>
+
+  <p-footer></p-footer>
+</p-dialog>
 
 
-<div class="pt-5">
-  <div class="row">
-    <div class="col">
+
+<p-confirmDialog>
+</p-confirmDialog>
+
+<!-- Modal for edit group -->
+<p-dialog header="Edit Group" [(visible)]="editNewGroupModalVisible"
+          [modal]="true"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [draggable]="false"
+          [resizable]="false"
+          [style]="{ width: '60rem'}"
+>
+  <form #form="ngForm" class="flex flex-col gap-4 pt-16" (ngSubmit)="onSubmitModal(form)" name ="formOfGroupEdit">
+    <div class="flex flex-col gap-2 pl-6">
+      <label for="inputGroupName" class="font-medium w-64">Group Name</label>
+      <input pAutoFocus
+             [(ngModel)]="groupForEditModal.groupName"
+             #groupName="ngModel"
+             type="text" pInputText name="Barcelona Trip" id="inputGroupName" placeholder="Barcelona Trip" style="width: 500px;"
+             required pattern="^[a-zA-Z0-9][a-zA-Z0-9 ]*$"
+             maxlength="20"
+      >
+      <div *ngIf="groupName.touched && groupName.errors?.required" class="text-red-500 text-xs">
+        Group name is required.
+      </div>
+      <div *ngIf="groupName.touched && groupName.errors?.pattern" class="text-red-500 text-xs">
+        Group name must only contain letters, numbers, spaces and start with a letter or number.
+      </div>
+      <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
+        Group name must not have over 20 characters.
+      </div>
+      <br>
+
+      <label for="inputMembers" class="font-medium w-64">Current Members</label>
+      <div class="flex flex-wrap gap-4 mr-20">
+        <div *ngFor="let member of getSortedGroupMembersEmail(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="font-semibold">{{i+1}}:</div>
+              <div class="ml-4">{{member}}</div>
+            </div>
+            <!--          <button *ngIf="member !== authService.getEmail()" type="button" class="btn-light ml-5" (click)="removeMember(i)"-->
+            <!--                  [style.visibility]="member ? 'visible' : 'hidden'">-->
+            <!--            <i class="pi pi-trash"></i>-->
+            <!--          </button>-->
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <label for="inputMembers" class="font-medium w-64">Add new Members</label>
+      <p-autoComplete
+        [(ngModel)]="currentlySelected"
+        #inputSelection="ngModel"
+        name="currentlySelected"
+        [suggestions]="filteredFriendsEdit"
+        (completeMethod)="filterMembersEdit($event)"
+        (onSelect)="addMemberEdit($event)"
+        [dropdown]="true"
+        [forceSelection]="friendsEdit"
+        id = "inputMembers"
+      />
+
+
+      <div>
+<!--        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-64 max-h-64 overflow-auto">-->
+        <div class="flex flex-col gap-2 ml-12 mr-20 min-w-20 max-w-xl min-h-32 max-h-64 overflow-auto">
+          <div *ngFor="let member of getMembersEmailEdit(); index as i" class="bg-white shadow-md rounded-lg p-4 mb-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="font-semibold">{{i+1}}:</div>
+                <div class="ml-4">{{member}}</div>
+              </div>
+
+
+
+              <button *ngIf="member !== authService.getEmail()" type="button" class="btn-light ml-5" (click)="removeMemberEdit(i)"
+                      [style.visibility]="member ? 'visible' : 'hidden'">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+        <p-button severity="secondary" (click)="goBack($event)">Cancel</p-button>
+        <p-button severity="primary" [disabled]="(!form.valid || groupForEditModal === undefined)" (click)="onSubmitModal(form)">Save</p-button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Modal for making sure to leave the group -->
+<p-confirmDialog key="leaveGroup">
+  <ng-template pTemplate="message" let-message>
+    <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+      <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+      <p [innerHTML]="message.message"></p>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+
+<!-- Modal for delete confirmation -->
+<p-dialog
+  header="Delete Payment"
+  [modal]="true"
+  [(visible)]="isDeleteDialogVisible"
+  [style]="{ width: '25rem' }"
+>
+  <span class="p-text-secondary block mb-5">Do you really want to delete this payment?</span>
+  <div class="flex justify-content-end gap-2">
+    <p-button label="No" severity="secondary" (click)="closeDeleteDialog()" />
+    <p-button label="Yes" (click)="deleteExistingPayment()"/>
+  </div>
+</p-dialog>
+
+<!-- Modal for creating new budget -->
+<p-dialog
+  [(visible)]="isBudgetDialogVisible"
+  [modal]="true"
+  [style]="{with: '5000px'}"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="budgetModalClose()"
+>
+  <p-header>
+    <div
+    *ngIf="budgetModeIsCreate()"
+    class="text-2xl font-bold">Create new Budget<span class="text-gray-700"></span></div>
+    <div
+    *ngIf="!budgetModeIsCreate()"
+    class="text-2xl font-bold">Budget Info<span class="text-gray-700"></span></div>
+ 
+  </p-header>
+
+  <app-budget-create
+  [groupId]="group.id"
+  [mode]="budgetDialogMode"
+  [budgetId]="budgetDialogBudgetId"
+  (closeDialog)="closeCreateBudgetDialog()"
+  ></app-budget-create>
+
+    <p-footer></p-footer>
+</p-dialog>
+
+<!--Modal to settle debts in the top right corner -->
+<p-dialog header="Settle Debt"
+          [(visible)]="visibleModalSettleDebts"
+          [modal]="true"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [draggable]="false"
+          [resizable]="false"
+          [style]="{ width: '40rem'}"
+>
+  <p-confirmDialog key="SettleDebtsConfirmDialog"/>
+  <div *ngIf="getMembersOnlyNegativeDebts().length === 0" class="w-full max-w-md p-4 flex rounded ">
+    <p>Perfect! Seems like you do not have open debts</p>
+  </div>
+
+  <div *ngIf="getMembersOnlyNegativeDebts().length > 0">
+    <br>
+    <span class="p-text-secondary block mb-5">Insert a payment to a user</span>
+    <label for="debtMemberSelection" class="font-semibold w-6rem">Open Debts</label>
+
+      <div *ngFor="let entry of getMembersOnlyNegativeDebts()" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+        <div class="flex items-center space-x-4">
+          <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ entry[0][0] }}</div>
+          <div>
+            <div class="font-bold">{{ entry[0] }}</div>
+          </div>
+        </div>
+        <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+      </div>
+
+    <br>
+    <form #form="ngForm" (ngSubmit)="paymentCreationSave(form)" name="formOfSettleDebt">
+    <div class="flex flex-col align-items-center gap-3 mb-3">
+      <label for="debtMemberSelection" class="font-semibold w-6rem">To User</label>
+      <p-autoComplete
+        name="currentlySelected"
+        [(ngModel)]="selectedDebtMemberVar"
+        [suggestions]="filteredDebtMembers"
+        (completeMethod)="filterDebtMembers($event)"
+        (onSelect)="selectedDebtMember($event)"
+        [dropdown]="true"
+        [forceSelection]="debtMembers"
+        id = "debtMemberSelection"
+        [required]="true"
+      />
+    </div>
+    <div class="flex flex-col align-items-center gap-3 mb-5">
+<!--      <label for="amount" class="font-semibold w-6rem">Amount</label>-->
+      <label for="amount" class="font-semibold w-6rem">Total Amount (€)</label>
+      <p-inputNumber
+        [(ngModel)]="amountOfSelectedDebtMember"
+        mode="currency"
+        inputId="amount"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0.01"
+        [max]="9999999.99"
+        [required]="true"
+        required
+        name="amount"
+        #amountCtrl="ngModel"
+      />
+<!--      <input pInputText placeholder="30"  [(ngModel)]="amountOfSelectedDebtMember" name="amountOfSelectedDebtMember" id="amount" type="number" min="1" max="1000000" class="flex-auto" autocomplete="off" [required]="true" required/>-->
+    </div>
+    <br>
+    <br>
+      <div style="display: grid; place-items: end;">
+        <p-button label="Save" [disabled]="(!form.valid || !selectedDebtMemberVar)" (click)="paymentCreationSave(form)" />
+      </div>
+    </form>
+  </div>
+
+</p-dialog>
+
+
+<!--Modal for Payments -->
+<p-dialog header="Payment"
+          [(visible)]="isPaymentDialogVisible"
+          [modal]="true"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [draggable]="false"
+          [resizable]="false"
+          [style]="{ width: '40rem'}"
+>
+  <div class="bg-blue-100 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto space-y-6 mt-2">
+
+  <label *ngIf="paymentIsDeleted() && !paymentIsArchived()" class="flex items-center text-red-500 font-bold">
+    <i class="pi pi-exclamation-triangle mr-2"></i>
+    This Payment is marked as deleted!
+  </label>
+
+  <label *ngIf="paymentIsArchived()" class="flex items-center text-red-500 font-bold">
+    <i class="pi pi-exclamation-triangle mr-2"></i>
+    This Payment is marked as archived!
+  </label>
+  <label *ngIf="paymentIsArchived()" class="block text-sm font-medium text-gray-700">A member of the payment has left the group, thus it is not possible to make changes.</label>
+
+
+  <!-- Section for displaying the amount -->
+  <div class=" space-y-4">
+    <!-- Payer -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Payer</label>
+      <input type="text" pInputText
+             [(ngModel)]="payerEmailForPaymentDialog"
+             [disabled]="true"
+      />
+    </div>
+
+    <!-- Receiver -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Receiver</label>
+      <input type="text" pInputText
+             [(ngModel)]="receiverEmailForPaymentDialog"
+             [disabled]="true"
+      />
+    </div>
+
+    <!-- Amount -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Amount</label>
+      <!--    <label class="font-semibold w-6rem">{{paymentForDialog?.payerEmail}} payed {{paymentForDialog?.receiverEmail}}</label>-->
+
+      <p-inputNumber
+        [(ngModel)]="amountForPaymentDialog"
+        mode="currency"
+        inputId="amount"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0.01"
+        [max]="9999999.99"
+        [required]="true"
+        [disabled]= "paymentModeIsInfo()"
+        required
+        name="amount"
+        #amountCtrl="ngModel"
+      />
+    </div>
+
+    <!-- Buttons -->
+
+    <div *ngIf="paymentModeIsEdit() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end gap-2">
+<!--      <button (click)="openDeleteDialog()" class="bg-red-500 text-white font-bold py-2 px-4 rounded flex items-center hover:bg-red-600 mr-2">-->
+<!--        <i class="pi pi-trash mr-2"></i> Delete Payment-->
+<!--      </button>-->
+      <p-button
+        label="Delete Payment"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
+
+
+      <p-button
+        label="Save Changes"
+        icon = "pi pi-check"
+        iconPos="left"
+        (click)="paymentModalSaveChanges()"
+      ></p-button>
+    </div>
+    <div *ngIf="paymentModeIsInfo() && !paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end gap-2">
+      <p-button
+        label="Delete Payment"
+        icon="pi pi-trash"
+        iconPos="left"
+        (click)="openDeleteDialog()"
+      ></p-button>
+
+      <p-button
+        label="Edit Payment"
+        icon="pi pi-pencil"
+        iconPos="left"
+        (click)="paymentSwitchToEditMode()"
+      ></p-button>
+    </div>
+    <div *ngIf="paymentIsDeleted() && !paymentIsArchived()" class="flex justify-end">
+      <p-button
+        label="Recover Payment"
+        icon="pi pi-undo"
+        iconPos="left"
+        (click)="recoverDeletedPayment()"
+      ></p-button>
+    </div>
+  </div>
+
+  </div>
+</p-dialog>
+
+<div>
+  <!-- Header part with diagram -->
+  <div class="bg-blue-100">
+    <div class="p-4 flex">
+      <div class="w-2/3 flex justify-center">
+        <div class="bg-blue-100 p-4 max-w-3xl mx-auto">
+          <div class="flex items-end justify-around">
+            <div *ngIf="membersWithDebtsWithoutEven?.length > 0" class="bg-blue-100 p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+              <div class="flex items-end justify-around space-x-4">
+                <div *ngFor="let entry of membersWithDebtsWithoutEven" class="flex flex-col items-center space-y-2">
+                  <div *ngIf="entry[1] > 0" class="bg-blue-300 p-4 rounded-t-lg shadow flex flex-col justify-between" [ngStyle]="{ height: calcChartHeight(entry[1]) }">
+                    <span class="font-bold self-end">{{ entry[1] | currency: 'EUR' }}</span>
+                  </div>
+                  <div *ngIf="entry[1] < 0" class="bg-red-300 p-4 rounded-t-lg shadow flex flex-col justify-between" [ngStyle]="{ height: calcChartHeight(entry[1]) }">
+                    <span class="font-bold self-end">{{ entry[1] | currency: 'EUR' }}</span>
+                  </div>
+                  <div class="mt-2 text-center">
+                    <span class="font-bold" style="font-size: xx-small;">{{ entry[0] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col justify-between items-start ml-4">
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold">{{ group.groupName }}</h2>
+          <div class="text-sm">Transactions: {{ transactionsActivities.length }}</div>
+          <div class="text-sm">Members: {{ group.members.length }}</div>
+        </div>
+        <div class="flex space-x-2 mt-4">
+          <p-button label="Show charts" (click) = "showVisualizationPage()"></p-button>
+          <p-button label="Settle debts" (click) ="showDialogSettleDebts()"></p-button>
+          <p-menu #menu [model]="menuitemsButtonMore" [popup]="true" ></p-menu>
+          <p-button label="More" icon="pi pi-angle-down" severity="secondary" iconPos="right" (click)="menu.show($event)"></p-button>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-5 flex justify-center">
+      <p-tabMenu
+        [model]="tabMenuItems"
+        [activeItem]="tabMenuActiveItem"
+        (activeItemChange)="onActiveItemChange($event)"
+      ></p-tabMenu>
+    </div>
+  </div>
+
+  <!-- Activities part -->
+  <div *ngIf="isActivitiesSelected()" class="p-4 max-w-lg mx-auto">
+
+    <div class="flex justify-center mb-4">
+      <div class="relative w-full max-w-xs flex items-center">
+        <span class="absolute left-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 16.65a8 8 0 111.414-1.414 8 8 0 01-1.414 1.414z" />
+          </svg>
+        </span>
+        <input (keyup)="searchActivitiesChanged($event)" type="text" placeholder="Search activities..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
+      </div>
+    </div>
+
+    <div *ngIf="transactionsActivities.length === 0" class="flex flex-col items-center gap-4">
+      <br>
+      <div class="text-lg font-bold">No activities yet</div>
+      <div class="text-gray-500">Switch to transactions to get started</div>
+    </div>
+
+    <div class="space-y-4">
+      <div *ngFor="let transaction of getTransactionActivitiesVarSortedAndPaginated()">
+
+<!--        For expenses -->
+        <div *ngIf="transaction.expenseId !== null" (click)="openInfoExpenseDialog(transaction.expenseId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm">{{ transaction.description }}</div>
+              <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+        </div>
+<!--          For payments-->
+        <div *ngIf="transaction.paymentId !== null" (click)="openInfoPaymentDialog(transaction.paymentId)" [ngClass]="getActivityColor(transaction.category)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm">{{ transaction.description }}</div>
+              <div class="text-xs">{{ transaction.timestamp | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-normal text-sm">{{ transaction.amount | currency: 'EUR' }}</div>
+        </div>
+
+      </div>
+
+      <p-paginator *ngIf="transactionsActivities.length > 0" [rows]="activitiesPaginationCount" [totalRecords]="getTransactionActivitiesVarSorted().length" (onPageChange)="paginateActivities($event)"></p-paginator>
 
     </div>
   </div>
+
+
+  <!-- Transactions tab -->
+  <div *ngIf="isTransactionsSelected()" class="p-4 max-w-2xl mx-auto space-y-4">
+    <div class="flex justify-center mb-4">
+      <button (click)="openCreateExpenseDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+        <span class="text-xl mr-2">+</span> Add Expense
+      </button>
+    </div>
+
+    <div class="flex justify-center mb-4">
+      <div class="relative w-full max-w-xs flex items-center">
+        <span class="absolute left-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 16.65a8 8 0 111.414-1.414 8 8 0 01-1.414 1.414z" />
+          </svg>
+        </span>
+        <input (keyup)="searchTransactionsChanged($event)" type="text" placeholder="Search transactions..." class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
+      </div>
+    </div>
+
+    <div *ngIf="expenses.length === 0 && payments.length === 0" class="flex flex-col items-center gap-4">
+        <br>
+        <div class="text-lg font-bold">No transactions yet</div>
+        <div class="text-gray-500">Create a new transactions to get started</div>
+    </div>
+
+
+    <div class="space-y-4">
+      <div *ngFor="let transaction of getTransactionVarSortedWithoutDeletedAndPaginated()">
+
+        <!-- For expenses -->
+        <div *ngIf="isExpense(transaction)" (click)="openInfoExpenseDialog(transaction.id)" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm"><b>{{ transaction.name }}</b></div>
+              <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm" *ngIf="transaction.payerEmail === authService.getEmail()" style="color: green;">
+                You payed <span>{{transaction.amount | currency: 'EUR' }}</span>
+              </div>
+              <div class="font-normal text-sm" *ngIf="transaction.payerEmail !== authService.getEmail()">{{ transaction.payerEmail }} payed {{transaction.amount | currency: 'EUR' }}</div>
+              <div class="text-xs" *ngIf="transaction.payerEmail === authService.getEmail()"></div>
+              <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) !== '0'" style="color: red;">
+                You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
+              </div>
+              <div class="text-xs" *ngIf="transaction.payerEmail !== authService.getEmail() && getLoggedInUserAmountOfExpense(transaction) === '0'">
+                You owe <span>{{ getLoggedInUserAmountOfExpense(transaction) | currency: 'EUR' }} </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- For payments -->
+        <div *ngIf="!isExpense(transaction)" (click)="openInfoPaymentDialog(transaction.id)" [ngClass]="getPaymentColor()" class="flex items-center justify-between p-4 rounded-lg shadow cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div>
+              <div class="font-normal text-sm"><b>{{transaction.payerEmail}}</b> payed  <b>{{ transaction.receiverEmail }}</b> {{transaction.amount | currency: 'EUR'}}</div>
+              <div class="text-xs">{{ transaction.date | date: 'dd.MM.yyyy, HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p-paginator *ngIf="expenses.length > 0 || payments.length > 0" [rows]="transactionsPaginationCount" [totalRecords]="getTransactionVarSortedWithoutDeleted().length" (onPageChange)="paginateTransactions($event)"></p-paginator>
+
+    </div>
+  </div>
+
+
+
+
+
+
+  <!-- Members tab -->
+  <div *ngIf="isMembersSelected()" class="p-4 max-w-md mx-auto">
+
+    <div class="space-y-4">
+      <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+        <div class="flex items-center space-x-4">
+          <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ debt?.userEmail[0] || "" }}</div>
+          <div>
+            <div class="font-bold">{{ debt.userEmail }}</div>
+          </div>
+        </div>
+        <div class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">You</div>
+      </div>
+
+        <div *ngFor="let entry of getMembersWithDebtsSorted()" class="flex items-center justify-between p-4 bg-blue-50 rounded-lg shadow">
+          <div class="flex items-center space-x-4">
+            <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ entry[0][0] }}</div>
+            <div>
+              <div class="font-bold">{{ entry[0] }}</div>
+            </div>
+          </div>
+          <div *ngIf="entry[1] > 0" class="text-green-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+          <div *ngIf="entry[1] < 0" class="text-red-500 font-bold">{{ entry[1] | currency: 'EUR' }}</div>
+          <div *ngIf="entry[1] === 0" class="bg-gray-300 rounded-full px-2 py-1 text-gray-700 font-bold">even</div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Shopping lists tab -->
+  <app-shopping-lists-in-group *ngIf="isShoppingListsSelected()" [groupId]="group.id"></app-shopping-lists-in-group>
+
+
+    <!-- Budget tab -->
+    <div *ngIf="isBudgetSelected()" class="p-4 max-w-2xl mx-auto">
+      <div class="flex justify-center mb-4">
+        <button (click)="openCreateBudgetDialog()" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">
+          <span class="text-xl mr-2">+</span> Add Budget
+        </button>
+      </div>
+
+      <div *ngIf="budgets.length === 0" class="flex flex-col items-center gap-4">
+        <br>
+        <div class="text-lg font-bold">No budgets yet</div>
+        <div class="text-gray-500">Create a new budget to get started</div>
+      </div>
+
+      <div class="overflow-y-auto overflow-x-hidden">
+        <div *ngFor="let budget of budgets" (click)="openInfoBudgetDialog(budget.id)">
+          <a class="text-black rounded-md outline outline-1 outline-slate-300">
+            <div class="p-2 m-2 hover:bg-slate-100 hover:cursor-pointer">
+              <div class="text-sm text-gray-600">{{budget.daysUntilReset}} day(s) until reset -  
+                {{getRemainingBudget(budget) | currency: 'EUR'}} left</div>
+              <p-progressBar
+                [value]="getBudgetPercentage(budget)"
+                [ngClass]="getProgressBarColor(budget)"
+                >
+                <ng-template pTemplate="content" let-value>
+                <span>{{value}}%</span>
+                </ng-template>
+              </p-progressBar>
+                <div>{{budget.category}}</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  <app-pantry *ngIf="isPantrySelected()"></app-pantry>
+
 </div>
-</div>
+
+
+

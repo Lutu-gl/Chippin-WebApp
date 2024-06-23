@@ -1,11 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.RecipeEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
@@ -59,6 +60,15 @@ public interface RecipeService {
      */
     RecipeDetailDto getById(long id);
 
+    /**
+     * Find a recipe by its id and see if the user liked it or not.
+     *
+     * @param id   the id of the recipe
+     * @param user the user to get the information from
+     * @return the recipe with the corresponding id
+     */
+    RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user);
+
 
     /**
      * Return all recipes from the associated user.
@@ -91,6 +101,15 @@ public interface RecipeService {
     void deleteRecipe(long id);
 
     /**
+     * Updates an item in a recipe.
+     *
+     * @param item     the updated item
+     * @param recipeId the id of the recipe, where the item is in
+     * @return the updated item
+     */
+    Item updateItem(ItemDto item, long recipeId);
+
+    /**
      * Like a recipe.
      * If a recipe is already disliked, remove the dislike
      *
@@ -116,6 +135,15 @@ public interface RecipeService {
      * @return a list of all matching recipes
      */
     List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams);
+
+    /**
+     * Return a list of recipes the user liked whose name matches the searchparams.
+     *
+     * @param owner        the owner whose recipes should be returned
+     * @param searchParams the string that should find a name
+     * @return a list of all matching recipes
+     */
+    List<RecipeListDto> searchLikedRecipe(ApplicationUser owner, String searchParams);
 
 
     /**

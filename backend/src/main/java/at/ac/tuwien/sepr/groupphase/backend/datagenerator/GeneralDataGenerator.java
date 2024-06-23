@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
+import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -26,10 +27,11 @@ public class GeneralDataGenerator implements DataGenerator {
     private final PaymentDataGenerator paymentDataGenerator;
     private final ShoppingListDataGenerator shoppingListDataGenerator;
     private final BudgetDataGenerator budgetDataGenerator;
+    private final ExchangeRateDataGenerator exchangeRateDataGenerator;
 
     @PostConstruct
-    public void generateData() {
-        LOGGER.debug("generating all data");
+    public void generateData() throws AlreadyRatedException {
+        LOGGER.trace("generating all data");
         cleanData();
         userDataGenerator.generateData();
         groupDataGenerator.generateData();
@@ -41,13 +43,14 @@ public class GeneralDataGenerator implements DataGenerator {
         paymentDataGenerator.generateData();
         activityDataGenerator.generateData();
         budgetDataGenerator.generateData();
+        exchangeRateDataGenerator.generateData();
 
         shoppingListDataGenerator.generateData();
-        LOGGER.debug("finished generating all data");
+        LOGGER.trace("finished generating all data");
     }
 
     public void cleanData() {
-        LOGGER.debug("cleaning all data");
+        LOGGER.trace("cleaning all data");
         budgetDataGenerator.cleanData();
         activityDataGenerator.cleanData();
         paymentDataGenerator.cleanData();
@@ -58,9 +61,10 @@ public class GeneralDataGenerator implements DataGenerator {
         itemDataGenerator.cleanData();
         friendshipDataGenerator.cleanData();
         groupDataGenerator.cleanData();
+        exchangeRateDataGenerator.cleanData();
 
         userDataGenerator.cleanData();
-        LOGGER.debug("finished cleaning all data");
+        LOGGER.trace("finished cleaning all data");
     }
 
 }

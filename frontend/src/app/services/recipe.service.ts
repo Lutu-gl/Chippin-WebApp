@@ -4,12 +4,13 @@ import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {
   RecipeCreateWithoutUserDto,
-  RecipeDetailDto,
+  RecipeDetailDto, RecipeDetailWithUserInfoDto,
   RecipeGlobalListDto,
   RecipeListDto,
   RecipeSearch
 } from "../dtos/recipe";
 import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
+import {AddItemToShoppingListDto, RemoveRecipeIngredientsFromPantryDto} from "../dtos/RecipePantryShoppingList";
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,7 @@ export class RecipeService {
   createRecipe(recipe: RecipeCreateWithoutUserDto): Observable<RecipeDetailDto> {
     return this.httpClient.post<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/create`, recipe);
   }
+
   /**
    * Loads a recipe by its id.
    *
@@ -37,6 +39,16 @@ export class RecipeService {
    */
   getRecipeById(id: number): Observable<RecipeDetailDto> {
     return this.httpClient.get<RecipeDetailDto>(`${this.recipeBaseUri}/${id}/recipe`);
+  }
+
+
+  /**
+   * Loads a recipe by its id.
+   *
+   * @param id id of the recipe to load
+   */
+  getRecipeWithInfoById(id: number): Observable<RecipeDetailWithUserInfoDto> {
+    return this.httpClient.get<RecipeDetailWithUserInfoDto>(`${this.recipeBaseUri}/${id}/recipe/info`);
   }
 
   /**
@@ -77,7 +89,7 @@ export class RecipeService {
    * Get all recipes associated with the user that sends this request.
    * @return all recipes associated with the user
    */
-  getRecipesFromUser(): Observable<RecipeListDto[]>{
+  getRecipesFromUser(): Observable<RecipeListDto[]> {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/list`);
   }
 
@@ -85,7 +97,7 @@ export class RecipeService {
    * Get all recipes liked by the user that sends this request.
    * @return all recipes liked by the user
    */
-  getLikedRecipesFromUser(): Observable<RecipeListDto[]>{
+  getLikedRecipesFromUser(): Observable<RecipeListDto[]> {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/likedlist`);
   }
 
@@ -110,9 +122,9 @@ export class RecipeService {
    * Delete a recipe with the given id.
    * @param id the id of the recipe to delete
    */
-  deleteRecipe(id: number) : Observable<void> {
+  deleteRecipe(id: number): Observable<void> {
 
-     return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}/delete`);
+    return this.httpClient.delete<void>(`${this.recipeBaseUri}/recipe/${id}/delete`);
 
   }
 
@@ -121,15 +133,16 @@ export class RecipeService {
    * If the user already disliked, remove the dislike
    * @param id of the recipe to like
    */
-  likeRecipe(id:number): Observable<RecipeDetailDto> {
+  likeRecipe(id: number): Observable<RecipeDetailDto> {
     return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/like`, {});
   }
+
   /**
    * Increase the dislike count of the recipe by 1 and store who disliked it.
    * If the user already liked, remove the like
    * @param id of the recipe to dislike
    */
-  dislikeRecipe(id:number): Observable<RecipeDetailDto> {
+  dislikeRecipe(id: number): Observable<RecipeDetailDto> {
     return this.httpClient.put<RecipeDetailDto>(`${this.recipeBaseUri}/recipe/${id}/dislike`, {});
   }
 
@@ -144,6 +157,16 @@ export class RecipeService {
   }
 
   /**
+   * Search for all public recipes with a search string
+   * @param searchParam the string to search for
+   */
+  searchLikedRecipes(searchParam: RecipeSearch): Observable<RecipeListDto[]> {
+    let params = new HttpParams();
+    params = params.append('details', searchParam.details);
+    return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/liked`, {params});
+  }
+
+  /**
    * Search for all owned recipes with a search string
    * @param searchParam the string to search for
    */
@@ -153,8 +176,39 @@ export class RecipeService {
     return this.httpClient.get<RecipeListDto[]>(`${this.recipeBaseUri}/recipe/search/own`, {params});
   }
 
-  removeRecipeIngredientsFromPantry(pantryId:number, recipeId:number, portion:number): Observable<String[]> {
+  /**
+   * Update an item in a recipe.
+   * @param item the item to update
+   * @param recipeId the id of the recipe the item belongs to
+   */
+  updateItemInRecipe(item: ItemDetailDto, recipeId:number): Observable<ItemDetailDto> {
+    return this.httpClient.put<ItemDetailDto>(`${this.recipeBaseUri}/${recipeId}/recipe`, item);
+  }
 
-    return this.httpClient.put<String[]>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
+  removeRecipeIngredientsFromPantry(recipeId:number, pantryId:number , portion:number): Observable<RemoveRecipeIngredientsFromPantryDto> {
+
+    return this.httpClient.put<RemoveRecipeIngredientsFromPantryDto>(`${this.recipeBaseUri}/recipe/${recipeId}/pantry/${pantryId}/${portion}`, {});
+  }
+
+
+  /**
+   * Return a suggestion for the user what items he can add to his shopping list.
+   * This function takes into account what already is in the selected shopping list and the optional pantry
+   *
+   * @param recipeId       the recipe with the ingredients
+   * @param shoppingListId the shopping list to add
+   * @param pantryId       the pantry the user wants to be considered
+   * @return a list of items with
+   */
+  selectIngredientsForShoppingListWithPantry(recipeId: number, shoppingListId: number, pantryId: number): Observable<AddItemToShoppingListDto> {
+    return this.httpClient.get<AddItemToShoppingListDto>(`${this.recipeBaseUri}/recipe/${recipeId}/shoppinglist/${shoppingListId}/pantry/${pantryId}`);
+  }
+
+  selectIngredientsForShoppingList(recipeId: number, shoppingListId: number): Observable<AddItemToShoppingListDto> {
+    return this.httpClient.get<AddItemToShoppingListDto>(`${this.recipeBaseUri}/recipe/${recipeId}/shoppinglist/${shoppingListId}`);
+  }
+
+  exportRecipe(recipeId:number) {
+    return this.httpClient.get(`${this.globals.backendUri}/recipe/${recipeId}/pdf`, {responseType: "blob"});
   }
 }

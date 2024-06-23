@@ -13,7 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
@@ -23,12 +22,21 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +48,6 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseValidator expenseValidator;
     private final UserRepository userRepository;
     private final BudgetService budgetService;
-    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -53,7 +60,83 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new AccessDeniedException("You do not have permission to access this expense");
         }
 
+        // if expense is not archived, then all participants of the expense should definitely be in the group
+        // if not they should be deleted from the participants list
+        if (expense.getArchived() == null || !expense.getArchived()) {
+            expense.getParticipants().keySet().removeIf(member -> !expense.getGroup().getUsers().contains(member));
+        }
+
+        for (ApplicationUser member : expense.getGroup().getUsers()) {
+            if (!expense.getParticipants().containsKey(member)) {
+                expense.getParticipants().put(member, 0.0);
+            }
+        }
+
         return expenseMapper.expenseEntityToExpenseDetailDto(expense);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<byte[]> getBill(Long expenseId, String requesterEmail) throws NotFoundException {
+        LOGGER.trace("getBill({}, {})", expenseId, requesterEmail);
+
+        ApplicationUser user = userRepository.findByEmail(requesterEmail);
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
+        if (!expense.getGroup().getUsers().contains(user)) {
+            throw new AccessDeniedException("You do not have permission to access this bill");
+        }
+        if (expense.getBillPath() == null) {
+            throw new NotFoundException("No bill found for this expense");
+        }
+        Path path = Paths.get(System.getProperty("user.dir") + expense.getBillPath());
+        HttpHeaders headers = getHttpHeaders(expense);
+
+        try {
+            return ResponseEntity.ok().headers(headers).body(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new NotFoundException("Error while reading the bill");
+        }
+
+    }
+
+    private static HttpHeaders getHttpHeaders(Expense expense) {
+        String extension = expense.getBillPath().substring(expense.getBillPath().lastIndexOf("."));
+        String contentType = switch (extension) {
+            case ".gif" -> "image/gif";
+            case ".png" -> "image/png";
+            case ".jpg", ".jpeg" -> "image/jpeg";
+            default -> "application/octet-stream";
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bill" + extension);
+        return headers;
+    }
+
+    private String generateRandomFileName() {
+        LOGGER.trace("generateRandomFileName()");
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Random random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(40);
+        for (int i = 0; i < 40; i++) {
+            int index = random.nextInt(alphabet.length());
+            sb.append(alphabet.charAt(index));
+        }
+        return sb.toString();
+    }
+
+    private String saveBill(ExpenseCreateDto expenseCreateDto) throws ValidationException {
+        String fileExtension = Objects.requireNonNull(expenseCreateDto.getBill().getOriginalFilename()).substring(expenseCreateDto.getBill().getOriginalFilename().lastIndexOf("."));
+        String fileName = "/uploads/" + generateRandomFileName() + fileExtension;
+        Path path = Paths.get(System.getProperty("user.dir") + fileName);
+        try {
+            Files.createDirectories(path.getParent());
+            Files.write(path, expenseCreateDto.getBill().getBytes());
+            return fileName;
+        } catch (IOException e) {
+            throw new ValidationException("Error while saving the bill", List.of(e.getMessage()));
+        }
     }
 
     @Override
@@ -68,12 +151,16 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         expense.setDate(LocalDateTime.now());
         expense.setDeleted(false);
+        expense.setArchived(false);
         if (expense.getCategory() == null) {
             expense.setCategory(Category.Other);
         }
+        if (expenseCreateDto.getBill() != null) {
+            String fileName = saveBill(expenseCreateDto);
+            expense.setBillPath(fileName);
+        }
 
-
-        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+        budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
 
         Expense expenseSaved = expenseRepository.save(expense);
         Activity activityForExpense = Activity.builder()
@@ -95,7 +182,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         LOGGER.trace("updateExpense({}, {})", expenseId, updaterEmail);
         Expense existingExpense = expenseRepository.findById(expenseId).orElseThrow(() -> new NotFoundException("No expense found with this id"));
         expenseCreateDto.setGroupId(existingExpense.getGroup().getId());
-        expenseValidator.validateForCreation(expenseCreateDto);
+        expenseValidator.validateForUpdate(expenseCreateDto, existingExpense);
 
         Expense expense = expenseMapper.expenseCreateDtoToExpenseEntity(expenseCreateDto);
         ApplicationUser user = userRepository.findByEmail(updaterEmail);
@@ -110,8 +197,26 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         if ((existingExpense.getAmount() != expense.getAmount()) || existingExpense.getCategory() != expense.getCategory()) {
-            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
-            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory());
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+            budgetService.addUsedAmount(expenseCreateDto.getGroupId(), expense.getAmount(), expense.getCategory(), expense.getDate());
+        }
+        expense.setDeleted(existingExpense.isDeleted());
+        expense.setArchived(existingExpense.getArchived());
+
+        // delete the old bill
+        if (existingExpense.getBillPath() != null) {
+            Path oldPath = Paths.get(System.getProperty("user.dir") + existingExpense.getBillPath());
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                throw new ValidationException("Error while deleting the old bill", List.of(e.getMessage()));
+            }
+        }
+
+        // save the new bill
+        if (expenseCreateDto.getBill() != null) {
+            String fileName = saveBill(expenseCreateDto);
+            expense.setBillPath(fileName);
         }
 
         Expense expenseSaved = expenseRepository.save(expense);
@@ -147,7 +252,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsDeleted(existingExpense);
 
-        budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory());
+        if (existingExpense.getDate() != null) {
+            budgetService.removeUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
 
         Activity activityForExpenseDelete = Activity.builder()
             .category(ActivityCategory.EXPENSE_DELETE)
@@ -179,6 +286,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.markExpenseAsRecovered(existingExpense);
 
+
+        if (existingExpense.getDate() != null) {
+            budgetService.addUsedAmount(existingExpense.getGroup().getId(), existingExpense.getAmount(), existingExpense.getCategory(), existingExpense.getDate());
+        }
         existingExpense.setDeleted(false);
 
         Activity activityForExpenseRecover = Activity.builder()

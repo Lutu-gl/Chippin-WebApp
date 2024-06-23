@@ -11,8 +11,8 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
-import { FriendsComponent } from './components/friends/friends.component';
-import { AddFriendComponent } from './components/add-friend/add-friend.component';
+import {FriendsComponent} from './components/friends/friends.component';
+import {AddFriendComponent} from './components/add-friend/add-friend.component';
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent} from "./components/group-list/group-create/group-create.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -27,11 +27,11 @@ import {
 } from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {ShoppingListComponent} from "./components/shopping-list/shopping-list.component";
-import { BudgetListComponent } from './components/budget/budget-list.component';
-import { BudgetCreateComponent } from './components/budget/budget-create/budget-create.component';
-import { ExpenseCreateComponent } from './components/expense/expense-create/expense-create.component';
-import { ExpenseListComponent } from './components/expense/expense-list.component';
-import { ConfirmDeleteDialogComponent } from './components/confirm-delete-dialog/confirm-delete-dialog.component';
+import {BudgetListComponent} from './components/budget/budget-list.component';
+import {BudgetCreateComponent} from './components/budget/budget-create/budget-create.component';
+import {ExpenseCreateComponent} from './components/expense/expense-create/expense-create.component';
+import {ExpenseListComponent} from './components/expense/expense-list.component';
+import {ConfirmDeleteDialogComponent} from './components/confirm-delete-dialog/confirm-delete-dialog.component';
 import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
 import {
   GroupInfoCardContentComponent
@@ -55,15 +55,61 @@ import {
 import {
   ShoppingListInfoCardContentComponent
 } from "./components/shopping-list/shopping-list-info-card-content/shopping-list-info-card-content.component";
-import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
-import { ExpenseInfoCardContentComponent } from './components/expense/expense-info-card-content/expense-info-card-content.component';
+import {FriendInfoComponent} from './components/friends/friend-info/friend-info.component';
+import {
+  ExpenseInfoCardContentComponent
+} from './components/expense/expense-info-card-content/expense-info-card-content.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
+import {SplitButtonModule} from "primeng/splitbutton";
+import {MenuModule} from "primeng/menu";
+import {ChipsModule} from "primeng/chips";
+import { ProgressBarModule } from 'primeng/progressbar';
+import {FloatLabelModule} from "primeng/floatlabel";
+import {PasswordModule} from "primeng/password";
+import {DividerModule} from "primeng/divider";
+import {AutoFocusModule} from "primeng/autofocus";
+import {ToastModule} from "primeng/toast";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {TabMenuModule} from 'primeng/tabmenu';
+import {AutoCompleteModule} from "primeng/autocomplete";
+import { DropdownModule } from 'primeng/dropdown';
+import {CardModule} from "primeng/card";
+import { InputTextModule } from 'primeng/inputtext';
+import {ChartModule} from 'primeng/chart';
+import {DialogModule} from 'primeng/dialog';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {CheckboxModule} from 'primeng/checkbox';
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PantryComponent} from "./components/pantry/pantry.component";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import { RadioButtonModule } from 'primeng/radiobutton';
+import {InputSwitchModule} from "primeng/inputswitch";
+import {RippleModule} from "primeng/ripple";
+import {TableModule} from "primeng/table";
+import {ToolbarModule} from "primeng/toolbar";
+import { TooltipModule  } from 'primeng/tooltip';
+import {
+    ShoppingListsInGroupComponent
+} from "./components/shopping-list/shopping-lists-in-group/shopping-lists-in-group.component";
+import {VisualizationComponent} from "./components/visualization/visualization.component";
+import {CarouselModule} from "primeng/carousel";
+import {FileUploadModule} from "primeng/fileupload";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {CalendarModule} from "primeng/calendar";
+import {ImageModule} from 'primeng/image';
+import {PaginatorModule} from "primeng/paginator";
+import { SettingsComponent } from './components/settings/settings.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { CounterComponent } from './components/landing-page/counter/counter.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     FooterComponent,
+    LandingPageComponent,
+    SettingsComponent,
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,
@@ -86,30 +132,43 @@ import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-like
     RecipeGlobalComponent,
     RecipeLikedComponent,
     PaymentCreateComponent,
-    ShoppingListCreateComponent
+    ShoppingListCreateComponent,
+    VisualizationComponent,
+    CounterComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule,
-    FormsModule,
-    BrowserAnimationsModule, ToastrModule.forRoot(),
-    ShoppingListComponent,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    ShoppingListComponent,
-    MenuCardComponent,
-    GroupInfoCardContentComponent,
-    FriendsInfoCardContentComponent,
-    ExpenseInfoCardContentComponent,
-    ItemListInfoCardContentComponent,
-    RecipeInfoCardContentComponent,
-    ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent
-  ],
-  providers: [httpInterceptorProviders],
-  bootstrap: [AppComponent]
+
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbModule,
+        FormsModule,
+        BrowserAnimationsModule, ToastrModule.forRoot(),
+        ShoppingListComponent,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
+        ShoppingListComponent,
+        MenuCardComponent,
+        InputTextModule,
+        InputNumberModule,
+        ProgressBarModule,
+        GroupInfoCardContentComponent,
+        FriendsInfoCardContentComponent,
+        ExpenseInfoCardContentComponent,
+        ItemListInfoCardContentComponent,
+        RecipeInfoCardContentComponent,
+        DropdownModule,
+        RadioButtonModule,
+        TooltipModule,
+        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
+    ],
+
+    providers: [httpInterceptorProviders, MessageService, ConfirmationService],
+    exports: [
+        ShoppingListCreateComponent
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

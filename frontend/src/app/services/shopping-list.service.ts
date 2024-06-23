@@ -4,11 +4,12 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   ShoppingListCreateEditDto,
-  ShoppingListDetailDto, ShoppingListItemDto,
+  ShoppingListDetailDto,
+  ShoppingListItemDto,
   ShoppingListItemUpdateDto,
   ShoppingListListDto
 } from "../dtos/shoppingList";
-import {ItemCreateDto} from "../dtos/item";
+import {ItemCreateDto, ItemDetailDto} from "../dtos/item";
 
 @Injectable({
   providedIn: 'root'
@@ -105,10 +106,14 @@ export class ShoppingListService {
    *
    * @param userId the id of the user adding the item
    * @param shoppingListId the id of the shopping list to add the item to
-   * @param itemToEdit the item to add
+   * @param itemToCreate the item to add
    */
-  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToEdit: ItemCreateDto) {
-    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToEdit);
+  addShoppingListItemToShoppingList(userId: number, shoppingListId: number, itemToCreate: ItemCreateDto) {
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items`, itemToCreate);
+  }
+
+  addShoppingListItemsToShoppingList(userId: number, shoppingListId: number, items: ItemCreateDto[]) {
+    return this.httpClient.post<ShoppingListItemDto>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/list`, items)
   }
 
   /**
@@ -133,4 +138,17 @@ export class ShoppingListService {
   }
 
 
+  /**
+   * Deletes all items in the cart (i.e. all checked items in the shopping list).
+   *
+   * @param userId the id of the user
+   * @param shoppingListId the id of the shopping list
+   */
+  deleteAllItemsInCart(userId: number, shoppingListId: number) {
+    return this.httpClient.delete<void>(`${this.shoppingListBaseUri}/users/${userId}/shopping-lists/${shoppingListId}/items/checked-items`);
+  }
+
+  getAmountOfItemInGroup(groupId: number, item: ItemDetailDto): Observable<number> {
+    return this.httpClient.get<number>(`${this.shoppingListBaseUri}/groups/${groupId}/shopping-lists/item-amount?description=${item.description}&unit=${item.unit}`)
+  }
 }

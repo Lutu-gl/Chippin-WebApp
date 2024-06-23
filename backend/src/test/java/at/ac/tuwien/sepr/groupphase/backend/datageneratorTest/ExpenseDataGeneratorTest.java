@@ -46,9 +46,7 @@ public class ExpenseDataGeneratorTest implements DataGenerator {
             "Zum Engel Hotel", "Restaurante Larcher", "BurgerNKings Imbiss", "Kebab Haus",
             "Pizzeria Ristorante", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut"
         };
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
             if (group.getGroupName().equals("PantryTestGroup1")
@@ -59,7 +57,8 @@ public class ExpenseDataGeneratorTest implements DataGenerator {
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
             // spezial group where expenses are inserted manually to test (f.e. debt)
-            if (group.getGroupName().equals("groupExample0")) {
+            // or to test export
+            if (group.getGroupName().equals("groupExample0") || group.getGroupName().equals("ExportTestGroup")) {
                 // example for debt testing:
                 // user1 owes user0 50
                 // user2 owes user0 30

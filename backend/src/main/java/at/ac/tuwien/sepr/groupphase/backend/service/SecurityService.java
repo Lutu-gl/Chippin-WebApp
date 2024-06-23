@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -18,6 +19,7 @@ public class SecurityService {
 
     private final UserRepository userRepository;
     private final ShoppingListRepository shoppingListRepository;
+    private final RecipeRepository recipeRepository;
 
     /**
      * Checks if the given id corresponds to the currently authenticated user.
@@ -26,6 +28,7 @@ public class SecurityService {
      * @return true if the id corresponds to the currently authenticated user, false otherwise
      */
     public boolean hasCorrectId(Long userId) {
+        log.trace("hasCorrectId({})", userId);
         log.debug("Checking if the given id {} corresponds to the currently authenticated user", userId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (userId == null) {
@@ -48,6 +51,7 @@ public class SecurityService {
      */
     @Transactional
     public boolean isGroupMember(Long groupId) {
+        log.trace("isGroupMember({})", groupId);
         log.debug("Checking if the given group id corresponds to the currently authenticated user");
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (groupId == null) {
@@ -68,6 +72,7 @@ public class SecurityService {
 
     @Transactional
     public boolean canAccessShoppingList(Long shoppingListId) {
+        log.trace("canAccessShoppingList({})", shoppingListId);
         log.debug("Checking if the currently authenticated user can access the shopping list with id {}", shoppingListId);
         log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (shoppingListId == null) {
@@ -94,6 +99,60 @@ public class SecurityService {
             log.warn("User is not allowed to edit shopping list with id {}", shoppingListId);
         }
         return canEdit;
+    }
+
+    @Transactional
+    public boolean canAccessRecipe(Long recipeId) {
+        log.trace("canAccessRecipe({})", recipeId);
+        log.debug("Checking if the currently authenticated user can access the recipe with id {}", recipeId);
+        log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (recipeId == null) {
+            log.debug("Recipe id is null");
+            return false;
+        }
+        var user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (user == null) {
+            log.debug("Could not find current user");
+            return false;
+        }
+        var recipe = recipeRepository.findById(recipeId).orElse(null);
+        if (recipe == null) {
+            log.debug("Could not find recipe with id {}", recipeId);
+            return false;
+        }
+        boolean isOwner = recipe.getOwner().getId().equals(user.getId());
+        log.debug("User is owner: {}", isOwner);
+        boolean isPublic =
+            recipe.getIsPublic();
+        log.debug("Recipe is Public: {}", isPublic);
+
+        return isOwner || isPublic;
+    }
+
+    @Transactional
+    public boolean canEditRecipe(Long recipeId) {
+        log.trace("canEditRecipe({})", recipeId);
+        log.debug("Checking if the currently authenticated user can access the recipe with id {}", recipeId);
+        log.debug("Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (recipeId == null) {
+            log.debug("Recipe id is null");
+            return false;
+        }
+        var user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (user == null) {
+            log.debug("Could not find current user");
+            return false;
+        }
+        var recipe = recipeRepository.findById(recipeId).orElse(null);
+        if (recipe == null) {
+            log.debug("Could not find recipe with id {}", recipeId);
+            return false;
+        }
+        boolean isOwner = recipe.getOwner().getId().equals(user.getId());
+        log.debug("User is owner: {}", isOwner);
+
+
+        return isOwner;
     }
 
 }

@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
@@ -19,6 +22,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.PreRemove;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -30,6 +34,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "graph.Recipe.likedByUsers",
+        attributeNodes = @NamedAttributeNode("likedByUsers")),
+    @NamedEntityGraph(
+        name = "graph.Recipe.dislikedByUsers",
+        attributeNodes = @NamedAttributeNode("dislikedByUsers")),
+    @NamedEntityGraph(
+        name = "graph.Recipe.likedAndDislikedByUsers",
+        attributeNodes = {
+            @NamedAttributeNode("likedByUsers"),
+            @NamedAttributeNode("dislikedByUsers")
+        })
+})
 @Entity
 @Getter
 @Setter
@@ -75,12 +93,12 @@ public class Recipe {
     @JsonBackReference
     private ApplicationUser owner;
 
-    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "likedRecipes", fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> likedByUsers = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikedRecipes")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "dislikedRecipes")
     @Builder.Default
     @JsonIgnore
     private Set<ApplicationUser> dislikedByUsers = new HashSet<>();
@@ -100,23 +118,34 @@ public class Recipe {
     }
 
     public void addLiker(ApplicationUser user) {
-        likedByUsers.add(user);
-        user.getLikedRecipes().add(this);
-    }
-
-    public void addDisliker(ApplicationUser user) {
-        dislikedByUsers.add(user);
-        user.getDislikedRecipes().add(this);
+        if (!likedByUsers.contains(user)) {
+            likedByUsers.add(user);
+            user.getLikedRecipes().add(this);
+            likes = likedByUsers.size();
+        }
     }
 
     public void removeLiker(ApplicationUser user) {
-        this.likedByUsers.remove(user);
-        user.getLikedRecipes().remove(this);
+
+        ApplicationUser toRemove = likedByUsers.stream().filter(o -> o.getId().equals(user.getId())).findFirst().get();
+        likedByUsers.remove(toRemove);
+        likes = likedByUsers.size();
+
+    }
+
+    public void addDisliker(ApplicationUser user) {
+        if (!dislikedByUsers.contains(user)) {
+            dislikedByUsers.add(user);
+            user.getDislikedRecipes().add(this);
+            dislikes = dislikedByUsers.size();
+        }
     }
 
     public void removeDisliker(ApplicationUser user) {
-        this.dislikedByUsers.remove(user);
-        user.getDislikedRecipes().remove(this);
+        ApplicationUser toRemove = dislikedByUsers.stream().filter(o -> o.getId().equals(user.getId())).findFirst().get();
+        dislikedByUsers.remove(toRemove);
+        dislikes = dislikedByUsers.size();
+
     }
 
     @PreRemove

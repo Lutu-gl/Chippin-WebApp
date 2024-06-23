@@ -50,7 +50,7 @@ public class PaymentDataGeneratorTest implements DataGenerator {
             List<ApplicationUser> usersInGroup = new ArrayList<>(group.getUsers());
             usersInGroup.sort(Comparator.comparing(ApplicationUser::getEmail));
             // spezial group where expenses are inserted manually to test (f.e. debt)
-            if (group.getGroupName().equals("groupExample0")) {
+            if (group.getGroupName().equals("groupExample0") || group.getGroupName().equals("ExportTestGroup")) {
 
                 Payment payment =
                     Payment.builder()
@@ -59,6 +59,8 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                         .amount(20.0)
                         .date(LocalDateTime.now())
                         .group(group)
+                        .deleted(false)
+                        .archived(false)
                         .build();
 
                 Payment paymentDeleted = Payment.builder()
@@ -68,10 +70,22 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                     .date(LocalDateTime.now())
                     .group(group)
                     .deleted(true)
+                    .archived(false)
+                    .build();
+
+                Payment paymentArchived = Payment.builder()
+                    .payer(usersInGroup.get(4))
+                    .receiver(usersInGroup.get(5))
+                    .amount(420.0)
+                    .date(LocalDateTime.now())
+                    .group(group)
+                    .deleted(false)
+                    .archived(true)
                     .build();
 
                 paymentRepository.save(paymentDeleted);
                 paymentRepository.save(payment);
+                paymentRepository.save(paymentArchived);
                 continue;
             }
             ApplicationUser user1 = usersInGroup.get(random.nextInt(usersInGroup.size()));
@@ -90,6 +104,8 @@ public class PaymentDataGeneratorTest implements DataGenerator {
                 .amount(amount)
                 .date(LocalDateTime.now())
                 .group(group)
+                .archived(false)
+                .deleted(false)
                 .build();
 
             paymentRepository.save(payment);

@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.expense;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupCreateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,4 +22,6 @@ public class ExpenseDetailDto {
     private GroupCreateDto group;
     private Map<String, Double> participants;
     private Boolean deleted;
+    private Boolean archived;
+    private Boolean containsBill;
 }

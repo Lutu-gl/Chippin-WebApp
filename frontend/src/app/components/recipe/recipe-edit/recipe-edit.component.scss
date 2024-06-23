@@ -1,24 +1,82 @@
 @use "sass:map";
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
+//@import "bootstrap/scss/functions";
+//@import "bootstrap/scss/variables";
+//@import "bootstrap/scss/mixins";
 
-.min-width {
-  width: 0;
+.input-area {
+  margin-left:82px;
+  margin-top: 30px;
+}
+
+.upper {
+  margin-top:20px;
+  gap:10px;
 }
 
 .center-td > td {
   vertical-align: middle;
 }
 
+.field {
+  margin-top:10px;
+}
+
 .responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button, .responsive-success-button {
   opacity: 0;
 }
-
-@each $color in (info, warning, danger, success) {
-  $value: map.get($theme-colors, $color);
-  tr:hover .responsive-#{$color}-button {
-    @include button-variant($value, $value);
-    opacity: 1;
-  }
+.title {
+  margin-bottom:10px;
+  font-weight:bold;
+  font-size:32px;
 }
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.submit {
+  float:right;
+  margin-right:20px;
+}
+.save {
+  display:flex;
+  float: right;
+  gap:10px;
+  margin-left:10px;
+  margin-right:10px;
+}
+
+.test {
+  margin-left:10px;
+}
+
+.public-button,
+.private-button {
+  padding: 6px 12px; /* Adjust padding to make buttons smaller */
+  margin-bottom:30px;
+  font-size: 14px; /* Adjust font size */
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.public-button {
+  background-color: green;
+  color: white;
+  border: 1px solid green;
+}
+
+.private-button {
+  background-color: red;
+  color: white;
+  border: 1px solid red;
+}
+
+//@each $color in (info, warning, danger, success) {
+//  $value: map.get($theme-colors, $color);
+//  tr:hover .responsive-#{$color}-button {
+//    @include button-variant($value, $value);
+//    opacity: 1;
+//  }
+//}

@@ -1,10 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
 import java.util.List;
 
@@ -45,13 +48,30 @@ public interface PantryService {
     void deleteItem(long pantryId, long itemId);
 
     /**
+     * Deletes items in a pantry.
+     *
+     * @param pantryId the pantry id
+     * @param itemIds  the ids of the items to delete
+     */
+    void deleteItems(long pantryId, List<Long> itemIds);
+
+    /**
      * Updates an item in a pantry.
      *
      * @param item     the item to update
      * @param pantryId the pantry id
      * @return the updated item
      */
-    PantryItem updateItem(PantryItemDto item, long pantryId);
+    Item updateItem(PantryItem item, long pantryId);
+
+    /**
+     * Updates items in a pantry.
+     *
+     * @param items    the list of items to update
+     * @param pantryId the pantry id
+     * @return the updated items
+     */
+    List<Item> updateItems(List<PantryItem> items, long pantryId);
 
     /**
      * Updates the item in itemMergeDto and deletes the item with the id given in itemMergeDto.
@@ -59,16 +79,19 @@ public interface PantryService {
      * @param itemMergeDto contains the item to update and the id of the item to delete
      * @param pantryId     the id of the pantry
      * @return the updated item
+     * @throws ConflictException when the id of the two items to merge is the same
      */
-    PantryItem mergeItems(PantryItemMergeDto itemMergeDto, long pantryId);
+    Item mergeItems(PantryItemMergeDto itemMergeDto, long pantryId) throws ConflictException;
+
 
     /**
-     * Get recipes with ingredients that are stored in the pantry.
+     * Get recipes with ingredients matching the selected items.
      *
-     * @param pantryId the id of the pantry
+     * @param getRecipeDto the dto containing the list of items
+     * @param userId       the id of the user requesting the recipes
      * @return a list of recipes
      */
-    List<RecipeListDto> getRecipes(Long pantryId);
+    List<RecipeByItemsDto> getRecipes(GetRecipeDto getRecipeDto, Long pantryId, Long userId);
 
     /**
      * Update items in pantry that have been used in a recipe.
@@ -78,5 +101,13 @@ public interface PantryService {
      * @param recipeId the recipe that has the ingredients
      * @param portion  how many people ate the recipe
      */
-    List<String> removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
+    RemoveIngredientsFromPantryDto removeRecipeIngredientsFromPantry(long groupId, long recipeId, int portion);
+
+    /**
+     * Find all items in the pantry with a quantity less than the minimum quantity.
+     *
+     * @param pantryId the pantry id
+     * @return a list of pantry items with a quantity less than the minimum quantity
+     */
+    List<PantryItemDto> findAllMissingItems(long pantryId);
 }

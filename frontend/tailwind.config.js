@@ -3,10 +3,11 @@ module.exports = {
   content: [
     "./src/**/*.{html,ts}",
   ],
-  prefix: "tw-",
+  prefix: "",
   theme: {
     extend: {},
   },
+  // important: true,
   plugins: [],
 }
 

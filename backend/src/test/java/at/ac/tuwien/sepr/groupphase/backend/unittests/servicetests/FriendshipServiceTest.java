@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBeforeAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Friendship;
 import at.ac.tuwien.sepr.groupphase.backend.entity.FriendshipStatus;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class FriendshipServiceTest extends BaseTest {
+public class FriendshipServiceTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Autowired
     private FriendshipRepository friendshipRepository;

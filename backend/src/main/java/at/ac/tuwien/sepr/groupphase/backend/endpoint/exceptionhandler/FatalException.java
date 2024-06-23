@@ -8,11 +8,4 @@ public class FatalException extends RuntimeException {
         super(message);
     }
 
-    public FatalException(Throwable cause) {
-        super(cause);
-    }
-
-    public FatalException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

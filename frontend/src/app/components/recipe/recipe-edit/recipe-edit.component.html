@@ -1,209 +1,337 @@
-<h1 class="display-1">Edit {{recipe.name}}</h1>
-<form #form="ngForm" [class.was-validated]="form.submitted" (ngSubmit)="onRecipeSubmit(form)">
-  <br>
-
-  <div class="row">
-    <!-- Start name -->
-    <div class="mb-4 12">
-      <!-- When nesting rows, always make row > col-* > row. The Bootstrap classes do not work right when an element is both col* and row -->
-      <div class="row">
-        <label for="recipeName" class="col-form-label text-md-end text-muted col-md-1 col-lg-0">
-          Name
-        </label>
-        <div class="col-md-4 col-lg-3">
-          <input type="text"
-                 id="recipeName"
-                 name="recipeName"
-                 placeholder="Recipe name"
-                 class="form-control"
-                 [class]="dynamicCssClassesForInput(recipeNameModel)"
-                 [(ngModel)]="recipe.name"
-                 #recipeNameModel="ngModel"
-                 required minlength="2"
-
-          >
-          <div class="invalid-feedback">
-            <!-- This is shown, when the form validation deems the name input to be invalid -->
-            Name is required
-          </div>
-        </div>
-
-        <label for="isPublic" class="col-form-label text-md-end text-muted col-md-1 col-lg-1">
-          Public
-        </label>
-        <div class="col-md-4 col-lg-3">
-          <select id="isPublic"
-                  name="isPublic"
-                  class="form-select"
-                  [(ngModel)]="recipe.isPublic"
-                  #isPublicModel="ngModel"
-                  placeholder="recipe.isPublic"
-                  required
-          >
-            <option [value]="true">Yes</option>
-            <option [value]="false">No</option>
-          </select>
-        </div>
-        <label for="newPortionSize" class="col-form-label text-md-end text-muted col-md-1 col-lg-1">
-          Portion Size
-        </label>
-        <div class="col-2">
-          <input name="newPortionSize" type="number" class="form-control" id="newPortionSize" placeholder="1"
-                 [(ngModel)]="recipe.portionSize" required min="1">
-        </div>
-
-      </div>
-      <br>
-      <div class="row">
-        <label for="recipeDescription" class="col-form-label text-md-end text-muted col-md-1 col-lg-0">
-          Description
-        </label>
-        <div class="col-md-11 col-lg-10">
-          <textarea
-            id="recipeDescription"
-            name="recipeDescription"
-            placeholder="Recipe description"
-            class="form-control"
-            [class]="dynamicCssClassesForInput(recipeDescriptionModel)"
-            [(ngModel)]="recipe.description"
-            #recipeDescriptionModel="ngModel"
-            required minlength="2"
-            rows="4"
-          > </textarea>
-          <div class="invalid-feedback">
-            <!-- This is shown, when the form validation deems the description input to be invalid -->
-            Description is required
-          </div>
-        </div>
-      </div>
+<p-confirmDialog [style]="{ width: '450px' }"/>
+<p-dialog
+  [(visible)]="newItemDialog"
+  [style]="{ width: '600px', minHeight: '420px'}"
+  header="Add a new Ingredient"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="field">
+      <label for="newIngredientName">Name</label>
+      <input
+        type="text"
+        minlength="2"
+        pInputText
+        id="newIngredientName"
+        [(ngModel)]="newIngredient.description"
+        required
+        autofocus/>
     </div>
+    <small class="p-error" *ngIf="tooShort"> Name too short</small>
+    <div class="field">
+      <label for="unit">Unit</label>
+      <p-dropdown
+        [(ngModel)]="newIngredient.unit"
+        id="unit"
+        [options]="Object.values(Unit)">
+      </p-dropdown>
+    </div>
+    <div class="field">
+      <label for="amount">Amount</label>
+      <p-inputNumber
+        id="amount"
+        [(ngModel)]="newIngredient.amount"
+        [min]="1"
+        [max]="1000000"
+        required/>
+      <small class="p-error" *ngIf="submitted && !newIngredient.amount">
+        Amount is required.
+      </small>
+      <small class="p-error" *ngIf="submitted && tooSmall">
+        The amount cannot be 0.
+      </small>
+    </div>
+  </ng-template>
+  <p-footer>
+    <p-button
+      pRipple
+      severity="danger"
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (click)="hideDialog()"/>
+    <p-button
+      pRipple
+      severity="success"
+      label="Save"
+      icon="pi pi-check"
+      [text]="true"
+      (click)="onIngredientSubmit()"
 
-    <br>
-    <br>
-    <br>
+    />
+  </p-footer>
+</p-dialog>
 
-    <div class="mt-4 d-flex flex-row">
-     <!-- <button type="button"
-              class="btn btn-danger"
-              data-bs-toggle="modal"
-              data-bs-target="#confirm-delete-recipe-dialog"
-      >
-        <i class="bi bi-trash"></i>
-        Delete
-      </button>
-      <app-confirm-delete-dialog
-        id="confirm-delete-recipe-dialog"
-        [deleteWhat]="recipe.name"
-        (confirm)="deleteRecipe()"
-      >
-      </app-confirm-delete-dialog>-->
-      <span class="flex-grow-1"></span>
-      <button type="submit"
-              class="btn btn-primary"
-              [disabled]="(!form.valid || recipe.ingredients.length === 0)"
-              type="submit"
-      >
-        Edit
-      </button>
+
+<p-dialog
+  [(visible)]="changeItem"
+  [style]="{ width: '600px', minHeight: '420px'}"
+  header="Edit an Ingredient"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="field">
+      <label for="newIngredientName">Name</label>
+      <input
+        type="text"
+        minlength="2"
+        maxlength="60"
+        pInputText
+        id="cIngredientName"
+        [(ngModel)]="itemToEdit.description"
+        required
+        autofocus/>
+    </div>
+    <small class="p-error" *ngIf="tooShort"> Name too short</small>
+    <div class="field">
+      <label for="unit">Unit</label>
+      <p-dropdown
+        [(ngModel)]="itemToEdit.unit"
+        id="cunit"
+        [options]="Object.values(Unit)">
+      </p-dropdown>
+    </div>
+    <div class="field">
+      <label for="amount">Amount</label>
+      <p-inputNumber
+        id="camount"
+        [(ngModel)]="itemToEdit.amount"
+        [min]="1"
+        [max]="1000000"
+        required/>
+      <small class="p-error" *ngIf="submitted && !newIngredient.amount">
+        Amount is required.
+      </small>
+      <small class="p-error" *ngIf="submitted && tooSmall">
+        The amount cannot be 0.
+      </small>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="Cancel"
+      severity="danger"
+      icon="pi pi-times"
+      [text]="true"
+      (click)="hideEditDialog()"/>
+    <p-button
+      pRipple
+      severity="success"
+      label="Save"
+      icon="pi pi-check"
+      [text]="true"
+      (click)="onIngredientChange()"
+    />
+  </ng-template>
+</p-dialog>
+
+
+
+
+
+<form #form="ngForm" (ngSubmit)="onRecipeSubmit(form)" [class.was-validated]="form.submitted">
+  <div class="bg-blue-100 p-4">
+
+    <!-- Header part with diagram -->
+    <div class="flex justify-between items-start">
+
+      <!-- Left Side -->
+      <div class="flex-1 p-4 max-w-3xl">
+
+
+
+
+      </div>
+
+      <!-- Right Side -->
+      <div class="flex-none ml-8 w-1/3">
+        <h1 class="title"> Make your Recipe even better! </h1>
+        <div class="mb-4" >
+
+
+
+          <input pInputText id="recipename" [(ngModel)]="recipe.name" name="recipeName"
+                 required minlength="2" maxlength="60" placeholder="Name of your Recipe"/>
+          <div class="flex">
+            <small class="p-error" *ngIf="submitted && !recipe.name">
+              Name is missing.
+            </small>
+            <small class="p-error" *ngIf="form.controls['recipeName'].errors?.minlength">Recipe name is too short.</small>
+          </div>
+
+          <div class="upper">
+
+            <p-inputNumber
+              inputId="integeronly"
+              [(ngModel)]="recipe.portionSize"
+              [min]="1"
+              [max]="1000"
+              required
+              placeholder="Portion Size"/>
+            <small class="p-error" *ngIf="submitted && !recipe.portionSize">
+              Portion Size is missing.
+            </small>
+
+          </div>
+          <div class="upper flex" *ngIf="recipe.name!==''">
+
+            Should this recipe be public?
+            <button [pTooltip]="'This Recipe is now visible to everyone'" *ngIf="isPublic" class="public-button rounded" (click)="changeIsPublic()">Public</button>
+
+            <!-- Button for isPublic = false -->
+            <button [pTooltip]="'This Recipe is now only for your eyes'" *ngIf="!isPublic" class="private-button rounded" (click)="changeIsPublic()">Private</button>
+
+          </div>
+
+          <div class="submit flex">
+            <p-button [pTooltip]="'Save your changes!'" severity="success" [disabled]="(!form.valid || recipe.ingredients.length <= 1)" (click)="onRecipeSubmit(form)">Save</p-button>
+            <div class="test">
+            <p-button [pTooltip]="'Delete your Recipe'" tooltipPosition="left" severity="danger"  (click)="deleteRecipe()">Delete</p-button></div>
+          </div>
+
+
+
+
+        </div>
+
+      </div>
+
+
     </div>
   </div>
+  <div class="mb-4 input-fields">
+    <label for="recipeDescription" class="col-form-label text-md-end text-muted col-md-1 col-lg-0">
+
+    </label>
+    <div class="col-md-11 col-lg-10 input-area">
+      <label for="recipeDescription">Recipe description</label>
+      <textarea
+        id="recipeDescription"
+        pInputTextarea
+        [autoResize]="true"
+        rows="8" cols="100"
+        name="recipeDescription"
+
+        class="form-control"
+        [(ngModel)]="recipe.description"
+        #recipeDescriptionModel="ngModel"
+        required minlength="2"
+        (keydown.enter)="handleEnter($event)"
+      ></textarea>
+      <div></div>
+
+      <div class="flex">
+        <small class="p-error" *ngIf="submitted && !recipe.description"> Description is missing </small>
+        <small class="p-error" *ngIf="form.controls['recipeDescription'].errors?.minlength">Recipe name must be at least 2 characters long.</small>
+      </div>
+      <!-- submit -->
+
+
+
+    </div>
+
+  </div>
+
 </form>
-<h2>Ingredients</h2>
-<!-- Begin Ingredient selection block -->
-<div class="mt-3">
-  <form #form="ngForm" class="row pt-3" (ngSubmit)="onIngredientSubmit(form)">
-    <div class="col-3 align-content-center">
-      <button name="submit" type="submit" class="btn btn-info m-2">
-        <i class="bi bi-plus-lg"></i>
-      </button>
-    </div>
-    <div class="col-2">
-      <input name="newItemAmount" type="number" class="form-control" id="newItemAmount" placeholder="0"
-             [(ngModel)]="newIngredient.amount" required min="0">
-    </div>
-    <div class="col-2">
-      <select name="newItemUnit" class="form-select" [(ngModel)]="newIngredient.unit" required>
-        <option *ngFor="let unit of Unit | keyvalue" [value]="unit.key"
-                [selected]="newIngredient.unit===unit.key">{{ unit.value }}</option>
-      </select>
-    </div>
-    <div class="col">
-      <input name="newItemDescription" class="form-control" placeholder="Add a new ingredient"
-             [(ngModel)]="newIngredient.description" required minlength="2">
-    </div>
-  </form>
-  <table class="table table-hover">
-    <thead>
-    <tr>
-      <th class="col-3"></th>
-      <th class="col-2">Amount</th>
-      <th class="col-2">Unit</th>
-      <th>Item</th>
-    </tr>
-    </thead>
-    <tbody>
 
-    <tr *ngFor="let ingredient of recipe.ingredients; let i=index" class="center-td">
-      <td class="row">
-        <div class="col align-content-center">
+<div class="flex flex-col items-center p-4">
+  <div class="container mx-auto px-12 py-4 bg-blue-50 rounded text-center">
+    <div class="container mx-auto p-4">
+      <p-toolbar styleClass="mb-4 gap-2">
+        <ng-template pTemplate="left">
+          <p-button
+            [pTooltip]="'Add a new Ingredient to your Recipe!'"
+            pRipple
+            severity="success"
+            label="New"
+            icon="pi pi-plus"
+            class="mr-2"
+            (click)="openNew()"/>
+        </ng-template>
 
-          <a class="btn responsive-danger-button m-1"
-             (click)="selectIdToDelete(recipe.ingredients[i].id, i)"
-             data-bs-toggle="modal"
-             data-bs-target="#confirm-delete-dialog-title"
-             aria-label="Delete item">
-            <i class="bi bi-trash"></i>
+      </p-toolbar>
 
+      <p-table
+        #dt
+        [value]="recipe.ingredients"
+        [globalFilterFields]="['description', 'amount', 'min']"
+        [(selection)]="selectedItems"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="caption">
+          <div class="flex align-items-center justify-between">
+            <h5 class="m-0">Ingredients</h5>
 
-          </a>
-         <!-- <a class="btn responsive-warning-button m-1"
-             (click)="selectIndexToEdit(i); selectEditItem(clone(ingredient))"
-             data-bs-toggle="modal"
-             data-bs-target="#edit-pantry-item-dialog-title"
-             aria-label="Edit item">
-            <i class="bi bi-pencil"></i>
-          </a>-->
-        </div>
-        <!--<div class="col-8 align-content-center">
-          <div class="row">
-            small-->
-            <!--<a class="btn btn-sm responsive-success-button col m-1"
-               [text]="getUnitStepString(getUnitStep(ingredient.unit, false, true))"
-               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, true))"></a>
-            large-->
-            <!--<a class="btn btn-sm responsive-success-button col m-1"
-               [text]="getUnitStepString(getUnitStep(ingredient.unit, true, true))"
-               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, true))"></a>
           </div>
-          <div class="row">
-            small-->
-            <!--<a class="btn btn-sm responsive-danger-button col m-1"
-               [text]="getUnitStepString(getUnitStep(ingredient.unit, false, false))"
-               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, false, false))"></a>
-            large-->
-            <!--<a class="btn btn-sm responsive-danger-button col m-1"
-               [text]="getUnitStepString(getUnitStep(ingredient.unit, true, false))"
-               (click)="changeAmount(ingredient, getUnitStep(ingredient.unit, true, false))"></a>
-          </div>
-        </div>-->
-      </td>
-      <td>
-        {{formatAmount(ingredient.amount)}}
-      </td>
-      <td>
-        {{ingredient.unit.valueOf()}}
-      </td>
-      <td>
-        {{ingredient.description}}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 4rem">
+
+            </th>
+            <th pSortableColumn="description" style="min-width:10rem">
+              Name
+              <p-sortIcon field="description"/>
+            </th>
+            <th pSortableColumn="amount" style="min-width:8rem">
+              Amount
+              <p-sortIcon field="amount"/>
+            </th>
+            <th></th>
+            <th>Actions</th>
+
+          </tr>
+        </ng-template>
+
+
+        <ng-template pTemplate="body" let-item let-i="rowIndex">
+          <tr>
+            <td>
+
+            </td>
+            <td>
+              {{ item.description }}
+            </td>
+            <td>
+
+              {{item.amount}} {{getRecipeSuffix(item)}}
+
+            </td>
+            <td>
+
+            </td>
+            <td>
+
+              <p-button
+                [pTooltip]="'Change ingredient'"
+                pRipple
+                icon="pi pi-pencil"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                severity="success"
+                (click)="changeIngredient(i)"/>
+
+              <p-button
+                [pTooltip]="'Remove ingredient'"
+                pRipple
+                icon="pi pi-trash"
+                severity="danger"
+                [rounded]="true"
+                [outlined]="true"
+              (click)="deleteIngredient(item.id,i)"/>
+
+
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+  </div>
 </div>
-<!-- End Ingredient selection block -->
-
-<app-confirm-delete-dialog
-                           [deleteWhat]="deleteWhatString"
-                           (confirm)="deleteIngredient(selectedIdToDelete,selectedIndexToDelete)"></app-confirm-delete-dialog>
-<!-- <app-edit-pantry-item-dialog [itemToEdit]="itemToEdit" [pantryId]=""
-                             (confirm)="editItem(); searchChanged()"></app-edit-pantry-item-dialog>-->

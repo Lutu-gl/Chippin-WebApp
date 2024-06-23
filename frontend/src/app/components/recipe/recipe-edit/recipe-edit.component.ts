@@ -1,13 +1,17 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {ToastrService} from "ngx-toastr";
 import {NgForm, NgModel} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
-import {ItemCreateDto, Unit} from "../../../dtos/item";
+import {
+  ItemCreateDto,
+  ItemDetailDto,
+  Unit
+} from "../../../dtos/item";
 import {RecipeService} from "../../../services/recipe.service";
 import {clone} from "lodash";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 
 @Component({
@@ -29,23 +33,33 @@ export class RecipeEditComponent implements OnInit {
     dislikes:0,
   };
   newIngredient: ItemCreateDto = {
-    amount: 0,
+    amount: 1,
     unit: Unit.Piece,
     description: ""
   };
-  itemToEdit: ItemCreateDto = undefined;
-  selectedIdToDelete: number;
-  selectedIndexToDelete:number;
-  selectedIndexToEdit:number;
-  deleteWhatString: String;
+  itemToEdit: ItemDetailDto = undefined;
   recipeId:number;
+  isPublic:boolean = false;
+tooShort=false;
+tooSmall=false;
+
+
+  submitted: boolean = false;
+  newItemDialog: boolean = false;
+  itemDialog: boolean = false;
+  changeItem:boolean=false;
+  items!: ItemDetailDto[];
+  item!: ItemDetailDto;
+
+  selectedItems!: ItemCreateDto[] | null;
 
 
   constructor(
     private service: RecipeService,
     private router: Router,
     private route: ActivatedRoute,
-    private notification: ToastrService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
   }
 
@@ -58,159 +72,255 @@ export class RecipeEditComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipe = data;
+          this.isPublic=this.recipe.isPublic;
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error)
         }
       });
   }
 
-
-  public dynamicCssClassesForInput(input: NgModel): any {
-    return {
-      'is-invalid': !input.valid && !input.pristine,
-    };
+  changeIsPublic() {
+    this.isPublic=!this.isPublic;
   }
+
 
   public onRecipeSubmit(form: NgForm): void {
     if (form.valid) {
       let observable: Observable<RecipeCreateWithoutUserDto>;
 
+      this.recipe.isPublic=this.isPublic;
       observable = this.service.updateRecipe(this.recipe);
 
       observable.subscribe({
         next: data => {
-          this.notification.success(`Recipe ${this.recipe.name} successfully changed.`);
-          this.router.navigate(['/recipe']);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: `Recipe ${this.recipe.name} successfully changed`,
+            life: 3000
+          });
+          this.router.navigate(['/recipe', 'owner', this.recipe.id] );
         },
         error: error => {
-          this.defaultServiceErrorHandling(error);
+          this.printError(error);
         }
       });
     }
   }
 
-  onIngredientSubmit(form: NgForm) {
-    console.log('is form valid?', form.valid);
-    if (form.valid) {
-    this.service.createItem(this.recipeId,this.newIngredient)
-      .subscribe({
-        next: data => {
-          this.recipe.ingredients.push(data);
-        },
-        error: error => {
-          this.defaultServiceErrorHandling(error)
-        }
-      });
-    this.newIngredient= {
-      amount: 0,
-      unit: Unit.Piece,
-      description: ""}
+  onIngredientSubmit() {
+    if(this.newIngredient.amount<1) {
+      this.tooSmall=true;
+      return;
+    }
 
+    if(this.newIngredient.description.length>1) {
+      this.tooShort=false;
+      this.tooSmall=false;
+      this.service.createItem(this.recipeId, this.newIngredient)
+        .subscribe({
+          next: data => {
+            this.recipe.ingredients.push(data);
+          },
+          error: error => {
+            this.printError(error)
+          }
+        });
+      this.newIngredient = {
+        amount: 1,
+        unit: Unit.Piece,
+        description: ""
+      }
+
+      this.hideDialog();
+    } {
+      this.tooShort=true;
     }
   }
 
   public deleteIngredient(id: number, index:number) {
-    this.recipe.ingredients.splice(index,1)
-    this.service.deleteIngredient(this.recipeId,id).subscribe({
-      next: res => {
-        console.log('deleted recipe: ', res);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to remove ' + this.recipe.ingredients[index].description + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.recipe.ingredients.splice(index, 1);
+        this.service.deleteIngredient(this.recipeId,id).subscribe({
+          next: res => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: `Ingredient successfully deleted`,
+              life: 3000
+            });
 
-      },
-      error: err => {
-        this.printError(err);
+          },
+          error: err => {
+            this.printError(err);
+          }
+        });
       }
     });
 
 
 
+
+  }
+
+  changeIngredient(index:number) {
+    this.itemToEdit=this.recipe.ingredients[index];
+
+    this.changeItem=true;
   }
 
 
-  changeAmount(item: ItemCreateDto, amountChanged: number) {
-    item.amount+=amountChanged;
+  openNew() {
+    this.newIngredient = {
+      description: "",
+      amount: 1,
+      unit: Unit.Piece,
+    };
+    this.submitted = false;
+    this.newItemDialog = true;
   }
 
-
-  selectEditItem(item: ItemCreateDto) {
-    this.itemToEdit = item;
-  }
-
-  getUnitStep(unit: Unit, largeStep: boolean, positive: boolean): number {
-    let value: number = 0;
-    let prefixNum = positive === true ? 1 : -1;
-    switch (unit) {
+  getRecipeSuffix(item: ItemCreateDto): String {
+    switch (item.unit) {
       case Unit.Piece:
-        value = prefixNum * 1;
-        break
+        return item.amount == 1 ? "Piece" : "Pieces";
       case Unit.Gram:
-        value = prefixNum * 10;
-        break;
+        return "g"
       case Unit.Milliliter:
-        value = prefixNum * 10;
-        break;
+        return "ml"
       default:
-        console.error("Undefined unit");
-    }
-
-    return largeStep ? value * 10 : value;
-  }
-
-  getUnitStepString(value: number): string {
-    if (value > 0) return "+" + value;
-    else return value.toString();
-
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
+        console.error("Unknown Unit");
+        return "";
     }
   }
 
-  selectIdToDelete(id:number, index:number): void {
-    this.selectedIdToDelete=id;
-    this.selectedIndexToDelete=index;
-    //this.deleteWhatString=this.recipe.ingredients[id].description.toString();
-    this.deleteWhatString="Ingredient";
-  }
 
-  selectIndexToEdit(index:number):void {
-    this.selectedIndexToEdit=index;
-  }
 
-  formatAmount(fNumber:number): number {
-    if (fNumber == null || isNaN(fNumber)) {
-      return 0.0;
-    }
-    return parseFloat(fNumber.toFixed(1));
-  }
+
 
   deleteRecipe() {
-    this.service.deleteRecipe(this.recipe.id);
-    this.notification.success("Recipe successfully deleted");
-    this.router.navigate(['/recipe']);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + this.recipe.name + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.service.deleteRecipe(this.recipe.id).subscribe({
+          next: res => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: `Recipe successfully deleted`,
+              life: 3000
+            });
+
+          },
+          error: err => {
+            this.printError(err);
+          }
+        });
+
+        this.router.navigate(['/recipe']);
+      }
+    });
+
+
   }
   printError(error): void {
     if (error && error.error && error.error.errors) {
       for (let i = 0; i < error.error.errors.length; i++) {
-        this.notification.error(`${error.error.errors[i]}`);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
       }
-    } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-      this.notification.error(`${error.error.message}`);
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      console.log(error);
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
 
+  hideDialog() {
+    this.tooSmall=false;
+    this.tooShort=false;
+    this.itemDialog = false;
+    this.newItemDialog = false;
+    this.submitted = false;
+  }
+
+  hideEditDialog() {
+    this.tooSmall=false;
+    this.tooShort=false;
+    this.changeItem=false;
+    this.submitted = false;
+  }
+
+  handleEnter(event: KeyboardEvent): void {
+    event.preventDefault(); // Prevents the default behavior of adding a new line in the textarea
+    this.recipe.description += '\n';
+  }
+
+  onIngredientChange() {
+    if(this.itemToEdit.amount<1) {
+      this.tooSmall=true;
+      return;
+    }
+
+    if(this.itemToEdit.description.length>1) {
+      this.tooSmall=false;
+    const index = this.recipe.ingredients.findIndex(o => o.id === this.itemToEdit.id);
+
+    if(index!== -1 ) {
+      this.recipe.ingredients[index]=this.itemToEdit;
+    }
+
+    this.service.updateItemInRecipe(this.itemToEdit, this.recipe.id).subscribe({
+      next: dto => {
+        console.log("Updated item: ", dto);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: `${dto.description} updated`,
+          life: 3000
+        });
+
+
+        this.itemToEdit = null;
+
+        this.hideEditDialog();
+
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not update item: ', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+        }
+      }
+    });
+
+    } else {
+        this.tooShort=true;
+      }
+
+  }
 
 
   protected readonly Unit = Unit;
   protected readonly clone = clone;
+  protected readonly Object = Object;
 }
 
 

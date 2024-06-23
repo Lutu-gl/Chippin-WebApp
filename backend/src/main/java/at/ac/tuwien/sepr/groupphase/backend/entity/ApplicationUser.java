@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,9 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.likedRecipes",
+        attributeNodes = @NamedAttributeNode("likedRecipes")),
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.dislikedRecipes",
+        attributeNodes = @NamedAttributeNode("dislikedRecipes")),
+    @NamedEntityGraph(
+        name = "graph.ApplicationUser.all",
+        attributeNodes = {
+            @NamedAttributeNode("likedRecipes"),
+            @NamedAttributeNode("dislikedRecipes")
+        })
+})
 @Entity
 @Getter
 @Setter
@@ -53,27 +69,28 @@ public class ApplicationUser {
     @Column
     private Boolean admin;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users")
     @Builder.Default
     @ToString.Exclude
+    @JsonIgnore
     private Set<GroupEntity> groups = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Builder.Default
-    @JsonManagedReference
+    @ToString.Exclude
     private List<Recipe> recipes = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
     @JoinTable(
         name = "user_recipe_likes",
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> likedRecipes = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
     @JoinTable(
@@ -81,6 +98,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> dislikedRecipes = new HashSet<>();
 
     public ApplicationUser addRecipe(Recipe recipe) {
@@ -96,29 +114,31 @@ public class ApplicationUser {
     }
 
     public ApplicationUser addRecipeLike(Recipe recipe) {
-        recipe.setLikes(recipe.getLikes() + 1);
-        likedRecipes.add(recipe);
-        recipe.addLiker(this);
+        if (!likedRecipes.contains(recipe)) {
+            likedRecipes.add(recipe);
+            recipe.addLiker(this);
+        }
         return this;
     }
 
     public void removeLike(Recipe recipe) {
-        recipe.setLikes(recipe.getLikes() - 1);
-        this.likedRecipes.remove(recipe);
-        recipe.getLikedByUsers().remove(this);
-    }
 
-    public void removeDisLike(Recipe recipe) {
-        recipe.setLikes(recipe.getDislikes() - 1);
-        this.dislikedRecipes.remove(recipe);
-        recipe.getDislikedByUsers().remove(this);
+        Recipe toDelete = likedRecipes.stream().filter(o -> o.getId().equals(recipe.getId())).findFirst().get();
+        likedRecipes.remove(toDelete);
+
     }
 
     public ApplicationUser addRecipeDislike(Recipe recipe) {
-        recipe.setLikes(recipe.getDislikes() + 1);
-        dislikedRecipes.add(recipe);
-        recipe.addDisliker(this);
+        if (!dislikedRecipes.contains(recipe)) {
+            dislikedRecipes.add(recipe);
+            recipe.addDisliker(this);
+        }
         return this;
+    }
+
+    public void removeDisLike(Recipe recipe) {
+        Recipe toDelete = dislikedRecipes.stream().filter(o -> o.getId().equals(recipe.getId())).findFirst().get();
+        dislikedRecipes.remove(toDelete);
     }
 
 

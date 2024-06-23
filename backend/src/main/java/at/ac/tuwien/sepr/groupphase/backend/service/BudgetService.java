@@ -4,7 +4,9 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.budget.BudgetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BudgetService {
@@ -24,7 +26,7 @@ public interface BudgetService {
      * @param groupId the ID of the group where the budget will be created
      * @return the created budget
      */
-    Budget createBudget(BudgetCreateDto budget, long groupId);
+    Budget createBudget(BudgetCreateDto budget, long groupId) throws ConflictException;
 
     /**
      * Update an existing budget in a group.
@@ -33,7 +35,7 @@ public interface BudgetService {
      * @param groupId the ID of the group where the budget exists
      * @return the updated budget
      */
-    Budget updateBudget(BudgetDto budget, long groupId);
+    Budget updateBudget(BudgetDto budget, long groupId) throws ConflictException;
 
     /**
      * Add the amount of an expense.
@@ -42,7 +44,7 @@ public interface BudgetService {
      * @param amount   the amount to be added
      * @param category the category of budgets
      */
-    void addUsedAmount(long groupId, double amount, Category category);
+    void addUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate);
 
     /**
      * Remove the amount of an expense which got deleted.
@@ -51,7 +53,7 @@ public interface BudgetService {
      * @param amount   the amount to be removed
      * @param category the category of budgets
      */
-    void removeUsedAmount(long groupId, double amount, Category category);
+    void removeUsedAmount(long groupId, double amount, Category category, LocalDateTime expenseDate);
 
     /**
      * Delete a budget in a group.
@@ -70,5 +72,13 @@ public interface BudgetService {
      */
     Budget findByGroupIdAndBudgetId(long groupId, long budgetId);
 
-    Budget resetBudget(Budget budget);
+    /**
+     * Reset all monthly budgets.
+     */
+    void resetMonthlyBudgets();
+
+    /**
+     * Reset all weekly budgets.
+     */
+    void resetWeeklyBudgets();
 }

@@ -1,131 +1,350 @@
+<p-confirmDialog [style]="{ width: '450px' }"/>
+<p-dialog
+  [(visible)]="isShoppingListDialogVisible"
+  [style]="{ width: '1500px', minHeight: '800px' }"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <div>
+      <span class="font-bold whitespace-nowrap">Select shopping list</span>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div>
+      <div class="field pt-5">
+        <div class="field pt-5">
+          <label for="shoppingList">Shopping list</label>
+          <p-dropdown
+            id="shoppingList"
+            [options]="shoppingListsGrouped"
+            [(ngModel)]="shoppingList"
+            [group]="true"
+            (onChange)="onSelectShoppingList()"
+            optionGroupLabel="groupName"
+            optionGroupChildren="shoppingLists"
+            optionLabel="name">
+            <ng-template let-group pTemplate="group">
+              <div class="flex align-items-center">
+                <span>{{ group.groupName }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+        <div class="p-4" *ngIf="addItemToShoppingListDto">
+          <p-table
+            #dt
+            [value]="addItemToShoppingListDto.recipeItems"
+            [(selection)]="selectedIngredients"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [rowHover]="true"
+            dataKey="id"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox
+                    pTooltip="Decide if this ingredient should be added to the shopping list"
+                  />
+                </th>
+                <th style="min-width:15rem">
+                  Name
+                </th>
+                <th style="min-width:6rem">
+                  Amount
+                </th>
+                <th style="min-width:6rem">
+                  Shopping List
+                </th>
+                <th style="min-width:6rem" *ngIf="addItemToShoppingListDto.pantryItems">
+                  Pantry
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ingredient>
+              <tr [ngClass]="getColor(ingredient)">
+                <td>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be added to the shopping list"
+                                   [value]="ingredient"/>
+                </td>
+                <td>
+                  {{ ingredient.description }}
+                </td>
+                <td>
+                  <p-inputNumber
+                    [(ngModel)]="ingredient.amount"
+                    [min]="0"
+                    [max]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+                    [minFractionDigits]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 2 : 0"
+                    [suffix]="getSuffixForCreateEdit(ingredient)"
+                    required/>
+                </td>
+                <td>
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="formatAmount(findMatchingShoppingListItem(ingredient))"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+                <td *ngIf="addItemToShoppingListDto.pantryItems">
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="formatAmount(findMatchingPantryItems(ingredient))"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <p-footer>
+    <p-button
+      pRipple
+      label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
+      severity="secondary"
+      icon="pi pi-replay"
+      (click)="reset()"/>
+    <p-button
+      pRipple
+      label="Cancel"
+      severity="danger"
+      icon="pi pi-times"
+      (click)="closeUseShoppingListDialog()"/>
+    <p-button
+      pRipple
+      label="Confirm select"
+      severity="success"
+      icon="pi pi-check"
+      (click)="addSelectedIngredientsToShoppingList(); closeUseShoppingListDialog();"
+      />
+  </p-footer>
+</p-dialog>
 
-<div *ngIf= "recipe">
-  <div class="row">
-    <div class="mb-3 col-lg-10">
-      <h1 class="display-1">{{ recipe.name }}</h1>
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Name
-    </div>
+<!-- ------------------- SHOPPINGLIST DIALOG END ----------------------------------------->
 
-    <div class="mb-2 col-lg-5" *ngIf="recipe.name">
-      {{recipe.name}}
+<!-- ------------------- PANTRY DIALOG START ----------------------------------------->
+<p-dialog
+  [(visible)]="isPantryDialogVisible"
+  [style]="{ width: '1500px', minHeight: '800px' }"
+  [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <div>
+      <span class="font-bold whitespace-nowrap">Select Options</span>
     </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div>
+      <div class="field pt-5">
 
-  </div>
+
+        <label for="shoppingList">Pantry</label>
+        <p-dropdown
+          id="pantry"
+          [options]="groups"
+          [(ngModel)]="group"
+
+          (onChange)="onSelectPantry()"
+          optionLabel="groupName">
+          <ng-template let-group pTemplate="group">
+            <div class="flex align-items-center">
+              <span>{{ group.groupName }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+
+        <div class="p-4" *ngIf="removeIngredientsDto">
+
+          <div class="mb-6">
+            <label> For how many People? (This Recipe is normally made
+              for {{recipe.portionSize}} {{recipe.portionSize === 1 ? "Person" : "People"}})</label>
+            <p-inputNumber [(ngModel)]="portion"
+                           (onInput)="updatePortion()"/>
+
+          </div>
+          <p></p>
+          <p-table
+            #dt
+            [value]="removeIngredientsDto.recipeItems"
+            [(selection)]="selectedPantryIngredients"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [rowHover]="true"
+            dataKey="id"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"/>
+                </th>
+                <th style="min-width:15rem">
+                  Name
+                </th>
+                <th style="min-width:6rem">
+                  Amount
+                </th>
+
+                <th style="min-width:6rem">
+                  Amount in Pantry
+                </th>
+                <th style="min-width:6rem">
+                  Amount after preparing
+                </th>
+
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ingredient>
+              <tr [ngClass]="getPantryColor(ingredient)">
+                <td>
+                  <p-tableCheckbox pTooltip="Decide if this ingredient should be consumed from the pantry"
+                                   [value]="ingredient"/>
+                </td>
+                <td>
+                  {{ ingredient.description }}
+                </td>
+                <td>
+                  <p-inputNumber
+                    [(ngModel)]="ingredient.amount"
+                    [min]="0"
+                    [max]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 1000 : 1000000"
+                    [minFractionDigits]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 2 : 0"
+                    [suffix]="getSuffixForCreateEdit(ingredient)"
+                    required/>
+                </td>
+
+                <td>
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="formatAmount(findMatchingPantryItemsForRemove(ingredient))"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+                <td>
+                  <p-inputNumber
+                    readonly="true"
+                    [placeholder]="(findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount < 0) ?
+                    '' + unitDisplayer(ingredient.unit,0)
+                    : ' ' + unitDisplayer(ingredient.unit, findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount)"
+                    [min]="0"
+                    [max]="1000000"
+                    [buttonLayout]=""/>
+                </td>
+
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <p-footer>
+    <p-button
+      pRipple
+      label="Reset"
+      [pTooltip]="'Reset the amount of ingredients'"
+      severity="secondary"
+      icon="pi pi-replay"
+      (click)="reset()"/>
+    <p-button
+      pRipple
+      label="Cancel"
+      severity="danger"
+      icon="pi pi-times"
+      (click)="closeUsePantryDialog()"/>
+    <p-button
+      pRipple
+      label="Confirm select"
+      severity="success"
+      icon="pi pi-check"
+      (click)="onRemovePantrySubmit(); closeUsePantryDialog()"/>
+  </p-footer>
+</p-dialog>
 
 
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Portion Size
-    </div>
-    <div class="mb-2 col-lg-2" *ngIf="recipe.portionSize">
-      {{recipe.portionSize}}
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Public
-    </div>
-    <div class="mb-2 col-lg-2">
-      {{recipe.isPublic === true ? 'Yes' : 'No' }}
-    </div>
-  </div><div class="row">
-  <div class="mb-2 col-lg-2">
-    Likes
-  </div>
-  <div class="mb-2 col-lg-2">
-    {{recipe.likes}}
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Dislikes
-    </div>
-    <div class="mb-2 col-lg-2">
-      {{recipe.dislikes}}
-    </div>
-  </div>
-  <div class="row">
-    <div class="mb-2 col-lg-2">
-      Description:
-    </div>
-    <div class="mb-12 col-lg-12" *ngIf="recipe.description">
-      {{recipe.description}}
-    </div>
-  </div>
-</div>
-  <div class="row">
-    <div class="mt-4 d-flex justify-content-between align-items-center">
+<!-- ------------------- PANTRY DIALOG END ----------------------------------------->
 
-      <div class="d-flex">
-        <button *ngIf="mode === RecipeDetailMode.owner"
-                type="button"
-                class="btn btn-danger me-2"
-                data-bs-toggle="modal"
-                data-bs-target="#confirm-delete-dialog-title">
-          <i class="bi bi-trash"></i>
-          Delete
-        </button>
-        <app-confirm-delete-dialog
-          [deleteWhat]="recipe.name"
-          (confirm)="deleteRecipe()">
-        </app-confirm-delete-dialog>
+<div>
+  <!-- Header part with diagram -->
+  <div class="bg-blue-100">
+    <div class="p-4 flex">
 
-        <button *ngIf="mode === RecipeDetailMode.owner"
-                type="button"
-                class="btn btn-primary"
-                routerLink="/recipe/edit/{{recipeId}}">
-          Edit
-        </button>
+      <div class="w-2/3 flex justify-center">
+
+        <div class="bg-blue-100 p-4 max-w-3xl mx-auto">
+
+          <div class="flex items-end justify-around">
+
+
+          </div>
+        </div>
       </div>
 
-      <div class="d-flex align-items-center">
-        <label for="portionSize" class="me-2">Which Pantry do you want to use:</label>
-        <app-autocomplete textInputClass="form-control"
-          [suggestions]="getGroupSuggestions"
-          [formatModel]="formatGroup"
-          [(ngModel)]="group">
-        </app-autocomplete>
-        <label for="portionSize" class="me-2">Portion Size:</label>
-        <input type="number" id="portionSize" [(ngModel)]="portion" (ngModelChange)="updatePortion()" class="form-control me-2" style="width: 100px;"/>
-        <button type="button"
-                class="btn btn-primary"
-                (click)="removeRecipeIngredientsFromPantry()">
-          Cook Recipe
-        </button>
+
+      <!-- Right side -->
+      <div class="flex flex-col justify-between items-start ml-4">
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold">{{ recipe.name }}</h2>
+          <div class="text-sm"> For {{recipe.portionSize}} {{ recipe.portionSize === 1 ? "Person" : "People" }}</div>
+        </div>
+        <div class="flex space-x-2 mt-4">
+          <p-button [pTooltip]="'Export this recipe as a PDF'" (click)=getPdf() icon="pi pi-print"
+                    severity="secondary"/>
+          <div *ngIf="isOwner()" class="flex space-x-2">
+            <p-button [pTooltip]="'Make changes on your recipe'" class="rounded" routerLink="/recipe/edit/{{recipeId}}">
+              Edit
+            </p-button>
+            <p-button [pTooltip]="'Delete your Recipe'" class="rounded" (click)="deleteRecipe()">Delete</p-button>
+          </div>
+        </div>
       </div>
+      <div class="flex flex-row justify-between items-start ml-4">
+        <div class="ml-auto flex items-center space-x-4">
 
+          <p-button *ngIf="recipe && !recipe.likedByUser" icon="pi pi-thumbs-up" [rounded]="true" [text]="true"
+                    [raised]="true"
+                    severity="info" (click)="like()" [disabled]="recipe.likedByUser"></p-button>
+          <p-button *ngIf="recipe && recipe.likedByUser" icon="pi pi-thumbs-up-fill" [rounded]="true" [text]="true"
+                    [raised]="true" severity="info"></p-button>
+          <div class="score-container">
+            {{ getScore(recipe) }}
+          </div>
+
+          <p-button *ngIf="recipe && !recipe.dislikedByUser" icon="pi pi-thumbs-down" [rounded]="true" [text]="true"
+                    [raised]="true" severity="danger" (click)="dislike()" [disabled]="recipe.dislikedByUser"></p-button>
+          <p-button *ngIf="recipe && recipe.dislikedByUser" icon="pi pi-thumbs-down-fill" [rounded]="true" [text]="true"
+                    [raised]="true" severity="danger"></p-button>
+
+        </div>
+
+      </div>
     </div>
-<p></p>
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th class="col-3">Ingredient</th>
-        <th class="col-2">Amount</th>
-        <th class="col-2">Unit</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
+    <!-- Left side buttons -->
+    <div class="leftbuttons  text-black font-bold py-2 px-4 rounded ">
+      <p-button (click)="openUsePantryDialog()">Remove Ingredients from Pantry</p-button>
+      <p-button class="p-button-sm" (click)="openUseShoppingListDialog()">Add Ingredients to Shopping List</p-button>
+    </div>
+  </div>
 
-      <tr *ngFor="let ingredient of recipe.ingredients" class="center-td">
-        <td>
-          {{ ingredient.description}}
-        </td>
-        <td>
-          {{ingredient.amount}}
-        </td>
-        <td>
-          {{ingredient.unit }}
-        </td>
-      </tr>
-      </tbody>
-    </table>
 
+  <div class="recipe-description  p-6 pt-8 pb-8 rounded-lg shadow-md flex justify-between items-left"
+       [innerHTML]="formattedDescription">{{recipe.description}}  </div>
+  <!-- Ingredients -->
+  <div class="p-4 max-w-2xl text-left">
+    <ng-container *ngFor="let ingredient of recipe.ingredients; let i = index">
+      <div [class.bg-blue-50]="i % 2 === 0" [class.bg-white]="i % 2 === 1" class="rounded p-2"
+           class="rounded p-2 flex justify-between items-center">
+        <span class="font-bold">{{ ingredient.description }}</span>
+        <span class="font-bold">{{ unitDisplayer(ingredient.unit, ingredient.amount) }}</span>
+      </div>
+    </ng-container>
   </div>
 </div>
+
 
 
 

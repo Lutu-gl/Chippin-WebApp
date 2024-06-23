@@ -4,7 +4,13 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivityDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.activity.ActivitySearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ActivityMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.*;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
+import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -23,8 +29,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class ActivityServiceTest {
@@ -94,7 +103,7 @@ public class ActivityServiceTest {
 
         ActivityDetailDto activityDetailDto = activityService.getById(1L, "test@email.com");
         assertNotNull(activityDetailDto);
-        assertEquals("User test@email.com created expense TestExpense in group TestGroup", activityDetailDto.getDescription());
+        assertEquals("TestExpense was created by test@email.com", activityDetailDto.getDescription());
     }
 
     @Test
@@ -177,26 +186,26 @@ public class ActivityServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(mockUserEntity);
         when(groupRepository.findById(anyLong())).thenReturn(Optional.ofNullable(mockGroupEntity));
         when(activityRepository.findExpenseActivitiesByGroup(mockGroupEntity, null, null)).thenReturn(
-          Set.of(
-              mockActivity1,
-              mockActivity2,
-              mockActivity3,
-              mockActivity4
-          )
+            Set.of(
+                mockActivity1,
+                mockActivity2,
+                mockActivity3,
+                mockActivity4
+            )
         );
         when(activityMapper.activityEntityToActivityDetailDto(mockActivity1)).thenReturn(dtoMockActivity1);
         when(activityMapper.activityEntityToActivityDetailDto(mockActivity2)).thenReturn(dtoMockActivity2);
         when(activityMapper.activityEntityToActivityDetailDto(mockActivity3)).thenReturn(dtoMockActivity3);
         when(activityMapper.activityEntityToActivityDetailDto(mockActivity4)).thenReturn(dtoMockActivity4);
 
-        Collection<ActivityDetailDto> activities =  activityService.getExpenseActivitiesByGroupId(1L, "test@email.com", ActivitySearchDto.builder().build());
+        Collection<ActivityDetailDto> activities = activityService.getExpenseActivitiesByGroupId(1L, "test@email.com", ActivitySearchDto.builder().build());
 
         assertEquals(4, activities.size());
         List<String> descriptions = activities.stream().map(ActivityDetailDto::getDescription).toList();
-        assertTrue(descriptions.contains("User test@email.com created expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com deleted expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com recovered expense TestExpense in group TestGroup"));
-        assertTrue(descriptions.contains("User test@email.com updated expense TestExpense in group TestGroup"));
+        assertTrue(descriptions.contains("TestExpense was created by test@email.com"));
+        assertTrue(descriptions.contains("TestExpense was deleted by test@email.com"));
+        assertTrue(descriptions.contains("TestExpense was recovered by test@email.com"));
+        assertTrue(descriptions.contains("TestExpense was updated by test@email.com"));
 
     }
 
@@ -251,6 +260,6 @@ public class ActivityServiceTest {
 
         assertEquals(1, activities.size());
         List<String> descriptions = activities.stream().map(ActivityDetailDto::getDescription).toList();
-        assertTrue(descriptions.contains("test@email.com payed test2@email.com in group TestGroup"));
+        assertTrue(descriptions.contains("test@email.com created payment to test2@email.com"));
     }
 }

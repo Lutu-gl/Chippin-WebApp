@@ -1,11 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.error.UserAlreadyExistsErrorDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.InvalidFriendRequest;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -20,10 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Register all your Java exceptions here to map them into meaningful HTTP exceptions
@@ -48,9 +45,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    protected UserAlreadyExistsErrorDto handleUserAlreadyExists(Throwable ex, WebRequest request) {
+    protected String handleUserAlreadyExists(Throwable ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
-        return new UserAlreadyExistsErrorDto(ex.getMessage());
+        return ex.getMessage();
     }
 
     //Exception handler for PreAuthorize annotation
@@ -70,24 +67,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ex.getMessage();
     }
 
-    /**
-     * Override methods from ResponseEntityExceptionHandler to send a customized HTTP response for a know exception
-     * from e.g. Spring
-     */
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatusCode status, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        //Get all errors
-        List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(err -> err.getField() + " " + err.getDefaultMessage())
-            .collect(Collectors.toList());
-        body.put("Validation errors", errors);
-
-        return new ResponseEntity<>(body.toString(), headers, status);
-
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status,
+                                                                  WebRequest request) {
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+        return new ResponseEntity<>(new ValidationErrorRestDto(ex.getMessage(), errors), HttpStatus.BAD_REQUEST);
     }
 }

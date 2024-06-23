@@ -9,6 +9,9 @@ import {UserSelection} from "../../../dtos/user";
 import {map, Observable} from "rxjs";
 import {UserService} from "../../../services/user.service";
 import {FriendshipService} from "../../../services/friendship.service";
+import {AutoCompleteCompleteEvent, AutoCompleteSelectEvent} from "primeng/autocomplete";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {AuthService} from "../../../services/auth.service";
 
 
 export enum GroupCreateEditMode {
@@ -29,17 +32,25 @@ export class GroupCreateComponent implements OnInit {
     groupName: '',
     members: []
   };
-  members: (UserSelection | null)[] = new Array(0);
   dummyMemberSelectionModel: unknown; // Just needed for the autocomplete
-  budgets: BudgetDto[] = [];
+  filteredFriends: any[] | undefined;
+  friends: any[] | undefined;
+
+  filteredFriendsEdit: any[] | undefined;
+  friendsEdit: any[] | undefined;
+
+  protected membersEmails: string[] = [];
+  protected membersEmailsEdit: string[] = [];
 
   constructor(
-      private service: GroupService,
-      protected userService: UserService,
-      private friendshipService: FriendshipService,
-      private router: Router,
-      private route: ActivatedRoute,
-      private notification: ToastrService,
+    private service: GroupService,
+    protected userService: UserService,
+    private friendshipService: FriendshipService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private messageService: MessageService,
+    protected authService: AuthService,
+    private confirmationService: ConfirmationService,
   ) {
   }
 
@@ -56,14 +67,24 @@ export class GroupCreateComponent implements OnInit {
     }
   }
 
-  public get submitButtonText(): string {
+  public get modalButtonText(): string {
     switch (this.mode) {
       case GroupCreateEditMode.create:
-        return 'Create';
+        return 'Do you want to cancel the creation of the group?';
       case GroupCreateEditMode.edit:
-        return 'Edit';
+        return 'Do you want to remove your changes?';
       case GroupCreateEditMode.info:
-        return 'Edit this Group';
+        return '?';
+      default:
+        return '?';
+    }
+  }
+  private get modalButtonCanceledText(): string {
+    switch (this.mode) {
+      case GroupCreateEditMode.create:
+        return 'Group creation canceled';
+      case GroupCreateEditMode.edit:
+        return 'Edit of group canceled';
       default:
         return '?';
     }
@@ -71,6 +92,10 @@ export class GroupCreateComponent implements OnInit {
 
   get modeIsCreate(): boolean {
     return this.mode === GroupCreateEditMode.create;
+  }
+
+  get modeIsEdit(): boolean {
+    return this.mode === GroupCreateEditMode.edit;
   }
 
   get modeIsInfo(): boolean {
@@ -89,25 +114,46 @@ export class GroupCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.friendshipService.getFriends().subscribe({
+      next: data => {
+        this.friends = data;
+        this.friends.sort((a, b) => a.localeCompare(b));
+        if (this.modeIsEdit) {
+          this.friendsEdit = data.filter(friend => !this.membersEmails.includes(friend));
+          this.friendsEdit.sort((a, b) => a.localeCompare(b));
+        }
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
+        } else {
+          console.error('Error getting friends', error);
+          this.messageService.add({severity:'error', summary:'Error', detail:`Getting friends did not work!`});
+        }
+      }
+    });
+
+
     this.route.data.subscribe(data => {
       this.mode = data.mode;
     });
 
-    // add logged in user to group
-    let emailString = this.userService.getUserEmail();
+    let emailString = this.authService.getEmail();
     if(emailString === null) {
-      this.notification.error(`You need to be logged in to create a group. Please logout and login again.`);
+      this.messageService.add({severity:'error', summary:'Error', detail:`You need to be logged in to create a group. Please logout and login again.`});
       return;
     }
 
-    let loggedInUser: UserSelection = {
-      email: emailString
-    };
-    this.members.push(loggedInUser);
+    this.membersEmails.push(this.authService.getEmail());
 
     if (!this.modeIsCreate) {
       this.getGroup();
-      this.getGroupBudgets();
     }
   }
   getGroup(): void {
@@ -117,83 +163,26 @@ export class GroupCreateComponent implements OnInit {
       .subscribe( {
         next: data => {
           this.group = data;
-          this.members = data.members;
+          data.members.forEach(member => {
+            this.membersEmails.push(member);
+          });
+          this.membersEmailsEdit = [];
         },
         error: error => {
           if (error && error.error && error.error.errors) {
             for (let i = 0; i < error.error.errors.length; i++) {
-              this.notification.error(`${error.error.errors[i]}`);
+              this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
             }
           } else if (error && error.error && error.error.message) {
-            this.notification.error(`${error.error.message}`);
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
           } else if (error && error.error && error.error.detail) {
-            this.notification.error(`${error.error.detail}`);
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
           } else {
             console.error('Error getting group', error);
-            this.notification.error(`Getting group did not work!`);
+            this.messageService.add({severity:'error', summary:'Error', detail:`Getting group did not work!`});
           }
         }
       })
-  }
-
-
-  getGroupBudgets(): void{
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-
-    this.service.getGroupBudgets(id)
-      .subscribe( {
-        next: budgets => {
-          this.budgets = budgets;
-        },
-        error: error => {
-          if (error && error.error && error.error.errors) {
-            for (let i = 0; i < error.error.errors.length; i++) {
-              this.notification.error(`${error.error.errors[i]}`);
-            }
-          } else if (error && error.error && error.error.message) {
-            this.notification.error(`${error.error.message}`);
-          } else if (error && error.error && error.error.detail) {
-            this.notification.error(`${error.error.detail}`);
-          } else {
-            console.error('Error getting group', error);
-            this.notification.error(`Getting group did not work!`);
-          }
-        }
-      })
-  }
-
-  // addBudget(): void {
-  //   console.log(this.newBudget.name)
-  //   console.log(this.newBudget.amount)
-  //   if (this.newBudget.name && this.newBudget.amount > 0) {
-  //     this.budgets.push(this.newBudget);
-  //     this.newBudget = { name: '', amount: 0 };
-  //   } else {
-  //     this.notification.error('Please provide a valid budget name and amount.');
-  //   }
-  // }
-
-  // removeBudget(index: number): void {
-  //   //this.budgets.splice(index, 1);
-
-  //   this.service.deleteBudget(this.group.id, this.budgets[index].id).subscribe({
-  //     next: () => {
-  //       this.budgets.splice(index, 1);
-  //       this.notification.success('Budget successfully deleted.');
-  //     },
-  //     error: (err) => {
-  //       console.error('Error deleting budget', err);
-  //       this.notification.error('Failed to delete budget. Please try again.');
-  //     }
-  //   });
-
-  // }
-
-
-  public dynamicCssClassesForInput(input: NgModel): any {
-    return {
-      'is-invalid': !input.valid && !input.pristine,
-    };
   }
 
   public onSubmit(form: NgForm): void {
@@ -201,58 +190,69 @@ export class GroupCreateComponent implements OnInit {
       //this.router.navigate([`groups/${(this.route.snapshot.paramMap.get('id'))}/edit`]);
       return;
     }
-    if (form.valid) {
-      this.group.members = this.members;
 
+    var memberGroupSaved = JSON.parse(JSON.stringify(this.group.members));
+    console.log(this.group.members)
+    console.log(this.membersEmails)
+    console.log(this.membersEmailsEdit)
+
+    if (form.valid) {
       let observable: Observable<GroupDto>;
       switch (this.mode) {
         case GroupCreateEditMode.create:
+
+          this.membersEmails.forEach(member => {
+            this.group.members.push(member)
+          });
+
           observable = this.service.create(this.group);
           break;
         case GroupCreateEditMode.edit:
+
+          this.membersEmailsEdit.forEach(member => {
+            this.group.members.push(member)
+          });
+
           observable = this.service.update(this.group);
           break;
         default:
           console.error('Unknown GroupCreateEditMode', this.mode);
           return;
       }
+      console.log("final: ")
+      console.log(this.group.members)
       observable.subscribe({
         next: data => {
-          this.notification.success(`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`);
-          const groupId = data.id || this.group.id;
-          this.budgets.forEach(budget => {
-            if (budget.id) {
-              console.log("Budget wird geupdated")
-              this.service.updateBudget(groupId, budget.id, budget).subscribe();
-            } else {
-              console.log("Budget wird created")
-              this.service.createBudget(groupId, budget).subscribe();
-            }
-          });
-
-
-          this.router.navigate(['/groups']);
+          this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
+          if (this.group.id) {
+            this.router.navigate(['/group/' + this.group.id]);
+          } else if (data.id) {
+            this.router.navigate(['/group/' + data.id]);
+          } else {
+            this.router.navigate(['/home/groups']);
+          }
         },
         error: error => {
+          this.group.members = memberGroupSaved;
           console.log(error);
           if (error && error.error && error.error.errors) {
             //this.notification.error(`${error.error.errors.join('. \n')}`);
             for (let i = 0; i < error.error.errors.length; i++) {
-              this.notification.error(`${error.error.errors[i]}`);
+              this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
             }
           } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
-            this.notification.error(`${error.error.message}`);
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
           } else if (error && error.error.detail) {
-            this.notification.error(`${error.error.detail}`);
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
           } else {
             switch (this.mode) {
               case GroupCreateEditMode.create:
                 console.error('Error creating group', error);
-                this.notification.error(`Creation of group did not work!`);
+                this.messageService.add({severity:'error', summary:'Error', detail:`Creation of group did not work!`});
                 break;
               case GroupCreateEditMode.edit:
                 console.error('Error editing group', error);
-                this.notification.error(`Edit of group did not work!`);
+                this.messageService.add({severity:'error', summary:'Error', detail:`Edit of group did not work!`});
                 break;
               default:
                 console.error('Unknown GroupCreateEditMode. Operation did not work!', this.mode);
@@ -269,18 +269,38 @@ export class GroupCreateComponent implements OnInit {
       : `${member.email}`
   }
 
-  public addMember(member: UserSelection | null) {
-    if (!member) return;
-    setTimeout(() => {
-      const members = this.members;
-      if (members.some(m => m?.email === member.email)) {
-        this.notification.error(`${member.email} is already in participant list`, "Duplicate Participant");
-        this.dummyMemberSelectionModel = null;
+  public addMember(member: AutoCompleteSelectEvent) {
+      setTimeout(() => {
+        this.currentlySelected = ""
+      });
+
+      if (!member.value) return;
+      if (this.membersEmails.includes(member.value)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `${member.value} is already in participant list`
+        });
         return;
       }
-      members.push(member);
-      this.dummyMemberSelectionModel = null;
+    this.membersEmails.push(member.value);
+  }
+
+  public addMemberEdit(member: AutoCompleteSelectEvent) {
+    setTimeout(() => {
+      this.currentlySelected = ""
     });
+
+    if (!member.value) return;
+    if (this.membersEmailsEdit.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already in participant list`
+      });
+      return;
+    }
+    this.membersEmailsEdit.push(member.value);
   }
 
   memberSuggestions = (input: string): Observable<UserSelection[]> =>
@@ -290,23 +310,100 @@ export class GroupCreateComponent implements OnInit {
       }))));
 
   public removeMember(index: number) {
-    if(this.userService.getUserEmail() == this.members[index].email) {
-      this.notification.error(`You can't remove yourself from the group.`);
+    if (this.authService.getEmail() == this.membersEmails[index]) {
+      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
       return;
     }
 
-    this.members.splice(index, 1);
+    this.membersEmails.splice(index, 1);
   }
 
+  public removeMemberEdit(index: number) {
+    if (this.authService.getEmail() == this.membersEmailsEdit[index]) {
+      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
+      return;
+    }
 
-  getSortedMembers(): UserSelection[] {
-    return this.members.sort((a, b) => a.email.localeCompare(b.email));
+    this.membersEmailsEdit.splice(index, 1);
   }
 
+  filterMembers(event: AutoCompleteCompleteEvent) {
+
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.friends as any[]).length; i++) {
+      let friend = (this.friends as any[])[i];
+      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(friend);
+      }
+    }
+
+    this.filteredFriends = filtered;
+  }
+
+  filterMembersEdit(event: AutoCompleteCompleteEvent) {
+
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.friendsEdit as any[]).length; i++) {
+      let friend = (this.friendsEdit as any[])[i];
+      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(friend);
+      }
+    }
+
+    this.filteredFriendsEdit = filtered;
+  }
+
+  getMembersEmail(): string[] {
+    return this.membersEmails;
+  }
+
+  getSortedMembersEmail(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b));
+  }
+
+  getSortedGroupMembersEmail(): string[] {
+    return this.group.members.sort((a, b) => a.localeCompare(b));
+  }
+
+  // return only the members that are not in the group yet
+  getMembersEmailEdit(): string[] {
+    return this.membersEmailsEdit;
+    // return this.membersEmails.filter(member => !this.group.members.includes(member));
+  }
+  getSortedMembersEmailEdit(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.group.members.includes(member));
+  }
 
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
+  currentlySelected: any;
 
-  goBack() {
-      this.router.navigate(['/group']);
+  goBack($event: MouseEvent) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: this.modalButtonText,
+      header: 'Cancel Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass:"p-button-danger p-button-text",
+      rejectButtonStyleClass:"p-button-text p-button-text",
+      acceptIcon:"none",
+      rejectIcon:"none",
+
+      accept: () => {
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: this.modalButtonCanceledText });
+        //this.router.navigate(['/group', this.group.id]);
+        if(this.mode === GroupCreateEditMode.create) {
+          this.router.navigate(['/home/groups']);
+          return;
+        }
+        this.router.navigate(['/group/' + this.group.id]);
+      },
+      reject: () => {
+        // this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'You have rejected' });
+      }
+    });
   }
 }

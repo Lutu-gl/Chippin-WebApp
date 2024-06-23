@@ -1,13 +1,13 @@
 import {Component, OnInit} from "@angular/core";
-import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../../dtos/recipe";
-import {ActivatedRoute, Router} from "@angular/router";
+import {RecipeGlobalListDto, RecipeSearch} from "../../../dtos/recipe";
+
 import {RecipeService} from "../../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
-
+import {MessageService} from "primeng/api";
 
 
 @Component({
-  selector: 'app-recipe-global',
+  selector: 'recipe-global',
   templateUrl: './recipe-global.component.html',
   styleUrl: './recipe-global.component.scss'
 })
@@ -15,14 +15,16 @@ import {debounceTime, Subject} from "rxjs";
 export class RecipeGlobalComponent implements OnInit {
   recipes: RecipeGlobalListDto[] = [];
   error = false;
-  errorMessage = '';
   searchString: string = "";
   searchChangedObservable = new Subject<void>();
+  rows:number=20;
+  currentPage:number=1;
+  totalRecords:number;
+  paginatedRecipes:RecipeGlobalListDto[]=[];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private service: RecipeService
+    private service: RecipeService,
+    private messageService: MessageService,
   ) {
   }
 
@@ -32,10 +34,12 @@ export class RecipeGlobalComponent implements OnInit {
       .subscribe({
         next: data => {
           this.recipes = data;
+          this.totalRecords=this.recipes.length;
+          this.paginate({ first: 0, rows: this.rows });
 
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.printError(error)
         }
       });
 
@@ -48,35 +52,65 @@ export class RecipeGlobalComponent implements OnInit {
     this.searchChangedObservable.next();
   }
 
+  paginate(event: any) {
+    this.currentPage = event.first / event.rows + 1;
+    this.paginatedRecipes = this.recipes.slice(event.first, event.first + event.rows);
+  }
+
   public like(id: number) {
     this.service.likeRecipe(id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are liking too fast. This like will not be saved`});
         }
       });
 
-    this.router.navigate(['/recipe/global']);
+    let likeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    likeRecipe.likes++;
+    if(likeRecipe.dislikedByUser) {
+      likeRecipe.dislikes--;
+    }
+    likeRecipe.likedByUser=true;
+    likeRecipe.dislikedByUser=false;
+
+    this.recipes[index] =likeRecipe;
+
 
   }
 
   public dislike(id:number) {
     this.service.dislikeRecipe(id)
+      .pipe(debounceTime(1000))
       .subscribe({
         next: data => {
 
         },
         error: error => {
-          this.defaultServiceErrorHandling(error)
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `You are disliking too fast. This dislike will not be saved`});
         }
       });
-    this.router.navigate(['/recipe/global']);
 
+
+    let dislikeRecipe = this.recipes.find(recipe => recipe.id === id);
+    let index = this.recipes.findIndex(recipe => recipe.id === id);
+
+    dislikeRecipe.dislikes++;
+    if(dislikeRecipe.likedByUser) {
+      dislikeRecipe.likes--;
+    }
+    dislikeRecipe.dislikedByUser=true;
+    dislikeRecipe.likedByUser=false;
+
+    this.recipes[index] =dislikeRecipe;
 
   }
+
 
   public getScore(recipe: RecipeGlobalListDto): number {
     return recipe.likes-recipe.dislikes;
@@ -90,20 +124,27 @@ export class RecipeGlobalComponent implements OnInit {
     this.service.searchGlobalRecipes(search).subscribe({
       next: res => {
         this.recipes = res;
+        this.totalRecords=this.recipes.length;
+        this.paginate({ first: 0, rows: this.rows });
       },
       error: err => {
-        this.defaultServiceErrorHandling(err);
+        this.printError(err);
       }
     });
   }
 
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+      }
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
     } else {
-      this.errorMessage = error.error;
+      console.error('Could not load pantry items', error);
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
     }
   }
 }

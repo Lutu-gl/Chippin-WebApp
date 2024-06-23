@@ -1,0 +1,32 @@
+<div class="flex flex-col gap-4 p-4 max-w-md mx-auto">
+  <!--    <div class="flex justify-center mb-4">-->
+  <!--      <button class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center">-->
+  <!--        <span class="text-xl mr-2">+</span> Add member-->
+  <!--      </button>-->
+  <!--    </div>-->
+
+  <!-- <p-button label="Create new shopping list" class="pb-4 mx-auto" (click)="showCreateModal = true"></p-button> -->
+  <div class="flex justify-center mb-4">
+    <button (click)="showCreateModal = true" class="bg-blue-200 text-blue-600 font-bold py-2 px-4 rounded-full flex items-center justify-center mx-auto">
+      <span class="text-xl mr-2">+</span> Create new shopping list
+    </button>
+  </div>
+  <div *ngIf="getSortedShoppingLists().length === 0" class="flex flex-col items-center gap-4">
+    <div class="text-lg font-bold">No shopping lists yet</div>
+    <div class="text-gray-500">Create a new shopping list to get started</div>
+  </div>
+  <div *ngFor="let list of getSortedShoppingLists()" [routerLink]="['/shopping-list', list.id]"
+       class="flex flex-col justify-between p-4 bg-blue-50 rounded-lg shadow hover:cursor-pointer">
+    <h1 class="font-semibold">
+      {{ list.name }}
+    </h1>
+    <div class="font-light">
+      {{ list.itemCount - list.checkedItemCount }} item{{ list.itemCount - list.checkedItemCount === 1 ? "" : "s" }}
+      left
+    </div>
+  </div>
+</div>
+
+<app-shopping-list-create-modal [(visible)]="showCreateModal"
+                                [preChosenGroupId]="groupId"
+                                (update)="loadGroupShoppingLists()"></app-shopping-list-create-modal>

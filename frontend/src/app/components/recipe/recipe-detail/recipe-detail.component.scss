@@ -1,0 +1,92 @@
+.members {
+  font-weight: normal;
+}
+
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.member-list-item {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.debt {
+  font-weight: normal;
+}
+
+.debt-list {
+  gap: 20px;
+}
+
+.debt-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.invisible-button {
+  visibility: hidden;
+}
+
+.positive-debt {
+  background-color: #e0f7e0;
+  border-color: #c8e6c9;
+}
+
+.negative-debt {
+  background-color: #f7e0e0;
+  border-color: #e6c9c9;
+}
+.small-button {
+  white-space: nowrap;
+}
+
+.budgets {
+  font-weight: normal;
+}
+
+.budget-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.budget-list-item {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+.recipe-description {
+  background: #f1f1f2;
+  white-space: pre-line; /* This ensures that \n characters are rendered as line breaks */
+  margin:20px;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.score-container {
+  width: 10px; /* Adjust the width as needed */
+  text-align: center; /* Center the text within the container */
+}
+.leftbuttons {
+  display: flex; /* Use flexbox for better control of spacing */
+  gap: 10px; /* Adjust the space between buttons */
+}
+
+.round-info-button {
+  background-color: #d3d3d3 !important; /* Light grey background */
+  border: none; /* Remove border */
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Make it round */
+}

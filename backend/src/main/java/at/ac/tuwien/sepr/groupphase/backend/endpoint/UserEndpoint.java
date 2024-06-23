@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupListDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.GroupMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
@@ -32,8 +33,16 @@ public class UserEndpoint {
     @Secured("ROLE_USER")
     @GetMapping("/groups")
     public Set<GroupDetailDto> getUserGroups() {
-        LOGGER.info("GET /api/v1/users/groups");
+        LOGGER.trace("getUserGroups()");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return groupMapper.setOfGroupEntityToSetOfGroupDto(userService.getGroupsByUserEmail(authentication.getName()));
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/groups-with-debt-infos")
+    public Set<GroupListDto> getUserGroupsWithDebtInfos() {
+        LOGGER.trace("getUserGroupsWithDebtInfos()");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userService.getGroupsByUserEmailWithDebtInfos(authentication.getName());
     }
 }

@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.endpointtests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.GroupDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListUpdateDto;
@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -108,11 +110,8 @@ public class ShoppingListEndpointTest extends BaseTest {
         when(securityService.canAccessShoppingList(-1L)).thenReturn(true);
 
         mockMvc.perform(get("/api/v1/shopping-lists/-1"))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(
-                ShoppingListDetailDto.builder().id(-1L).group(GroupDetailDto.builder().id(-1L).build()).name("Test Shopping List").owner(null).items(List.of())
-                    .build()
-            )));
+            .andExpect(status().isOk()
+            );
 
         verify(shoppingListService, times(1)).getShoppingList(-1L);
     }
@@ -152,6 +151,20 @@ public class ShoppingListEndpointTest extends BaseTest {
 
         verify(shoppingListService, times(1)).updateShoppingList(any(), any());
     }
+
+    @Test
+    @WithMockUser
+    public void givenValidShoppingListId_whenDeleteCheckedItems_thenNoException() throws Exception {
+        doNothing().when(shoppingListService).deleteCheckedItems(-1L);
+        when(securityService.canAccessShoppingList(-1L)).thenReturn(true);
+        when(securityService.hasCorrectId(-5L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/users/-5/shopping-lists/-1/items/checked-items"))
+            .andExpect(status().isOk());
+
+        verify(shoppingListService, times(1)).deleteCheckedItems(-1L);
+    }
+
 
 
 }

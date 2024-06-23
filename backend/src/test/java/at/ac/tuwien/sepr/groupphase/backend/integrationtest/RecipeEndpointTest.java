@@ -1,29 +1,30 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBeforeAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AddRecipeItemToShoppingListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.group.GroupCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeCreateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeGlobalListDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.UserAlreadyExistsException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import at.ac.tuwien.sepr.groupphase.backend.service.GroupService;
-import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
-import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
-import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +33,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,15 +49,15 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,7 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class RecipeEndpointTest extends BaseTest {
+public class RecipeEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
     @Autowired
     private MockMvc mockMvc;
 
@@ -99,6 +102,23 @@ public class RecipeEndpointTest extends BaseTest {
 
     @Autowired
     private SecurityProperties securityProperties;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @SpyBean
+    private SecurityService securityService;
+
+    @Autowired
+    private ShoppingListRepository shoppingListRepository;
+
+    @Autowired
+    private ShoppingListService shoppingListService;
+
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     List<String> ADMIN_ROLES = new ArrayList<>() {
         {
@@ -145,7 +165,7 @@ public class RecipeEndpointTest extends BaseTest {
         emptyRecipe = recipeRepository.save(emptyRecipe);
     }
 
-    /*
+
     @Test
     @WithMockUser(username = "user1@example.com", roles = "USER")
     public void createRecipeSuccessfully_then201() throws Exception {
@@ -178,10 +198,9 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals("This is a test recipe", responseDto.getDescription());
     }
 
-     */
-
 
     @Test
+    @Rollback
     @WithMockUser
     public void createRecipeWithInvalidRecipeGets400() throws Exception {
 
@@ -199,8 +218,11 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void getByIdOnUnknownId_then404() throws Exception {
+        when(securityService.canAccessRecipe(0L)).thenReturn(true);
+
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", 0)))
             .andDo(print())
             .andExpect(status().isNotFound())
@@ -208,12 +230,15 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void updateExistingRecipe_ChangesSuccessfully_Then200() throws Exception {
 
         RecipeDetailDto newRecipe = RecipeDetailDto.builder().id(recipe.getId()).owner(recipe.getOwner()).portionSize(6)
             .description("for a test").name("differentName").ingredients(itemMapper.listOfItemsToListOfItemDto(recipe.getIngredients()))
             .isPublic(true).likes(0).dislikes(0).build();
+        when(securityService.canAccessRecipe(newRecipe.getId())).thenReturn(true);
+        when(securityService.canEditRecipe(newRecipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(newRecipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/update")
@@ -238,10 +263,12 @@ public class RecipeEndpointTest extends BaseTest {
 
     }
 
-    /*@Test
+    @Test
     @WithMockUser
-    public void givenEmptyRecipe_whenFindById_thenEmptyList()
-        throws Exception {
+    public void givenEmptyRecipe_whenFindById_thenEmptyList() throws Exception {
+
+        when(securityService.canAccessRecipe(emptyRecipe.getId())).thenReturn(true);
+
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", emptyRecipe.getId())))
             .andDo(print())
             .andReturn();
@@ -258,8 +285,9 @@ public class RecipeEndpointTest extends BaseTest {
 
     @Test
     @WithMockUser
-    public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem()
-        throws Exception {
+    public void givenRecipeWithOneItem_whenFindById_thenListWithSizeOneAndCorrectItem() throws Exception {
+
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(get(String.format("/api/v1/group/%d/recipe", recipe.getId())))
             .andDo(print())
             .andReturn();
@@ -282,7 +310,6 @@ public class RecipeEndpointTest extends BaseTest {
 
     @Test
     @Rollback
-    @Transactional
     @WithMockUser
     public void givenRecipeWithOneItemAndMatchingDescription_whenSearchItemsInRecipe_thenListWithSizeOneAndCorrectItem()
         throws Exception {
@@ -297,24 +324,26 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
-        ItemListListDto listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemListListDto.class);
+        ItemDto[] listDto = objectMapper.readValue(response.getContentAsByteArray(), ItemDto[].class);
 
-        assertEquals(1, listDto.getItems().size());
-        ItemDto itemDto = listDto.getItems().get(0);
+        assertEquals(1, listDto.length);
+        ItemDto itemDto = listDto[0];
         assertAll(
             () -> assertEquals(item.getDescription(), itemDto.getDescription()),
             () -> assertEquals(item.getAmount(), itemDto.getAmount()),
             () -> assertEquals(item.getUnit(), itemDto.getUnit())
         );
-    }*/
+    }
 
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_whenAddInvalidItemToRecipe_then400()
         throws Exception {
         String body = objectMapper.writeValueAsString(ItemCreateDto.builder().amount(-4).unit(null).description("").build());
 
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/recipe", recipe.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
@@ -327,9 +356,11 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_whenDeleteExistingItem_thenItemDeleted()
         throws Exception {
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/recipe/%d", recipe.getId(), item.getId()))
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -344,8 +375,10 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void likeRecipeSuccessfully() throws Exception {
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/like", recipe.getId())
@@ -360,15 +393,22 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
-        assertEquals(1, result.getLikedByUsers().size());
+        ApplicationUser resultUser = userRepository.findApplicationUserByIdWithLikeInfo(userDetailService.findApplicationUserByEmail("tester@at").getId());
+        assertEquals(1, result.getLikes());
+        assertTrue(resultUser.getLikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getLikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getLikedByUsers().iterator().next().getId());
+        assertEquals(resultUser.getLikedRecipes().iterator().next().getId(), result.getId());
+
+        List<ApplicationUser> users = userRepository.findApplicationUserByLikedRecipesContains(result);
+
+        assertTrue(users.stream().anyMatch(o -> o.getId().equals(resultUser.getId())));
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void dislikeRecipeSuccessfully() throws Exception {
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
         String groupJson = objectMapper.writeValueAsString(recipe);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/v1/group/recipe/{0}/dislike", recipe.getId())
@@ -383,13 +423,19 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         Recipe result = recipeRepository.findById(recipe.getId()).get();
+        ApplicationUser resultUser = userRepository.findApplicationUserByIdWithLikeInfo(userDetailService.findApplicationUserByEmail("tester@at").getId());
+        assertEquals(1, result.getDislikes());
+        assertTrue(resultUser.getDislikedRecipes().stream().anyMatch(o -> o.getId().equals(result.getId())));
 
-        assertEquals(1, result.getDislikedByUsers().size());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getDislikedRecipes().iterator().next().getId(), result.getId());
-        assertEquals(userDetailService.findApplicationUserByEmail("tester@at").getId(), result.getDislikedByUsers().iterator().next().getId());
+        assertEquals(resultUser.getDislikedRecipes().iterator().next().getId(), result.getId());
+
+        List<ApplicationUser> users = userRepository.findApplicationUserByDislikedRecipesContains(result);
+
+        assertTrue(users.stream().anyMatch(o -> o.getId().equals(resultUser.getId())));
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUser_findRecipesByUser_returnsListOfRecipesByUserThen200() throws Exception {
         ItemCreateDto item1 = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
@@ -425,6 +471,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void getPublicRecipeOrderedByLikes_returnsAllPublicRecipesOrderedSuccessfully() throws Exception {
 
@@ -468,8 +515,10 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser
     public void givenNothing_DeleteExistingRecipe_returns204_RecipeDoesntExistAnymore() throws Exception {
+        when(securityService.canEditRecipe(-5L)).thenReturn(true);
         recipeRepository.save(Recipe.builder().id(-5L).isPublic(false).portionSize(0).name("test").owner(user).description("test").build());
         MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/recipe/%d/delete", -5L))
                 .accept(MediaType.APPLICATION_JSON))
@@ -485,6 +534,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
@@ -505,10 +555,34 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
+    @WithMockUser(username = "tester@at", roles = "USER")
+    public void givenUserEmailAndSearchString_SearchLikedRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
+        recipeService.likeRecipe(recipe.getId(), user);
+        String groupJson = objectMapper.writeValueAsString("Test Recipe");
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/liked")
+                .queryParam("details", "Test Recipe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(groupJson))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        RecipeListDto[] resultDto = objectMapper.readValue(response.getContentAsByteArray(), RecipeListDto[].class);
+
+        assertNotNull(resultDto);
+        assertEquals(resultDto.length, 1);
+        assertEquals(resultDto[0].getName(), "Test Recipe");
+    }
+
+    @Test
+    @Rollback
     @WithMockUser(username = "user1@example.com", roles = "USER")
-    public void givenWrongUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_Returns404() throws Exception {
+    public void givenUserEmailAndSearchString_SearchOwnRecipeWithSearchParam_ReturnsEmptyList() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/search/own")
+                .queryParam("details", "Test Recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(groupJson))
             .andExpect(status().isOk())
@@ -523,6 +597,7 @@ public class RecipeEndpointTest extends BaseTest {
     }
 
     @Test
+    @Rollback
     @WithMockUser(username = "user5@example.com", roles = "USER")
     public void givenSearchString_SearchGlobalRecipeWithSearchParam_ReturnsListWithOneItem() throws Exception {
         String groupJson = objectMapper.writeValueAsString("Test Recipe");
@@ -542,11 +617,13 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(resultDto[0].getName(), "Test Recipe");
     }
 
-    /*@Test
+    @Test
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenValidItemAndRecipe_AddItemToRecipeSuccessfully_ThenRecipeWithIngredient() throws Exception {
         ItemCreateDto itemCreateDto = ItemCreateDto.builder().amount(3).unit(Unit.Piece).description("Carrot").build();
         String body = objectMapper.writeValueAsString(itemCreateDto);
+
+        when(securityService.canEditRecipe(recipe.getId())).thenReturn(true);
 
         MvcResult mvcResult = this.mockMvc.perform(post(String.format("/api/v1/group/%d/recipe", recipe.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -567,9 +644,10 @@ public class RecipeEndpointTest extends BaseTest {
             () -> assertEquals(itemCreateDto.getUnit(), itemDto.getUnit()),
             () -> assertNotNull(itemDto.getId())
         );
-    }*/
+    }
 
     @Test
+    @Rollback
     @WithMockUser(username = "tester@at", roles = "USER")
     public void givenUserAndRecipe_LikeRecipeSuccessfully_ThenGetLikedRecipeFromUserReturnsLikedRecipeCorrectly() throws Exception {
         recipeService.likeRecipe(recipe.getId(), user);
@@ -588,19 +666,33 @@ public class RecipeEndpointTest extends BaseTest {
         assertEquals(recipe.getId(), listDto[0].getId());
     }
 
-    /*@Test
+
+    @Test
     @WithMockUser(username = "user1@example.com", roles = "USER")
-    public void GivenUserRecipeAndPantry_WhenRemoveRecipeIngredientsFromPantry_ThenPantryChanges() throws Exception {
-        ApplicationUser testUser = userDetailService.findApplicationUserByEmail("user1@example.com");
+    public void GivenUserRecipeAndPantry_WhenRemoveRecipeIngredientsFromPantry_ReturnsCorrectPantryItems() throws Exception {
+
+
         GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
         pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+
+        Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("Fortest").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.canAccessRecipe(recipe.getId())).thenReturn(true);
+
+
         Recipe blueberryRecipe = recipeRepository.save(
             Recipe.builder()
                 .description("test")
                 .name("Blueberries")
                 .portionSize(1)
                 .owner(userDetailService.findApplicationUserByEmail("user1@example.com"))
-                .isPublic(true).ingredients(List.of(Item.builder().description("Blueberries").amount(100).unit(Unit.Piece).build())).build());
+                .isPublic(true).build());
+
+        recipeService.addItemToRecipe(Item.builder().description("Blueberries")
+                .amount(100000).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
         MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/group/recipe/{0}/pantry/{1}/{2}", blueberryRecipe.getId(), group.getId(), 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -608,12 +700,102 @@ public class RecipeEndpointTest extends BaseTest {
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         assertEquals(HttpStatus.OK.value(), response.getStatus());
-        String result = response.getContentAsString();
-        PantryItem changedItem = pantryService.findItemsByDescription("Blueberries", group.getId()).getFirst();
+
+
+        RemoveIngredientsFromPantryDto result = objectMapper.readValue(response.getContentAsByteArray(), RemoveIngredientsFromPantryDto.class);
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(1, result.getRecipeItems().size()),
+            () -> assertEquals(1, result.getPantryItems().size()),
+            () -> assertTrue(result.getPantryItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries"))),
+            () -> assertTrue(result.getRecipeItems().stream().anyMatch(o -> o.getDescription().equals("Blueberries")))
+        );
+
+
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com", roles = "USER")
+    @Rollback
+    public void GivenRecipePantryAndShoppingList_WhenSelectIngredientsForShoppingList_ReturnsCorrectDto() throws Exception {
+        GroupCreateDto group = groupService.create(GroupCreateDto.builder().groupName("Fortest").members(Set.of("user2@example.com", "user1@example.com")).build(), "user1@example.com");
+        pantryService.addItemToPantry(PantryItem.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+        pantryService.addItemToPantry(PantryItem.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), group.getId());
+
+        Long id = userDetailService.findApplicationUserByEmail("user1@example.com").getId();
+
+        ShoppingList shoppingList = shoppingListRepository.findAll().stream()
+            .filter(o -> o.getOwner().getId().equals(id)).toList().getFirst();
+        assertNotNull(shoppingList);
+        shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Blueberries").amount(200).unit(Unit.Piece).build(), id);
+        shoppingListService.addItemForUser(shoppingList.getId(), ItemCreateDto.builder().description("Not Blueberries").amount(200).unit(Unit.Piece).build(), id);
+
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("Fortest").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+        when(securityService.canAccessShoppingList(shoppingList.getId())).thenReturn(true);
+        when(securityService.canAccessRecipe(shoppingList.getId())).thenReturn(true);
+
+        Recipe blueberryRecipe = recipeRepository.save(
+            Recipe.builder()
+                .description("test")
+                .name("Blueberries")
+                .portionSize(1)
+                .owner(userDetailService.findApplicationUserByEmail("user1@example.com"))
+                .isPublic(true).build());
+
+        recipeService.addItemToRecipe(Item.builder().description("Blueberries")
+                .amount(100).unit(Unit.Piece).build()
+            , blueberryRecipe.getId());
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/group/recipe/{0}/shoppinglist/{1}/pantry/{2}",
+                blueberryRecipe.getId(), shoppingList.getId(), group.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AddRecipeItemToShoppingListDto result = objectMapper.readValue(response.getContentAsByteArray(), AddRecipeItemToShoppingListDto.class);
+
         assertNotNull(result);
-        assertEquals("Blueberries", result);
-        assertEquals(100, changedItem.getAmount());
+
+        assertAll(
+            () -> assertEquals(1, result.getRecipeItems().size()),
+            () -> assertEquals(1, result.getShoppingListItems().size()),
+            () -> assertEquals(1, result.getPantryItems().size()),
+            () -> assertTrue(result.getRecipeItems().getFirst().getDescription().contains("Blueberries")),
+            () -> assertTrue(result.getPantryItems().getFirst().getDescription().contains("Blueberries")),
+            () -> assertTrue(result.getShoppingListItems().getFirst().getItem().getDescription().contains("Blueberries"))
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void givenNothing_whenUpdate_thenItemUpdated()
+        throws Exception {
 
 
-    }*/
+        Item item = recipe.getIngredients().getFirst();
+        ItemDto dto = ItemDto.builder().id(item.getId()).amount(12).unit(Unit.Gram).description("New Item").build();
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(String.format("/api/v1/group/%d/recipe", recipe.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+
+        Item persisted = recipeRepository.findById(recipe.getId()).get().getIngredients().getFirst();
+
+        assertAll(
+            () -> assertEquals(dto.getUnit(), persisted.getUnit()),
+            () -> assertEquals(dto.getAmount(), persisted.getAmount()),
+            () -> assertEquals(dto.getDescription(), persisted.getDescription()),
+            () -> assertEquals(dto.getId(), persisted.getId())
+        );
+    }
 }

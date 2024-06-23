@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataGenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Budget;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Category;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ResetFrequency;
 import at.ac.tuwien.sepr.groupphase.backend.repository.BudgetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -35,9 +35,7 @@ public class BudgetDataGeneratorTest implements DataGenerator {
             "Club"
         };
 
-        Category[] categories = {
-            Category.Food, Category.Travel, Category.Other, Category.Transportation, Category.Entertainment
-        };
+        Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
 
@@ -50,7 +48,7 @@ public class BudgetDataGeneratorTest implements DataGenerator {
                         .amount(amount)
                         .category(categories[random.nextInt(categories.length)])
                         .alreadySpent(0)
-                        .timestamp(LocalDateTime.now())
+                        .resetFrequency(ResetFrequency.MONTHLY)
                         .group(group)
                         .build();
 

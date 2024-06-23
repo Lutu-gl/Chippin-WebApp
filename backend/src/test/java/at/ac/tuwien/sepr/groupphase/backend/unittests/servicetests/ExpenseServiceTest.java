@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.BudgetServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ExpenseServiceImpl;
@@ -22,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -74,7 +72,7 @@ public class ExpenseServiceTest {
             .users(Set.of(mockUserEntity))
             .build();
 
-        Expense mockExpenseEntity = Expense.builder().group(mockGroupEntity).build();
+        Expense mockExpenseEntity = Expense.builder().group(mockGroupEntity).participants(new HashMap<>()).build();
 
         when(expenseRepository.findById(1L)).thenReturn(Optional.of(mockExpenseEntity));
         when(userRepository.findByEmail(anyString())).thenReturn(mockUserEntity);
@@ -85,6 +83,8 @@ public class ExpenseServiceTest {
                 .amount(10.0)
                 .payerEmail("test@email.com")
                 .participants(Map.of("test@email.com", 0.6, "user1@email.com", 0.4))
+                .deleted(false)
+                .archived(false)
                 .build());
 
         // Execution
@@ -210,7 +210,7 @@ public class ExpenseServiceTest {
         assertEquals(2, result.getParticipants().size());
         assertTrue(result.getParticipants().containsKey("test@email.com"));
         assertTrue(result.getParticipants().containsKey("user1@email.com"));
-        verify(expenseValidator, times(1)).validateForCreation(expenseCreateDto);
+        verify(expenseValidator, times(1)).validateForUpdate(expenseCreateDto, mockExpenseEntity);
         verify(activityRepository, times(1)).save(any());
 
     }

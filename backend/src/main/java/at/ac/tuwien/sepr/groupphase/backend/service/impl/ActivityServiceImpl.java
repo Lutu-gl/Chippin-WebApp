@@ -58,6 +58,8 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getUser().getEmail());
+            activityDetailDto.setAmount(activity.getExpense().getAmount());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -83,6 +85,8 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getUser().getEmail());
+            activityDetailDto.setAmount(activity.getExpense().getAmount());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -108,6 +112,9 @@ public class ActivityServiceImpl implements ActivityService {
         for (Activity activity : activitiesFound) {
             ActivityDetailDto activityDetailDto = activityMapper.activityEntityToActivityDetailDto(activity);
             activityDetailDto.setDescription(giveDescriptionToActivity(activity));
+            activityDetailDto.setUserEmail(activity.getPayment().getPayer().getEmail());
+            activityDetailDto.setAmount(activity.getPayment().getAmount());
+            activityDetailDto.setPaymentReceiverEmail(activity.getPayment().getReceiver().getEmail());
             if (activitySearchDto.getSearch() != null && !activityDetailDto.getDescription().toLowerCase().contains(activitySearchDto.getSearch().toLowerCase())) {
                 continue;
             }
@@ -121,21 +128,21 @@ public class ActivityServiceImpl implements ActivityService {
     private String giveDescriptionToActivity(Activity activity) {
         return switch (activity.getCategory()) {
             case ActivityCategory.EXPENSE ->
-                String.format("User %s created expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was created by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_UPDATE ->
-                String.format("User %s updated expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was updated by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_DELETE ->
-                String.format("User %s deleted expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was deleted by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.EXPENSE_RECOVER ->
-                String.format("User %s recovered expense %s in group %s", activity.getUser().getEmail(), activity.getExpense().getName(), activity.getGroup().getGroupName());
+                String.format("%s was recovered by %s", activity.getExpense().getName(), activity.getUser().getEmail());
             case ActivityCategory.PAYMENT ->
-                String.format("%s payed %s in group %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s created payment to %s", activity.getPayment().getPayer().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_DELETE ->
-                String.format("User %s deleted payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s deleted a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_UPDATE ->
-                String.format("User %s updated payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s updated a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             case ActivityCategory.PAYMENT_RECOVER ->
-                String.format("User %s recovered payment in group %s", activity.getUser().getEmail(), activity.getGroup().getGroupName());
+                String.format("%s recovered a payment made to %s", activity.getUser().getEmail(), activity.getPayment().getReceiver().getEmail());
             default -> "No description available";
         };
     }
