@@ -93,6 +93,7 @@ public class PantryServiceImpl implements PantryService {
             Pantry pantry = optionalPantry.get();
             PantryItem item = pantryItemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Pantry item with ID " + itemId + " not found"));
             pantry.removeItem(item);
+            pantryItemRepository.deleteById(item.getId());
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
         }
