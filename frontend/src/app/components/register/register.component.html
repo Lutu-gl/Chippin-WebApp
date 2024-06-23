@@ -7,7 +7,7 @@
 
       <div class="flex flex-col gap-2 w-full px-8">
         <label for="inputEmail" class="font-medium">E-Mail</label>
-        <input type="email" pInputText [autofocus]="true" id="inputEmail" formControlName="email" placeholder="max@chippin.com" maxlength="50" class="form-control">
+        <input type="email" pInputText [autofocus]="true" id="inputEmail" formControlName="email" placeholder="max@chippin.com" maxlength="50" class="form-control max-w-96">
         <div *ngIf="registerForm.get('email').touched && registerForm.get('email').errors" class="error">
           <small class="form-text text-warning" *ngIf="registerForm.get('email').errors.required">Email is required!</small>
           <small class="form-text text-warning" *ngIf="registerForm.get('email').errors.email">Email must be a valid email address!</small>
@@ -32,10 +32,10 @@
         </p-password>
         <div *ngIf="registerForm.get('password').touched && registerForm.get('password').errors" class="flex flex-col">
           <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.required">Password is required!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.minlength">Password must be at least 8 characters long!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingLowerCase">Password must contain at least one lowercase letter!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingUpperCase">Password must contain at least one uppercase letter!</small>
-          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingNumber">Password must contain at least one number!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.minlength">At least 8 characters long!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingLowerCase">At least one lowercase letter required!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingUpperCase">At least one uppercase letter required!</small>
+          <small class="form-text text-warning" *ngIf="registerForm.get('password').errors.missingNumber">At least one number required!</small>
         </div>
       </div>
 
