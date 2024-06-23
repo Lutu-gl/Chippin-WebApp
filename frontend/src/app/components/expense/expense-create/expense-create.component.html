@@ -34,7 +34,7 @@
         <label class="block text-sm font-medium text-gray-700">Expense Name</label>
         <input type="text" pInputText
           [(ngModel)]="expenseName"
-          [readonly]="modeIsInfo()"
+          [disabled]="modeIsInfo()"
         />
       </div>
       <!-- Expense amount -->
@@ -43,7 +43,7 @@
         <p-inputNumber
           [(ngModel)]="expenseAmount"
           (onInput)="expenseAmountChange($event)"
-          [readonly]="modeIsInfo()"
+          [disabled]="modeIsInfo()"
           mode="currency"
           inputId="currency-germany"
           currency="EUR"
@@ -58,7 +58,7 @@
         <input type="text" pInputText
           *ngIf="modeIsInfo()"
           [(ngModel)]="selectedCategory.name"
-          [readonly]="modeIsInfo()" />
+          [disabled]="modeIsInfo()" />
         <p-autoComplete
           *ngIf="!modeIsInfo()"
           [(ngModel)]="selectedCategory"
@@ -75,7 +75,7 @@
         <input type="text" pInputText
           *ngIf="modeIsInfo()"
           [(ngModel)]="selectedPayer.name"
-          [readonly]="modeIsInfo()" />
+          [disabled]="modeIsInfo()" />
         <p-autoComplete
           *ngIf="!modeIsInfo()"
           [(ngModel)]="selectedPayer"
@@ -144,7 +144,7 @@
           <label class="block text-sm font-medium text-gray-700">{{ member.email }}</label>
         </div>
         <p-inputNumber
-          [readonly]="modeIsInfo()"
+          [disabled]="modeIsInfo()"
           [(ngModel)]="member.amount"
           mode="currency"
           currency="EUR"
