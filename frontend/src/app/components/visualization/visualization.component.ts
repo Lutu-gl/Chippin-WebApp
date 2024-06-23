@@ -245,7 +245,7 @@ export class VisualizationComponent implements OnInit {
               if (value == 0 || value == '0') {
                 return ''
               }
-              return `${label}: ${value} €`;
+              return `${label}: ${value}`;
             }
           }
         },
