@@ -84,53 +84,6 @@ public class ExpenseDataGenerator implements DataGenerator {
             } else {
                 generateDataForGroupsExtended(group, usersInGroup, random, categories);
             }
-
-
-            // Other groups
-//            for (int i = 0; i < 3; i++) {
-//                ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
-//
-//                Set<ApplicationUser> uniqueParticipants = new HashSet<>();
-//                while (uniqueParticipants.size() < 3) {
-//                    uniqueParticipants.add(usersInGroup.get(random.nextInt(usersInGroup.size())));
-//                }
-//
-//                List<ApplicationUser> participantsList = new ArrayList<>(uniqueParticipants);
-//                participantsList.sort(Comparator.comparing(ApplicationUser::getEmail));
-//                if (!participantsList.contains(payer)) {
-//                    participantsList.set(random.nextInt(3), payer);
-//                }
-//
-//                int amountExpense = 10 + random.nextInt(291);
-//                double doubleAmountExpense = (double) amountExpense;
-//
-//                double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
-//                double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
-//                double part3 = Math.round((doubleAmountExpense - part1 - part2) * 100.0) / 100.0;
-//
-//                // Generate random splits that sum to 1
-//
-//                Map<ApplicationUser, Double> participants = new HashMap<>();
-//
-//                participants.put(participantsList.get(0), part1 / doubleAmountExpense);
-//                participants.put(participantsList.get(1), part2 / doubleAmountExpense);
-//                participants.put(participantsList.get(2), part3 / doubleAmountExpense);
-//
-//
-//                Expense expense = Expense.builder()
-//                    .name(expenseNames[random.nextInt(expenseNames.length)])
-//                    .category(categories[random.nextInt(categories.length)])
-//                    .amount(doubleAmountExpense) // random amount between 100.0 and 300.0, rounded to 2 decimal places
-//                    .date(fixedDateTime.minus(random.nextInt(10), ChronoUnit.DAYS)) // random date within last 10 days
-//                    .payer(payer)
-//                    .group(group)
-//                    .participants(participants)
-//                    .deleted(false)
-//                    .archived(false)
-//                    .build();
-//
-//                expenseRepository.save(expense);
-//            }
         }
     }
 
