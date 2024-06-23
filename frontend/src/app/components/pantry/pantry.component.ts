@@ -16,7 +16,6 @@ import {KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase} f
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
-import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
 import {RecipeByItemsDto} from "../../dtos/recipe";
 import {ButtonModule} from "primeng/button";
 import {TagModule} from "primeng/tag";
@@ -57,7 +56,6 @@ import {BadgeModule} from "primeng/badge";
     KeyValuePipe,
     NgIf,
     FormsModule,
-    ConfirmDeleteDialogComponent,
     NgSwitchCase,
     NgSwitch,
     ButtonModule,
@@ -646,5 +644,4 @@ export class PantryComponent implements OnInit {
       }
     })
   }
-
 }
