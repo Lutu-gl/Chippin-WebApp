@@ -4,8 +4,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingLi
 import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +40,9 @@ public class ShoppingListValidator {
             return;
         }
         // Validate user is owner of shopping list
-        if (shoppingList.getOwner().getId() != SecurityContextHolder.getContext().getAuthentication().getPrincipal()) {
+        log.debug("Owner: {}", shoppingList.getOwner().getEmail());
+        log.debug("Principal: {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (!shoppingList.getOwner().getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
             throw new ConflictException("Conflict error", List.of("User is not owner of shopping list. Only the owner can delete a shopping list."));
         }
 
