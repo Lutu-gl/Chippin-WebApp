@@ -161,7 +161,6 @@ export class BudgetCreateComponent implements OnChanges {
 
   private updateBudget(): void {
     this.newBudget.category = this.selectedCategory.value;
-    // this.newBudget.resetFrequency = this.selectedFrequency;
     this.groupService.updateBudget(this.groupId, this.budgetId, this.newBudget).subscribe({
       next: budget => {
         this.loadedBudget = {...this.newBudget};
@@ -179,8 +178,8 @@ export class BudgetCreateComponent implements OnChanges {
     this.groupService.deleteBudget(this.groupId, this.budgetId).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully deleted budget' });
-        this.closeDeleteDialog();
         this.budgetId = undefined;
+        this.closeDeleteDialog();
         this.closeDialog.emit();
       },
       error: error => {
@@ -208,16 +207,22 @@ export class BudgetCreateComponent implements OnChanges {
 
 public resetState(): void {
   
-  
+
+  if (this.budgetId === undefined) {
+    return;
+  }
+
   if (this.mode === BudgetCreateEditMode.edit) {
     this.mode = BudgetCreateEditMode.info;
   }
-  if(this.loadedBudget != null){
-    this.newBudget = {...this.loadedBudget};
-    this.selectedCategory = this.categories2.find(category => category.value === this.newBudget.category);
-    this.selectedFrequency = this.newBudget.resetFrequency;
+  
 
+
+  if(this.mode === BudgetCreateEditMode.info){
+    this.prepareBudget();
   }
+
+
 }
 
 
