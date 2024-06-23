@@ -164,7 +164,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                     participantsList.set(random.nextInt(3), payer);
                 }
 
-                int amountExpense = 10 + random.nextInt(291);
+                int amountExpense = 10 + random.nextInt(70);
                 double doubleAmountExpense = (double) amountExpense;
 
                 double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
