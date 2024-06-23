@@ -20,7 +20,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PantryItemServiceImpl implements PantryItemService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final ItemRepository itemRepository;
     private final PantryItemRepository pantryItemRepository;
 
     @Override
@@ -58,6 +57,7 @@ public class PantryItemServiceImpl implements PantryItemService {
         if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent() && !pantryItem.getId().equals(baseItem.getId())) {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
+            pantryItemRepository.deleteById(item.getId());
             LOGGER.debug("PantryItem {} deleted", pantryItem);
         }
         LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
