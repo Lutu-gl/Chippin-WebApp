@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
@@ -21,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 public class PantryServiceTest {
@@ -35,12 +37,18 @@ public class PantryServiceTest {
     @Mock
     private PantryItemService pantryItemService;
 
+    @Mock
+    private ItemRepository itemRepository;
+
     @InjectMocks
     private PantryServiceImpl pantryService;
 
     private Pantry pantry;
 
     private PantryItem pantryItem;
+    private PantryItem existingItem;
+    private PantryItemDto existingItemDto;
+    private PantryItemMergeDto mergeDto;
 
     @BeforeEach
     void setUp() {
@@ -53,6 +61,17 @@ public class PantryServiceTest {
         pantryItem.setAmount(10);
         pantryItem.setUnit(Unit.Gram);
         pantryItem.setPantry(pantry);
+
+        existingItem = new PantryItem();
+        existingItem.setId(1L);
+        existingItem.setDescription("Test Item");
+        existingItem.setAmount(10);
+        existingItem.setUnit(Unit.Gram);
+        existingItem.setPantry(pantry);
+
+        existingItemDto = new PantryItemDto(1L, "Test Item", 10, Unit.Gram, null);
+
+        mergeDto = PantryItemMergeDto.builder().itemToDeleteId(2L).result(existingItemDto).build();
     }
 
     @Test
@@ -240,6 +259,54 @@ public class PantryServiceTest {
 
         verify(pantryRepository, times(1)).findById(pantry.getId());
         verify(pantryItemService, never()).pantryAutoMerge(any(PantryItem.class), any(Pantry.class));
+    }
+
+    @Test
+    void testMergeItems_Success() throws Exception {
+        long pantryId = pantry.getId();
+        long itemIdToDelete = mergeDto.getItemToDeleteId();
+
+        when(pantryRepository.findById(pantryId)).thenReturn(Optional.of(pantry));
+        when(pantryItemRepository.findById(itemIdToDelete)).thenReturn(Optional.of(existingItem));
+        when(pantryItemRepository.findById(existingItem.getId())).thenReturn(Optional.of(existingItem));
+        when(itemRepository.save(any(Item.class))).thenReturn(existingItem);
+
+        Item mergedItem = pantryService.mergeItems(mergeDto, pantryId);
+
+        verify(pantryItemRepository, times(1)).findById(mergeDto.getItemToDeleteId());
+        verify(itemRepository, times(1)).save(any(Item.class));
+
+        assertNotNull(mergedItem);
+        assertEquals(existingItem.getId(), mergedItem.getId());
+        assertEquals(existingItem.getDescription(), mergedItem.getDescription());
+        assertEquals(existingItem.getAmount(), mergedItem.getAmount());
+        assertEquals(existingItem.getUnit(), mergedItem.getUnit());
+    }
+
+    @Test
+    void testMergeItems_ItemToDeleteNotFound() {
+        long pantryId = pantry.getId();
+        mergeDto.setItemToDeleteId(100L); // Non-existent item ID
+
+        when(pantryRepository.findById(pantryId)).thenReturn(Optional.of(pantry));
+        when(pantryItemRepository.findById(mergeDto.getItemToDeleteId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> pantryService.mergeItems(mergeDto, pantryId));
+
+        verify(pantryItemRepository, times(1)).findById(mergeDto.getItemToDeleteId());
+        verify(pantryItemRepository, never()).save(any(PantryItem.class));
+    }
+
+    @Test
+    void testMergeItems_PantryNotFound() {
+        long pantryId = 100L; // Non-existent pantry ID
+
+        when(pantryRepository.findById(pantryId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> pantryService.mergeItems(mergeDto, pantryId));
+
+        verify(pantryItemRepository, never()).findById(anyLong());
+        verify(pantryItemRepository, never()).save(any(PantryItem.class));
     }
 
 }
