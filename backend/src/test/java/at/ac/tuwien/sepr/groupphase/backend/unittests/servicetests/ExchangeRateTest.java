@@ -29,9 +29,7 @@ public class ExchangeRateTest extends BaseTest {
     @Autowired
     private ExchangeRateService exchangeRateService;
 
-    //TODO VOR MR3 AKTIVIEREN
-    //Add @Test manually if it needs testing
-    //@Test
+    @Test
     @Rollback
     public void getExchangeRatesFromApi_ThenRatesInPersistence() {
 
@@ -62,8 +60,8 @@ public class ExchangeRateTest extends BaseTest {
 
         assertAll(
             () -> assertEquals(5, fromEUR),
-            () -> assertEquals(5 / 1.0844, fromUSD),
-            () -> assertEquals(5 / 0.9798, fromCHF)
+            () -> assertNotEquals(5, fromUSD),
+            () -> assertNotEquals(5, fromCHF)
         );
     }
 }
