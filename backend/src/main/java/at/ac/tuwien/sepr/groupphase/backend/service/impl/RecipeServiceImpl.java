@@ -244,7 +244,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
 
 
-            recipeRepository.delete(recipe);
+            recipeRepository.deleteRecipe(recipe.getId());
 
 
         }

@@ -20,21 +20,19 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByIsPublicTrueOrderByLikesDesc();
 
     /**
-     * Finds all recipes that use ingredients that are stored in the pantry.
+     * Finds all recipes that use ingredients from a list of ingredients.
      *
-     * @param groupId the id of the group
+     * @param itemIds list of item ids
      * @return list of recipes
      */
-    @Query("SELECT r "
-        + "FROM Recipe r "
+    @Query("SELECT r FROM Recipe r "
         + "JOIN r.ingredients i "
-        + "JOIN Pantry p ON p.group.id = :groupId "
-        + "JOIN p.items pi "
-        + "WHERE i.description=pi.description "
-        + "AND i.unit=pi.unit "
+        + "JOIN Item it ON i.description = it.description AND i.unit = it.unit "
+        + "WHERE it.id IN :itemIds "
         + "GROUP BY r.id "
+        + "HAVING r.isPublic = true OR r.owner.id = :userId "
         + "ORDER BY COUNT(i.id) DESC")
-    List<Recipe> findRecipeByPantry(long groupId);
+    List<Recipe> findRecipesByItemIds(@Param("itemIds") Long[] itemIds, @Param("userId") Long ownerId);
 
     /**
      * Finds all recipes that use ingredients from a list of ingredients.
