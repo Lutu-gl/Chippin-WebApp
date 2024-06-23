@@ -112,6 +112,8 @@ public class GroupDataGenerator implements DataGenerator {
             groupRepository.save(group);
         }
 
+        // TODO: Are theese neccessary?
+
         GroupEntity pantryTestGroup1 = GroupEntity.builder()
             .groupName(groupNames[random.nextInt(groupNames.length)])
             .users(Set.of(
