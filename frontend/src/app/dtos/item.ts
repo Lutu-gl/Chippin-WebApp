@@ -5,6 +5,7 @@ export interface ItemDetailDto {
   description: String;
   amount: number;
   unit: Unit;
+  amountInShoppingLists?: number;
 }
 
 export interface PantryItemDetailDto {

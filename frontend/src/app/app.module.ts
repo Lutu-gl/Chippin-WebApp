@@ -87,6 +87,7 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
 import {ToolbarModule} from "primeng/toolbar";
+import { TooltipModule  } from 'primeng/tooltip';
 import {
     ShoppingListsInGroupComponent
 } from "./components/shopping-list/shopping-lists-in-group/shopping-lists-in-group.component";
@@ -97,6 +98,9 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {CalendarModule} from "primeng/calendar";
 import {ImageModule} from 'primeng/image';
 import {PaginatorModule} from "primeng/paginator";
+import { SettingsComponent } from './components/settings/settings.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { CounterComponent } from './components/landing-page/counter/counter.component';
 
 
 @NgModule({
@@ -104,6 +108,8 @@ import {PaginatorModule} from "primeng/paginator";
     AppComponent,
     HeaderComponent,
     FooterComponent,
+    LandingPageComponent,
+    SettingsComponent,
     HomeComponent,
     AutocompleteComponent,
     LoginComponent,
@@ -127,7 +133,8 @@ import {PaginatorModule} from "primeng/paginator";
     RecipeLikedComponent,
     PaymentCreateComponent,
     ShoppingListCreateComponent,
-    VisualizationComponent
+    VisualizationComponent,
+    CounterComponent
   ],
 
     imports: [
@@ -153,6 +160,7 @@ import {PaginatorModule} from "primeng/paginator";
         RecipeInfoCardContentComponent,
         DropdownModule,
         RadioButtonModule,
+        TooltipModule,
         ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
     ],
 

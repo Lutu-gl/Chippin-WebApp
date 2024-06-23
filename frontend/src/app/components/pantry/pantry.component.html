@@ -114,6 +114,9 @@
             id="selectItemToMergeWith"
             [(ngModel)]="itemMergeEdit"
             (onChange)="setItemToMerge(createEditItem)"
+            [filter]="true"
+            filterBy="description"
+            placeholder="Select an item"
             [options]="mergeItemsSelectOptions(createEditItem)">
             <ng-template let-item pTemplate="item">
               {{ item.description }} {{ formatAmount(item) }}
@@ -237,6 +240,25 @@
             </td>
             <td>
               {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
+              <p-badge value="i" severity="secondary" [pTooltip]="recipeTooltip" tooltipStyleClass="customtooltip"/>
+              <ng-template #recipeTooltip>
+                <div class="flex justify-items-center">
+                  <p-table [value]="recipe.ingredients">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Ingredients</th>
+                        <th>Amount</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ingredient >
+                      <tr>
+                        <td [ngStyle]="{'color': getIngredientMatch(recipe, ingredient)}">{{ingredient.description}}</td>
+                        <td>{{getIngredientAmount(recipe, ingredient)}}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </ng-template>
             </td>
           </tr>
         </ng-template>
@@ -362,8 +384,8 @@
             <td>
               <div class="flex items-center gap-2">
                 <p-tag
-                  [severity]="getTagSeverity(belowMinimum(item))"
-                  (click)="getTagSeverity(belowMinimum(item))">
+                  [pTooltip]="getTagSeverity(belowMinimum(item), item) === 'warning' ? 'Item is already in a shopping list' : '' "
+                  [severity]="getTagSeverity(belowMinimum(item), item)">
                   {{ formatLowerLimit(item) }}
                 </p-tag>
                 <!-- Quick add to shopping list -->

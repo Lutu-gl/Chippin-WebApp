@@ -10,8 +10,8 @@
     </div>
   </div>
   <p-footer>
+    <p-button label="Cancel" (click)="closeAddFriendDialog()"></p-button>
     <p-button label="Send"  (click)="sendFriendRequest()"></p-button>
-    <p-button label="Cancel" severity="secondary" (click)="closeAddFriendDialog()"></p-button>
   </p-footer>
 </p-dialog>
 
@@ -19,7 +19,6 @@
 <p-dialog
   [(visible)]="isFriendInfoDialogVisible"
   [modal]="true"
-  [style]="{with: '5000px'}"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [style]="{ width: '50vw' }"
   [draggable]="false"
@@ -90,8 +89,8 @@
   </div>
 
   <!-- No friends yet message -->
-  <div *ngIf="friends.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
-    <p>ChippIn works best, when you use it together with your friends. Add your friends by sending them a friend request. All you need is their Email Address.</p>
+  <div *ngIf="friends.length === 0 && this.responseReceived" class="w-full max-w-md p-4 bg-gray-100 rounded text-center mt-6">
+    <p>Chippin works best, when you use it together with your friends. Add your friends by sending them a friend request. All you need is their Email Address.</p>
   </div>
 
   <!-- Friends -->

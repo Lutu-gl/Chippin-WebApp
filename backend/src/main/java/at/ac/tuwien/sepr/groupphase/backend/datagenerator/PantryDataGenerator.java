@@ -31,7 +31,7 @@ public class PantryDataGenerator implements DataGenerator {
 
     @Override
     public void generateData() {
-        LOGGER.debug("generating data for pantry");
+        LOGGER.trace("generating data for pantry");
         List<GroupEntity> groups = groupRepository.findAll();
 
         List<PantryItem> pantryItems;
@@ -557,7 +557,7 @@ public class PantryDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for pantry");
+        LOGGER.trace("cleaning data for pantry");
         pantryRepository.deleteAll();
     }
 

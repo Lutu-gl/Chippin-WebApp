@@ -35,7 +35,7 @@ public class RecipeDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() throws AlreadyRatedException {
-        LOGGER.debug("generating data for recipes");
+        LOGGER.trace("generating data for recipes");
         List<ApplicationUser> users = userRepository.findAll();
 
         Recipe recipe1 = Recipe.builder()
@@ -1906,7 +1906,7 @@ public class RecipeDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for recipes");
+        LOGGER.trace("cleaning data for recipes");
         recipeRepository.deleteAll();
     }
 }

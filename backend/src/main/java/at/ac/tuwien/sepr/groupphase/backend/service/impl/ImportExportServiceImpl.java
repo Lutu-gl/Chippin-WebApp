@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PaymentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.BudgetService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validator.ImportExportValidator;
 import com.itextpdf.io.exceptions.IOException;
@@ -73,6 +74,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     private final ActivityRepository activityRepository;
     private final ExchangeRateServiceImpl exchangeRateServiceImpl;
     private final PaymentRepository paymentRepository;
+    private final BudgetService budgetService;
 
     @Override
     public EmailSuggestionsAndContentDto getEmailSuggestions(MultipartFile file, String username) throws IOException, ValidationException {
@@ -103,11 +105,9 @@ public class ImportExportServiceImpl implements ImportExportService {
                 emailSuggestions.put(firstLine.get(i), similarEmail);
             }
             String line;
-            reader.readLine(); // skip second line
-            content.add("");
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    break;
+                if (line.trim().isEmpty() || line.startsWith("Total balance, , ,", 11)) {
+                    continue;
                 }
                 importExportValidator.validateSplitwiseLine(splitCsv(line), firstLine.size(), content.size() + 1);
                 content.add(line);
@@ -141,22 +141,21 @@ public class ImportExportServiceImpl implements ImportExportService {
         importExportValidator.validateSplitwiseFirstLine(firstLine);
         importExportValidator.validateSplitwiseGroupMembers(firstLine, group);
 
-        int realLength = 0;
-        for (int i = 2; i < lines.length; i++) {
-            // split and validate line
-            if (lines[i].trim().isEmpty()) {
-                realLength = i;
-                break;
+        for (int i = 1; i < lines.length; i++) {
+            // skip empty lines
+            if (lines[i].trim().isEmpty() || lines[i].startsWith("Total balance, , ,", 11)) {
+                continue;
             }
+            // split and validate line
             List<String> line = splitCsv(lines[i]);
             importExportValidator.validateSplitwiseLine(line, firstLine.size(), i + 1);
         }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        for (int i = 2; i < realLength; i++) {
-            // break on second empty line
-            if (lines[i].trim().isEmpty()) {
-                break;
+        for (int i = 1; i < lines.length; i++) {
+            // skip empty lines
+            if (lines[i].trim().isEmpty() || lines[i].startsWith("Total balance, , ,", 11)) {
+                continue;
             }
 
             // split line
@@ -177,7 +176,10 @@ public class ImportExportServiceImpl implements ImportExportService {
 
             Expense expenseSaved = expenseRepository.save(expense);
 
-            //BUDET AKTUALISIEREN
+            // Check the date of the expense and update the budget accordingly
+            if (expenseSaved.getDate() != null) {
+                budgetService.addUsedAmount(groupId, expenseSaved.getAmount(), expenseSaved.getCategory(), expenseSaved.getDate());
+            }
 
             Activity activityForExpense = Activity.builder()
                 .category(ActivityCategory.EXPENSE)
@@ -289,7 +291,7 @@ public class ImportExportServiceImpl implements ImportExportService {
                 line.add(expense.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 line.add(expense.getName());
                 line.add(expense.getCategory().name());
-                line.add(String.valueOf(expense.getAmount()));
+                line.add(String.format(Locale.US, "%.2f", expense.getAmount()));
                 line.add("EUR");
 
                 for (ApplicationUser u : sortedUsers) {
@@ -314,7 +316,7 @@ public class ImportExportServiceImpl implements ImportExportService {
                 line.add(payment.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 line.add("Settle debts");
                 line.add("Payment");
-                line.add(String.valueOf(payment.getAmount()));
+                line.add(String.format(Locale.US, "%.2f", payment.getAmount()));
                 line.add("EUR");
 
                 for (ApplicationUser u : sortedUsers) {

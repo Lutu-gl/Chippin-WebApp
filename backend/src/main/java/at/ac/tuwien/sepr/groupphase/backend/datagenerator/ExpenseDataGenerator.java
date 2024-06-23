@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,6 +32,8 @@ public class ExpenseDataGenerator implements DataGenerator {
     ExpenseRepository expenseRepository;
     UserRepository userRepository;
     GroupRepository groupRepository;
+
+    private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static String[] expenseNames = {
@@ -58,14 +59,13 @@ public class ExpenseDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        LOGGER.debug("generating data for expense");
+        LOGGER.trace("generating data for expense");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
-        Random random = new Random();
-        random.setSeed(12345);
+        Random random = new Random(12345);
         Faker faker = new Faker(Locale.getDefault(), random);
 
-
+        groups.sort(Comparator.comparing(GroupEntity::getGroupName));
         Category[] categories = Category.values();
 
         for (GroupEntity group : groups) {
@@ -75,62 +75,79 @@ public class ExpenseDataGenerator implements DataGenerator {
             if (usersInGroup.size() < 3) {
                 continue;
             }
+
+            // Chippin group
             if (group.getGroupName().equals("Chippin")) {
                 //generateDataForChippin(group, usersInGroup, random);
                 generateDataForChippinExtended(group, usersInGroup, random, categories);
                 continue;
-            }
-
-            for (int i = 0; i < 3; i++) {
-                ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
-
-                Set<ApplicationUser> uniqueParticipants = new HashSet<>();
-                while (uniqueParticipants.size() < 3) {
-                    uniqueParticipants.add(usersInGroup.get(random.nextInt(usersInGroup.size())));
-                }
-
-                List<ApplicationUser> participantsList = new ArrayList<>(uniqueParticipants);
-                if (!participantsList.contains(payer)) {
-                    participantsList.set(random.nextInt(3), payer);
-                }
-
-                int amountExpense = 10 + random.nextInt(291);
-                double doubleAmountExpense = (double) amountExpense;
-
-                double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
-                double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
-                double part3 = Math.round((doubleAmountExpense - part1 - part2) * 100.0) / 100.0;
-
-                // Generate random splits that sum to 1
-
-                Map<ApplicationUser, Double> participants = new HashMap<>();
-
-                participants.put(participantsList.get(0), part1 / doubleAmountExpense);
-                participants.put(participantsList.get(1), part2 / doubleAmountExpense);
-                participants.put(participantsList.get(2), part3 / doubleAmountExpense);
-
-
-                Expense expense = Expense.builder()
-                    .name(expenseNames[random.nextInt(expenseNames.length)])
-                    .category(categories[random.nextInt(categories.length)])
-                    .amount(doubleAmountExpense) // random amount between 100.0 and 300.0, rounded to 2 decimal places
-                    .date(LocalDateTime.now().minus(random.nextInt(10), ChronoUnit.DAYS)) // random date within last 10 days
-                    .payer(payer)
-                    .group(group)
-                    .participants(participants)
-                    .deleted(false)
-                    .archived(false)
-                    .build();
-
-                expenseRepository.save(expense);
+            } else {
+                generateDataForGroupsExtended(group, usersInGroup, random, categories);
             }
         }
     }
 
+    private void generateDataForGroupsExtended(GroupEntity group, List<ApplicationUser> usersInGroup, Random random, Category[] categories) {
+        LocalDateTime startDate = fixedDateTime.minusMonths(3);
+        LocalDateTime endDate = fixedDateTime.minusDays(2);
+
+        random.setSeed(12345);
+        while (startDate.isBefore(endDate)) {
+            ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
+
+            Set<ApplicationUser> uniqueParticipants = new HashSet<>();
+            while (uniqueParticipants.size() < 3) {
+                uniqueParticipants.add(usersInGroup.get(random.nextInt(usersInGroup.size())));
+            }
+
+            List<ApplicationUser> participantsList = new ArrayList<>(uniqueParticipants);
+            participantsList.sort(Comparator.comparing(ApplicationUser::getEmail));
+
+            if (!participantsList.contains(payer)) {
+                participantsList.set(random.nextInt(3), payer);
+            }
+
+            int amountExpense = 10 + random.nextInt(291);
+            double doubleAmountExpense = (double) amountExpense;
+
+            double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
+            double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
+            double part3 = Math.round((doubleAmountExpense - part1 - part2) * 100.0) / 100.0;
+
+            Map<ApplicationUser, Double> participants = new HashMap<>();
+            participants.put(participantsList.get(0), part1 / doubleAmountExpense);
+            participants.put(participantsList.get(1), part2 / doubleAmountExpense);
+            participants.put(participantsList.get(2), part3 / doubleAmountExpense);
+
+            Category category = categories[random.nextInt(categories.length)];
+            String name = expenseNames[random.nextInt(expenseNames.length)];
+
+            LocalDateTime expenseTime = startDate.plusHours(random.nextInt(2));
+            LocalDateTime expenseTimeFinal = expenseTime.plusMinutes(random.nextInt(30));
+
+            Expense expense = Expense.builder()
+                .name(name)
+                .category(category)
+                .amount(doubleAmountExpense)
+                .date(expenseTimeFinal)
+                .payer(payer)
+                .group(group)
+                .participants(participants)
+                .deleted(false)
+                .archived(false)
+                .build();
+
+            expenseRepository.save(expense);
+
+            startDate = startDate.plusDays(2);
+        }
+    }
+
+
     private void generateDataForChippinExtended(GroupEntity group, List<ApplicationUser> usersInGroup, Random random, Category[] categories) {
         if (group.getGroupName().equals("Chippin")) {
-            LocalDateTime startDate = LocalDateTime.now().minusMonths(3);
-            LocalDateTime endDate = LocalDateTime.now().minusDays(10);
+            LocalDateTime startDate = fixedDateTime.minusMonths(6);
+            LocalDateTime endDate = fixedDateTime.minusDays(2);
 
 
             random.setSeed(12345);
@@ -166,11 +183,14 @@ public class ExpenseDataGenerator implements DataGenerator {
                 Category category = categories[random.nextInt(categories.length)];
                 String name = expenseNames[random.nextInt(expenseNames.length)];
 
+                LocalDateTime expenseTime = startDate.plusHours(random.nextInt(2));
+                LocalDateTime expenseTimeFinal = expenseTime.plusMinutes(random.nextInt(30));
+
                 Expense expense = Expense.builder()
                     .name(name)
                     .category(category)
                     .amount(doubleAmountExpense)
-                    .date(startDate)
+                    .date(expenseTimeFinal)
                     .payer(payer)
                     .group(group)
                     .participants(participants)
@@ -183,7 +203,6 @@ public class ExpenseDataGenerator implements DataGenerator {
                 startDate = startDate.plusDays(2);
             }
         }
-
     }
 
     private void generateDataForChippin(GroupEntity group, List<ApplicationUser> usersInGroup, Random random) {
@@ -212,7 +231,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 .name(expenseNames[random.nextInt(expenseNames.length)])
                 .category(Category.Food)
                 .amount(100.0d)
-                .date(LocalDateTime.now())
+                .date(fixedDateTime)
                 .payer(usersInGroup.get(0))
                 .group(group)
                 .participants(participants)
@@ -224,7 +243,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 .name(expenseNames[random.nextInt(expenseNames.length)])
                 .category(Category.Food)
                 .amount(100.0d)
-                .date(LocalDateTime.now())
+                .date(fixedDateTime)
                 .group(group)
                 .payer(usersInGroup.get(0))
                 .participants(participants2)
@@ -236,7 +255,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 .name(expenseNames[random.nextInt(expenseNames.length)])
                 .category(Category.Food)
                 .amount(100.0d)
-                .date(LocalDateTime.now())
+                .date(fixedDateTime)
                 .group(group)
                 .payer(usersInGroup.get(1))
                 .participants(participants3)
@@ -270,7 +289,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for expense");
+        LOGGER.trace("cleaning data for expense");
         expenseRepository.deleteAll();
     }
 

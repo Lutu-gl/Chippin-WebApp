@@ -44,4 +44,12 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
     List<ApplicationUser> findApplicationUserByLikedRecipesContains(Recipe recipe);
 
     List<ApplicationUser> findApplicationUserByDislikedRecipesContains(Recipe recipe);
+
+    /**
+     * Query to get the total amount of all registered users.
+     *
+     * @return the amount of all users.
+     */
+    @Query("SELECT COUNT(u) FROM ApplicationUser u")
+    long count();
 }

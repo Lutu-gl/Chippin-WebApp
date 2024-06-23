@@ -22,6 +22,8 @@ import {ExpenseDetailDto} from "../../../dtos/expense";
 import {ExpenseService} from "../../../services/expense.service";
 import { EmailSuggestionsAndContent, ImportDto } from 'src/app/dtos/importExport';
 import { ImportExportService } from 'src/app/services/import-export.service';
+import {Observable} from "rxjs";
+import {FriendshipService} from "../../../services/friendship.service";
 
 @Component({
   selector: 'app-group-info',
@@ -40,6 +42,7 @@ export class GroupInfoComponent implements OnInit {
   debt: DebtGroupDetailDto = { userEmail: '', groupId: 0, membersDebts: {} };
   membersWithDebts: any[] = [];
   membersWithDebtsWithoutEven: any[] = [];
+  membersWithDebtsOnlyNegative: any[] = [];
   maxDebt: number = 0;
   transactionsActivities: ActivityDetailDto[] = [];
 
@@ -75,11 +78,35 @@ export class GroupInfoComponent implements OnInit {
   importContent: string[];
   importRequestLoading: boolean = false;
 
+  protected readonly PaymentCreateEditMode = PaymentCreateEditMode;
+  transactionsPaginationCount: number = 10;
+  transactionsPage: number = 0;
+  transactionsSearchFilter: string = '';
 
+  activitiesPaginationCount: number = 10;
+  activitiesPage: number = 0;
+  activitiesSearchFilter: string = '';
+
+  // for edit group modal
+  editNewGroupModalVisible: boolean;
+  groupForEditModal: GroupDto = {
+    groupName: '',
+    members: []
+  };
+  filteredFriends: any[] | undefined;
+  friends: any[] | undefined;
+
+  filteredFriendsEdit: any[] | undefined;
+  friendsEdit: any[] | undefined;
+
+  protected membersEmails: string[] = [];
+  protected membersEmailsEdit: string[] = [];
+  currentlySelected: any;
   constructor(
     private groupService: GroupService,
     private debtService: DebtService,
     private activityService: ActivityService,
+    private friendshipService: FriendshipService,
     private route: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
@@ -92,18 +119,7 @@ export class GroupInfoComponent implements OnInit {
   ){
   }
 
-  openCreateBudgetDialog(): void {
-    this.budgetDialogMode = BudgetCreateEditMode.create;
-    this.isBudgetDialogVisible = true;
-    this.budgetCreateComponent.resetState();
-  }
 
-  closeCreateBudgetDialog(): void {
-    console.log("closeCreateBudgetDialog")
-    this.isBudgetDialogVisible = false;
-    this.budgetDialogMode = BudgetCreateEditMode.info;
-    this.ngOnInit();
-  }
 
   closeImportDialog(): void {
     this.isImportDialogVisible = false;
@@ -159,11 +175,9 @@ export class GroupInfoComponent implements OnInit {
   }
 
   budgetModalClose() {
-    console.log('Modal closed');
-    // Perform any additional actions you need here
     this.budgetDialogMode = BudgetCreateEditMode.info;
-    console.log(this.budgetDialogMode)
     this.isBudgetDialogVisible = false;
+    this.getGroupBudgets();
 
   }
 
@@ -234,11 +248,28 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
-    console.log(this.budgetDialogMode)
+
     this.budgetDialogMode = BudgetCreateEditMode.info;
+    this.budgetCreateComponent.mode = BudgetCreateEditMode.info;
+
     this.budgetDialogBudgetId = budgetId;
+    this.budgetCreateComponent.budgetId = budgetId;
     this.isBudgetDialogVisible = true;
     this.budgetCreateComponent.resetState();
+  }
+
+  openCreateBudgetDialog(): void {
+    this.budgetDialogMode = BudgetCreateEditMode.create;
+    this.budgetCreateComponent.mode = BudgetCreateEditMode.create;
+    this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
+  }
+
+  closeCreateBudgetDialog(): void {
+    this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+    this.getGroupBudgets();
+    // this.ngOnInit();
   }
 
   public budgetModeIsCreate(): boolean {
@@ -273,7 +304,9 @@ export class GroupInfoComponent implements OnInit {
       {
         label: 'Edit Group',
         icon: 'pi pi-cog',
-        routerLink: 'edit'
+        command: () => {
+          this.createNewGroupModalOpen();
+        }
       },
       {
         label: 'Import Data',
@@ -356,7 +389,28 @@ export class GroupInfoComponent implements OnInit {
       console.log(debt);
       this.debt = debt;
       this.membersWithDebts = Object.entries(debt.membersDebts);
+      this.membersWithDebts.sort((a, b) => {
+        if (a[1] === 0 && b[1] !== 0) {
+          return 1;
+        } else if (b[1] === 0 && a[1] !== 0) {
+          return -1;
+        }
 
+        if (a[1] < 0 && b[1] < 0) {
+          return a[1] - b[1];
+        }
+
+        if (a[1] === b[1]) {
+          return a[0].localeCompare(b[0]);
+        } else {
+          return b[1] - a[1];
+        }
+      });
+
+
+
+      this.membersWithDebtsOnlyNegative = this.membersWithDebts.filter(([_, amount]) => amount < 0);
+      this.membersWithDebtsOnlyNegative;
      // add to debtMembers only the members that have a debt which is negative
       this.debtMembers = this.membersWithDebts.filter(([_, amount]) => amount < 0).map(([member, _]) => member);
 
@@ -378,8 +432,6 @@ export class GroupInfoComponent implements OnInit {
         this.transactionsActivities.push(payment);
       })
    });
-    console.log(this.transactionsActivities.length)
-    console.log('transactions: ' + this.transactionsActivities);
   }
 
   getPayments(): void {
@@ -388,7 +440,6 @@ export class GroupInfoComponent implements OnInit {
     this.paymentService.getPaymentsByGroupId(id).subscribe(payments => {
       this.payments = payments;
     });
-    console.log(this.payments)
   }
 
   getExpenses(): void {
@@ -396,7 +447,6 @@ export class GroupInfoComponent implements OnInit {
     this.expenseService.getExpensesByGroupId(id).subscribe(expenses => {
       this.expenses = expenses;
     });
-    console.log(this.expenses)
   }
 
   getGroupBudgets(): void {
@@ -408,10 +458,20 @@ export class GroupInfoComponent implements OnInit {
         this.budgets.forEach(budget => {
           budget.daysUntilReset = this.calculateDaysUntilReset(budget.timestamp);
         });
-        console.log(budgets)
       }, error => {
         console.error('Failed to load budgets', error);
       });
+  }
+
+  getRemainingBudget(budget: any): number {
+
+    const remaining = budget.amount - budget.alreadySpent;
+
+    if (remaining < 0) {
+        return 0;
+    }
+
+    return remaining;
   }
 
   calculateDaysUntilReset(timestamp: string): number {
@@ -424,23 +484,25 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getMembersWithDebtsSorted() {
-    return this.membersWithDebts.sort((a, b) => {
-      if (a[1] < 0 && b[1] > 0) {
-        return -1;
-      } else if (a[1] > 0 && b[1] < 0) {
-        return 1;
-      } else if (a[1] === 0 && b[1] !== 0) {
-        return 1;
-      } else if (a[1] !== 0 && b[1] === 0) {
-        return -1;
-      } else {
-        return a[0].localeCompare(b[0]);
-      }
-    });
+    // return this.membersWithDebts.sort((a, b) => {
+    //   if (a[1] < 0 && b[1] > 0) {
+    //     return -1;
+    //   } else if (a[1] > 0 && b[1] < 0) {
+    //     return 1;
+    //   } else if (a[1] === 0 && b[1] !== 0) {
+    //     return 1;
+    //   } else if (a[1] !== 0 && b[1] === 0) {
+    //     return -1;
+    //   } else {
+    //     return a[0].localeCompare(b[0]);
+    //   }
+    // });
+    console.log(this.membersWithDebts)
+    return this.membersWithDebts;
   }
 
   getMembersOnlyNegativeDebts() {
-    return this.membersWithDebts.filter(([_, amount]) => amount < 0);
+    return this.membersWithDebtsOnlyNegative;
   }
 
   calcChartHeight(amount): string {
@@ -506,11 +568,29 @@ export class GroupInfoComponent implements OnInit {
   }
 
   getTransactionActivitiesVarSorted():ActivityDetailDto[] {
-    return this.transactionsActivities.sort((a, b) => {
+    let activities = this.transactionsActivities.sort((a, b) => {
       let aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       let bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return bTime - aTime;
     });
+
+    activities = activities.filter((activity: any) => {
+      if (activity.timestamp && this.formatDate(new Date(Date.parse(activity.timestamp))).includes(this.activitiesSearchFilter)) {
+        return true;
+      }
+      if (activity.description.toLowerCase().includes(this.activitiesSearchFilter.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
+
+    return activities;
+  }
+
+  getTransactionActivitiesVarSortedAndPaginated():ActivityDetailDto[] {
+    return this.getTransactionActivitiesVarSorted()
+      .slice(this.activitiesPage * this.activitiesPaginationCount, (this.activitiesPage + 1) * this.activitiesPaginationCount);
   }
 
   // combine expeneses and payments in one array and sort them by the date
@@ -522,14 +602,54 @@ export class GroupInfoComponent implements OnInit {
       let bTime = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return bTime - aTime;
     });
-    console.log(transactions)
     return transactions;
+  }
+
+  private formatDate(date) {
+    // Tag, Monat, Jahr, Stunden und Minuten extrahieren
+    let day = date.getDate();
+    let month = date.getMonth() + 1; // Monate sind nullbasiert
+    let year = date.getFullYear();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+  
+    // Sicherstellen, dass Tag und Monat zweistellig sind
+    day = day < 10 ? '0' + day : day;
+    month = month < 10 ? '0' + month : month;
+  
+    // Sicherstellen, dass Stunden und Minuten zweistellig sind
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+  
+    // Das Datum und die Zeit zusammenfügen
+    return `${day}.${month}.${year}, ${hours}:${minutes}`;
   }
 
   getTransactionVarSortedWithoutDeleted() {
     let transactions: (ExpenseDetailDto | PaymentDto)[] = [...this.expenses, ...this.payments];
 
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
     transactions = transactions.filter(transaction => !transaction.deleted)
+
+    transactions = transactions.filter((transaction: any) => {
+      if (transaction.date && this.formatDate(new Date(Date.parse(transaction.date))).includes(this.transactionsSearchFilter)) {
+        return true;
+      }
+      if (transaction.name && transaction.name.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.payerEmail && transaction.payerEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+      if (transaction.receiverEmail && transaction.receiverEmail.toLowerCase().includes(this.transactionsSearchFilter.toLowerCase())) {
+        return true;
+      }
+
+      return false;
+    });
 
     transactions.sort((a, b) => {
       let aTime = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
@@ -539,6 +659,12 @@ export class GroupInfoComponent implements OnInit {
     //console.log(transactions)
     return transactions;
   }
+
+  getTransactionVarSortedWithoutDeletedAndPaginated() {
+    return this.getTransactionVarSortedWithoutDeleted()
+      .slice(this.transactionsPage * this.transactionsPaginationCount, (this.transactionsPage + 1) * this.transactionsPaginationCount);
+  }
+
 
   isExpense(transaction: any): boolean {
     return transaction.hasOwnProperty('category');
@@ -580,15 +706,11 @@ export class GroupInfoComponent implements OnInit {
   // When a member is selected from the autocomplete dropdown
   // Add the amount from the debt variable to the label amount of the modal
   selectedDebtMember(event: AutoCompleteSelectEvent) {
-    console.log("selectedDebtMember")
-    console.log(event.value)
-    console.log(this.debt.membersDebts[event.value])
 
     this.amountOfSelectedDebtMember = -this.debt.membersDebts[event.value];
   }
 
   goBackFromSettleDebts($event: MouseEvent) {
-    console.log("goBackFromSettleDebts")
 
     this.confirmationService.confirm({
       key: 'SettleDebtsConfirmDialog',
@@ -664,11 +786,11 @@ export class GroupInfoComponent implements OnInit {
     this.confirmationService.confirm({
       key: 'leaveGroup',
       header: 'Attention!',
-      message: `All the Expenses and Payments get archived and will not be editable again.<br>This action cannot be undone.<br>Do you really want to leave the group?`,
+      message: `All the Expenses and Payments you are part of get archived and will not be editable again.<br>With leaving all information about debts and expenses with the members in the group will be lost.<br><br>This action cannot be undone.<br>Do you really want to leave the group?`,
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
-      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      acceptButtonStyleClass: 'p-button-sm',
       accept: () => {
         this.groupService.leaveGroup(this.group).subscribe({
           next: () => {
@@ -698,8 +820,6 @@ export class GroupInfoComponent implements OnInit {
       }
     });
   }
-
-  protected readonly PaymentCreateEditMode = PaymentCreateEditMode;
 
   paymentModeIsEdit(): boolean {
     return this.paymentDialogMode === PaymentCreateEditMode.edit;
@@ -731,7 +851,6 @@ export class GroupInfoComponent implements OnInit {
         this.deleteExistingPayment()
       }
     });
-    // this.isDeleteDialogVisible = true;
   }
   closeDeleteDialog(): void {
     this.isDeleteDialogVisible = false;
@@ -828,78 +947,228 @@ export class GroupInfoComponent implements OnInit {
   getPayerEmailForExpenseDescription(transaction: ExpenseDetailDto) {
     return transaction.payerEmail === this.authService.getEmail() ? "You" : transaction.payerEmail;
   }
+
+  // for edit group modal
+  private editGroupModalNgOnInit() {
+    this.friendshipService.getFriends().subscribe({
+      next: data => {
+        this.friends = data;
+        this.friends.sort((a, b) => a.localeCompare(b));
+        this.friendsEdit = data.filter(friend => !this.membersEmails.includes(friend));
+        this.friendsEdit.sort((a, b) => a.localeCompare(b));
+      },
+      error: error => {
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
+        } else {
+          console.error('Error getting friends', error);
+          this.messageService.add({severity:'error', summary:'Error', detail:`Getting friends did not work!`});
+        }
+      }
+    });
+  }
+
+  public onSubmitModal(form: NgForm): void {
+    var memberGroupSaved = JSON.parse(JSON.stringify(this.groupForEditModal.members));
+
+    if (form.valid) {
+      let observable: Observable<GroupDto>;
+
+
+      this.membersEmailsEdit.forEach(member => {
+        this.groupForEditModal.members.push(member)
+      });
+
+      observable = this.groupService.update(this.groupForEditModal);
+
+      observable.subscribe({
+        next: data => {
+          this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.groupForEditModal.groupName} successfully edited`});
+          this.groupForEditModal.members = [];
+          this.groupForEditModal.groupName = undefined;
+          this.editNewGroupModalVisible = false;
+          this.editNewGroupModalVisible = false;
+          this.ngOnInit();
+        },
+        error: error => {
+          this.groupForEditModal.members = memberGroupSaved;
+          console.log(error);
+          if (error && error.error && error.error.errors) {
+            for (let i = 0; i < error.error.errors.length; i++) {
+              this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
+            }
+          } else if (error && error.error && error.error.message) { // if no detailed error explanation exists. Give a more general one if available.
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.message}`});
+          } else if (error && error.error.detail) {
+            this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.detail}`});
+          } else {
+            console.error('Error editing group', error);
+            this.messageService.add({severity:'error', summary:'Error', detail:`Edit of group did not work!`});
+          }
+        }
+      });
+    }
+  }
+  public addMember(member: AutoCompleteSelectEvent) {
+    setTimeout(() => {
+      this.currentlySelected = ""
+    });
+
+    if (!member.value) return;
+    if (this.membersEmails.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already in participant list`
+      });
+      return;
+    }
+    this.membersEmails.push(member.value);
+  }
+
+  public addMemberEdit(member: AutoCompleteSelectEvent) {
+    setTimeout(() => {
+      this.currentlySelected = ""
+    });
+
+    if (!member.value) return;
+    if (this.membersEmailsEdit.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already in participant list`
+      });
+      return;
+    }
+    if (this.group.members.includes(member.value)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `${member.value} is already a member of the group`
+      });
+      return;
+    }
+
+    this.membersEmailsEdit.push(member.value);
+  }
+
+  public removeMember(index: number) {
+    if (this.authService.getEmail() == this.membersEmails[index]) {
+      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
+      return;
+    }
+
+    this.membersEmails.splice(index, 1);
+  }
+
+  public removeMemberEdit(index: number) {
+    if (this.authService.getEmail() == this.membersEmailsEdit[index]) {
+      this.messageService.add({severity:'error', summary:'Error', detail:`You can't remove yourself from the group.`});
+      return;
+    }
+
+    this.membersEmailsEdit.splice(index, 1);
+  }
+
+  filterMembers(event: AutoCompleteCompleteEvent) {
+
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.friends as any[]).length; i++) {
+      let friend = (this.friends as any[])[i];
+      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(friend);
+      }
+    }
+
+    this.filteredFriends = filtered;
+  }
+
+  filterMembersEdit(event: AutoCompleteCompleteEvent) {
+
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.friendsEdit as any[]).length; i++) {
+      let friend = (this.friendsEdit as any[])[i];
+      if (friend.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(friend);
+      }
+    }
+
+    this.filteredFriendsEdit = filtered;
+  }
+
+  getMembersEmail(): string[] {
+    return this.membersEmails;
+  }
+
+  getSortedMembersEmail(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b));
+  }
+
+  getSortedGroupMembersEmail(): string[] {
+    return this.groupForEditModal.members.sort((a, b) => a.localeCompare(b));
+  }
+
+  // return only the members that are not in the group yet
+  getMembersEmailEdit(): string[] {
+    return this.membersEmailsEdit;
+  }
+  getSortedMembersEmailEdit(): string[] {
+    return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.groupForEditModal.members.includes(member));
+  }
+
+  createNewGroupModalOpen() {
+    this.editGroupModalNgOnInit();
+
+    this.groupForEditModal.members = this.group.members;
+    this.groupForEditModal.groupName = this.group.groupName;
+    this.groupForEditModal.id = this.group.id;
+    this.membersEmailsEdit = [];
+    this.editNewGroupModalVisible = true
+  }
+  goBack($event: MouseEvent) {
+    this.groupForEditModal.members = [];
+    this.groupForEditModal.groupName = undefined;
+    this.editNewGroupModalVisible = false;
+
+    // this.confirmationService.confirm({
+    //   message: 'Are you sure you want to cancel the creation of the group ?',
+    //   header: 'Confirm',
+    //   icon: 'pi pi-exclamation-triangle',
+    //   accept: () => {
+    //     this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Edit of group canceled' });
+    //     this.groupForEditModal.members = [];
+    //     this.groupForEditModal.groupName = undefined;
+    //     this.editNewGroupModalVisible = false;
+    //   }
+    // });
+  }
+
+  paginateTransactions(event: any) {
+    this.transactionsPage = event.page;
+  }
+
+  searchTransactionsChanged(event: KeyboardEvent): void {
+    this.transactionsSearchFilter = (event.target as HTMLInputElement).value;
+    this.transactionsPage = 0;
+  }
+
+  paginateActivities(event: any) {
+    this.activitiesPage = event.page;
+  }
+
+  searchActivitiesChanged(event: KeyboardEvent): void {
+    this.activitiesSearchFilter = (event.target as HTMLInputElement).value;
+    this.activitiesPage = 0;
+  }
+
 }
-
-
-
-// import {Component, OnInit} from '@angular/core';
-// import {GroupService} from "../../../services/group.service";
-// import {ToastrService} from "ngx-toastr";
-// import {GroupDto} from "../../../dtos/group";
-// import { BudgetDto } from '../../../dtos/budget';
-// import {ActivatedRoute, Router} from "@angular/router";
-// import {DebtGroupDetailDto} from "../../../dtos/debt";
-// import {DebtService} from "../../../services/debt.service";
-// import {ActivityType} from "../../expense/expense-list.component";
-
-// @Component({
-//   selector: 'app-group-info',
-//   templateUrl: './group-info.component.html',
-//   styleUrl: './group-info.component.scss'
-// })
-// export class GroupInfoComponent implements OnInit {
-
-//   group: GroupDto = {
-//     groupName: '',
-//     members: []
-//   };
-
-//   debt: DebtGroupDetailDto
-
-//   constructor(
-//     private service: GroupService,
-//     private debtService: DebtService,
-//     private router: Router,
-//     private route: ActivatedRoute,
-//     private groupService: GroupService,
-//     private notification: ToastrService,
-//   ) {
-//   }
-
-//   ngOnInit(): void {
-//     this.getGroup();
-//     this.getDebt();
-//   }
-
-//   getGroup(): void {
-//     const id = Number(this.route.snapshot.paramMap.get('id'));
-//     this.service.getById(id)
-//       .subscribe(pGroup => {
-//         this.group = pGroup;
-//       });
-//   }
-
-//   getDebt(): void {
-//     const id = Number(this.route.snapshot.paramMap.get('id'));
-//     this.debtService.getDebtById(id)
-//       .subscribe(debt => {
-//         this.debt = debt;
-//         console.log(debt);
-//       });
-//   }
-
-//   objectKeys(obj: any): string[] {
-//     return Object.keys(obj).sort();
-//   }
-
-//   getSortedMembers(): any[] {
-//     return this.group.members.sort((a, b) => a.localeCompare(b));
-//   }
-
-//   getBorderColor(value: number): string {
-//     return value > 0 ? 'green' : 'red';
-//   }
-
-//     protected readonly ActivityType = ActivityType;
-//   protected readonly parseFloat = parseFloat;
-// }

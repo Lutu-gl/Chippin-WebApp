@@ -18,10 +18,6 @@ export class UserService {
     private http: HttpClient,
   ) { }
 
-  getUserEmail(): string {
-    return localStorage.getItem('userEmail');
-  }
-
 
   // TODO implement : Search for friends!
   searchFriends(param: { name: string; limit: number }): Observable<UserSelection[]> {

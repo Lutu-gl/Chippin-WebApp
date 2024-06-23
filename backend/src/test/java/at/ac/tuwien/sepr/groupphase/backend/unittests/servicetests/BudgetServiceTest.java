@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.annotation.Rollback;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -119,11 +120,13 @@ public class BudgetServiceTest {
         Budget mockBudget = new Budget();
         mockBudget.setCategory(Category.Food);
         mockBudget.setAlreadySpent(100.0);
+        mockBudget.setTimestamp(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0));
+        mockBudget.setResetFrequency(ResetFrequency.MONTHLY);
         List<Budget> budgets = Arrays.asList(mockBudget);
 
         when(budgetRepository.findByGroupId(anyLong())).thenReturn(budgets);
 
-        budgetService.addUsedAmount(1L, 50.0, Category.Food);
+        budgetService.addUsedAmount(1L, 50.0, Category.Food, LocalDateTime.now());
 
         verify(budgetRepository, times(1)).save(mockBudget);
         assertEquals(150.0, mockBudget.getAlreadySpent());
@@ -134,11 +137,13 @@ public class BudgetServiceTest {
         Budget mockBudget = new Budget();
         mockBudget.setCategory(Category.Food);
         mockBudget.setAlreadySpent(100.0);
+        mockBudget.setTimestamp(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0));
+        mockBudget.setResetFrequency(ResetFrequency.MONTHLY);
         List<Budget> budgets = Arrays.asList(mockBudget);
 
         when(budgetRepository.findByGroupId(anyLong())).thenReturn(budgets);
 
-        budgetService.removeUsedAmount(1L, 50.0, Category.Food);
+        budgetService.removeUsedAmount(1L, 50.0, Category.Food, LocalDateTime.now());
 
         verify(budgetRepository, times(1)).save(mockBudget);
         assertEquals(50.0, mockBudget.getAlreadySpent());

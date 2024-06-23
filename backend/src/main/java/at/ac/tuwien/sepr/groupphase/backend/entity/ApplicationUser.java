@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,12 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -69,7 +69,7 @@ public class ApplicationUser {
     @Column
     private Boolean admin;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users")
     @Builder.Default
     @ToString.Exclude
     @JsonIgnore
@@ -77,6 +77,7 @@ public class ApplicationUser {
 
     @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Builder.Default
+    @ToString.Exclude
     private List<Recipe> recipes = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -86,6 +87,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> likedRecipes = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -96,6 +98,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<Recipe> dislikedRecipes = new HashSet<>();
 
     public ApplicationUser addRecipe(Recipe recipe) {

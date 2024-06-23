@@ -32,7 +32,7 @@ public class ShoppingListDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        log.debug("generating shopping list data");
+        log.trace("generating shopping list data");
         List<GroupEntity> groups = groupRepository.findAll();
         List<ApplicationUser> users = userRepository.findAll();
 
@@ -96,7 +96,7 @@ public class ShoppingListDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        log.debug("cleaning shopping list data");
+        log.trace("cleaning shopping list data");
         shoppingListRepository.deleteAll();
         shoppingListItemRepository.deleteAll();
     }

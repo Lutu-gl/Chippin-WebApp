@@ -4,15 +4,15 @@ import {PantryService} from "../../services/pantry.service";
 import {
   DisplayedUnit,
   ItemCreateDto,
+  ItemDetailDto,
   PantryItemCreateDisplayDto,
   pantryItemCreateDisplayDtoToPantryItemCreateDto,
   pantryItemCreateDisplayDtoToPantryItemDetailDto,
   PantryItemDetailDto,
   pantryItemDetailDtoToPantryItemCreateDisplayDto,
   PantryItemMergeDto,
-  Unit,
 } from "../../dtos/item";
-import {KeyValuePipe, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase} from "@angular/common";
+import {KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase} from "@angular/common";
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {debounceTime, Subject} from "rxjs";
 import {GetRecipesDto, PantrySearch} from "../../dtos/pantry";
@@ -47,6 +47,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {ShoppingListListDto} from "../../dtos/shoppingList";
 import {ShoppingListService} from "../../services/shopping-list.service";
 import {AuthService} from "../../services/auth.service";
+import {BadgeModule} from "primeng/badge";
 
 @Component({
   selector: 'app-pantry',
@@ -75,7 +76,9 @@ import {AuthService} from "../../services/auth.service";
     TabMenuModule,
     NgClass,
     AutoCompleteModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BadgeModule,
+    NgStyle
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pantry.component.html',
@@ -128,6 +131,22 @@ export class PantryComponent implements OnInit {
     this.itemMergeEditReset = {...this.itemMergeEdit};
   }
 
+  getIngredientAmount(recipe: RecipeByItemsDto, ingredient: ItemDetailDto): string {
+    let find: ItemDetailDto | undefined = recipe.itemsInPantry.find(i => i.description === ingredient.description && i.unit === ingredient.unit);
+    if(find === undefined) {
+      return 0 + "/" + formatAmount(ingredient);
+    }
+    if(find.unit === ingredient.unit) {
+      return find.amount + "/" + formatAmount(ingredient);
+    }
+    return find.amount + "/" + ingredient.amount + ingredient.unit;
+  }
+
+  getIngredientMatch(recipe: RecipeByItemsDto, ingredient: ItemDetailDto): 'red' | 'orange' | 'green' {
+    let find: ItemDetailDto | undefined = recipe.itemsInPantry.find(i => i.description === ingredient.description && i.unit === ingredient.unit);
+    return find === undefined || find.amount === 0 ? "red" : find.amount >= ingredient.amount ? "green" : "orange";
+  }
+
   isEditSelected(): boolean {
     return this.tabMenuActiveItem === this.tabMenuItems[0];
   }
@@ -172,7 +191,6 @@ export class PantryComponent implements OnInit {
     this.shoppingListService.getShoppingListsForGroup(this.id).subscribe({
       next: shoppingLists => {
         this.allShoppingLists = shoppingLists;
-        console.log(shoppingLists)
       },
       error: err => {
         this.messageService.add({severity: "error", summary: "Error", detail: "Could not load shopping lists"})
@@ -219,7 +237,7 @@ export class PantryComponent implements OnInit {
       unit: DisplayedUnit.Piece,
       lowerLimit: null,
     };
-    this.createEditItemReset = {...this.createEditItem};
+    this.createEditItemReset = {...this.createEditItem}
     console.log(this.createEditItemReset);
     this.edit = true;
     this.itemToEditId = item.id;
@@ -367,6 +385,12 @@ export class PantryComponent implements OnInit {
     this.service.getPantryById(id).subscribe({
       next: res => {
         this.items = res.items;
+        this.items.forEach(item => {
+          let belowMinimum = this.belowMinimum(item)
+          if (belowMinimum !== null && belowMinimum === true) {
+            this.setAmountOfItemInGroup(item);
+          }
+        })
       },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -391,35 +415,28 @@ export class PantryComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        //TODO: mass delete in backend
-        let count = this.selectedItems.length;
-        let length = this.selectedItems.length;
-        for (let item of this.selectedItems) {
-          this.service.deleteItem(this.id, item.id).subscribe({
-            next: res => {
-              count--;
-              console.log(count);
-              this.getPantry(this.id);
-              if(count < 1) {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: 'Items Deleted',
-                  detail: `Deleted ${length} items`,
-                  life: 3000
-                });
-              }
-            },
-            error: err => {
-              console.error(err);
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Could not delete ${item.description}`,
-                life: 3000
-              });
-            }
-          });
-        }
+
+        let length: number = this.selectedItems.length;
+        this.service.deleteItems(this.id, this.selectedItems.map(i => i.id)).subscribe({
+          next: res => {
+            this.getPantry(this.id);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Items Deleted',
+              detail: length > 1 ? `Deleted ${length} items` : 'Deleted 1 item',
+              life: 3000
+            });
+          },
+          error: err => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Could not delete items`,
+              life: 3000
+            });
+          }
+        })
+
         this.selectedItems = null;
       }
     });
@@ -439,6 +456,8 @@ export class PantryComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not decrement item amount!`});
       }
     })
+    // Update amount in shopping lists
+    this.setAmountOfItemInGroup(item);
   }
 
   increment(item: PantryItemDetailDto) {
@@ -455,6 +474,8 @@ export class PantryComponent implements OnInit {
         this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not increment item amount!`});
       }
     })
+    // Update amount in shopping lists
+    this.setAmountOfItemInGroup(item);
   }
 
   getRecipes() {
@@ -520,27 +541,53 @@ export class PantryComponent implements OnInit {
   }
 
   belowMinimum(item: PantryItemDetailDto): boolean | null {
-    if(item.lowerLimit === null || item.lowerLimit === 0) {
+    if (item.lowerLimit === null || item.lowerLimit === 0) {
       return null;
     }
     return item.amount < item.lowerLimit;
   }
 
   getRowColor(belowMin: boolean | null): string {
-    if(belowMin === null) {
+    if (belowMin === null) {
       return '';
     }
     return belowMin ? 'bg-red-50' : '';
   }
 
-  getTagSeverity(belowMin: boolean | null): "success" | "secondary" | "danger" {
-    if(belowMin === null) {
+  getTagSeverity(belowMin: boolean | null, item: ItemDetailDto): "success" | "secondary" | "danger" | "warning" {
+    if (belowMin === null) {
       return "secondary";
     }
-    return belowMin ? "danger" : "success";
+    if (!belowMin) return "success"
+
+
+    if (!item.amountInShoppingLists || item.amountInShoppingLists < 1) {
+      return "danger";
+    }
+    return "warning";
+
   }
 
-  mergeItemsSelectOptions(item: PantryItemCreateDisplayDto): PantryItemDetailDto[] {
+  setAmountOfItemInGroup(item: ItemDetailDto) {
+    this.shoppingListService.getAmountOfItemInGroup(this.id, item).subscribe({
+      next: amount => {
+        item.amountInShoppingLists = amount;
+      }
+      ,
+      error: error => {
+        console.error(error)
+        item.amountInShoppingLists = null;
+      }
+    })
+    item.amountInShoppingLists = null;
+
+  }
+
+  mergeItemsSelectOptions(item
+                            :
+                            PantryItemCreateDisplayDto
+  ):
+    PantryItemDetailDto[] {
     return this.items.filter(i => i.id != item.id);
   }
 
@@ -575,6 +622,7 @@ export class PantryComponent implements OnInit {
       next: () => {
         this.addItemToShoppingListModalOpen = false;
         this.messageService.add({severity: "success", summary: "Success", detail: "Added item to shopping list"})
+        this.getPantry(this.id);
       },
       error: error => {
         console.log(error)
@@ -589,9 +637,14 @@ export class PantryComponent implements OnInit {
           this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
         } else {
           console.error('Could not add items to shopping list', error);
-          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not add item to shopping list!`});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Could not add item to shopping list!`
+          });
         }
       }
     })
   }
+
 }

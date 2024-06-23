@@ -16,4 +16,6 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Long
     @Query("select s from ShoppingList s inner join s.group.users users where users.id = ?1")
     List<ShoppingList> findByGroup_Users_Id(Long id);
 
+    @Query("select count(s) from ShoppingList s")
+    long count();
 }

@@ -322,7 +322,7 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Test
     @WithMockUser(username = "user1@example.com")
-    public void givenNothing_whenAddInvalidItemToPantry_then400() throws Exception {
+    public void whenAddInvalidItemToPantry_then400() throws Exception {
 
         Long id = userRepository.findByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
@@ -344,7 +344,7 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
 
     @Test
     @WithMockUser(username = "user1@example.com")
-    public void givenNothing_whenDeleteExistingItem_thenItemDeleted() throws Exception {
+    public void whenDeleteExistingItem_thenItemDeleted() throws Exception {
 
         Long id = userRepository.findByEmail("user1@example.com").getId();
         when(securityService.hasCorrectId(id)).thenReturn(true);
@@ -365,6 +365,35 @@ public class PantryEndpointTest extends BaseTestGenAndClearBeforeAfterEach {
             //PantryTestGroup2 is generated with exactly one item
             () -> assertTrue(items.isEmpty()),
             () -> assertFalse(itemRepository.existsById(item.getId()))
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "user1@example.com")
+    public void whenDeleteExistingItems_thenItemsDeleted() throws Exception {
+
+        Long id = userRepository.findByEmail("user1@example.com").getId();
+        when(securityService.hasCorrectId(id)).thenReturn(true);
+        Long groupId = groupRepository.findByGroupName("PantryTestGroup1").getId();
+        when(securityService.isGroupMember(groupId)).thenReturn(true);
+
+        PantryItem item1 = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup1").getPantry()).get(0);
+        PantryItem item2 = pantryItemRepository.findByPantryOrderById(groupRepository.findByGroupName("PantryTestGroup1").getPantry()).get(1);
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(String.format("/api/v1/group/%d/pantry", groupId))
+                .param("itemIds", item1.getId().toString(), item2.getId().toString())
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        List<PantryItem> items = pantryRepository.findById(groupId).get().getItems();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus()),
+            //PantryTestGroup1 is generated with exactly 4 items
+            () -> assertEquals(2, items.size()),
+            () -> assertFalse(itemRepository.existsById(item1.getId())),
+            () -> assertFalse(itemRepository.existsById(item2.getId()))
         );
     }
 

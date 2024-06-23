@@ -3,7 +3,7 @@
     <h1 class="pt-8 text-2xl font-bold">Register</h1>
     <form class="flex flex-col gap-4 pt-16" [formGroup]="registerForm">
       <div class="flex flex-col gap-2">
-        <label for="inputEmail" class="font-medium">E-Mail</label>
+        <label for="inputEmail" class="font-medium" maxlength="50">E-Mail </label>
         <input type="text" pInputText pAutoFocus [autofocus]="true" name="email" id="inputEmail" formControlName="email" placeholder="max@chippin.com">
         <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
           <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Email is required!</small>
@@ -12,7 +12,8 @@
       </div>
       <div class="flex flex-col gap-2">
         <label for="inputPassword" class="font-medium">Password</label>
-        <p-password [toggleMask]="true" [feedback]="true" id="inputPassword" formControlName="password">
+        <p-password [toggleMask]="true" [feedback]="true" id="inputPassword" 
+        formControlName="password" maxlength="50">
           <ng-template pTemplate="footer" >
             <p-divider />
             <p class="mt-2">Requirements</p>

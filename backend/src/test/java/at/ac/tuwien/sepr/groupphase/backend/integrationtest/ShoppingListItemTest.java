@@ -4,13 +4,15 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemCreateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.shoppinglist.ShoppingListItemUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingList;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ShoppingListItem;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShoppingListRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SecurityService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -398,5 +401,43 @@ public class ShoppingListItemTest extends BaseTest {
                     .contentType("application/json")
                     .content(objectMapper.writeValueAsString(items)))
             .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @WithMockUser
+    @Transactional
+    public void givenValidItem_whenGetAmountOfItemInGroupShoppingLists_thenReturnAmount() throws Exception {
+        when(securityService.hasCorrectId(any())).thenReturn(true);
+        when(securityService.canAccessShoppingList(any())).thenReturn(true);
+        when(securityService.isGroupMember(any())).thenReturn(true);
+
+        // Find a user
+        var user = userRepository.findAll().getFirst();
+
+        // Find a group
+        var group = user.getGroups().stream().findFirst().get();
+
+        // Find a shopping list in the group
+        var sl = shoppingListRepository.findAllByGroupId(group.getId()).stream().findFirst().get();
+
+        // Find an item in the shopping list
+        var item = sl.getItems().get(0);
+
+        //Create a new shopping list item with the same description and unit
+        var sli = ShoppingListItem.builder().item(Item.builder().description(item.getItem().getDescription()).unit(item.getItem().getUnit()).amount(10).build())
+            .addedBy(user).build();
+
+        // Add a second shopping list to the group
+        var sl2 = shoppingListRepository.save(ShoppingList.builder().name("Second test list").owner(user).items(List.of(sli)).group(group).build());
+
+        // Check the amount of the item in the group shopping lists
+        var result = mockMvc.perform(
+                get("/api/v1/groups/{groupId}/shopping-lists/item-amount?description={description}&unit={unit}", group.getId(), item.getItem().getDescription(),
+                    item.getItem().getUnit()))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        assertThat(result.getResponse().getContentAsString()).isEqualTo(String.valueOf(item.getItem().getAmount() + sli.getItem().getAmount()));
     }
 }

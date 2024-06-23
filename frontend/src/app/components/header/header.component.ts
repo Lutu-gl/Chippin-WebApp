@@ -39,4 +39,12 @@ export class HeaderComponent implements OnInit {
     })
   }
 
+  logoClicked() {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/home']);
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
 }

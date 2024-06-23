@@ -63,6 +63,8 @@ export class ExpenseCreateComponent {
     if (this.mode === ExpenseCreateEditMode.edit) {
       this.mode = ExpenseCreateEditMode.info;
     }
+
+    
   }
 
   filterCategory(event: AutoCompleteCompleteEvent) {
@@ -344,7 +346,7 @@ export class ExpenseCreateComponent {
       returnValue = false;
     }
 
-    if (!this.expenseAmount || this.expenseAmount < 0.01 || this.expenseAmount > 9999999) {
+    if (!this.expenseAmount || this.expenseAmount < 0.01 || this.expenseAmount > 9999999.99) {
       this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Amount must be between 0.01 and 9999999!'});
       returnValue = false;
     }
