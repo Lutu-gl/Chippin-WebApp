@@ -19,6 +19,7 @@ public class ShoppingListValidator {
     private final ShoppingListRepository shoppingListRepository;
 
     public void validateForUpdateGroup(ShoppingListUpdateDto shoppingListUpdateDto, ShoppingList shoppingListEntity) throws ConflictException {
+        log.trace("validateForUpdateGroup({}, {})", shoppingListUpdateDto, shoppingListEntity);
         if (shoppingListEntity.getGroup() == null) {
             return;
         }
@@ -34,6 +35,7 @@ public class ShoppingListValidator {
     }
 
     public void validateForDelete(Long id) throws ConflictException {
+        log.trace("validateForDelete({})", id);
         // Get shopping list by id
         var shoppingList = shoppingListRepository.findById(id).orElse(null);
         if (shoppingList == null) {
