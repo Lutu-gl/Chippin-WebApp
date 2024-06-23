@@ -62,7 +62,7 @@ public class ExpenseDataGenerator implements DataGenerator {
         LOGGER.trace("generating data for expense");
         List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
-        Random random = new Random(12345);
+        Random random = new Random(12);
         Faker faker = new Faker(Locale.getDefault(), random);
 
         groups.sort(Comparator.comparing(GroupEntity::getGroupName));
@@ -91,7 +91,6 @@ public class ExpenseDataGenerator implements DataGenerator {
         LocalDateTime startDate = fixedDateTime.minusMonths(3);
         LocalDateTime endDate = fixedDateTime.minusDays(2);
 
-        random.setSeed(12345);
         while (startDate.isBefore(endDate)) {
             ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
 
@@ -107,7 +106,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 participantsList.set(random.nextInt(3), payer);
             }
 
-            int amountExpense = 10 + random.nextInt(291);
+            int amountExpense = 10 + random.nextInt(100);
             double doubleAmountExpense = (double) amountExpense;
 
             double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
