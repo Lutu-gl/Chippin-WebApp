@@ -63,6 +63,8 @@ export class ExpenseCreateComponent {
     if (this.mode === ExpenseCreateEditMode.edit) {
       this.mode = ExpenseCreateEditMode.info;
     }
+
+    
   }
 
   filterCategory(event: AutoCompleteCompleteEvent) {

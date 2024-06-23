@@ -135,8 +135,10 @@ public class BudgetServiceImpl implements BudgetService {
                 budget.setTimestamp(nextMonday);
             }
         }
-
-        budget.setCategory(budgetDto.getCategory());
+        if (budget.getCategory() != budgetDto.getCategory()) {
+            budget.setCategory(budgetDto.getCategory());
+            budget.setAlreadySpent(0);
+        }
         return budgetRepository.save(budget);
     }
 

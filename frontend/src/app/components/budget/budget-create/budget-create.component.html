@@ -24,7 +24,10 @@
       <input type="text" pInputText
         [(ngModel)]="newBudget.name"
         [disabled]="modeIsInfo()"
+        palceholder="Budget Name"
         class="w-full"
+        required pattern="^[a-zA-Z0-9](?=.*[a-zA-Z0-9])[a-zA-Z0-9 ]*$"
+        maxlength="50"
       />
     </div>
 
@@ -55,7 +58,7 @@
         currency="EUR"
         locale="de-DE"
         [min]="0.01"
-        [max]="9999999.99"
+        [max]="99999"
         class="w-full"
         required
         [disabled]="modeIsInfo()"

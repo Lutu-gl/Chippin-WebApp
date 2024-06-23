@@ -25,6 +25,7 @@ export class BudgetCreateComponent implements OnChanges {
   @Output() closeDialog = new EventEmitter<void>();
 
   newBudget: BudgetDto = { name: '', amount: undefined, category: '', alreadySpent: 0, resetFrequency: '' };
+  loadedBudget: BudgetDto;
   categories2: { label: string, value: Category }[] = [];
   selectedCategory: any;
   allCategories: any[] = Object.values(Category).map(category => ({name: category}));
@@ -62,7 +63,6 @@ export class BudgetCreateComponent implements OnChanges {
   private prepareNewBudget(): void {
     this.newBudget = { name: '', amount: undefined, category: '', alreadySpent: 0, resetFrequency: ResetFrequency.MONTHLY};
     this.selectedCategory = { label: '', value: '' };
-    console.log(this.newBudget.resetFrequency)
   }
 
   openDeleteDialog(): void {
@@ -89,9 +89,9 @@ export class BudgetCreateComponent implements OnChanges {
     this.groupService.getByBudgetId(this.groupId, this.budgetId).subscribe({
       next: data => {
         this.newBudget = data;
+        this.loadedBudget = {...data};
         this.selectedCategory = this.categories2.find(category => category.value === this.newBudget.category);
         this.selectedFrequency = this.newBudget.resetFrequency;
-        console.log(this.selectedFrequency)
       },
       error: error => {
         console.error(error);
@@ -104,8 +104,8 @@ export class BudgetCreateComponent implements OnChanges {
 
   submitValidation(): boolean {
     let returnValue = true;
-    if (!this.newBudget.name || /^[a-zA-Z][a-zA-Z0-9 ]{0,254}$/.test(this.newBudget.name) === false) {
-      this.messageService.add({severity:'warn', summary:'Invalid Budget', detail:'Name must be between 1 and 255 characters long and only contain letters, numbers and spaces!'});
+    if (!this.newBudget.name || /^[a-zA-Z][a-zA-Z0-9 ]{0,51}$/.test(this.newBudget.name) === false) {
+      this.messageService.add({severity:'warn', summary:'Invalid Budget', detail:'Name must be between 1 and 50 characters long and only contain letters, numbers and spaces!'});
       returnValue = false;
     }
 
@@ -132,9 +132,6 @@ export class BudgetCreateComponent implements OnChanges {
 
   public onSubmit(): void {
 
-    console.log(this.newBudget)
-
-    console.log("validation:")
     if (!this.submitValidation()) {
       return;
     }
@@ -167,6 +164,7 @@ export class BudgetCreateComponent implements OnChanges {
     // this.newBudget.resetFrequency = this.selectedFrequency;
     this.groupService.updateBudget(this.groupId, this.budgetId, this.newBudget).subscribe({
       next: budget => {
+        this.loadedBudget = {...this.newBudget};
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully updated budget' });
         this.closeDialog.emit();
       },
@@ -182,6 +180,7 @@ export class BudgetCreateComponent implements OnChanges {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Successfully deleted budget' });
         this.closeDeleteDialog();
+        this.budgetId = undefined;
         this.closeDialog.emit();
       },
       error: error => {
@@ -208,9 +207,16 @@ export class BudgetCreateComponent implements OnChanges {
 
 
 public resetState(): void {
-  console.log("resetState")
+  
+  
   if (this.mode === BudgetCreateEditMode.edit) {
     this.mode = BudgetCreateEditMode.info;
+  }
+  if(this.loadedBudget != null){
+    this.newBudget = {...this.loadedBudget};
+    this.selectedCategory = this.categories2.find(category => category.value === this.newBudget.category);
+    this.selectedFrequency = this.newBudget.resetFrequency;
+
   }
 }
 
