@@ -21,6 +21,7 @@ export class GroupListComponent implements OnInit {
   groups: GroupListDto[] = [];
   // map of group id to balance summary
   groupBalanceSummaries: { [p: string]: number } = {};
+  responseReceived: boolean = false;
 
   // for the create group modal
   createNewGroupModalVisible: boolean;
@@ -56,6 +57,7 @@ export class GroupListComponent implements OnInit {
           this.groups.forEach(group => {
             this.groupBalanceSummaries[group.id] = this.calculateBalanceSummary(group.membersDebts);
           });
+         this.responseReceived = true;
        },
       error: error => {
         if (error && error.error && error.error.errors) {
@@ -112,9 +114,6 @@ export class GroupListComponent implements OnInit {
 
   public onSubmitModal(form: NgForm): void {
     var memberGroupSaved = JSON.parse(JSON.stringify(this.group.members));
-    console.log(this.group.members)
-    console.log(this.membersEmails)
-    console.log(this.membersEmailsEdit)
 
     if (form.valid) {
       let observable: Observable<GroupDto>;

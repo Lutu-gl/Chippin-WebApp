@@ -16,6 +16,8 @@ export class FriendsComponent implements OnInit {
   outgoingFriendRequests: string[] = [];
   friends: FriendInfoDto[] = [];
 
+  responseReceived: boolean = false;
+
   friendRequestEmail: string = "";
   isAddFriendDialogVisible: boolean = false;
 
@@ -52,6 +54,7 @@ export class FriendsComponent implements OnInit {
     this.friendshipService.getFriendsWithDebtInfos().subscribe({
       next: async (data) => {
         this.friends = data;
+        this.responseReceived = true;
       },
       error: (e) => {
         this.messageService.add({severity:'error', summary:'Error', detail: 'Failed to load friends!'});

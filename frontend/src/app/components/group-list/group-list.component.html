@@ -27,18 +27,24 @@
     <div *ngIf="groupName.touched && groupName.errors?.maxlength" class="text-red-500 text-xs">
       Group name must not have over 20 characters.
     </div>
-
-    <label for="inputMembers" class="font-medium w-64">Members</label>
+    <br>
+    <label for="inputMembers" class="font-medium w-64">Add up to 15 members</label>
     <p-autoComplete
       [(ngModel)]="currentlySelected"
+      #inputSelection="ngModel"
       name="currentlySelected"
       [suggestions]="filteredFriends"
       (completeMethod)="filterMembers($event)"
       (onSelect)="addMember($event)"
       [dropdown]="true"
+      [disabled]="membersEmails.length > 15"
       [forceSelection]="friends"
+      emptyMessage="No friends found"
       id = "inputMembers"
     />
+    <div *ngIf="membersEmails.length <= 1" class="text-red-500 text-xs">
+      Please add at least one new member
+    </div>
 
 
     <div>
@@ -76,9 +82,14 @@
   <p-button (onClick)="createNewGroupModalOpen()">Create new group</p-button>
 
   <!-- No groups yet message -->
-  <div *ngIf="groups.length === 0" class="w-full max-w-md p-4 bg-gray-100 rounded text-center">
-    <p>ChippIn is more fun with friends! If you haven't created any groups yet, start by inviting your friends. When you have friends, create a group and enjoy ChippIn together.</p>
+  <div *ngIf="groups.length === 0 && this.responseReceived">
+    <br>
+    <br><br>
+    <div class="w-full max-w-md p-4 bg-gray-100 rounded text-center">
+      <p>ChippIn is more fun with friends! If you haven't created any groups yet, start by inviting your friends. When you have friends, create a group and enjoy ChippIn together.</p>
+    </div>
   </div>
+
 
   <!-- Groups -->
     <div *ngIf="groups.length > 0" class="w-full max-w-md space-y-4">
