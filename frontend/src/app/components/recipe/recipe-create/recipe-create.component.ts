@@ -34,7 +34,6 @@ export class RecipeCreateComponent implements OnInit {
     unit: Unit.Piece,
     description: ""
   };
-  itemToEdit: ItemCreateDto = undefined;
   submitted: boolean = false;
   newItemDialog: boolean = false;
   itemDialog: boolean = false;
@@ -48,7 +47,6 @@ export class RecipeCreateComponent implements OnInit {
   constructor(
     private service: RecipeService,
     private router: Router,
-    private route: ActivatedRoute,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
   ) {
@@ -70,7 +68,7 @@ export class RecipeCreateComponent implements OnInit {
         next: data => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: `Recipe ${this.recipe.name} successfully created.`});
 
-          this.router.navigate(['/home/recipe']);
+          this.router.navigate(['/home/recipes']);
         },
         error: error => {
           this.printError(error);
