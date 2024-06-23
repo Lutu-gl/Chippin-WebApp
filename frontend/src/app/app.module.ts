@@ -87,6 +87,7 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
 import {ToolbarModule} from "primeng/toolbar";
+import { TooltipModule  } from 'primeng/tooltip';
 import {
     ShoppingListsInGroupComponent
 } from "./components/shopping-list/shopping-lists-in-group/shopping-lists-in-group.component";
@@ -159,6 +160,7 @@ import { CounterComponent } from './components/landing-page/counter/counter.comp
         RecipeInfoCardContentComponent,
         DropdownModule,
         RadioButtonModule,
+        TooltipModule,
         ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
     ],
 

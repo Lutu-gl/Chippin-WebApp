@@ -56,7 +56,7 @@ public class BudgetDataGenerator implements DataGenerator {
                     double amount = 1 + random.nextDouble() * 900;
                     amount = Math.round(amount * 100.0) / 100.0;
                     Category category = categories[random.nextInt(categories.length)];
-                    double alreadySpent = calculateAlreadySpent(expenses, category, firstOfMonth);
+                    double alreadySpent = calculateAlreadySpent(expenses, category, firstOfMonth.minusMonths(1));
                     Budget budget = Budget.builder()
                         .name(budgetNames[random.nextInt(budgetNames.length)])
                         .amount(amount)
