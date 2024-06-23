@@ -118,19 +118,7 @@ export class GroupInfoComponent implements OnInit {
   ){
   }
 
-  openCreateBudgetDialog(): void {
-    this.budgetDialogMode = BudgetCreateEditMode.create;
-    this.isBudgetDialogVisible = true;
-    this.budgetCreateComponent.resetState();
-  }
 
-  closeCreateBudgetDialog(): void {
-    console.log("closeCreateBudgetDialog")
-    this.isBudgetDialogVisible = false;
-    this.budgetDialogMode = BudgetCreateEditMode.info;
-    this.getGroupBudgets();
-    // this.ngOnInit();
-  }
 
   closeImportDialog(): void {
     this.isImportDialogVisible = false;
@@ -186,12 +174,9 @@ export class GroupInfoComponent implements OnInit {
   }
 
   budgetModalClose() {
-    console.log('Modal closed');
-    // Perform any additional actions you need here
     this.budgetDialogMode = BudgetCreateEditMode.info;
     this.isBudgetDialogVisible = false;
     this.getGroupBudgets();
-    this.budgetCreateComponent.resetState();
 
   }
 
@@ -262,11 +247,28 @@ export class GroupInfoComponent implements OnInit {
 
 
   openInfoBudgetDialog(budgetId: number): void {
-    console.log(this.budgetDialogMode)
+
     this.budgetDialogMode = BudgetCreateEditMode.info;
+    this.budgetCreateComponent.mode = BudgetCreateEditMode.info;
+
     this.budgetDialogBudgetId = budgetId;
+    this.budgetCreateComponent.budgetId = budgetId;
     this.isBudgetDialogVisible = true;
-    // this.budgetCreateComponent.resetState();
+    this.budgetCreateComponent.resetState();
+  }
+
+  openCreateBudgetDialog(): void {
+    this.budgetDialogMode = BudgetCreateEditMode.create;
+    this.budgetCreateComponent.mode = BudgetCreateEditMode.create;
+    this.isBudgetDialogVisible = true;
+    this.budgetCreateComponent.resetState();
+  }
+
+  closeCreateBudgetDialog(): void {
+    this.isBudgetDialogVisible = false;
+    this.budgetDialogMode = BudgetCreateEditMode.info;
+    this.getGroupBudgets();
+    // this.ngOnInit();
   }
 
   public budgetModeIsCreate(): boolean {
@@ -408,8 +410,6 @@ export class GroupInfoComponent implements OnInit {
         this.transactionsActivities.push(payment);
       })
    });
-    console.log(this.transactionsActivities.length)
-    console.log('transactions: ' + this.transactionsActivities);
   }
 
   getPayments(): void {
@@ -418,7 +418,6 @@ export class GroupInfoComponent implements OnInit {
     this.paymentService.getPaymentsByGroupId(id).subscribe(payments => {
       this.payments = payments;
     });
-    console.log(this.payments)
   }
 
   getExpenses(): void {
@@ -426,17 +425,14 @@ export class GroupInfoComponent implements OnInit {
     this.expenseService.getExpensesByGroupId(id).subscribe(expenses => {
       this.expenses = expenses;
     });
-    console.log(this.expenses)
   }
 
   getGroupBudgets(): void {
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log("budgets werden geladen")
     this.groupService.getGroupBudgets(id)
       .subscribe(budgets => {
         this.budgets = budgets;
-        console.log(budgets)
         this.budgets.forEach(budget => {
           budget.daysUntilReset = this.calculateDaysUntilReset(budget.timestamp);
         });
@@ -655,15 +651,11 @@ export class GroupInfoComponent implements OnInit {
   // When a member is selected from the autocomplete dropdown
   // Add the amount from the debt variable to the label amount of the modal
   selectedDebtMember(event: AutoCompleteSelectEvent) {
-    console.log("selectedDebtMember")
-    console.log(event.value)
-    console.log(this.debt.membersDebts[event.value])
 
     this.amountOfSelectedDebtMember = -this.debt.membersDebts[event.value];
   }
 
   goBackFromSettleDebts($event: MouseEvent) {
-    console.log("goBackFromSettleDebts")
 
     this.confirmationService.confirm({
       key: 'SettleDebtsConfirmDialog',
@@ -804,7 +796,6 @@ export class GroupInfoComponent implements OnInit {
         this.deleteExistingPayment()
       }
     });
-    // this.isDeleteDialogVisible = true;
   }
   closeDeleteDialog(): void {
     this.isDeleteDialogVisible = false;
@@ -930,9 +921,6 @@ export class GroupInfoComponent implements OnInit {
 
   public onSubmitModal(form: NgForm): void {
     var memberGroupSaved = JSON.parse(JSON.stringify(this.groupForEditModal.members));
-    console.log(this.groupForEditModal.members)
-    console.log(this.membersEmails)
-    console.log(this.membersEmailsEdit)
 
     if (form.valid) {
       let observable: Observable<GroupDto>;
@@ -944,8 +932,6 @@ export class GroupInfoComponent implements OnInit {
 
       observable = this.groupService.update(this.groupForEditModal);
 
-      console.log("final: ")
-      console.log(this.groupForEditModal.members)
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.groupForEditModal.groupName} successfully edited`});
@@ -959,7 +945,6 @@ export class GroupInfoComponent implements OnInit {
           this.groupForEditModal.members = memberGroupSaved;
           console.log(error);
           if (error && error.error && error.error.errors) {
-            //this.notification.error(`${error.error.errors.join('. \n')}`);
             for (let i = 0; i < error.error.errors.length; i++) {
               this.messageService.add({severity:'error', summary:'Error', detail:`${error.error.errors[i]}`});
             }
@@ -1081,7 +1066,6 @@ export class GroupInfoComponent implements OnInit {
   // return only the members that are not in the group yet
   getMembersEmailEdit(): string[] {
     return this.membersEmailsEdit;
-    // return this.membersEmails.filter(member => !this.group.members.includes(member));
   }
   getSortedMembersEmailEdit(): string[] {
     return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.groupForEditModal.members.includes(member));
@@ -1131,77 +1115,3 @@ export class GroupInfoComponent implements OnInit {
   }
 
 }
-
-
-
-// import {Component, OnInit} from '@angular/core';
-// import {GroupService} from "../../../services/group.service";
-// import {ToastrService} from "ngx-toastr";
-// import {GroupDto} from "../../../dtos/group";
-// import { BudgetDto } from '../../../dtos/budget';
-// import {ActivatedRoute, Router} from "@angular/router";
-// import {DebtGroupDetailDto} from "../../../dtos/debt";
-// import {DebtService} from "../../../services/debt.service";
-// import {ActivityType} from "../../expense/expense-list.component";
-
-// @Component({
-//   selector: 'app-group-info',
-//   templateUrl: './group-info.component.html',
-//   styleUrl: './group-info.component.scss'
-// })
-// export class GroupInfoComponent implements OnInit {
-
-//   group: GroupDto = {
-//     groupName: '',
-//     members: []
-//   };
-
-//   debt: DebtGroupDetailDto
-
-//   constructor(
-//     private service: GroupService,
-//     private debtService: DebtService,
-//     private router: Router,
-//     private route: ActivatedRoute,
-//     private groupService: GroupService,
-//     private notification: ToastrService,
-//   ) {
-//   }
-
-//   ngOnInit(): void {
-//     this.getGroup();
-//     this.getDebt();
-//   }
-
-//   getGroup(): void {
-//     const id = Number(this.route.snapshot.paramMap.get('id'));
-//     this.service.getById(id)
-//       .subscribe(pGroup => {
-//         this.group = pGroup;
-//       });
-//   }
-
-//   getDebt(): void {
-//     const id = Number(this.route.snapshot.paramMap.get('id'));
-//     this.debtService.getDebtById(id)
-//       .subscribe(debt => {
-//         this.debt = debt;
-//         console.log(debt);
-//       });
-//   }
-
-//   objectKeys(obj: any): string[] {
-//     return Object.keys(obj).sort();
-//   }
-
-//   getSortedMembers(): any[] {
-//     return this.group.members.sort((a, b) => a.localeCompare(b));
-//   }
-
-//   getBorderColor(value: number): string {
-//     return value > 0 ? 'green' : 'red';
-//   }
-
-//     protected readonly ActivityType = ActivityType;
-//   protected readonly parseFloat = parseFloat;
-// }
