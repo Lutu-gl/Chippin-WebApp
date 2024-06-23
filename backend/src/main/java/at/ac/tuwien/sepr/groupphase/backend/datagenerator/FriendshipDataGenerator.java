@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class FriendshipDataGenerator implements DataGenerator {
+    private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     UserRepository userRepository;
@@ -32,7 +33,7 @@ public class FriendshipDataGenerator implements DataGenerator {
     @Override
     @Transactional
     public void generateData() {
-        LOGGER.debug("generating data for friendships");
+        LOGGER.trace("generating data for friendships");
         List<GroupEntity> groups = groupRepository.findAll();
 
         for (GroupEntity group : groups) {
@@ -49,7 +50,7 @@ public class FriendshipDataGenerator implements DataGenerator {
                     Friendship friendship = Friendship.builder()
                         .sender(user)
                         .receiver(user2)
-                        .sentAt(LocalDateTime.now())
+                        .sentAt(fixedDateTime)
                         .friendshipStatus(FriendshipStatus.ACCEPTED)
                         .build();
 
@@ -61,7 +62,7 @@ public class FriendshipDataGenerator implements DataGenerator {
 
     @Override
     public void cleanData() {
-        LOGGER.debug("cleaning data for friendships");
+        LOGGER.trace("cleaning data for friendships");
         friendshipRepository.deleteAll();
     }
 }

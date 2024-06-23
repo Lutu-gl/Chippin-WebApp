@@ -53,10 +53,35 @@ export class GroupListComponent implements OnInit {
   ngOnInit(): void {
     this.groupService.getGroupsWithDebtInfos().subscribe({
        next: data => {
+
+
          this.groups = data.sort((a, b) => a.groupName.localeCompare(b.groupName))
+
           this.groups.forEach(group => {
             this.groupBalanceSummaries[group.id] = this.calculateBalanceSummary(group.membersDebts);
           });
+
+         this.groups.sort((a, b) => {
+           const totalAmountA = this.groupBalanceSummaries[a.id];
+           const totalAmountB = this.groupBalanceSummaries[b.id];
+
+           if (totalAmountA === 0 && totalAmountB !== 0) {
+             return 1;
+           } else if (totalAmountB === 0 && totalAmountA !== 0) {
+             return -1;
+           }
+
+           if (totalAmountA < 0 && totalAmountB < 0) {
+             return totalAmountA - totalAmountB;
+           }
+
+           if (totalAmountA === totalAmountB) {
+             return a.groupName.localeCompare(b.groupName);
+           } else {
+             return totalAmountB - totalAmountA;
+           }
+         });
+
          this.responseReceived = true;
        },
       error: error => {
