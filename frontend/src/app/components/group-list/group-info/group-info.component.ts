@@ -1127,6 +1127,7 @@ export class GroupInfoComponent implements OnInit {
 
   searchTransactionsChanged(event: KeyboardEvent): void {
     this.transactionsSearchFilter = (event.target as HTMLInputElement).value;
+    this.transactionsPage = 0;
   }
 
   paginateActivities(event: any) {
@@ -1135,6 +1136,7 @@ export class GroupInfoComponent implements OnInit {
 
   searchActivitiesChanged(event: KeyboardEvent): void {
     this.activitiesSearchFilter = (event.target as HTMLInputElement).value;
+    this.activitiesPage = 0;
   }
 
 }
