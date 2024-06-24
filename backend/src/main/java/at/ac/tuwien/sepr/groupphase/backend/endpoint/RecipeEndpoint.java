@@ -86,7 +86,7 @@ public class RecipeEndpoint {
     @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @GetMapping("/{recipeId}/recipe/info")
     public RecipeDetailWithUserInfoDto getByIdWithUserInfo(@PathVariable long recipeId) {
-        LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
+        LOGGER.trace("GET /api/v1/group/{}/recipe/info", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.getByIdWithInfo(recipeId, user);

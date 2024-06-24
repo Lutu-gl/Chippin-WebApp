@@ -31,7 +31,6 @@ import {BudgetListComponent} from './components/budget/budget-list.component';
 import {BudgetCreateComponent} from './components/budget/budget-create/budget-create.component';
 import {ExpenseCreateComponent} from './components/expense/expense-create/expense-create.component';
 import {ExpenseListComponent} from './components/expense/expense-list.component';
-import {ConfirmDeleteDialogComponent} from './components/confirm-delete-dialog/confirm-delete-dialog.component';
 import {MenuCardComponent} from "./components/menu-cards/menu-card/menu-card.component";
 import {
   GroupInfoCardContentComponent
@@ -160,8 +159,7 @@ import { CounterComponent } from './components/landing-page/counter/counter.comp
         RecipeInfoCardContentComponent,
         DropdownModule,
         RadioButtonModule,
-        TooltipModule,
-        ConfirmDeleteDialogComponent, ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
+        TooltipModule,ShoppingListInfoCardContentComponent, SplitButtonModule, MenuModule, ChipsModule, FloatLabelModule, PasswordModule, DividerModule, AutoFocusModule, ToastModule, TabMenuModule, AutoCompleteModule, CardModule, ChartModule, DialogModule, InputNumberModule, CheckboxModule, ConfirmDialogModule, PantryComponent, InputTextareaModule, InputSwitchModule, RippleModule, TableModule, ToolbarModule, CarouselModule, ShoppingListsInGroupComponent, FileUploadModule, ProgressSpinnerModule, CalendarModule, ImageModule, PaginatorModule
     ],
 
     providers: [httpInterceptorProviders, MessageService, ConfirmationService],
