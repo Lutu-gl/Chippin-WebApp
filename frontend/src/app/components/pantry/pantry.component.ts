@@ -419,8 +419,8 @@ export class PantryComponent implements OnInit {
           next: res => {
             this.getPantry(this.id);
             this.messageService.add({
-              severity: 'error',
-              summary: 'Items Deleted',
+              severity: 'success',
+              summary: 'Success',
               detail: length > 1 ? `Deleted ${length} items` : 'Deleted 1 item',
               life: 3000
             });
@@ -502,8 +502,8 @@ export class PantryComponent implements OnInit {
           next: res => {
             this.getPantry(this.id);
             this.messageService.add({
-              severity: 'error',
-              summary: 'Item Deleted',
+              severity: 'success',
+              summary: 'Success',
               detail: `Deleted ${item.description}`,
               life: 3000
             });
