@@ -5,7 +5,6 @@ import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {ConfirmDeleteDialogComponent} from "../../confirm-delete-dialog/confirm-delete-dialog.component";
 import {
   AddShoppingListItemModalComponent
 } from "../add-shopping-list-item-modal/add-shopping-list-item-modal.component";
@@ -49,7 +48,6 @@ import {TabViewModule} from "primeng/tabview";
     NgIf,
     FormsModule,
     NgClass,
-    ConfirmDeleteDialogComponent,
     AddShoppingListItemModalComponent,
     EditShoppingListItemModalComponent,
     ButtonModule,
