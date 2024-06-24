@@ -26,6 +26,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.validator.constraints.Length;
 
 
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class Recipe {
 
     @Lob
     @Column(nullable = false)
+    @Length(max = 15000)
     private String description;
 
     @Column(nullable = false)
