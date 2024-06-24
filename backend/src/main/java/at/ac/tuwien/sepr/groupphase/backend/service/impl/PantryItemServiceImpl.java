@@ -25,7 +25,7 @@ public class PantryItemServiceImpl implements PantryItemService {
     @Override
     @Transactional
     public PantryItem pantryAutoMerge(PantryItem pantryItem, Pantry pantry) {
-        LOGGER.debug("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
+        LOGGER.trace("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
         List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(pantryItem.getDescription(), pantryItem.getUnit(), pantry);
 
         //no item to merge in pantry
@@ -58,9 +58,9 @@ public class PantryItemServiceImpl implements PantryItemService {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
             pantryItemRepository.deleteById(item.getId());
-            LOGGER.debug("PantryItem {} deleted", pantryItem);
+            LOGGER.trace("PantryItem {} deleted", pantryItem);
         }
-        LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
+        LOGGER.trace("PantryItem {} merged into {}", pantryItem, baseItem);
         return pantryItemRepository.save(baseItem);
     }
 }
