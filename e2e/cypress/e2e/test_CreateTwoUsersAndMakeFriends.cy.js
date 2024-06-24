@@ -35,7 +35,7 @@ describe("Create two Users And Befriend them", () => {
     cy.get("button").click();
     cy.get("app-root > div button").click();
 	
-    cy.contains("p-button", "Send Friend Request").click();
+    cy.get('.text-black > .p-ripple').click();
     cy.get("#email").type("tf2@email.com");
     cy.get("p-button:nth-of-type(2) > button").click();
     cy.get("app-header button").click();

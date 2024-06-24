@@ -35,9 +35,10 @@ describe("Create a Group", () => {
     cy.get("button").click();
     cy.get("app-root > div button").click();
 	
-    cy.contains('p-button', 'Send Friend Request').click({ force: true });
+    cy.get('.text-black > .p-ripple').click({ force: true });
     cy.get("#email").type("tf2a@email.com");
-    cy.get("p-button:nth-of-type(2) > button").click();
+    cy.get('.text-black > .p-ripple');
+	cy.get('[label="Send"] > .p-ripple > .p-button-label').click();
     cy.get("app-header button").click();
     cy.contains('span', 'Logout').click();
 
