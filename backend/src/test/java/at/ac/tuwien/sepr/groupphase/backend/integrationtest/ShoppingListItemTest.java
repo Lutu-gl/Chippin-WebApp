@@ -421,8 +421,13 @@ public class ShoppingListItemTest extends BaseTest {
         // Find a shopping list in the group
         var sl = shoppingListRepository.findAllByGroupId(group.getId()).stream().findFirst().get();
 
-        // Find an item in the shopping list
-        var item = sl.getItems().get(0);
+        // Save an item to the shopping list
+        var item = ShoppingListItem.builder()
+            .item(Item.builder().description("Test Item description").unit(Unit.Piece).amount(5).build())
+            .addedBy(user)
+            .build();
+        sl.getItems().add(item);
+        shoppingListRepository.save(sl);
 
         //Create a new shopping list item with the same description and unit
         var sli = ShoppingListItem.builder().item(Item.builder().description(item.getItem().getDescription()).unit(item.getItem().getUnit()).amount(10).build())

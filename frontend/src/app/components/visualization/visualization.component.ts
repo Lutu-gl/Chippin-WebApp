@@ -8,13 +8,7 @@ import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
 import {ChartData, ChartOptions} from "chart.js";
-import {
-  getHighestMonthAndSum,
-  getRandomColorForEmail,
-  groupExpensesByUserEmail,
-  sumExpensesPerUserPerMonth
-} from "./chartHelper";
-import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/segment_marker";
+import {getRandomColorForEmail, groupExpensesByUserEmail, sumExpensesPerUserPerMonth} from "./chartHelper";
 
 @Component({
   selector: 'app-visualization',
@@ -131,19 +125,20 @@ export class VisualizationComponent implements OnInit {
     console.log("EXPENSES")
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
+        console.log(res)
 
         //Convert date from backend to Date()
         res.forEach(e => {
           let date: String[] = e.date.toString().split('-');
           date[2] = date[2].split('T')[0];
           e.date = new Date(+date[0], +date[1], +date[2]);
-          if(e.date.getTime() < this.minDate.getTime()) {
+          if (e.date.getTime() < this.minDate.getTime()) {
             this.minDate = e.date;
           }
         })
 
 
-        if(!this.rangeDates) {
+        if (!this.rangeDates) {
           this.rangeDates = [this.minDate, this.today];
         }
 
@@ -163,6 +158,7 @@ export class VisualizationComponent implements OnInit {
         this.formatDataExpensesPayedPerPersonCash()
         this.formatDataAmountSpendPerPerson()
         this.formatDataForExpensesPerUserPerMonth()
+        this.formatDataForDebtsPerWeekPerUser()
 
         console.log(this.charts.length)
         console.log(this.minimumExpensesSatisfied)
@@ -182,6 +178,91 @@ export class VisualizationComponent implements OnInit {
         }
       }
     })
+  }
+
+  formatDataForDebtsPerWeekPerUser() {
+    let graphData: ChartData<"line", {x: string, y: number}[]>
+    let graphOptions: ChartOptions<"line">
+
+    let expensesByUser = groupExpensesByUserEmail(this.expenses);
+
+    graphData = {
+      labels: [],
+      datasets:
+        [
+          {
+            label: "asdf",
+            data: [
+              {x: "2021-11-03 23:39:30" , y: 0},
+              {x: "2021-11-04 23:39:30" , y: 1},
+              {x: "2021-11-05 13:39:30" , y: 2},
+              {x: "2021-11-06 13:39:30" , y: 3},
+              {x: "2021-11-07 23:39:30" , y: 1},
+              {x: "2021-11-08 23:39:30" , y: 9},
+            ],
+            borderColor: "#666699",
+            tension: 0.3
+          },
+          {
+            label: "asdfasdf",
+            data: [
+              {x: "2021-11-03 23:39:30" , y: 1},
+              {x: "2021-11-04 23:39:30" , y: -8},
+              {x: "2021-11-05 23:39:30" , y: -4},
+              {x: "2021-11-06 23:39:30" , y: 2},
+              {x: "2021-11-07 23:39:30" , y: 2},
+              {x: "2021-11-08 23:39:30" , y: 5},
+            ],
+            borderColor: "#666699",
+            tension: 0.3
+          },
+        ]
+    }
+
+    graphOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: "black"
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: "time",
+          time: {
+            unit: "week",
+          },
+          ticks: {
+            color: "black"
+          },
+          grid: {
+            color: "gray",
+          }
+        },
+        y: {
+          ticks: {
+            color: "gray"
+          },
+          grid: {
+            color: "gray",
+          }
+        }
+      }
+    };
+
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "line",
+      title: "Debts per week per user",
+      description: `This graph shows the debts per week per user.`
+    };
+
+    this.charts.unshift(finalData)
+
   }
 
   formatDataExpensesPayedPerPerson() {
@@ -296,7 +377,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -424,7 +505,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -556,7 +637,7 @@ export class VisualizationComponent implements OnInit {
         tooltip: {
           enabled: true,
           callbacks: {
-            label: function(tooltipItem) {
+            label: function (tooltipItem) {
               let label = tooltipItem.dataset.label || '';
               let value = tooltipItem.raw;
               return `Amount: ${value} €`;
@@ -604,7 +685,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -730,7 +811,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -843,7 +924,7 @@ export class VisualizationComponent implements OnInit {
       description: `This graph shows the amount of money each user has spent per month.`
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -949,6 +1030,7 @@ export class VisualizationComponent implements OnInit {
       }
     }
   }
+
   private getCategoryColor(alpha): string[] {
     return ['rgba(15, 81, 138, ' + alpha + ')', 'rgba(75, 192, 192, ' + alpha + ')', 'rgba(54, 162, 235, ' + alpha + ')', 'rgba(255, 205, 86, ' + alpha + ')', 'rgba(255, 99, 132, ' + alpha + ')', 'rgba(255, 159, 64, ' + alpha + ')'];
   }
