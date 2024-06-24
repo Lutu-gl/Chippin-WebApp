@@ -149,6 +149,8 @@ export class VisualizationComponent implements OnInit {
         //filter date
         this.expenses = res.filter(e => e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= dates[1].getTime());
 
+        console.log(this.expenses)
+
         this.formatDataForGraphs();
         this.formatDataForSpendEuroInCategory()
         this.formatDataExpensesPayedPerPerson()
@@ -744,6 +746,20 @@ export class VisualizationComponent implements OnInit {
       this.personExpensePayedMap.set(member, 0);
       this.personExpensePayedMapCash.set(member, 0);
       this.personAmountPayedMapCash.set(member, 0);
+
+      this.personAmountSpendEntertainmentMap.set(member, 0);
+      this.personAmountSpendFoodMap.set(member, 0);
+      this.personAmountSpendHealthMap.set(member, 0);
+      this.personAmountSpendShoppingMap.set(member, 0);
+      this.personAmountSpendTravelMap.set(member, 0);
+      this.personAmountSpendOtherMap.set(member, 0);
+
+      this.personExpensePayedEntertainmentMap.set(member, 0);
+      this.personExpensePayedFoodMap.set(member, 0);
+      this.personExpensePayedHealthMap.set(member, 0);
+      this.personExpensePayedShoppingMap.set(member, 0);
+      this.personExpensePayedTravelMap.set(member, 0);
+      this.personExpensePayedOtherMap.set(member, 0);
     }
   }
 
