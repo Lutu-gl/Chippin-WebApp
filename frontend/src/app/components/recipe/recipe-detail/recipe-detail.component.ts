@@ -406,16 +406,16 @@ export class RecipeDetailComponent implements OnInit {
     switch (unit) {
       case Unit.Gram:
         if (amount > 1000) {
-          return amount / 1000 + " kg";
+          return (amount / 1000).toLocaleString('de-DE') + " kg";
         }
         return amount + " g";
       case Unit.Milliliter:
         if (amount > 1000) {
-          return amount / 1000 + " l";
+          return (amount / 1000).toLocaleString('de-DE') + " l";
         }
-        return amount + " ml";
+        return amount.toLocaleString('de-DE') + " ml";
       case Unit.Piece:
-        return amount + " pcs";
+        return amount.toLocaleString('de-DE') + " pcs";
     }
   }
 
