@@ -125,12 +125,13 @@ export class VisualizationComponent implements OnInit {
 
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
-
         //Convert date from backend to Date()
         res.forEach(e => {
           let date: String[] = e.date.toString().split('-');
+
           date[2] = date[2].split('T')[0];
-          e.date = new Date(+date[0], +date[1], +date[2]);
+
+          e.date = new Date(+date[0], +date[1]-1, +date[2]);
           if(e.date.getTime() < this.minDate.getTime()) {
             this.minDate = e.date;
           }
@@ -141,7 +142,7 @@ export class VisualizationComponent implements OnInit {
           this.rangeDates = [this.minDate, this.today];
         }
 
-        if (res.length > 10) {
+        if (res.length >= 5) {
           this.minimumExpensesSatisfied = true;
         } else {
           this.minimumExpensesSatisfied = false;
@@ -149,8 +150,12 @@ export class VisualizationComponent implements OnInit {
         }
 
         //filter date
-        this.expenses = res.filter(e => e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= dates[1].getTime());
-
+        const endDate = new Date(dates[1].getTime());
+        endDate.setDate(endDate.getDate() + 1);
+        //this.expenses = res.filter(e => e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= dates[1].getTime());
+        this.expenses = res.filter(e =>
+          e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= endDate.getTime()
+        );
 
         this.formatDataForGraphs();
         this.formatDataForSpendEuroInCategory()
