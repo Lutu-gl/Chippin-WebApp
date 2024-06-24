@@ -35,6 +35,7 @@ describe("Create a Group", () => {
     cy.get("button").click();
     cy.get("app-root > div button").click();
 	
+	cy.wait(1000)
     cy.get('.text-black > .p-ripple').click({ force: true });
     cy.get("#email").type("tf2a@email.com");
     cy.get('.text-black > .p-ripple');
