@@ -3,6 +3,7 @@
   [(visible)]="isShoppingListDialogVisible"
   [style]="{ width: '1500px', minHeight: '800px' }"
   [modal]="true"
+  (onHide)="closeUseShoppingListDialog()"
   styleClass="p-fluid">
   <ng-template pTemplate="header">
     <div>
@@ -132,6 +133,7 @@
   [(visible)]="isPantryDialogVisible"
   [style]="{ width: '1500px', minHeight: '800px' }"
   [modal]="true"
+  (onHide)="closeUsePantryDialog()"
   styleClass="p-fluid">
   <ng-template pTemplate="header">
     <div>
@@ -336,10 +338,10 @@
   <!-- Ingredients -->
   <div class="p-4 max-w-2xl text-left">
     <ng-container *ngFor="let ingredient of recipe.ingredients; let i = index">
-      <div [class.bg-blue-50]="i % 2 === 0" [class.bg-white]="i % 2 === 1" class="rounded p-2"
+      <div [class.bg-blue-50]="i % 2 === 0" [class.bg-white]="i % 2 === 1"
            class="rounded p-2 flex justify-between items-center">
         <span class="font-bold">{{ ingredient.description }}</span>
-        <span class="font-bold">{{ unitDisplayer(ingredient.unit, ingredient.amount) }}</span>
+        <span class="font-bold">{{ formatAmount(ingredient) }}</span>
       </div>
     </ng-container>
   </div>

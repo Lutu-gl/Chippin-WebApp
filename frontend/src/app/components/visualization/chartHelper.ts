@@ -4,10 +4,12 @@ import {ExpenseDetailDto} from "../../dtos/expense";
 export function groupExpensesByUserEmail(expenses: ExpenseDetailDto[]): { [userEmail: string]: ExpenseDetailDto[] } {
   let result: { [userEmail: string]: ExpenseDetailDto[] } = {};
   expenses.forEach(expense => {
-    if (!result[expense.payerEmail]) {
-      result[expense.payerEmail] = [];
+    if (!expense.deleted){
+      if (!result[expense.payerEmail]) {
+        result[expense.payerEmail] = [];
+      }
+      result[expense.payerEmail].push(expense);
     }
-    result[expense.payerEmail].push(expense);
   })
   return result;
 }

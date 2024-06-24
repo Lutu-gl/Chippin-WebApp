@@ -4,6 +4,7 @@ import { AcceptFriendRequest, FriendRequest } from 'src/app/dtos/friend-request'
 import { AuthService } from 'src/app/services/auth.service';
 import { FriendshipService } from 'src/app/services/friendship.service';
 import { MessageService } from "primeng/api";
+import { Globals } from 'src/app/global/globals';
 
 
 @Component({
@@ -30,6 +31,7 @@ export class FriendsComponent implements OnInit {
     public authService: AuthService,
     private friendshipService: FriendshipService,
     private messageService: MessageService,
+    public globals: Globals
   ) { }
 
   ngOnInit(): void {
@@ -96,7 +98,6 @@ export class FriendsComponent implements OnInit {
     this.friendInfoEmail = friend;
     const friendInfo = this.friends.find(f => f.email === friend);
     this.friendInfoTotalAmount = friendInfo.totalAmount;
-    console.log(friendInfo.groupAmounts);
     this.friendInfoGroupAmounts = Object.values(friendInfo.groupAmounts);
     this.isFriendInfoDialogVisible = true;
   }

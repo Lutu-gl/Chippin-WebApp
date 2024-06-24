@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgForm, NgModel} from "@angular/forms";
+import {NgForm} from "@angular/forms";
 import {Observable} from "rxjs";
 import {RecipeCreateWithoutUserDto, RecipeDetailDto} from "../../../dtos/recipe";
 import {
@@ -22,7 +22,6 @@ import {ConfirmationService, MessageService} from "primeng/api";
 
 export class RecipeEditComponent implements OnInit {
   error = false;
-  errorMessage = '';
   recipe: RecipeDetailDto = {
     name: '',
     ingredients: [],
@@ -59,7 +58,7 @@ tooSmall=false;
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
   ) {
   }
 
@@ -281,7 +280,6 @@ tooSmall=false;
 
     this.service.updateItemInRecipe(this.itemToEdit, this.recipe.id).subscribe({
       next: dto => {
-        console.log("Updated item: ", dto);
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',

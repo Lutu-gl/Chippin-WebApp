@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.ItemDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeDetailWithUserInfoDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeListDto;
@@ -128,7 +127,7 @@ public interface RecipeService {
     RecipeDetailDto dislikeRecipe(long recipeId, ApplicationUser user) throws AlreadyRatedException;
 
     /**
-     * Return a list of recipes from user whose name matches the searchparams.
+     * Return a list of recipes from user whose name matches the searchParams.
      *
      * @param owner        the owner whose recipes should be returned
      * @param searchParams the string that should find a name
@@ -137,7 +136,7 @@ public interface RecipeService {
     List<RecipeListDto> searchOwnRecipe(ApplicationUser owner, String searchParams);
 
     /**
-     * Return a list of recipes the user liked whose name matches the searchparams.
+     * Return a list of recipes the user liked whose name matches the searchParams.
      *
      * @param owner        the owner whose recipes should be returned
      * @param searchParams the string that should find a name
@@ -147,7 +146,7 @@ public interface RecipeService {
 
 
     /**
-     * Return a list of recipes whose name matches the searchparams.
+     * Return a list of recipes whose name matches the searchParams.
      *
      * @param searchParams the string that should find a name
      * @return a list of all matching recipes

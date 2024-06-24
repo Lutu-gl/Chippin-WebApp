@@ -192,9 +192,6 @@ export class GroupCreateComponent implements OnInit {
     }
 
     var memberGroupSaved = JSON.parse(JSON.stringify(this.group.members));
-    console.log(this.group.members)
-    console.log(this.membersEmails)
-    console.log(this.membersEmailsEdit)
 
     if (form.valid) {
       let observable: Observable<GroupDto>;
@@ -219,8 +216,6 @@ export class GroupCreateComponent implements OnInit {
           console.error('Unknown GroupCreateEditMode', this.mode);
           return;
       }
-      console.log("final: ")
-      console.log(this.group.members)
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully ${this.modeActionFinished}.`});
@@ -234,7 +229,6 @@ export class GroupCreateComponent implements OnInit {
         },
         error: error => {
           this.group.members = memberGroupSaved;
-          console.log(error);
           if (error && error.error && error.error.errors) {
             //this.notification.error(`${error.error.errors.join('. \n')}`);
             for (let i = 0; i < error.error.errors.length; i++) {
@@ -263,11 +257,6 @@ export class GroupCreateComponent implements OnInit {
     }
   }
 
-  public formatMember(member: UserSelection | null): string {
-    return !member
-      ? ""
-      : `${member.email}`
-  }
 
   public addMember(member: AutoCompleteSelectEvent) {
       setTimeout(() => {
@@ -302,12 +291,6 @@ export class GroupCreateComponent implements OnInit {
     }
     this.membersEmailsEdit.push(member.value);
   }
-
-  memberSuggestions = (input: string): Observable<UserSelection[]> =>
-    this.friendshipService.getFriends()
-      .pipe(map(members => members.map((h) => ({
-        email: h
-      }))));
 
   public removeMember(index: number) {
     if (this.authService.getEmail() == this.membersEmails[index]) {
@@ -361,9 +344,6 @@ export class GroupCreateComponent implements OnInit {
     return this.membersEmails;
   }
 
-  getSortedMembersEmail(): string[] {
-    return this.membersEmails.sort((a, b) => a.localeCompare(b));
-  }
 
   getSortedGroupMembersEmail(): string[] {
     return this.group.members.sort((a, b) => a.localeCompare(b));
@@ -373,9 +353,6 @@ export class GroupCreateComponent implements OnInit {
   getMembersEmailEdit(): string[] {
     return this.membersEmailsEdit;
     // return this.membersEmails.filter(member => !this.group.members.includes(member));
-  }
-  getSortedMembersEmailEdit(): string[] {
-    return this.membersEmails.sort((a, b) => a.localeCompare(b)).filter(member => !this.group.members.includes(member));
   }
 
   protected readonly GroupCreateEditMode = GroupCreateEditMode;
@@ -394,7 +371,6 @@ export class GroupCreateComponent implements OnInit {
 
       accept: () => {
         this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: this.modalButtonCanceledText });
-        //this.router.navigate(['/group', this.group.id]);
         if(this.mode === GroupCreateEditMode.create) {
           this.router.navigate(['/home/groups']);
           return;
@@ -402,7 +378,6 @@ export class GroupCreateComponent implements OnInit {
         this.router.navigate(['/group/' + this.group.id]);
       },
       reject: () => {
-        // this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'You have rejected' });
       }
     });
   }

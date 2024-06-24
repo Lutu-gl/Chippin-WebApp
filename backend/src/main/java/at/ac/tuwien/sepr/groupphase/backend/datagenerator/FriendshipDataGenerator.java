@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -40,7 +39,7 @@ public class FriendshipDataGenerator implements DataGenerator {
             Set<ApplicationUser> users = group.getUsers();
             List<ApplicationUser> sortedUsers = users.stream()
                 .sorted(Comparator.comparing(ApplicationUser::getEmail))
-                .collect(Collectors.toList());
+                .toList();
 
             for (int i = 0; i < sortedUsers.size(); i++) {
                 for (int j = i + 1; j < sortedUsers.size(); j++) {

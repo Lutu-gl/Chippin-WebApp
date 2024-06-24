@@ -51,7 +51,6 @@ export class HomeComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       const tab = params.get('tab');
-      console.log(params)
       switch (tab) {
         case 'friends':
           this.tabMenuActiveItem = this.tabMenuItems[0];

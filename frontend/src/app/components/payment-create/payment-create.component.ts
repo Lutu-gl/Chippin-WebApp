@@ -178,7 +178,6 @@ export class PaymentCreateComponent implements OnInit {
     if(paymentId) {
       this.service.getPaymentById(paymentId).subscribe({
         next: data => {
-          console.log(data)
           this.payment = data;
           this.paymentDeleted = data.deleted;
         },

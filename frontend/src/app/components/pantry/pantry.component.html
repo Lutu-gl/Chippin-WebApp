@@ -61,7 +61,7 @@
           required/>
         <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem)">Amount is merged.</small>
       </div>
-      <div class="field pt-5">
+      <div class="field pt-5" pTooltip="The item is highlighted when the amount is below the minimum">
         <label for="lowerLimit">Minimum</label>
         <p-inputNumber
           id="lowerLimit"
@@ -171,7 +171,7 @@
                 [suffix]="getSuffixForCreateEdit(itemMergeEdit)"
                 required/>
             </div>
-            <div class="field pt-5">
+            <div class="field pt-5" pTooltip="The item is highlighted when the amount is below the minimum">
               <label for="itemToMergeWithLowerLimit">Minimum</label>
               <p-inputNumber
                 id="itemToMergeWithLowerLimit"

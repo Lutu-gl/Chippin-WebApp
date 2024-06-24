@@ -16,7 +16,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
@@ -57,20 +56,17 @@ public class RecipeEndpoint {
     private final UserService userService;
     private final PantryService pantryService;
     private final ShoppingListService shoppingListService;
-    private final UserRepository userRepository;
 
 
     @Autowired
     public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService,
-                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService,
-                          UserRepository userRepository) {
+                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
         this.recipeMapper = recipeMapper;
         this.userService = userService;
         this.pantryService = pantryService;
         this.shoppingListService = shoppingListService;
-        this.userRepository = userRepository;
     }
 
 
@@ -86,7 +82,7 @@ public class RecipeEndpoint {
     @PreAuthorize("@securityService.canAccessRecipe(#recipeId)")
     @GetMapping("/{recipeId}/recipe/info")
     public RecipeDetailWithUserInfoDto getByIdWithUserInfo(@PathVariable long recipeId) {
-        LOGGER.trace("GET /api/v1/group/{}/recipe", recipeId);
+        LOGGER.trace("GET /api/v1/group/{}/recipe/info", recipeId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ApplicationUser user = userService.findApplicationUserByEmail(authentication.getName());
         return recipeService.getByIdWithInfo(recipeId, user);
@@ -166,6 +162,7 @@ public class RecipeEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @PreAuthorize("@securityService.canEditRecipe(#recipeId)")
     @PutMapping("/{recipeId}/recipe")
     public ItemDto updateItem(@PathVariable long recipeId, @Valid @RequestBody ItemDto itemDto) {
         LOGGER.trace("PUT /api/v1/group/{}/pantry body: {}", recipeId, itemDto);

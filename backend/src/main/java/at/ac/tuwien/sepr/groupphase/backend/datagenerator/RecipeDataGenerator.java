@@ -1865,6 +1865,44 @@ public class RecipeDataGenerator implements DataGenerator {
         recipeRepository.saveAndFlush(newRecipe26);
         userRepository.saveAndFlush(user1);
 
+        Recipe newRecipe27 = Recipe.builder()
+            .owner(user1)
+            .isPublic(true)
+            .portionSize(8)
+            .description("Experience the vibrant flavors of this Coconut Vegetable Curry, "
+                + "a delightful dish that combines aromatic spices with creamy coconut milk and "
+                + "fresh vegetables. Perfect for a hearty meal, this curry is both comforting and "
+                + "packed with nutrients. Serve it with steamed rice or warm naan bread for a complete "
+                + "and satisfying meal. "
+                + "Instructions:\n"
+                + "1. Prepare the Ingredients:\n"
+                + "   - Wash and chop the vegetables from the vegetable mix into bite-sized pieces.\n"
+                + "   - Measure out the spices (curry powder, cumin, and turmeric) and have them ready.\n\n"
+                + "2. Cook the Vegetables:\n"
+                + "   - In a large pan, heat a tablespoon of oil over medium heat.\n"
+                + "   - Add the chopped vegetables and sauté until they start to soften, about 5-7 minutes.\n\n"
+                + "3. Add the Spices:\n"
+                + "   - Stir in the curry powder, cumin, and turmeric. Cook for an additional 2-3 minutes, allowing the spices to release their flavors.\n\n"
+                + "4. Add the Coconut Milk:\n"
+                + "   - Pour in the coconut milk and bring the mixture to a gentle simmer. Let it cook for about 10-15 minutes,"
+                + " or until the vegetables are tender and the flavors have melded together.\n\n"
+                + "5. Finish with Crème Fraîche:\n"
+                + "   - Stir in the crème fraîche and let the curry simmer for another 2-3 minutes, ensuring everything is well combined and heated through.\n\n"
+                + "6. Serve:\n"
+                + "   - Serve the coconut vegetable curry hot, garnished with fresh herbs like cilantro if desired. Pair with steamed rice or naan bread.\n\n"
+                + "Enjoy the comforting and exotic flavors of this Coconut Vegetable Curry, a dish that is sure to become a favorite in your recipe collection.")
+            .name("Coconut Vegetable Curry")
+            .build();
+        newRecipe27.addIngredient(Item.builder().description("Currypowder").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Coconut Milk").amount(500).unit(Unit.Milliliter).build());
+        newRecipe27.addIngredient(Item.builder().description("Vegetable Mix").amount(2).unit(Unit.Piece).build());
+        newRecipe27.addIngredient(Item.builder().description("Cumin").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Curcuma").amount(30).unit(Unit.Gram).build());
+        newRecipe27.addIngredient(Item.builder().description("Creme Fraiche").amount(259).unit(Unit.Milliliter).build());
+        user1.addRecipe(newRecipe26);
+        recipeRepository.saveAndFlush(newRecipe27);
+        userRepository.saveAndFlush(user1);
+
         List<Recipe> recipes = recipeRepository.findByIsPublicTrueOrderByLikesDesc();
 
         Random random = new Random();

@@ -135,13 +135,13 @@
       <div *ngFor="let member of members" class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
           <p-checkbox
-            [readonly]="modeIsInfo()"
+            [disabled]="modeIsInfo()"
             [(ngModel)]="member.isParticipating"
             (onChange)="expenseAmountChange($event)"
             [binary]="true"
             type="binary"
           />
-          <label class="block text-sm font-medium text-gray-700">{{ member.email }}</label>
+          <label class="block text-sm font-medium text-gray-700">{{ globals.truncateToChars(member.email, 20) }}</label>
         </div>
         <p-inputNumber
           [disabled]="modeIsInfo()"

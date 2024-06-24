@@ -45,13 +45,10 @@ export class ExpenseListComponent implements OnChanges {
   fetchExpenses(): void {
     this.activityService.getExpenseActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
-        console.log(data);
         this.expenseList = data;
       },
       error: error => {
-        console.log(error);
         if (error && error.error && error.error.errors) {
-          //this.notification.error(`${error.error.errors.join('. \n')}`);
           for (let i = 0; i < error.error.errors.length; i++) {
             this.notification.error(`${error.error.errors[i]}`);
           }
@@ -71,12 +68,9 @@ export class ExpenseListComponent implements OnChanges {
     this.activityService.getPaymentActivitiesFromGroup(this.groupId, this.searchCriteria).subscribe({
       next: data => {
         this.expenseList = data;
-        console.log(data)
       },
       error: error => {
-        console.log(error);
         if (error && error.error && error.error.errors) {
-          //this.notification.error(`${error.error.errors.join('. \n')}`);
           for (let i = 0; i < error.error.errors.length; i++) {
             this.notification.error(`${error.error.errors[i]}`);
           }

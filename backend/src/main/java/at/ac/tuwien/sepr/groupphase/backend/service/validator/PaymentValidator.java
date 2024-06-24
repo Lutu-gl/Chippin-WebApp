@@ -146,7 +146,7 @@ public class PaymentValidator {
         List<String> validationErrors = new ArrayList<>();
 
         //checkCreatorEmailEqualsPayerEmail(paymentDto, creatorEmail, validationErrors);
-        checkCreatorEmailEqualsPayerOrReceiverEmail(paymentDto, creatorEmail, validationErrors);
+        //checkCreatorEmailEqualsPayerOrReceiverEmail(paymentDto, creatorEmail, validationErrors);
         checkReceiverNotEqualPalyerEmail(paymentDto, validationErrors);
         checkOnlyAmountChanged(paymentDto, existingPayment, validationErrors);
 
