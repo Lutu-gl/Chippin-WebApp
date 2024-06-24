@@ -30,7 +30,7 @@ public class GroupDataGenerator implements DataGenerator {
     public void generateData() {
         LOGGER.trace("generating data for group");
         final Random random = new Random();
-        random.setSeed(12345);
+        random.setSeed(13);
 
         ApplicationUser user1 = userRepository.findByEmail("luca@chippin.com");
         ApplicationUser user2 = userRepository.findByEmail("max@chippin.com");
