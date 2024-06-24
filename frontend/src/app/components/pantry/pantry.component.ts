@@ -236,7 +236,6 @@ export class PantryComponent implements OnInit {
       lowerLimit: null,
     };
     this.createEditItemReset = {...this.createEditItem}
-    console.log(this.createEditItemReset);
     this.edit = true;
     this.itemToEditId = item.id;
     this.submitted = false;
@@ -252,7 +251,6 @@ export class PantryComponent implements OnInit {
 
       this.service.createItem(this.id, pantryItemCreateDisplayDtoToPantryItemCreateDto(this.createEditItem)).subscribe({
         next: dto => {
-          console.log("Created new item: ", dto);
           this.messageService.add({
             severity: 'success',
             summary: 'Successful',
@@ -288,7 +286,6 @@ export class PantryComponent implements OnInit {
 
       this.service.updateItem(pantryItemCreateDisplayDtoToPantryItemDetailDto(this.createEditItem, this.itemToEditId), this.id).subscribe({
         next: dto => {
-          console.log("Updated item: ", dto);
           this.messageService.add({
             severity: 'success',
             summary: 'Successful',
@@ -333,7 +330,6 @@ export class PantryComponent implements OnInit {
 
       this.service.mergeItems(mergeDto, this.id).subscribe({
         next: dto => {
-          console.log("Updated item: ", dto);
           this.messageService.add({
             severity: 'success',
             summary: 'Successful',
@@ -368,7 +364,6 @@ export class PantryComponent implements OnInit {
     this.itemMergeEdit = {...this.itemMergeEdit};
     this.itemMergeEdit.amount += baseItem.unit === this.itemMergeEdit.unit ? baseItem.amount : 0;
     this.itemMergeEditReset = {...this.itemMergeEdit};
-    console.log(this.itemMergeEditReset);
   }
 
   resetEditItem() {
@@ -447,7 +442,6 @@ export class PantryComponent implements OnInit {
     }
     this.service.updateItem(item, this.id).subscribe({
       next: result => {
-        console.log(result);
       },
       error: error => {
         console.error(error);
@@ -465,7 +459,6 @@ export class PantryComponent implements OnInit {
     }
     this.service.updateItem(item, this.id).subscribe({
       next: result => {
-        console.log(result);
       },
       error: error => {
         console.error(error);
@@ -480,10 +473,8 @@ export class PantryComponent implements OnInit {
     let getRecipesDto: GetRecipesDto = {
       itemIds: this.selectedItems.map(i => i.id)
     }
-    console.log(getRecipesDto);
     this.service.getRecipes(this.id, getRecipesDto).subscribe({
       next: res => {
-        console.log(res);
         this.recipes = res;
       }, error: err => {
         console.error(err);
@@ -623,8 +614,6 @@ export class PantryComponent implements OnInit {
         this.getPantry(this.id);
       },
       error: error => {
-        console.log(error)
-        console.log(error.error)
         if (error && error.error && error.error.errors) {
           for (let i = 0; i < error.error.errors.length; i++) {
             this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});

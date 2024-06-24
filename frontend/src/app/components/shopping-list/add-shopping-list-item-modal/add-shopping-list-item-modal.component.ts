@@ -55,7 +55,6 @@ export class AddShoppingListItemModalComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    console.log("submitting form")
     if (!form.valid) {
       this.notifications.error('Please fill out all fields');
     }

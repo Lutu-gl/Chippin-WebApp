@@ -17,7 +17,7 @@ export class Globals {
 
   truncateToChars(text: string, amountOfChars: number): string {
     if (text.length > amountOfChars) {
-      return text.substring(0, amountOfChars) + ' ...';
+      return text.substring(0, amountOfChars) + '...';
     }
     return text;
   }

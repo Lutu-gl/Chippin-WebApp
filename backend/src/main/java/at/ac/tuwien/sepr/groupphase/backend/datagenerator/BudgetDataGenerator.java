@@ -51,7 +51,7 @@ public class BudgetDataGenerator implements DataGenerator {
             expenses = expenseRepository.findAllByGroupId(group.getId());
 
             if (group.getGroupName().equals("Chippin")) {
-                generateDataForChippin(group, random, categories, firstOfMonth, expenses);
+                generateDataForChippin(group, firstOfMonth, expenses);
             } else {
                 for (int i = 0; i < 3; i++) {
                     double amount = 1 + random.nextDouble() * 900;
@@ -88,7 +88,7 @@ public class BudgetDataGenerator implements DataGenerator {
     }
 
 
-    private void generateDataForChippin(GroupEntity group, Random random, Category[] categories, LocalDateTime firstOfMonth, List<Expense> expenses) {
+    private void generateDataForChippin(GroupEntity group, LocalDateTime firstOfMonth, List<Expense> expenses) {
         if (group.getGroupName().equals("Chippin")) {
             double spent = calculateAlreadySpent(expenses, Category.Food, firstOfMonth.minusMonths(1));
 

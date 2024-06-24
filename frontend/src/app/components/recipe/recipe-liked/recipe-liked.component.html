@@ -22,7 +22,7 @@
       <div class="flex items-center space-x-4">
         <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">{{ recipe.name[0] }}</div>
         <div>
-          <div class="font-bold">{{ recipe.name }}</div>
+          <div class="font-bold">{{ globals.truncateToChars(recipe.name,25) }}</div>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import {RecipeGlobalListDto, RecipeListDto, RecipeSearch} from "../../dtos/recip
 import {RecipeService} from "../../services/recipe.service";
 import {debounceTime, Subject} from "rxjs";
 import {MessageService} from "primeng/api";
+import {Globals} from "../../global/globals";
 
 
 @Component({
@@ -25,6 +26,7 @@ export class RecipeComponent implements OnInit {
   constructor(
     private service: RecipeService,
     private messageService: MessageService,
+    public globals: Globals
   ) {
   }
 

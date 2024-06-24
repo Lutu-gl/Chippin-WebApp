@@ -18,7 +18,7 @@
       <div class="flex items-center space-x-4">
         <div class="bg-gray-300 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold" [routerLink]="['/recipe', 'viewer', recipe.id]">{{ recipe.name[0] }}</div>
         <div [routerLink]="['/recipe', 'viewer', recipe.id]">
-          <div class="font-bold">{{ recipe.name }}</div>
+          <div class="font-bold">{{ globals.truncateToChars(recipe.name,20) }}</div>
         </div>
       </div>
       <div class="ml-auto flex items-center space-x-4">

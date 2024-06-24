@@ -50,7 +50,6 @@ export class AuthService {
   }
 
   logoutUser() {
-    console.log('Logout');
     localStorage.removeItem('authToken');
   }
 
@@ -67,22 +66,6 @@ export class AuthService {
       return decoded.userId;
     }
     return null;
-  }
-
-  /**
-   * Returns the user role based on the current token
-   */
-  getUserRole() {
-    if (this.getToken() != null) {
-      const decoded: any = jwtDecode(this.getToken());
-      const authInfo: string[] = decoded.rol;
-      if (authInfo.includes('ROLE_ADMIN')) {
-        return 'ADMIN';
-      } else if (authInfo.includes('ROLE_USER')) {
-        return 'USER';
-      }
-    }
-    return 'UNDEFINED';
   }
 
   private setToken(authResponse: string) {
