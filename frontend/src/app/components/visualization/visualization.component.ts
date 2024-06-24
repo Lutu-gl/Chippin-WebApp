@@ -825,11 +825,9 @@ export class VisualizationComponent implements OnInit {
 
 
     for (let participant in expense.participants) {
-      if (participant !== payerEmail) {
-        let amount = expense.participants[participant];
-        let currentAmount = personAmountPayedMapCash.get(participant) || 0;
-        personAmountPayedMapCash.set(participant, Number((currentAmount + amount * expense.amount).toFixed(2)));
-      }
+      let amount = expense.participants[participant];
+      let currentAmount = personAmountPayedMapCash.get(participant) || 0;
+      personAmountPayedMapCash.set(participant, Number((currentAmount + amount * expense.amount).toFixed(2)));
     }
   }
   private getCategoryColor(alpha): string[] {

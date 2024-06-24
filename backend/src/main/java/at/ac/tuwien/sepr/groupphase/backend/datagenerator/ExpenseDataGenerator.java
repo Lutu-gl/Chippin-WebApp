@@ -142,7 +142,6 @@ public class ExpenseDataGenerator implements DataGenerator {
             LocalDateTime endDate = fixedDateTime.minusDays(2);
 
 
-            random.setSeed(12345);
             while (startDate.isBefore(endDate)) {
                 ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
 

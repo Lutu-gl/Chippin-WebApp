@@ -57,7 +57,7 @@ public class PaymentDataGenerator implements DataGenerator {
                     Payment.builder()
                         .payer(usersInGroup.get(0))
                         .receiver(usersInGroup.get(4))
-                        .amount(500.0)
+                        .amount(200.0)
                         .date(fixedDateTime.minus(12, java.time.temporal.ChronoUnit.DAYS))
                         .group(group)
                         .deleted(false)
