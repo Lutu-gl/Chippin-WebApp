@@ -76,6 +76,7 @@ export class VisualizationComponent implements OnInit {
   minDate: Date = new Date();
 
   ngOnInit(): void {
+
     this.documentStyle = getComputedStyle(document.documentElement);
     this.route.params.subscribe({
       next: params => {
@@ -121,6 +122,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   getExpenses(dates: Date[]) {
+
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
 
@@ -149,7 +151,6 @@ export class VisualizationComponent implements OnInit {
         //filter date
         this.expenses = res.filter(e => e.date.getTime() >= dates[0].getTime() && e.date.getTime() <= dates[1].getTime());
 
-        console.log(this.expenses)
 
         this.formatDataForGraphs();
         this.formatDataForSpendEuroInCategory()
@@ -183,6 +184,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   formatDataExpensesPayedPerPerson() {
+
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
     const colorsCat = this.getCategoryColor(0.8)
 
@@ -303,6 +305,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   getExpenseMapForCategory(category: string): Map<string, number> {
+
     switch (category) {
       case "Food":
         return this.personExpensePayedFoodMap;
@@ -322,6 +325,8 @@ export class VisualizationComponent implements OnInit {
   }
 
   getExpenseMapForCategoryCash(category: string): Map<string, number> {
+
+
     switch (category) {
       case "Food":
         return this.personExpensePayedFoodMapCash;
@@ -341,6 +346,8 @@ export class VisualizationComponent implements OnInit {
   }
 
   getAmountSpendMapForCategoryCash(category: string): Map<string, number> {
+
+
     switch (category) {
       case "Food":
         return this.personAmountSpendFoodMap;
@@ -360,6 +367,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   formatDataForSpendEuroInCategory() {
+
     //Expenses per category
     let graphData: {
       labels: string[],
@@ -475,6 +483,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   private formatDataAmountSpendPerPerson() {
+
     const labelsCat = ["Food", "Travel", "Entertainment", "Health", "Shopping", "Other"];
     const colorsCat = this.getCategoryColor(0.8)
 
@@ -597,6 +606,8 @@ export class VisualizationComponent implements OnInit {
   // Each user will have a different color in the bar chart
   // The data will be stacked on top of each other
   formatDataForExpensesPerUserPerMonth() {
+
+
     let graphData: ChartData<"bar">;
     let graphOptions: ChartOptions<"bar">;
 
@@ -703,6 +714,8 @@ export class VisualizationComponent implements OnInit {
   }
 
   private formatDataForGraphs(): void {
+
+
     this.initAllMaps();
 
     for (let expense of this.expenses.filter(expense => !expense.deleted)) {
@@ -731,6 +744,7 @@ export class VisualizationComponent implements OnInit {
 
   // this initialization is necessary to keep colors of category the same for each chart
   private initAllMaps() {
+
     this.categoryExpenseMap = new Map<string, number>();
     this.categoryExpenseMap.set('Food', 0);
     this.categoryExpenseMap.set('Travel', 0);
@@ -803,6 +817,8 @@ export class VisualizationComponent implements OnInit {
   }
 
   private updateMapAmount(personAmountPayedMapCash: Map<string, number>, payerEmail: string, expense: ExpenseDetailDto) {
+
+
     for (let participant in expense.participants) {
       if (participant !== payerEmail) {
         let amount = expense.participants[participant];
@@ -813,5 +829,18 @@ export class VisualizationComponent implements OnInit {
   }
   private getCategoryColor(alpha): string[] {
     return ['rgba(15, 81, 138, ' + alpha + ')', 'rgba(75, 192, 192, ' + alpha + ')', 'rgba(54, 162, 235, ' + alpha + ')', 'rgba(255, 205, 86, ' + alpha + ')', 'rgba(255, 99, 132, ' + alpha + ')', 'rgba(255, 159, 64, ' + alpha + ')'];
+  }
+
+  onDateSelect($event: Date) {
+    if (this.rangeDates && this.rangeDates.length === 2 && this.rangeDates[0] && this.rangeDates[1]) {
+      this.getExpenses(this.rangeDates);
+    }
+  }
+
+  calcPlaceholderForDateInput() {
+    if(this.rangeDates && this.rangeDates[0] && this.rangeDates[1]) {
+      return this.rangeDates[0].toLocaleDateString() + ' - ' + this.rangeDates[1].toLocaleDateString();
+    }
+    return ''
   }
 }
