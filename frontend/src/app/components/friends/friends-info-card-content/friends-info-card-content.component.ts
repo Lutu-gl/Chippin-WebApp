@@ -32,8 +32,6 @@ export class FriendsInfoCardContentComponent {
   constructor(
     public authService: AuthService,
     private friendshipService: FriendshipService,
-    private groupService: GroupService,
-    private debtService: DebtService,
     private notification: ToastrService,
   ) { }
   incomingFriendRequests: string[] = [];
@@ -52,18 +50,6 @@ export class FriendsInfoCardContentComponent {
 
       this.friendshipService.getFriends().subscribe({
         next: async data => {
-          // TODO: implement this later
-          // for (let friend of data) {
-          //   let totalDebt = 0.0;
-          //   const groups = await lastValueFrom(this.groupService.getGroups());
-          //   for (let group of groups) {
-          //     const detailedGroup = await lastValueFrom(this.groupService.getById(group.id))
-          //     if (detailedGroup.members.some(member => member.email === friend)) {
-          //       totalDebt += (await lastValueFrom(this.debtService.getDebtById(group.id))).membersDebts[friend];
-          //     }
-          //   }
-          //   this.friends.push({ email: friend, debt: totalDebt });
-          // }
         },
         error: error => {
           this.printError(error);
