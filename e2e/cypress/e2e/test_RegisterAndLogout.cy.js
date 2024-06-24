@@ -1,5 +1,5 @@
-describe("Test2", () => {
-  it("tests Test2", () => {
+describe("Register User and Logout", () => {
+  it("register and then logout should work", () => {
     cy.viewport(1903, 495);
     cy.visit("http://localhost:4200/#/login");
     cy.visit("http://localhost:4200/#/");
