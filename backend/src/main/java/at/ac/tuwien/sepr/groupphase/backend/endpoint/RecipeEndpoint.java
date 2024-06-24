@@ -16,7 +16,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RecipeMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AlreadyRatedException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryService;
 import at.ac.tuwien.sepr.groupphase.backend.service.RecipeService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShoppingListService;
@@ -57,20 +56,17 @@ public class RecipeEndpoint {
     private final UserService userService;
     private final PantryService pantryService;
     private final ShoppingListService shoppingListService;
-    private final UserRepository userRepository;
 
 
     @Autowired
     public RecipeEndpoint(RecipeService recipeService, ItemMapper itemMapper, UserService userService,
-                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService,
-                          UserRepository userRepository) {
+                          RecipeMapper recipeMapper, PantryService pantryService, ShoppingListService shoppingListService) {
         this.recipeService = recipeService;
         this.itemMapper = itemMapper;
         this.recipeMapper = recipeMapper;
         this.userService = userService;
         this.pantryService = pantryService;
         this.shoppingListService = shoppingListService;
-        this.userRepository = userRepository;
     }
 
 

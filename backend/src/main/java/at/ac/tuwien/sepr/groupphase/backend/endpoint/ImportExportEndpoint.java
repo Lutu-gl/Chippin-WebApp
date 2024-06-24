@@ -4,7 +4,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.EmailSugge
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.importexport.ImportDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImportExportService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/")
@@ -40,7 +38,6 @@ import java.util.List;
 public class ImportExportEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ImportExportService importExportService;
-    private final ObjectMapper objectMapper;
 
     @Secured("ROLE_USER")
     @PostMapping(value = "import/splitwise/email-suggestions")

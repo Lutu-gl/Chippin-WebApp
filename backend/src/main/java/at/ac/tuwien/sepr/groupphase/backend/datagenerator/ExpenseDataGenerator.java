@@ -7,7 +7,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
-import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -36,7 +34,7 @@ public class ExpenseDataGenerator implements DataGenerator {
     private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static String[] expenseNames = {
+    private static final String[] expenseNames = {
         "To Engel Hotel", "Larcher Restaurant", "BurgerNKings Snack Bar", "Kebab House",
         "Pizzeria Restaurant", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut",
         "Gas Station", "Cinema", "Shopping Mall", "Rent", "Electricity Bill", "Mobile Phone Bill",
@@ -60,10 +58,8 @@ public class ExpenseDataGenerator implements DataGenerator {
     @Transactional
     public void generateData() {
         LOGGER.trace("generating data for expense");
-        List<ApplicationUser> users = userRepository.findAll();
         List<GroupEntity> groups = groupRepository.findAll();
         Random random = new Random(12);
-        Faker faker = new Faker(Locale.getDefault(), random);
 
         groups.sort(Comparator.comparing(GroupEntity::getGroupName));
         Category[] categories = Category.values();
@@ -78,9 +74,7 @@ public class ExpenseDataGenerator implements DataGenerator {
 
             // Chippin group
             if (group.getGroupName().equals("Chippin")) {
-                //generateDataForChippin(group, usersInGroup, random);
                 generateDataForChippinExtended(group, usersInGroup, random, categories);
-                continue;
             } else {
                 generateDataForGroupsExtended(group, usersInGroup, random, categories);
             }
@@ -106,8 +100,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 participantsList.set(random.nextInt(3), payer);
             }
 
-            int amountExpense = 10 + random.nextInt(100);
-            double doubleAmountExpense = (double) amountExpense;
+            double doubleAmountExpense = 10 + random.nextInt(100);
 
             double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
             double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
@@ -163,9 +156,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 if (!participantsList.contains(payer)) {
                     participantsList.set(random.nextInt(3), payer);
                 }
-
-                int amountExpense = 10 + random.nextInt(70);
-                double doubleAmountExpense = (double) amountExpense;
+                double doubleAmountExpense = 10 + random.nextInt(70);
 
                 double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
                 double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
@@ -267,24 +258,6 @@ public class ExpenseDataGenerator implements DataGenerator {
         }
     }
 
-
-    private double[] generateRandomSplits() {
-        Random random = new Random();
-        random.setSeed(12345);
-        double r1 = random.nextDouble();
-        double r2 = random.nextDouble();
-        double total = r1 + r2 + 1.0;
-
-        double split1 = r1 / total;
-        double split2 = r2 / total;
-        double split3 = 1.0 / total;
-
-        return new double[]{split1, split2, split3};
-    }
-
-    private double roundToTwoDecimalPlaces(double value) {
-        return Math.round(value * 100.0) / 100.0;
-    }
 
     @Override
     public void cleanData() {
