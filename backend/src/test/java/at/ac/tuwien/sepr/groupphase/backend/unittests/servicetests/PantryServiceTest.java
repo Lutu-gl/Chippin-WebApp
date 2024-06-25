@@ -6,16 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.RemoveIngredientsFromPantryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.item.pantryitem.PantryItemMergeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.pantry.GetRecipeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.recipe.RecipeByItemsDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ItemMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Item;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Pantry;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PantryItem;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Recipe;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Unit;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryItemRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PantryRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RecipeRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PantryItemService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.PantryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,25 +46,42 @@ public class PantryServiceTest {
     @Mock
     private ItemRepository itemRepository;
 
+    @Mock
+    private RecipeRepository recipeRepository;
+
+    @Mock
+    private ItemMapperImpl itemMapper;
+
     @InjectMocks
     private PantryServiceImpl pantryService;
 
     private Pantry pantry;
-
     private PantryItem pantryItem;
     private PantryItem existingItem;
-    private PantryItemDto existingItemDto;
     private PantryItemMergeDto mergeDto;
+    private Recipe recipe;
+    private Item item;
 
     @BeforeEach
     void setUp() {
         pantry = new Pantry();
         pantry.setId(1L);
 
+        recipe = Recipe.builder().description("Test description").id(1L).isPublic(true).name("Test Recipe").build();
+
+        item = new Item();
+        item.setId(10L);
+        item.setDescription("Test Item");
+        item.setAmount(5);
+        item.setUnit(Unit.Gram);
+
+        recipe.addIngredient(item);
+
         pantryItem = new PantryItem();
         pantryItem.setId(1L);
         pantryItem.setDescription("Test Item");
         pantryItem.setAmount(10);
+        pantryItem.setLowerLimit(12L);
         pantryItem.setUnit(Unit.Gram);
         pantryItem.setPantry(pantry);
 
@@ -69,7 +92,7 @@ public class PantryServiceTest {
         existingItem.setUnit(Unit.Gram);
         existingItem.setPantry(pantry);
 
-        existingItemDto = new PantryItemDto(1L, "Test Item", 10, Unit.Gram, null);
+        PantryItemDto existingItemDto = new PantryItemDto(1L, "Test Item", 10, Unit.Gram, null);
 
         mergeDto = PantryItemMergeDto.builder().itemToDeleteId(2L).result(existingItemDto).build();
     }
@@ -309,4 +332,57 @@ public class PantryServiceTest {
         verify(pantryItemRepository, never()).save(any(PantryItem.class));
     }
 
+    @Test
+    void testGetRecipes_Success() {
+        GetRecipeDto getRecipeDto = new GetRecipeDto();
+        getRecipeDto.setItemIds(new Long[]{1L});
+
+        when(pantryRepository.getReferenceById(pantry.getId())).thenReturn(pantry);
+        when(recipeRepository.findRecipesByItemIds(getRecipeDto.getItemIds(), null)).thenReturn(List.of(recipe));
+        when(itemMapper.listOfItemsToListOfItemDto(recipe.getIngredients())).thenCallRealMethod();
+        when(itemMapper.listOfPantryItemsToListOfPantryItemDto(anyList())).thenCallRealMethod();
+
+        List<RecipeByItemsDto> recipes = pantryService.getRecipes(getRecipeDto, pantry.getId(), null);
+
+        assertNotNull(recipes);
+        assertEquals(1, recipes.size());
+        assertEquals("Test Recipe", recipes.get(0).getName());
+        verify(pantryRepository, times(1)).getReferenceById(pantry.getId());
+        verify(recipeRepository, times(1)).findRecipesByItemIds(getRecipeDto.getItemIds(), null);
+    }
+
+    @Test
+    void testRemoveRecipeIngredientsFromPantry_Success() {
+        long recipeId = 1L;
+        int portion = 2;
+
+        when(recipeRepository.findAllIngredientsByRecipeId(recipeId)).thenReturn(List.of(item));
+        when(pantryItemRepository.findMatchingRecipeItemsInPantry(pantry.getId(), recipeId)).thenReturn(List.of(pantryItem));
+
+        RemoveIngredientsFromPantryDto dto = pantryService.removeRecipeIngredientsFromPantry(pantry.getId(), recipeId, portion);
+
+        assertNotNull(dto);
+        assertFalse(dto.getRecipeItems().isEmpty());
+        assertEquals(10L, dto.getRecipeItems().get(0).getId());
+        assertFalse(dto.getPantryItems().isEmpty());
+        assertEquals(1L, dto.getPantryItems().get(0).getId());
+        verify(recipeRepository, times(1)).findAllIngredientsByRecipeId(recipeId);
+        verify(pantryItemRepository, times(1)).findMatchingRecipeItemsInPantry(pantry.getId(), recipeId);
+    }
+
+    @Test
+    void testFindAllMissingItems_Success() {
+        when(pantryItemRepository.findAllMissingItems(pantry.getId())).thenReturn(List.of(pantryItem));
+        when(itemMapper.listOfPantryItemsToListOfPantryItemDto(List.of(pantryItem))).thenReturn(List.of(PantryItemDto.builder().amount(10).lowerLimit(12L).id(1L).description("Test Item").unit(Unit.Gram).build())); //.thenCallRealMethod();
+
+        List<PantryItemDto> missingItems = pantryService.findAllMissingItems(pantry.getId());
+
+        assertNotNull(missingItems);
+        assertEquals(1L, missingItems.get(0).getId());
+        assertEquals(2, missingItems.get(0).getAmount());
+        assertFalse(missingItems.isEmpty());
+        verify(pantryItemRepository, times(1)).findAllMissingItems(pantry.getId());
+        verify(itemMapper, times(1)).listOfPantryItemsToListOfPantryItemDto(List.of(pantryItem));
+    }
 }
+
