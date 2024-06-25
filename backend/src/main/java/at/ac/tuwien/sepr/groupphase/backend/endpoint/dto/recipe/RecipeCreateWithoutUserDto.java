@@ -37,7 +37,7 @@ public class RecipeCreateWithoutUserDto {
 
     @NotNull(message = "Recipe must have a description")
     @NotBlank(message = "Recipe must have a description")
-    @Size(min = 2, message = "Description must be longer than 2 characters")
+    @Size(min = 2, message = "Description must be longer than 2 characters", max = 15000)
     private String description;
 
     @NotNull
