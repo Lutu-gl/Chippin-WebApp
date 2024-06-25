@@ -47,7 +47,6 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     @Scheduled(cron = "0 0 0 1 * ?") //first day of every month at midnight
-    //@Scheduled(cron = "0 24 15 * * ?")
     @Transactional
     public void resetMonthlyBudgets() {
         LOGGER.trace("Resetting all monthly budgets");

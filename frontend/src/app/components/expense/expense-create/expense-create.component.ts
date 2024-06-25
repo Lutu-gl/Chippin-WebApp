@@ -317,8 +317,8 @@ export class ExpenseCreateComponent {
 
   submitValidation(): boolean {
     let returnValue = true;
-    if (!this.expenseName || /^[a-zA-Z][a-zA-Z0-9 ]{0,254}$/.test(this.expenseName) === false) {
-      this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Name must be between 1 and 255 characters long, start with a letter and only contain letters, numbers and spaces!'});
+    if (!this.expenseName || /^[a-zA-Z][a-zA-Z0-9 ]{0,25}$/.test(this.expenseName) === false) {
+      this.messageService.add({severity:'warn', summary:'Invalid Expense', detail:'Name must be between 1 and 25 characters long, start with a letter and only contain letters, numbers and spaces!'});
       returnValue = false;
     }
 

@@ -48,11 +48,6 @@
     <div *ngIf="modeIsInfo() && !paymentIsDeleted() && isUserInvolvedInPayment()" class="d-flex flex-row justify-content-between align-items-center mt-4">
       <!-- Delete payment -->
       <div class="me-2">
-        <!--
-          TODO: Add this to button
-          data-bs-toggle="modal"
-          data-bs-target="#confirmDeleteDialog"
-        -->
         <button
           class="btn btn-danger"
           (click)="deleteExistingPayment()"

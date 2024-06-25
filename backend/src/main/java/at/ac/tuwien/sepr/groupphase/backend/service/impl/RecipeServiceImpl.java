@@ -56,10 +56,10 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public List<Item> findItemsByDescription(String description, long recipeId) {
-        LOGGER.debug("Find all items in recipe with id {} matching the description \"{}\"", recipeId, description);
+        LOGGER.trace("Find all items in recipe with id {} matching the description \"{}\"", recipeId, description);
         Optional<Recipe> recipe = recipeRepository.findById(recipeId);
         if (recipe.isPresent()) {
-            LOGGER.debug("Found recipe: {}", recipe.get());
+            LOGGER.trace("Found recipe: {}", recipe.get());
             return itemRepository.findByDescriptionContainingIgnoreCaseAndRecipeIsOrderById(description, recipe.get());
         } else {
             throw new NotFoundException(String.format("Could not find recipe with id %s", recipeId));
@@ -69,7 +69,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public Item addItemToRecipe(Item item, long recipeId) {
-        LOGGER.debug("Add item {} to recipe with ID {}", item, recipeId);
+        LOGGER.trace("Add item {} to recipe with ID {}", item, recipeId);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
         if (optionalRecipe.isPresent()) {
             Recipe recipe = optionalRecipe.get();
@@ -83,7 +83,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public Item updateItem(ItemDto item, long recipeId) {
-        LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, recipeId);
+        LOGGER.trace("Update pantryItem {} in pantry with ID {}", item, recipeId);
         Optional<Recipe> optionalPantry = recipeRepository.findById(recipeId);
         if (optionalPantry.isPresent()) {
             Recipe recipe = optionalPantry.get();
@@ -103,7 +103,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public void deleteItem(long recipeId, long itemId) {
-        LOGGER.debug("Delete item {} in recipe with ID {}", itemId, recipeId);
+        LOGGER.trace("Delete item {} in recipe with ID {}", itemId, recipeId);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
         if (optionalRecipe.isPresent()) {
             Recipe recipe = optionalRecipe.get();
@@ -118,7 +118,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto createRecipe(RecipeCreateDto recipe) {
-        LOGGER.debug("Create recipe {}", recipe);
+        LOGGER.trace("Create recipe {}", recipe);
 
         List<Item> ingredients = itemMapper.listOfItemCreateDtoToListOfItemEntity(recipe.getIngredients());
         recipe.setIngredients(new ArrayList<>());
@@ -139,7 +139,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto getById(long id) {
-        LOGGER.debug("Get by Id: {}", id);
+        LOGGER.trace("Get by Id: {}", id);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
             return recipeMapper.recipeEntityToRecipeDetailDto(optionalRecipe.get());
@@ -151,7 +151,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public RecipeDetailWithUserInfoDto getByIdWithInfo(long id, ApplicationUser user) {
         user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
-        LOGGER.debug("Get by Id with info: {}", id);
+        LOGGER.trace("Get by Id with info: {}", id);
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
         if (optionalRecipe.isPresent()) {
             Recipe result = optionalRecipe.get();
@@ -183,7 +183,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public RecipeDetailDto updateRecipe(RecipeDetailDto toUpdate) {
-        LOGGER.debug("Update Recipe with ID {}", toUpdate.getId());
+        LOGGER.trace("Update Recipe with ID {}", toUpdate.getId());
         Optional<Recipe> optional = recipeRepository.findById(toUpdate.getId());
         if (optional.isPresent()) {
             Recipe fillInRecipe = optional.get();
@@ -199,7 +199,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public List<RecipeGlobalListDto> getPublicRecipeOrderedByLikes(ApplicationUser user) {
-        LOGGER.debug("Get all public recipes");
+        LOGGER.trace("Get all public recipes");
         user = userRepository.findApplicationUserByIdWithLikeInfo(user.getId());
         List<RecipeListDto> listDtos = recipeMapper.recipeEntityListToListOfRecipeListDto(recipeRepository.findByIsPublicTrueOrderByLikesDesc());
         List<RecipeGlobalListDto> resultLists = new ArrayList<>();
@@ -220,7 +220,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     @Transactional
     public void deleteRecipe(long id) {
-        LOGGER.debug("Delete recipe with id {}", id);
+        LOGGER.trace("Delete recipe with id {}", id);
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
 
         if (recipeOptional.isPresent()) {

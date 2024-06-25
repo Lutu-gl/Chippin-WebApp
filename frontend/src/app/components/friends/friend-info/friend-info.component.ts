@@ -32,7 +32,6 @@ export class FriendInfoComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // todo check if actually friend
     this.friendEmail = this.route.snapshot.paramMap.get('email');
     try {
       const groups = await lastValueFrom(this.groupService.getGroups());

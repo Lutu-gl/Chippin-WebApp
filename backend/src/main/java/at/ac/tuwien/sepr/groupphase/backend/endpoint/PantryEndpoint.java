@@ -63,7 +63,6 @@ public class PantryEndpoint {
     @GetMapping("/{pantryId}/pantry/search")
     public PantryDetailDto searchItemsInPantry(@PathVariable long pantryId, @Valid PantrySearchDto searchParams) {
         LOGGER.trace("GET /api/v1/group/{}/pantry/search", pantryId);
-        LOGGER.debug("request parameters: {}", searchParams);
         return new PantryDetailDto(itemMapper.listOfPantryItemsToListOfPantryItemDto(pantryService.findItemsByDescription(searchParams.getDetails(), pantryId)));
     }
 

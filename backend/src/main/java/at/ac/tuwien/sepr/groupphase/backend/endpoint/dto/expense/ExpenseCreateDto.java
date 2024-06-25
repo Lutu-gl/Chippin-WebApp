@@ -27,7 +27,7 @@ public class ExpenseCreateDto {
 
     @NotNull(message = "Expense name must be given")
     @NotBlank(message = "Expense name must not be empty")
-    @Size(max = 255, message = "Expense name is too long")
+    @Size(max = 25, message = "Expense name is too long")
     @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Invalid letters in the name (no special characters allowed)")
     private String name;
 

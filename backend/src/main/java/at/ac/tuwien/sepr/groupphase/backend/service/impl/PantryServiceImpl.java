@@ -48,10 +48,10 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public List<PantryItem> findAllItems(long pantryId) {
-        LOGGER.debug("Find all pantryItem in pantry with id {}", pantryId);
+        LOGGER.trace("Find all pantryItem in pantry with id {}", pantryId);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
-            LOGGER.debug("Found pantry: {}", pantry.get());
+            LOGGER.trace("Found pantry: {}", pantry.get());
             return pantry.get().getItems();
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
@@ -61,10 +61,10 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public List<PantryItem> findItemsByDescription(String description, long pantryId) {
-        LOGGER.debug("Find all pantryItem in pantry with id {} matching the description \"{}\"", pantryId, description);
+        LOGGER.trace("Find all pantryItem in pantry with id {} matching the description \"{}\"", pantryId, description);
         Optional<Pantry> pantry = pantryRepository.findById(pantryId);
         if (pantry.isPresent()) {
-            LOGGER.debug("Found pantry: {}", pantry.get());
+            LOGGER.trace("Found pantry: {}", pantry.get());
             return pantryItemRepository.findByDescriptionContainingIgnoreCaseAndPantryIsOrderById(description, pantry.get());
         } else {
             throw new NotFoundException(String.format("Could not find pantry with id %s", pantryId));
@@ -74,7 +74,7 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public Item addItemToPantry(PantryItem item, long pantryId) {
-        LOGGER.debug("Add pantryItem {} to pantry with ID {}", item, pantryId);
+        LOGGER.trace("Add pantryItem {} to pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
@@ -87,7 +87,7 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public void deleteItem(long pantryId, long itemId) {
-        LOGGER.debug("Delete pantryItem {} in pantry with ID {}", itemId, pantryId);
+        LOGGER.trace("Delete pantryItem {} in pantry with ID {}", itemId, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();
@@ -102,7 +102,7 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public void deleteItems(long pantryId, List<Long> itemIds) {
-        LOGGER.debug("Delete pantryItems {} in pantry with ID {}", itemIds, pantryId);
+        LOGGER.trace("Delete pantryItems {} in pantry with ID {}", itemIds, pantryId);
         for (long id : itemIds) {
             deleteItem(pantryId, id);
         }
@@ -111,7 +111,7 @@ public class PantryServiceImpl implements PantryService {
     @Override
     @Transactional
     public Item updateItem(PantryItem item, long pantryId) {
-        LOGGER.debug("Update pantryItem {} in pantry with ID {}", item, pantryId);
+        LOGGER.trace("Update pantryItem {} in pantry with ID {}", item, pantryId);
         Optional<Pantry> optionalPantry = pantryRepository.findById(pantryId);
         if (optionalPantry.isPresent()) {
             Pantry pantry = optionalPantry.get();

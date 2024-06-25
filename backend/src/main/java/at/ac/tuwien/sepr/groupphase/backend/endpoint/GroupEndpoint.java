@@ -92,8 +92,4 @@ public class GroupEndpoint {
         LOGGER.trace("getAllPaymentsById({})", id);
         return groupService.getAllPaymentsById(id);
     }
-
-    private void logClientError(HttpStatus status, String message, Exception e) {
-        LOGGER.warn("{} {}: {}: {}", status.value(), message, e.getClass().getSimpleName(), e.getMessage());
-    }
 }
