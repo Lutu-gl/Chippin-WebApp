@@ -38,18 +38,10 @@ public class DebtEndpointTest extends BaseTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ActivityRepository activityRepository;
-    @Autowired
-    private ExpenseRepository expenseRepository;
-
-    @Autowired
     private GroupRepository groupRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private PaymentRepository paymentRepository;
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -67,12 +59,12 @@ public class DebtEndpointTest extends BaseTest {
 
     @Test
     @Transactional
-    @WithMockUser("user1GE@example.com")
-    public void retreiveDebtOfNonExistingGroupShouldReturnNotFound() throws Exception {
+    @WithMockUser("user1@example.com")
+    public void retreiveDebtOfNonExistingGroupUsersIsNotPartOfShouldReturnNotAuthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/debt/-3666")
                 .contentType(MediaType.APPLICATION_JSON))
             //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("user1GE@example.com", ADMIN_ROLES)))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isForbidden());
     }
 
     @Test

@@ -152,7 +152,6 @@ public class GroupValidator {
 
         checkOwnerMemberOfGroupUpdate(groupCreateDto, ownerEmail, conflictErrors);
         checkGroupMembersExist(groupCreateDto, conflictErrors);
-        //TODO: checkNobodyDeletedWithExpenses(groupCreateDto, conflictErrors);
 
 
         if (!conflictErrors.isEmpty()) {

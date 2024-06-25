@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.servicetests;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.BaseTestGenAndClearBeforeAfterEach;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.debt.DebtGroupDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShoppingListMapperImpl;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -34,12 +33,6 @@ import static org.mockito.Mockito.when;
 public class DebtServiceTest extends BaseTestGenAndClearBeforeAfterEach {
     @Mock
     private ExpenseRepository expenseRepository;
-
-    @Spy
-    private ShoppingListMapperImpl shoppingListMapper;
-
-    @Mock
-    private UserRepository userRepository;
 
     @Mock
     private GroupRepository groupRepository;

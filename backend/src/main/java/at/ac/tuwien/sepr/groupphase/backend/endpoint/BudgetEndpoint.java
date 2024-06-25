@@ -59,7 +59,6 @@ public class BudgetEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     public BudgetDto createBudget(@PathVariable long groupId, @Valid @RequestBody BudgetCreateDto budgetCreateDto) throws ConflictException {
         LOGGER.trace("POST /api/v1/group/{}/budget", groupId);
-        //Budget budget = budgetMapper.budgetCreateDtoToBudget(budgetCreateDto);
         return budgetMapper.budgetToDto(budgetService.createBudget(budgetCreateDto, groupId));
     }
 

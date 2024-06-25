@@ -123,6 +123,21 @@ export class RecipeDetailComponent implements OnInit {
         next: dto => {
           this.addItemToShoppingListDto = dto;
           this.addItemToShoppingListDtoReset = JSON.parse(JSON.stringify(this.addItemToShoppingListDto));
+          this.selectedIngredients=this.addItemToShoppingListDtoReset.recipeItems
+            .filter(
+              i => (this.addItemToShoppingListDtoReset.pantryItems
+                .find(
+                  it => it.description===i.description &&
+                    it.amount < i.amount &&
+                    it.unit === i.unit)
+                || !this.addItemToShoppingListDtoReset.pantryItems
+                  .find(it => it.description === i.description))
+                && !this.addItemToShoppingListDtoReset.shoppingListItems
+                  .find(it => it.item.description === i.description &&
+                    it.item.amount >= i.amount &&
+                    it.item.unit === i.unit)
+
+            );
           this.shoppingList = {...this.shoppingList};
         }, error: error => {
           this.printError(error);
@@ -219,7 +234,7 @@ export class RecipeDetailComponent implements OnInit {
   reset() {
     if (this.addItemToShoppingListDtoReset) {
       this.addItemToShoppingListDto = JSON.parse(JSON.stringify(this.addItemToShoppingListDtoReset));
-
+      this.portion = this.recipe.portionSize;
     }
     if (this.removeIngredientsDtoReset) {
       this.removeIngredientsDto = JSON.parse(JSON.stringify(this.removeIngredientsDtoReset));
@@ -361,8 +376,26 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   public updatePortion() {
+    if(this.portion > 1000) {
+      return;
+    }
     for (let i = 0; i < this.removeIngredientsDto.recipeItems.length; i++) {
       this.removeIngredientsDto.recipeItems[i].amount = this.recipe.ingredients[i].amount * (this.portion / this.recipe.portionSize);
+      if(this.removeIngredientsDto.recipeItems[i].amount > 1000000){
+        this.removeIngredientsDto.recipeItems[i].amount = 1000000;
+      }
+    }
+  }
+
+  public updatePortionForShoppingListRemove() {
+    if(this.portion > 1000) {
+      return;
+    }
+    for (let i = 0; i < this.addItemToShoppingListDto.recipeItems.length; i++) {
+      this.addItemToShoppingListDto.recipeItems[i].amount = this.recipe.ingredients[i].amount * (this.portion / this.recipe.portionSize);
+      if(this.addItemToShoppingListDto.recipeItems[i].amount > 1000000){
+        this.addItemToShoppingListDto.recipeItems[i].amount = 1000000;
+      }
     }
   }
 

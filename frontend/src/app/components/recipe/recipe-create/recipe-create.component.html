@@ -159,11 +159,12 @@
                 [autoResize]="true"
                 rows="8" cols="100"
                 name="recipeDescription"
-
+                minlength="2"
+                maxlength="15000"
                 class="form-control"
                 [(ngModel)]="recipe.description"
                 #recipeDescriptionModel="ngModel"
-                required minlength="2"
+                required
                 (keydown.enter)="handleEnter($event)"
               ></textarea>
       <div class="flex">
