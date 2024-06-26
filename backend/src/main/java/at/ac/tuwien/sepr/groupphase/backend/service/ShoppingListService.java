@@ -45,8 +45,8 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param itemCreateDto  the item to add
      * @param userId         the id of the user adding the item
-     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the added item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
     ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) throws ConflictException;
 
@@ -94,8 +94,8 @@ public interface ShoppingListService {
      * @param itemId                    the id of the item
      * @param shoppingListItemUpdateDto the updated item
      * @param userId                    the id of the user updating the item
-     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the updated item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
     ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId)
         throws ConflictException;
@@ -140,8 +140,8 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param items          the items to add
      * @param userId         the id of the user adding the items
-     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the added items
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
     List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) throws ConflictException;
 
