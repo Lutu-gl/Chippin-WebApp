@@ -61,7 +61,7 @@
           required/>
         <small style="color: #ffc107" *ngIf="displayMergeWarning(createEditItem)">Amount is merged.</small>
       </div>
-      <div class="field pt-5">
+      <div class="field pt-5" pTooltip="The item is highlighted when the amount is below the minimum">
         <label for="lowerLimit">Minimum</label>
         <p-inputNumber
           id="lowerLimit"
@@ -171,7 +171,7 @@
                 [suffix]="getSuffixForCreateEdit(itemMergeEdit)"
                 required/>
             </div>
-            <div class="field pt-5">
+            <div class="field pt-5" pTooltip="The item is highlighted when the amount is below the minimum">
               <label for="itemToMergeWithLowerLimit">Minimum</label>
               <p-inputNumber
                 id="itemToMergeWithLowerLimit"
@@ -240,6 +240,25 @@
             </td>
             <td>
               {{ recipe.itemsInPantry?.length }} / {{ recipe.ingredients?.length }}
+              <p-badge value="i" severity="secondary" [pTooltip]="recipeTooltip" tooltipStyleClass="customtooltip"/>
+              <ng-template #recipeTooltip>
+                <div class="flex justify-items-center">
+                  <p-table [value]="recipe.ingredients">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Ingredients</th>
+                        <th>Amount</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ingredient >
+                      <tr>
+                        <td [ngStyle]="{'color': getIngredientMatch(recipe, ingredient)}">{{ingredient.description}}</td>
+                        <td>{{getIngredientAmount(recipe, ingredient)}}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </ng-template>
             </td>
           </tr>
         </ng-template>

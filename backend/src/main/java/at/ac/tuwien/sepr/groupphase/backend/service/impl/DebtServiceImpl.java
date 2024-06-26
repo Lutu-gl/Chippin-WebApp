@@ -23,7 +23,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DebtServiceImpl implements DebtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final ExpenseRepository expenseRepository;
 

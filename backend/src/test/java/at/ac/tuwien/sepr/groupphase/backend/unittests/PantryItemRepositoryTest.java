@@ -101,7 +101,6 @@ public class PantryItemRepositoryTest {
         );
     }
 
-
     @Test
     public void matchingItemExists_thenFindItem() {
         GroupEntity group = GroupEntity.builder().groupName("test").build();

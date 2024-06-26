@@ -12,7 +12,6 @@ import lombok.Setter;
 @Builder
 public class RecipeSearchDto {
 
-    @Pattern(regexp = "^[a-zA-Z0-9 ]*$")
     @Size(max = 100, message = "Search cannot be longer than 100 characters")
     @NotNull
     private String details;

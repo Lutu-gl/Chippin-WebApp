@@ -2,21 +2,17 @@ import {NgModule} from '@angular/core';
 import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
-import { FriendsComponent } from './components/friends/friends.component';
-import { AddFriendComponent } from './components/add-friend/add-friend.component';
+import {FriendsComponent} from './components/friends/friends.component';
+import {AddFriendComponent} from './components/add-friend/add-friend.component';
 import {PantryComponent} from "./components/pantry/pantry.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {GroupListComponent} from "./components/group-list/group-list.component";
 import {GroupCreateComponent, GroupCreateEditMode} from "./components/group-list/group-create/group-create.component";
 import {GroupInfoComponent} from "./components/group-list/group-info/group-info.component";
 import {RecipeComponent} from "./components/recipe/recipe.component";
-import {ItemListComponent} from "./components/item-list/item-list.component";
 import {
   RecipeCreateComponent
 } from "./components/recipe/recipe-create/recipe-create.component";
-import {
-  ItemListCreateEditComponent, ItemListCreateEditMode
-} from "./components/item-list/item-list-create-edit/item-list-create-edit.component";
 
 import {
   ShoppingListCreateComponent, ShoppingListCreateEditMode
@@ -25,18 +21,21 @@ import {
   ShoppingListDetailComponent
 } from "./components/shopping-list/shopping-list-detail/shopping-list-detail.component";
 
-import { BudgetCreateComponent, BudgetCreateEditMode } from './components/budget/budget-create/budget-create.component';
-import { ExpenseCreateComponent, ExpenseCreateEditMode } from './components/expense/expense-create/expense-create.component';
+import {BudgetCreateComponent, BudgetCreateEditMode} from './components/budget/budget-create/budget-create.component';
+import {
+  ExpenseCreateComponent,
+  ExpenseCreateEditMode
+} from './components/expense/expense-create/expense-create.component';
 import {RecipeDetailComponent, RecipeDetailMode} from "./components/recipe/recipe-detail/recipe-detail.component";
 import {RecipeEditComponent} from "./components/recipe/recipe-edit/recipe-edit.component";
 import {RecipeGlobalComponent} from "./components/recipe/recipe-global/recipe-global.component";
 import {PaymentCreateComponent, PaymentCreateEditMode} from "./components/payment-create/payment-create.component";
-import { FriendInfoComponent } from './components/friends/friend-info/friend-info.component';
+import {FriendInfoComponent} from './components/friends/friend-info/friend-info.component';
 import {RecipeLikedComponent} from "./components/recipe/recipe-liked/recipe-liked.component";
 import {HomeComponent} from "./components/home/home.component";
 import {VisualizationComponent} from "./components/visualization/visualization.component";
-import { SettingsComponent } from './components/settings/settings.component';
-import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import {SettingsComponent} from './components/settings/settings.component';
+import {LandingPageComponent} from './components/landing-page/landing-page.component';
 
 
 let routes: Routes;
@@ -118,19 +117,7 @@ routes = [
   {path: 'recipe/edit/:id', canActivate: mapToCanActivate([AuthGuard]), component: RecipeEditComponent},
   {path: 'recipe/global', canActivate: mapToCanActivate([AuthGuard]), component: RecipeGlobalComponent},
   {path: 'recipe/liked', canActivate: mapToCanActivate([AuthGuard]), component: RecipeLikedComponent},
-  {path: 'itemList', component: ItemListComponent},
-  {
-    path: 'itemList/create',
-    canActivate: mapToCanActivate([AuthGuard]),
-    component: ItemListCreateEditComponent,
-    data: {mode: ItemListCreateEditMode.create}
-  },
-  {
-    path: 'itemList/:id/edit',
-    canActivate: mapToCanActivate([AuthGuard]),
-    component: ItemListCreateEditComponent,
-    data: {mode: ItemListCreateEditMode.edit}
-  },
+  ,
   {
     path: 'expenses/create',
     canActivate: mapToCanActivate([AuthGuard]),

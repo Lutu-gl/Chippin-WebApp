@@ -46,7 +46,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        LOGGER.debug("Load all user by email");
+        LOGGER.trace("Load all user by email");
         try {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
 
@@ -65,7 +65,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public ApplicationUser findApplicationUserByEmail(String email) {
-        LOGGER.debug("Find application user by email");
+        LOGGER.trace("Find application user by email");
         ApplicationUser applicationUser = userRepository.findByEmail(email);
         if (applicationUser != null) {
             return applicationUser;

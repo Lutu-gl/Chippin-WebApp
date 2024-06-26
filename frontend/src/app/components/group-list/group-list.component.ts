@@ -150,8 +150,6 @@ export class GroupListComponent implements OnInit {
 
       observable = this.groupService.create(this.group);
 
-      console.log("final: ")
-      console.log(this.group.members)
       observable.subscribe({
         next: data => {
           this.messageService.add({severity:'success', summary:'Success', detail:`Group ${this.group.groupName} successfully created`});
@@ -165,7 +163,6 @@ export class GroupListComponent implements OnInit {
         },
         error: error => {
           this.group.members = memberGroupSaved;
-          console.log(error);
           if (error && error.error && error.error.errors) {
             //this.notification.error(`${error.error.errors.join('. \n')}`);
             for (let i = 0; i < error.error.errors.length; i++) {

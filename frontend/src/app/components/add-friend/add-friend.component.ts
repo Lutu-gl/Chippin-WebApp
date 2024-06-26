@@ -32,7 +32,6 @@ export class AddFriendComponent implements OnInit {
 
     const friendRequest: FriendRequest = new FriendRequest();
     friendRequest.receiverEmail = this.receiverEmail;
-    console.log(friendRequest);
     this.friendshipService.sendFriendRequest(friendRequest).subscribe({
       next: () => {
         this.notification.success("Send friend request successfully!");
@@ -40,7 +39,6 @@ export class AddFriendComponent implements OnInit {
       },
       error: error => {
         if (error && error.error && error.error.errors) {
-          //this.notification.error(`${error.error.errors.join('. \n')}`);
           for (let i = 0; i < error.error.errors.length; i++) {
             this.notification.error(`${error.error.errors[i]}`);
           }
@@ -52,7 +50,6 @@ export class AddFriendComponent implements OnInit {
           this.notification.error(`${error.error}`);
         } else {
           this.notification.error('Operation failed');
-          console.error('Operation failed');
         }
       }
     });

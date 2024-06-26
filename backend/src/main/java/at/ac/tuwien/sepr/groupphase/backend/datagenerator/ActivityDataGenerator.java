@@ -2,9 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Activity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ActivityCategory;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Expense;
-import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Payment;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ActivityRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
@@ -36,8 +34,6 @@ public class ActivityDataGenerator implements DataGenerator {
     @Override
     public void generateData() {
         LOGGER.trace("generating data for activity");
-        List<ApplicationUser> users = userRepository.findAll();
-        List<GroupEntity> groups = groupRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
         List<Payment> payments = paymentRepository.findAll();
 

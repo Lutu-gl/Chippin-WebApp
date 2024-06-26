@@ -121,7 +121,15 @@
 
           <div class="upper flex" >
 
-            Should this recipe be public? <p-inputSwitch [(ngModel)]="recipe.isPublic" name="isPublic" trueValue=true falseValue=false />
+            Should this recipe be public?
+
+
+            <button [pTooltip]="'This Recipe is now visible to everyone'" *ngIf="recipe.isPublic" class="public-button rounded" (click)="changeIsPublic()">Public</button>
+
+            <!-- Button for isPublic = false -->
+            <button [pTooltip]="'This Recipe is now only for your eyes'" *ngIf="!recipe.isPublic" class="private-button rounded" (click)="changeIsPublic()">Private</button>
+
+
           </div>
 
           <!-- submit -->
@@ -151,11 +159,12 @@
                 [autoResize]="true"
                 rows="8" cols="100"
                 name="recipeDescription"
-
+                minlength="2"
+                maxlength="15000"
                 class="form-control"
                 [(ngModel)]="recipe.description"
                 #recipeDescriptionModel="ngModel"
-                required minlength="2"
+                required
                 (keydown.enter)="handleEnter($event)"
               ></textarea>
       <div class="flex">
@@ -189,13 +198,11 @@
         #dt
         [rows]="10"
         [value]="recipe.ingredients"
-        [paginator]="true"
         [globalFilterFields]="['description', 'amount', 'min']"
         [(selection)]="selectedItems"
         [tableStyle]="{ 'min-width': '75rem' }"
         [rowHover]="true"
         dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="caption">

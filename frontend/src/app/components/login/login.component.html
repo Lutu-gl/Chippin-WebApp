@@ -1,19 +1,17 @@
-
 <p-toast></p-toast>
-<div class="w-full  pt-40 flex-1 flex items-center justify-center">
+<div class="w-full pt-40 flex-1 flex items-center justify-center">
   <div class="bg-blue-200 rounded-lg pt-12 px-12 pb-6 flex items-center flex-col min-w-96 shadow-2xl">
     <h1 class="pt-8 text-2xl font-bold">Login</h1>
     <form class="flex flex-col gap-4 pt-16" [formGroup]="loginForm">
       <div class="flex flex-col gap-2">
         <label for="inputEmail" class="font-medium">E-Mail</label>
-        <input pAutoFocus [autofocus]="true" type="text" pInputText name="email" id="inputEmail" formControlName="email"
-               placeholder="max@chippin.com">
-        <div *ngIf="submitted && loginForm.controls.email.errors" class="error">
-          <small class="form-text text-warning" *ngIf="loginForm.controls.email.errors.required">E-mail
-            is
-            required!
+        <input pInputText [autofocus]="true" type="email" id="inputEmail" formControlName="email"
+               placeholder="max@chippin.com" maxlength="60" class="form-control">
+        <div *ngIf="loginForm.get('email').errors && (loginForm.get('email').touched || loginForm.get('email').dirty)">
+          <small class="text-danger" *ngIf="loginForm.get('email').errors.required">
+            E-mail is required!
           </small>
-          <small class="form-text text-warning" *ngIf="loginForm.controls.email.errors.email">
+          <small class="text-danger" *ngIf="loginForm.get('email').errors.email && submitted">
             E-mail must be a valid e-mail address
           </small>
         </div>
@@ -22,23 +20,17 @@
         <label for="inputPassword" class="font-medium">Password</label>
         <p-password [toggleMask]="true" [feedback]="false" id="inputPassword" formControlName="password">
         </p-password>
-        <div *ngIf="submitted && loginForm.controls.password.errors" class=" flex flex-col">
-          <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Password
-            is
-            required!
-          </small>
-          <small class="">Password must be at least 8 characters long</small>
+        <div *ngIf="loginForm.get('password').errors && (loginForm.get('password').touched || loginForm.get('password').dirty)">
+          <small class="text-warning" *ngIf="loginForm.get('password').errors.required">Password is required!</small>
+<!--          <small class="text-warning" *ngIf="loginForm.get('password').errors.minlength">Password must be at least 8 characters long</small>-->
         </div>
       </div>
+      <div class="pt-8 text-center">
+        <p-button label="Login" [disabled]="!loginForm.valid" (click)="loginUser()" class="w-full max-w-xs"></p-button>
+      </div>
+      <div class="pt-8 text-center">
+        <a [routerLink]="['/register']" class="text-sm text-blue-800">Don't have an account? Register here</a>
+      </div>
     </form>
-
-    <div class="pt-8">
-      <p-button label="Login" (click)="loginUser()"></p-button>
-    </div>
-
-    <div class="pt-8">
-      <a [routerLink]="['/register']" class="text-sm text-blue-800">Don't have an account? Register here</a>
-    </div>
   </div>
-
 </div>

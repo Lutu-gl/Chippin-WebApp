@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @ToString
 @Builder
+@Setter
 public class PantryItemMergeDto {
     @NotNull
     @Valid

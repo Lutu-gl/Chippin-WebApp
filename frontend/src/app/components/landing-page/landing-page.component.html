@@ -7,7 +7,7 @@
     
     <div class="flex justify-center space-x-4 mt-8">
       <button pButton [routerLink]="['/register']" type="button" label="Get started" class="p-button-rounded p-button-primary text-xl px-6 py-3"></button>
-      <button *ngIf="!authService.isLoggedIn()" pButton [routerLink]="['/login']" type="button" label="Sign in" class="p-button-rounded p-button-secondary text-xl px-6 py-3"></button>
+      <button *ngIf="!authService.isLoggedIn()" pButton [routerLink]="['/login']" type="button" label="Sign in" class="p-button-rounded text-xl px-6 py-3"></button>
     </div>
     
     <div class="mt-12">

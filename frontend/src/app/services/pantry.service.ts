@@ -79,7 +79,6 @@ export class PantryService {
    * @param pantryId the pantry id
    */
   updateItem(itemToUpdate: PantryItemDetailDto, pantryId: number) {
-    console.log(itemToUpdate)
     return this.httpClient.put<PantryItemDetailDto>(`${this.pantryBaseUri}/${pantryId}/pantry`, itemToUpdate);
   }
 
@@ -90,7 +89,6 @@ export class PantryService {
    * @param pantryId the pantry id
    */
   updateItems(itemsToUpdate: PantryItemDetailDto[], pantryId: number) {
-    console.log(itemsToUpdate)
     return this.httpClient.put<PantryItemDetailDto[]>(`${this.pantryBaseUri}/${pantryId}/pantry/multiple`, itemsToUpdate);
   }
 
@@ -113,8 +111,6 @@ export class PantryService {
   getRecipes(id: number, getRecipesDto: GetRecipesDto) {
     return this.httpClient.post<RecipeByItemsDto[]>(`${this.pantryBaseUri}/${id}/pantry/recipes/user/${this.authService.getUserId()}`, getRecipesDto);
   }
-
-  //List<{RecipeName, RecipeId, ItemsInPantry, Ingredients}>
 
 
   getAllMissingItems(id: number) {

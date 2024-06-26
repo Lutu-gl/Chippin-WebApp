@@ -19,34 +19,6 @@ export class UserService {
   ) { }
 
 
-  // TODO implement : Search for friends!
-  searchFriends(param: { name: string; limit: number }): Observable<UserSelection[]> {
-    function searchFriendsMock() {
-      // Generate a list of UserSelections based on the input parameters
-      const mockUsers: UserSelection[] = [];
-      const baseEmail = 'user';
-
-      for (let i = 1; i <= 5; i++) {
-        mockUsers.push({
-          id: i,
-          email: `${baseEmail}${i}@email.com`
-        });
-      }
-
-      // Filter based on the 'name' provided and limit the results according to 'limit'
-      const filteredUsers = mockUsers.filter(user => user.email.toLowerCase().includes(param.name.toLowerCase())).slice(0, param.limit);
-
-      // Return an Observable of the filtered list
-      return of(filteredUsers);
-    }
-
-    return searchFriendsMock();
-
-    //return this.http.get<UserSelection[]>("ImplementationMissing", { params })
-      //.pipe(tap(members => members.map(h => {
-      //})));
-  }
-
   getUserGroups(): Observable<GroupDto[]> {
     return this.http.get<GroupDto[]>(this.userBaseUri + '/groups');
   }

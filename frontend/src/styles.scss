@@ -35,3 +35,9 @@ body {
 html {
   font-size: 16px;
 }
+
+
+.customtooltip.p-tooltip .p-tooltip-text {
+  background-color: white !important;
+  min-width: 320px;
+}

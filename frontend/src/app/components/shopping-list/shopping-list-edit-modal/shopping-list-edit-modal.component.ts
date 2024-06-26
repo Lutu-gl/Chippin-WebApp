@@ -86,7 +86,6 @@ export class ShoppingListEditModalComponent implements OnInit{
   }
 
   onSave() {
-    console.log(this.shoppingListToEdit)
     // Check if the shopping list is valid
     if (!this.shoppingListToEdit.name || this.shoppingListToEdit.name.trim() === '') {
       this.messageService.add({

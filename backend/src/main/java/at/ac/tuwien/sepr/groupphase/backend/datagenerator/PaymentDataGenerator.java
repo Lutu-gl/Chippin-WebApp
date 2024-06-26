@@ -53,7 +53,18 @@ public class PaymentDataGenerator implements DataGenerator {
             // special group where expenses are inserted manually to test (f.e. debt)
             if (group.getGroupName().equals("Chippin")) {
 
-                Payment payment =
+                Payment payment0 =
+                    Payment.builder()
+                        .payer(usersInGroup.get(0))
+                        .receiver(usersInGroup.get(4))
+                        .amount(200.0)
+                        .date(fixedDateTime.minus(12, java.time.temporal.ChronoUnit.DAYS))
+                        .group(group)
+                        .deleted(false)
+                        .archived(false)
+                        .build();
+
+                Payment payment1 =
                     Payment.builder()
                         .payer(usersInGroup.get(1))
                         .receiver(usersInGroup.get(0))
@@ -75,7 +86,8 @@ public class PaymentDataGenerator implements DataGenerator {
                     .build();
 
                 paymentRepository.save(paymentDeleted);
-                paymentRepository.save(payment);
+                paymentRepository.save(payment1);
+                paymentRepository.save(payment0);
                 continue;
             }
             ApplicationUser user1 = usersInGroup.get(random.nextInt(usersInGroup.size()));

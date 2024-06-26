@@ -70,7 +70,6 @@ export class RecipeService {
    * @param item to persist
    */
   createItem(id: number, item: ItemCreateDto): Observable<ItemDetailDto> {
-    console.log('Create item' + item + ' for recipe with id ' + id);
     return this.httpClient.post<ItemDetailDto>(`${this.recipeBaseUri}/${id}/recipe`, item);
   }
 

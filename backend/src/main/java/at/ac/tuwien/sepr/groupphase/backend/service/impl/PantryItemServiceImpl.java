@@ -20,13 +20,12 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PantryItemServiceImpl implements PantryItemService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final ItemRepository itemRepository;
     private final PantryItemRepository pantryItemRepository;
 
     @Override
     @Transactional
     public PantryItem pantryAutoMerge(PantryItem pantryItem, Pantry pantry) {
-        LOGGER.debug("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
+        LOGGER.trace("Auto merge pantryItem {} in pantry {}", pantryItem, pantry);
         List<PantryItem> pantryItems = pantryItemRepository.findByDescriptionIsAndUnitIsAndPantryIs(pantryItem.getDescription(), pantryItem.getUnit(), pantry);
 
         //no item to merge in pantry
@@ -58,9 +57,10 @@ public class PantryItemServiceImpl implements PantryItemService {
         if (pantryItem.getId() != null && pantryItemRepository.findById(pantryItem.getId()).isPresent() && !pantryItem.getId().equals(baseItem.getId())) {
             PantryItem item = pantryItemRepository.getReferenceById(pantryItem.getId());
             pantry.removeItem(item);
-            LOGGER.debug("PantryItem {} deleted", pantryItem);
+            pantryItemRepository.deleteById(item.getId());
+            LOGGER.trace("PantryItem {} deleted", pantryItem);
         }
-        LOGGER.debug("PantryItem {} merged into {}", pantryItem, baseItem);
+        LOGGER.trace("PantryItem {} merged into {}", pantryItem, baseItem);
         return pantryItemRepository.save(baseItem);
     }
 }

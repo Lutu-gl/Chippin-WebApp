@@ -18,6 +18,7 @@ import org.hibernate.validator.constraints.Length;
 public class UserChangePasswordDto {
 
     @NotNull(message = "must not be null")
+    @ToString.Exclude
     private String currentPassword;
 
     // Validate at least 8 characters, at least one uppercase letter, one lowercase letter and one number

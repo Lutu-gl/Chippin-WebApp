@@ -3,6 +3,7 @@
   [(visible)]="isShoppingListDialogVisible"
   [style]="{ width: '1500px', minHeight: '800px' }"
   [modal]="true"
+  (onHide)="closeUseShoppingListDialog()"
   styleClass="p-fluid">
   <ng-template pTemplate="header">
     <div>
@@ -31,6 +32,15 @@
           </p-dropdown>
         </div>
         <div class="p-4" *ngIf="addItemToShoppingListDto">
+          <div class="mb-6">
+            <label> For how many People? (This Recipe is normally made
+              for {{recipe.portionSize}} {{recipe.portionSize === 1 ? "Person" : "People"}})</label>
+            <p-inputNumber [(ngModel)]="portion"
+                           [min]="0"
+                           [max]="1000"
+                           (onInput)="updatePortionForShoppingListRemove()"/>
+
+          </div>
           <p-table
             #dt
             [value]="addItemToShoppingListDto.recipeItems"
@@ -76,11 +86,12 @@
                     [max]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 1000 : 1000000"
                     [minFractionDigits]="ingredient.unit === DisplayedUnit.Kilogram || ingredient.unit === DisplayedUnit.Liter ? 2 : 0"
                     [suffix]="getSuffixForCreateEdit(ingredient)"
-                    required/>
+                    required="true"/>
                 </td>
                 <td>
                   <p-inputNumber
                     readonly="true"
+                    disabled="true"
                     [placeholder]="formatAmount(findMatchingShoppingListItem(ingredient))"
                     [min]="0"
                     [max]="1000000"
@@ -89,6 +100,7 @@
                 <td *ngIf="addItemToShoppingListDto.pantryItems">
                   <p-inputNumber
                     readonly="true"
+                    disabled="true"
                     [placeholder]="formatAmount(findMatchingPantryItems(ingredient))"
                     [min]="0"
                     [max]="1000000"
@@ -132,6 +144,7 @@
   [(visible)]="isPantryDialogVisible"
   [style]="{ width: '1500px', minHeight: '800px' }"
   [modal]="true"
+  (onHide)="closeUsePantryDialog()"
   styleClass="p-fluid">
   <ng-template pTemplate="header">
     <div>
@@ -164,10 +177,11 @@
             <label> For how many People? (This Recipe is normally made
               for {{recipe.portionSize}} {{recipe.portionSize === 1 ? "Person" : "People"}})</label>
             <p-inputNumber [(ngModel)]="portion"
+                           [min]="0"
+                           [max]="1000"
                            (onInput)="updatePortion()"/>
 
           </div>
-          <p></p>
           <p-table
             #dt
             [value]="removeIngredientsDto.recipeItems"
@@ -219,6 +233,7 @@
                 <td>
                   <p-inputNumber
                     readonly="true"
+                    disabled="true"
                     [placeholder]="formatAmount(findMatchingPantryItemsForRemove(ingredient))"
                     [min]="0"
                     [max]="1000000"
@@ -227,6 +242,7 @@
                 <td>
                   <p-inputNumber
                     readonly="true"
+                    disabled="true"
                     [placeholder]="(findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount < 0) ?
                     '' + unitDisplayer(ingredient.unit,0)
                     : ' ' + unitDisplayer(ingredient.unit, findMatchingPantryItemsForRemove(ingredient).amount-ingredient.amount)"
@@ -336,10 +352,10 @@
   <!-- Ingredients -->
   <div class="p-4 max-w-2xl text-left">
     <ng-container *ngFor="let ingredient of recipe.ingredients; let i = index">
-      <div [class.bg-blue-50]="i % 2 === 0" [class.bg-white]="i % 2 === 1" class="rounded p-2"
+      <div [class.bg-blue-50]="i % 2 === 0" [class.bg-white]="i % 2 === 1"
            class="rounded p-2 flex justify-between items-center">
         <span class="font-bold">{{ ingredient.description }}</span>
-        <span class="font-bold">{{ unitDisplayer(ingredient.unit, ingredient.amount) }}</span>
+        <span class="font-bold">{{ formatAmount(ingredient) }}</span>
       </div>
     </ng-container>
   </div>

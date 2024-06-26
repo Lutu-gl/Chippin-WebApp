@@ -211,10 +211,10 @@ public class ImportExportServiceImpl implements ImportExportService {
     }
 
     private Map<ApplicationUser, Double> getParticipants(List<String> line, List<String> firstLine) throws ValidationException {
-        double totalAmount = Double.parseDouble(line.get(3));
+        double totalAmount = exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line.get(3)), line.get(4));
         Map<ApplicationUser, Double> participants = new HashMap<>();
         for (int i = 5; i < line.size(); i++) {
-            double amount = Double.parseDouble(line.get(i));
+            double amount = exchangeRateServiceImpl.convertToEuro(Double.parseDouble(line.get(i)), line.get(4));
             ApplicationUser user = userRepository.findByEmail(firstLine.get(i));
             if (user == null) {
                 throw new ValidationException("Validation for import failed!", List.of("User " + firstLine.get(i) + " not found"));

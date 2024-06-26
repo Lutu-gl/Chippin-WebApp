@@ -7,7 +7,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.GroupEntity;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ExpenseRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.GroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
-import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -36,34 +34,17 @@ public class ExpenseDataGenerator implements DataGenerator {
     private static final LocalDateTime fixedDateTime = LocalDateTime.of(2024, 6, 23, 13, 0);
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static String[] expenseNames = {
-        "To Engel Hotel", "Larcher Restaurant", "BurgerNKings Snack Bar", "Kebab House",
-        "Pizzeria Restaurant", "McDonalds", "Subway", "KFC", "Burger King", "Pizza Hut",
-        "Gas Station", "Cinema", "Shopping Mall", "Rent", "Electricity Bill", "Mobile Phone Bill",
-        "Internet Bill", "Gym", "Insurance", "Car Repair", "Books",
-        "Clothing", "Electronics", "Gifts", "Travel", "Hotel", "Train Ticket", "Flight Ticket",
-        "Bus Ride", "Taxi", "Dining Out", "Supermarket", "Pharmacy", "Doctor Visit", "Hospital",
-        "Yoga Studio", "Pet Supplies", "Hardware Store", "Craft Materials", "Garden Supplies",
-        "Office Supplies", "Bakery", "Coffee Shop", "Tea House", "Vegan Restaurant",
-        "Butcher Shop", "Dairy Farm", "Organic Market", "Art Gallery", "Museum Ticket",
-        "Concert Ticket", "Theater Ticket", "Opera Ticket", "Parking Fee", "Toll Fee",
-        "Ferry Ticket", "Amusement Park", "Zoo Entry", "Aquarium Visit", "Mountain Cable Car",
-        "Ski Pass", "Snowboard Rental", "Surfing Lessons", "Diving Gear Rental", "Beach Resort",
-        "Spa Day", "Massage Therapy", "Hair Salon", "Nail Salon", "Barbershop",
-        "Laptop Repair", "Smartphone Accessories", "Software License", "Cloud Storage Fee", "VPN Subscription",
-        "Streaming Service", "Book Club Membership", "Fitness Membership", "Bike Repair", "Vehicle Inspection",
-        "Home Renovation", "Furniture Store", "Electrical Store", "Toy Store", "Pet Grooming"
-    };
-
+    private static Map<String, Category> expenseCategories;
 
     @Override
     @Transactional
     public void generateData() {
         LOGGER.trace("generating data for expense");
-        List<ApplicationUser> users = userRepository.findAll();
+
+        setUpHashMap();
+
         List<GroupEntity> groups = groupRepository.findAll();
-        Random random = new Random(12345);
-        Faker faker = new Faker(Locale.getDefault(), random);
+        Random random = new Random(12);
 
         groups.sort(Comparator.comparing(GroupEntity::getGroupName));
         Category[] categories = Category.values();
@@ -78,20 +59,114 @@ public class ExpenseDataGenerator implements DataGenerator {
 
             // Chippin group
             if (group.getGroupName().equals("Chippin")) {
-                //generateDataForChippin(group, usersInGroup, random);
                 generateDataForChippinExtended(group, usersInGroup, random, categories);
-                continue;
             } else {
                 generateDataForGroupsExtended(group, usersInGroup, random, categories);
             }
         }
     }
 
+    private void setUpHashMap() {
+        this.expenseCategories = new HashMap<>();
+
+        // Food
+        expenseCategories.put("Larcher Restaurant", Category.Food);
+        expenseCategories.put("BurgerNKings Snack Bar", Category.Food);
+        expenseCategories.put("Kebab House", Category.Food);
+        expenseCategories.put("Pizzeria Restaurant", Category.Food);
+        expenseCategories.put("McDonalds", Category.Food);
+        expenseCategories.put("Subway", Category.Food);
+        expenseCategories.put("KFC", Category.Food);
+        expenseCategories.put("Burger King", Category.Food);
+        expenseCategories.put("Pizza Hut", Category.Food);
+        expenseCategories.put("Dining Out", Category.Food);
+        expenseCategories.put("Supermarket", Category.Food);
+        expenseCategories.put("Bakery", Category.Food);
+        expenseCategories.put("Coffee Shop", Category.Food);
+        expenseCategories.put("Tea House", Category.Food);
+        expenseCategories.put("Vegan Restaurant", Category.Food);
+        expenseCategories.put("Butcher Shop", Category.Food);
+        expenseCategories.put("Dairy Farm", Category.Food);
+        expenseCategories.put("Organic Market", Category.Food);
+
+        // Entertainment
+        expenseCategories.put("Cinema", Category.Entertainment);
+        expenseCategories.put("Art Gallery", Category.Entertainment);
+        expenseCategories.put("Museum Ticket", Category.Entertainment);
+        expenseCategories.put("Concert Ticket", Category.Entertainment);
+        expenseCategories.put("Theater Ticket", Category.Entertainment);
+        expenseCategories.put("Opera Ticket", Category.Entertainment);
+        expenseCategories.put("Amusement Park", Category.Entertainment);
+        expenseCategories.put("Zoo Entry", Category.Entertainment);
+        expenseCategories.put("Aquarium Visit", Category.Entertainment);
+        expenseCategories.put("Mountain Cable Car", Category.Entertainment);
+        expenseCategories.put("Ski Pass", Category.Entertainment);
+        expenseCategories.put("Snowboard Rental", Category.Entertainment);
+        expenseCategories.put("Surfing Lessons", Category.Entertainment);
+        expenseCategories.put("Diving Gear Rental", Category.Entertainment);
+
+        // Health
+        expenseCategories.put("Pharmacy", Category.Health);
+        expenseCategories.put("Doctor Visit", Category.Health);
+        expenseCategories.put("Hospital", Category.Health);
+        expenseCategories.put("Yoga Studio", Category.Health);
+        expenseCategories.put("Gym", Category.Health);
+        expenseCategories.put("Massage Therapy", Category.Health);
+        expenseCategories.put("Hair Salon", Category.Health);
+        expenseCategories.put("Nail Salon", Category.Health);
+        expenseCategories.put("Barbershop", Category.Health);
+
+        // Travel
+        expenseCategories.put("To Engel Hotel", Category.Travel);
+        expenseCategories.put("Gas Station", Category.Travel);
+        expenseCategories.put("Parking Fee", Category.Travel);
+        expenseCategories.put("Toll Fee", Category.Travel);
+        expenseCategories.put("Ferry Ticket", Category.Travel);
+        expenseCategories.put("Hotel", Category.Travel);
+        expenseCategories.put("Train Ticket", Category.Travel);
+        expenseCategories.put("Flight Ticket", Category.Travel);
+        expenseCategories.put("Bus Ride", Category.Travel);
+        expenseCategories.put("Taxi", Category.Travel);
+        expenseCategories.put("Beach Resort", Category.Travel);
+
+        // Shopping
+        expenseCategories.put("Shopping Mall", Category.Shopping);
+        expenseCategories.put("Books", Category.Shopping);
+        expenseCategories.put("Clothing", Category.Shopping);
+        expenseCategories.put("Electronics", Category.Shopping);
+        expenseCategories.put("Gifts", Category.Shopping);
+        expenseCategories.put("Hardware Store", Category.Shopping);
+        expenseCategories.put("Craft Materials", Category.Shopping);
+        expenseCategories.put("Garden Supplies", Category.Shopping);
+        expenseCategories.put("Office Supplies", Category.Shopping);
+        expenseCategories.put("Laptop Repair", Category.Shopping);
+        expenseCategories.put("Smartphone Accessories", Category.Shopping);
+        expenseCategories.put("Software License", Category.Shopping);
+        expenseCategories.put("Cloud Storage Fee", Category.Shopping);
+        expenseCategories.put("VPN Subscription", Category.Shopping);
+        expenseCategories.put("Streaming Service", Category.Shopping);
+        expenseCategories.put("Home Renovation", Category.Shopping);
+        expenseCategories.put("Furniture Store", Category.Shopping);
+        expenseCategories.put("Electrical Store", Category.Shopping);
+        expenseCategories.put("Toy Store", Category.Shopping);
+        expenseCategories.put("Pet Grooming", Category.Shopping);
+
+        // Other
+        expenseCategories.put("Rent", Category.Other);
+        expenseCategories.put("Electricity Bill", Category.Other);
+        expenseCategories.put("Mobile Phone Bill", Category.Other);
+        expenseCategories.put("Internet Bill", Category.Other);
+        expenseCategories.put("Car Repair", Category.Other);
+        expenseCategories.put("Book Club Membership", Category.Other);
+        expenseCategories.put("Bike Repair", Category.Other);
+        expenseCategories.put("Vehicle Inspection", Category.Other);
+        expenseCategories.put("Pet Supplies", Category.Other);
+    }
+
     private void generateDataForGroupsExtended(GroupEntity group, List<ApplicationUser> usersInGroup, Random random, Category[] categories) {
         LocalDateTime startDate = fixedDateTime.minusMonths(3);
         LocalDateTime endDate = fixedDateTime.minusDays(2);
 
-        random.setSeed(12345);
         while (startDate.isBefore(endDate)) {
             ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
 
@@ -107,8 +182,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 participantsList.set(random.nextInt(3), payer);
             }
 
-            int amountExpense = 10 + random.nextInt(291);
-            double doubleAmountExpense = (double) amountExpense;
+            double doubleAmountExpense = 10 + random.nextInt(100);
 
             double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
             double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
@@ -119,8 +193,9 @@ public class ExpenseDataGenerator implements DataGenerator {
             participants.put(participantsList.get(1), part2 / doubleAmountExpense);
             participants.put(participantsList.get(2), part3 / doubleAmountExpense);
 
-            Category category = categories[random.nextInt(categories.length)];
-            String name = expenseNames[random.nextInt(expenseNames.length)];
+
+            String name = expenseCategories.keySet().toArray()[random.nextInt(expenseCategories.size())].toString();
+            Category category = expenseCategories.get(name);
 
             LocalDateTime expenseTime = startDate.plusHours(random.nextInt(2));
             LocalDateTime expenseTimeFinal = expenseTime.plusMinutes(random.nextInt(30));
@@ -146,11 +221,10 @@ public class ExpenseDataGenerator implements DataGenerator {
 
     private void generateDataForChippinExtended(GroupEntity group, List<ApplicationUser> usersInGroup, Random random, Category[] categories) {
         if (group.getGroupName().equals("Chippin")) {
-            LocalDateTime startDate = fixedDateTime.minusMonths(6);
+            LocalDateTime startDate = fixedDateTime.minusMonths(12);
             LocalDateTime endDate = fixedDateTime.minusDays(2);
 
 
-            random.setSeed(12345);
             while (startDate.isBefore(endDate)) {
                 ApplicationUser payer = usersInGroup.get(random.nextInt(usersInGroup.size()));
 
@@ -164,9 +238,7 @@ public class ExpenseDataGenerator implements DataGenerator {
                 if (!participantsList.contains(payer)) {
                     participantsList.set(random.nextInt(3), payer);
                 }
-
-                int amountExpense = 10 + random.nextInt(291);
-                double doubleAmountExpense = (double) amountExpense;
+                double doubleAmountExpense = 10 + random.nextInt(70);
 
                 double part1 = Math.round(doubleAmountExpense * random.nextDouble() * 100.0) / 100.0;
                 double part2 = Math.round((doubleAmountExpense - part1) * random.nextDouble() * 100.0) / 100.0;
@@ -180,8 +252,8 @@ public class ExpenseDataGenerator implements DataGenerator {
                 participants.put(participantsList.get(2), part3 / doubleAmountExpense);
 
 
-                Category category = categories[random.nextInt(categories.length)];
-                String name = expenseNames[random.nextInt(expenseNames.length)];
+                String name = expenseCategories.keySet().toArray()[random.nextInt(expenseCategories.size())].toString();
+                Category category = expenseCategories.get(name);
 
                 LocalDateTime expenseTime = startDate.plusHours(random.nextInt(2));
                 LocalDateTime expenseTimeFinal = expenseTime.plusMinutes(random.nextInt(30));
@@ -205,87 +277,6 @@ public class ExpenseDataGenerator implements DataGenerator {
         }
     }
 
-    private void generateDataForChippin(GroupEntity group, List<ApplicationUser> usersInGroup, Random random) {
-        // spezial group where expenses are inserted manually to test (f.e. debt)
-        if (group.getGroupName().equals("Chippin")) {
-            // example for debt testing:
-            // user1 owes user0 50
-            // user2 owes user0 30
-            // user2 owes user1 80
-
-            Map<ApplicationUser, Double> participants = new HashMap<>();
-            participants.put(usersInGroup.get(0), 0.6);
-            participants.put(usersInGroup.get(1), 0.4); // user 1 owes user 0 40
-
-            Map<ApplicationUser, Double> participants2 = new HashMap<>();
-            participants2.put(usersInGroup.get(0), 0.5);
-            participants2.put(usersInGroup.get(1), 0.2);
-            participants2.put(usersInGroup.get(2), 0.3); // user 1 owes user 0 60 and user 2 owes user 0 30
-
-            Map<ApplicationUser, Double> participants3 = new HashMap<>();
-            participants3.put(usersInGroup.get(0), 0.1);
-            participants3.put(usersInGroup.get(1), 0.1);
-            participants3.put(usersInGroup.get(2), 0.8); // user1
-
-            Expense expense = Expense.builder()
-                .name(expenseNames[random.nextInt(expenseNames.length)])
-                .category(Category.Food)
-                .amount(100.0d)
-                .date(fixedDateTime)
-                .payer(usersInGroup.get(0))
-                .group(group)
-                .participants(participants)
-                .deleted(false)
-                .archived(false)
-                .build();
-
-            Expense expense2 = Expense.builder()
-                .name(expenseNames[random.nextInt(expenseNames.length)])
-                .category(Category.Food)
-                .amount(100.0d)
-                .date(fixedDateTime)
-                .group(group)
-                .payer(usersInGroup.get(0))
-                .participants(participants2)
-                .deleted(false)
-                .archived(false)
-                .build();
-
-            Expense expense3 = Expense.builder()
-                .name(expenseNames[random.nextInt(expenseNames.length)])
-                .category(Category.Food)
-                .amount(100.0d)
-                .date(fixedDateTime)
-                .group(group)
-                .payer(usersInGroup.get(1))
-                .participants(participants3)
-                .deleted(false)
-                .archived(false)
-                .build();
-            expenseRepository.save(expense);
-            expenseRepository.save(expense2);
-            expenseRepository.save(expense3);
-        }
-    }
-
-
-    private double[] generateRandomSplits() {
-        Random random = new Random();
-        random.setSeed(12345);
-        double r1 = random.nextDouble();
-        double r2 = random.nextDouble();
-        double total = r1 + r2 + 1.0;
-
-        double split1 = r1 / total;
-        double split2 = r2 / total;
-        double split3 = 1.0 / total;
-
-        return new double[]{split1, split2, split3};
-    }
-
-    private double roundToTwoDecimalPlaces(double value) {
-        return Math.round(value * 100.0) / 100.0;
-    }
 
     @Override
     public void cleanData() {

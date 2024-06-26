@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
+import {FormControl, FormGroup, UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
@@ -14,19 +14,21 @@ import {MessageService} from "primeng/api";
 })
 export class LoginComponent implements OnInit {
 
-  loginForm: UntypedFormGroup;
-  // After first submission attempt, form validation will start
+  loginForm: FormGroup;
+
   submitted = false;
   // Error flag
+  email: any;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private messageService: MessageService) {
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      // Password must be at least 8 characters long, contain at least one number and one uppercase letter
-      password: ['', [Validators.required, Validators.minLength(8)]]
-    });
   }
 
+  ngOnInit() {
+    this.loginForm = new FormGroup({
+      email: new FormControl('', [Validators.required]),
+      password: new FormControl('', [Validators.required])
+    });
+  }
   /**
    * Form validation will start after the method is called, additionally an AuthRequest will be sent
    */
@@ -53,13 +55,26 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/home']);
       },
       error: error => {
-        console.error(error.error);
-        this.messageService.add({severity: 'error', summary: 'Login failed', detail: error.error});
-
+        this.printError(error)
       }
     });
   }
 
-  ngOnInit() {
+  printError(error): void {
+    if (error && error.error && error.error.errors) {
+      for (let i = 0; i < error.error.errors.length; i++) {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+      }
+    } else if (error && error.error && error.error.message) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+    } else if (error && error.error && error.error.detail) {
+      this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+    } else if (error && error.status === 403){
+      this.messageService.add({severity: 'error', summary: 'Invalid credentials', detail: `Email or Password is incorrect!`});
+    } else if (error && error.status === 404){
+      this.messageService.add({severity: 'error', summary: 'Invalid credentials', detail: `Email or Password is incorrect!`});
+    } else {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not load Recipe!`});
+      }
   }
 }

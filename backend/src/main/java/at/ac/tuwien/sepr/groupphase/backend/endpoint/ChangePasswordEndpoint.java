@@ -30,7 +30,6 @@ public class ChangePasswordEndpoint {
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@Valid @RequestBody UserChangePasswordDto changePasswordDto) {
-        LOGGER.trace("changePassword()");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         userService.changePassword(changePasswordDto, authentication.getName());
     }
