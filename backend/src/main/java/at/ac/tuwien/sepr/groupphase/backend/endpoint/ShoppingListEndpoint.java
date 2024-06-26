@@ -107,7 +107,8 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
     @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items")
-    public ShoppingListItemDto addItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
+    public ShoppingListItemDto addItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody ItemCreateDto itemCreateDto)
+        throws ConflictException {
         log.trace("addItem({}, {}, {})", userId, shoppingListId, itemCreateDto);
         var item = shoppingListService.addItemForUser(shoppingListId, itemCreateDto, userId);
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);
@@ -116,7 +117,8 @@ public class ShoppingListEndpoint {
     @Secured("ROLE_USER")
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
     @PostMapping("users/{userId}/shopping-lists/{shoppingListId}/items/list")
-    public List<ShoppingListItemDto> addItems(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody List<ItemCreateDto> items) {
+    public List<ShoppingListItemDto> addItems(@PathVariable Long userId, @PathVariable Long shoppingListId, @Valid @RequestBody List<ItemCreateDto> items)
+        throws ConflictException {
         log.trace("addItems({}, {}, {})", userId, shoppingListId, items);
         var shoppingListItems = shoppingListService.addItemsForUser(shoppingListId, items, userId);
         return shoppingListMapper.listOfShoppingListItemsToListOfShoppingListItemDtos(shoppingListItems);
@@ -127,7 +129,7 @@ public class ShoppingListEndpoint {
     @PreAuthorize("@securityService.hasCorrectId(#userId) && @securityService.canAccessShoppingList(#shoppingListId)")
     @PatchMapping("users/{userId}/shopping-lists/{shoppingListId}/items/{itemId}")
     public ShoppingListItemDto updateItem(@PathVariable Long userId, @PathVariable Long shoppingListId, @PathVariable Long itemId,
-                                          @Valid @RequestBody ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
+                                          @Valid @RequestBody ShoppingListItemUpdateDto shoppingListItemUpdateDto) throws ConflictException {
         log.trace("updateItem({}, {}, {}, {})", userId, shoppingListId, itemId, shoppingListItemUpdateDto);
         var item = shoppingListService.updateItemForUser(shoppingListId, itemId, shoppingListItemUpdateDto, userId);
         return shoppingListMapper.shoppingListItemToShoppingListItemDto(item);

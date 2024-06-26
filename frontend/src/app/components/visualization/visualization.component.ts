@@ -821,8 +821,6 @@ export class VisualizationComponent implements OnInit {
       }
     }
 
-    console.log(expensesPerUserPerMonth)
-
     for (let [user, monthMap] of expensesPerUserPerMonth) {
       let data = []
       for (let [month, amount] of monthMap) {
@@ -834,9 +832,6 @@ export class VisualizationComponent implements OnInit {
         backgroundColor: getRandomColorForEmail(user)
       })
     }
-
-    console.log(graphData)
-
 
     graphOptions = {
       maintainAspectRatio: true,

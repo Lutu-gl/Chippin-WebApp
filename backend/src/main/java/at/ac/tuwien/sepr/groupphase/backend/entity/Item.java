@@ -35,6 +35,10 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @Table(name = "item")
 public class Item {
+    public static final int MAX_AMOUNT = 1000000;
+    private static final String MAX_AMOUNT_MSG = "The maximum amount is " + MAX_AMOUNT;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,7 +51,7 @@ public class Item {
 
     @Column
     @Min(value = 0, message = "The minimum amount is 0")
-    @Max(value = 1000000, message = "The maximum amount is 1000000")
+    @Max(value = MAX_AMOUNT, message = MAX_AMOUNT_MSG)
     private int amount;
 
     @Column

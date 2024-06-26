@@ -96,7 +96,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * @param item         the item to merge
      * @param shoppingList the shopping list to merge the item into
      */
-    private ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) {
+    private ShoppingListItem mergeNewItem(ShoppingListItem item, ShoppingList shoppingList) throws ConflictException {
         log.trace("mergeNewItem({}, {})", item, shoppingList);
         log.trace("Merging item {} into shopping list {}", item, shoppingList);
         var updatedItem = item;
@@ -108,6 +108,11 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .findFirst();
         if (existingItem.isPresent()) {
             log.trace("Item already exists in shopping list. Merging quantities");
+            // Check if mergin the item would exceed the maximum amount of an item
+            if (existingItem.get() != item && existingItem.get().getItem().getAmount() + item.getItem().getAmount() > Item.MAX_AMOUNT) {
+                log.warn("The maximum amount of the item {} was reached", existingItem.get().getItem().getDescription());
+                throw new ConflictException("Conflict", List.of("The maximum amount of the item " + existingItem.get().getItem().getDescription() + " was reached"));
+            }
             existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
             existingItem.get().setCheckedBy(item.getCheckedBy());
             updatedItem = existingItem.get();
@@ -121,7 +126,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     @Transactional
-    public ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) {
+    public ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) throws ConflictException {
         log.trace("addItemForUser({}, {}, {})", shoppingListId, itemCreateDto, userId);
         log.trace("Adding item {} to shopping list with id {}", itemCreateDto, shoppingListId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
@@ -211,7 +216,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
      * @param shoppingList The shopping list to merge the item into
      * @return The updated item
      */
-    private ShoppingListItem mergeExistingItem(ShoppingListItem item, ShoppingList shoppingList) {
+    private ShoppingListItem mergeExistingItem(ShoppingListItem item, ShoppingList shoppingList) throws ConflictException {
         log.trace("mergeExistingItem({}, {})", item, shoppingList);
         var updatedItem = item;
         // Check if item already exists in shopping list
@@ -223,7 +228,11 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             .findFirst();
         if (existingItem.isPresent()) {
             // Merge quantities
-            existingItem.get().getItem().setAmount(existingItem.get().getItem().getAmount() + item.getItem().getAmount());
+            // Check if mergin the item would exceed the maximum amount of an item
+            if (existingItem.get() != item && existingItem.get().getItem().getAmount() + item.getItem().getAmount() > Item.MAX_AMOUNT) {
+                log.warn("The maximum amount of the item {} was reached", existingItem.get().getItem().getDescription());
+                throw new ConflictException("Conflict", List.of("The maximum amount of the item " + existingItem.get().getItem().getDescription() + " was reached"));
+            }
             existingItem.get().setCheckedBy(item.getCheckedBy());
             // Remove the old item from the shopping list
             shoppingList.getItems().remove(item);
@@ -233,8 +242,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    @Transactional
-    public ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId) {
+    @Transactional(rollbackOn = ConflictException.class)
+    public ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId)
+        throws ConflictException {
         log.trace("updateItemForUser({}, {}, {}, {})", shoppingListId, itemId, shoppingListItemUpdateDto, userId);
         log.trace("Updating item with id {} in shopping list with id {} for user with id {}", itemId, shoppingListId, userId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(
@@ -262,7 +272,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackOn = ConflictException.class)
     public void moveItemToPantry(Long shoppingListId, Long itemId) {
         log.trace("moveItemToPantry({}, {})", shoppingListId, itemId);
         log.trace("Moving item with id {} to pantry from group in shopping list with id {}", itemId, shoppingListId);
@@ -288,7 +298,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackOn = ConflictException.class)
     public void moveItemsToPantry(Long shoppingListId) {
         log.trace("moveItemsToPantry({})", shoppingListId);
         log.trace("Moving all checked items to pantry from shopping list with id {}", shoppingListId);
@@ -326,8 +336,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    @Transactional
-    public List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) {
+    @Transactional(rollbackOn = ConflictException.class)
+    public List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) throws ConflictException {
         log.trace("addItemsForUser({}, {}, {})", shoppingListId, items, userId);
         log.trace("Adding items to shopping list with id {} for user with id {}", shoppingListId, userId);
         var shoppingList = shoppingListRepository.findById(shoppingListId).orElseThrow(

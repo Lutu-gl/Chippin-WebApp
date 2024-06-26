@@ -128,15 +128,16 @@
           </div>
           <div class="flex flex-col gap-2">
             <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
-              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg">Drag items
+              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg hidden md:block">Drag items
                 here</p>
+              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg md:hidden ">Nothing in your shopping cart</p>
             </div>
             <div *ngFor="let item of getShoppingCartItems()"
                  class="flex bg-gray-200 hover:outline outline-1 outline-slate-300 justify-between rounded-md w-full px-2 py-1  shadow-md items-center">
               <div class="flex gap-2 w-2/3">
                 <p
                   class="text-sm w-1/4">{{ formatAmount(item.item) }}</p>
-                <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
+                <h3 class="font-medium pl-2 truncate w-2/3" pTooltip="{{item.item.description}}"
                     tooltipPosition="left">{{ item.item.description }}</h3>
               </div>
               <div>
@@ -227,8 +228,7 @@
           <div class="flex gap-2 w-2/3">
             <p
               class="text-sm w-1/4">{{ formatAmount(item.item) }}</p>
-            <h3 class="font-medium truncate w-2/3" pTooltip="{{item.item.description}}"
-                tooltipPosition="left">{{ item.item.description }}</h3>
+            <h3 class="font-medium truncate w-2/3">{{ item.item.description }}</h3>
           </div>
           <div>
             <p-button icon="pi pi-ellipsis-v" size="small" severity="secondary" [text]="true"
@@ -256,8 +256,8 @@
       <div class="">
         <label for="amount">Amount</label>
         <div class="flex flex-col md:flex-row pb-4">
-          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" [min]="1"
-                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" locale="de-DE" [min]="1"
+                         [max]="1000" placeholder="e.g. 1"></p-inputNumber>
           <p-dropdown [options]="units" appendTo="body" formControlName="unit" optionLabel="label" placeholder="Unit"
 
                       optionValue="value"></p-dropdown>
@@ -287,8 +287,8 @@
       <div class="pb-8">
         <label for="editAmount">Amount</label>
         <div class="flex flex-col md:flex-row">
-          <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" inputId="amount" [min]="1"
-                         [max]="100000" placeholder="e.g. 1"></p-inputNumber>
+          <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" locale="de-DE" inputId="amount" [min]="1"
+                         [max]="1000" placeholder="e.g. 1"></p-inputNumber>
           <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
                       [scrollHeight]="'120px'"
                       optionValue="value"></p-dropdown>
