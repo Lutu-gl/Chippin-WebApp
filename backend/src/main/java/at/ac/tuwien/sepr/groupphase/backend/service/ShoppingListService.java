@@ -45,9 +45,10 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param itemCreateDto  the item to add
      * @param userId         the id of the user adding the item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the added item
      */
-    ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId);
+    ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) throws ConflictException;
 
     /**
      * Delete an item from a shopping list.
@@ -93,9 +94,11 @@ public interface ShoppingListService {
      * @param itemId                    the id of the item
      * @param shoppingListItemUpdateDto the updated item
      * @param userId                    the id of the user updating the item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the updated item
      */
-    ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId);
+    ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId)
+        throws ConflictException;
 
     /**
      * Move an item from a shopping list to the pantry.
@@ -137,9 +140,10 @@ public interface ShoppingListService {
      * @param shoppingListId the id of the shopping list
      * @param items          the items to add
      * @param userId         the id of the user adding the items
+     * @throws ConflictException if the maximum amount of the item is exceeded
      * @return the added items
      */
-    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
+    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) throws ConflictException;
 
     /**
      * Get the amount of a specific item in all shopping lists of a group.
