@@ -64,9 +64,11 @@
           <div class="flex justify-between items-center">
             <h3 class="w-fit pr-2">Shopping List</h3>
             <div class="pr-8">
-              <p-button (click)="openAddItemDialog()" class="hidden md:block" icon="pi pi-plus" label="Add new item" severity="primary"
+              <p-button (click)="openAddItemDialog()" class="hidden md:block" icon="pi pi-plus" label="Add new item"
+                        severity="primary"
                         size="small"></p-button>
-              <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item" severity="primary"
+              <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item"
+                        severity="primary"
                         size="small"></p-button>
             </div>
           </div>
@@ -93,7 +95,8 @@
                           severity="info"
                           size="small"></p-button>
                 <div>
-                  <p-button (click)="selectItem(item); shoppingListItemMenu.show($event)" [text]="true" icon="pi pi-ellipsis-v" severity="secondary"
+                  <p-button (click)="selectItem(item); shoppingListItemMenu.show($event)" [text]="true"
+                            icon="pi pi-ellipsis-v" severity="secondary"
                             size="small"></p-button>
                   <p-menu #shoppingListItemMenu [model]="shoppingListItemMenuItems" [popup]="true"></p-menu>
                 </div>
@@ -106,12 +109,14 @@
         <div class="flex flex-col min-h-96 gap-4 py-4 col-span-2">
           <div class="flex gap-2 justify-between items-center">
             <h3>Shopping Cart</h3>
-            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group" [outlined]="true"
+            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group"
+                      [outlined]="true"
                       [text]="true"
                       class="hidden md:block" icon="pi pi-check-square"
                       label="Move all to pantry"
                       severity="primary"></p-button>
-            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group" [outlined]="true" [text]="true"
+            <p-button (click)="confirmMoveAllItemsInCartToPantry()" *ngIf="!!shoppingListDetailDto.group"
+                      [outlined]="true" [text]="true"
                       class="md:hidden"
                       icon="pi pi-check-square" label=""
                       pTooltip="Move all to pantry"
@@ -129,9 +134,11 @@
           </div>
           <div class="flex flex-col gap-2">
             <div *ngIf="getShoppingCartItems().length === 0" class="flex justify-center items-center w-full h-32">
-              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg hidden md:block">Drag items
+              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg hidden md:block">
+                Drag items
                 here</p>
-              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg md:hidden ">Nothing in your shopping cart</p>
+              <p class="text-gray-500 px-8 py-10 outline-4 outline-gray-200 outline-dashed rounded-lg md:hidden ">
+                Nothing in your shopping cart</p>
             </div>
             <div *ngFor="let item of getShoppingCartItems()"
                  class="flex bg-gray-200 hover:outline outline-1 outline-slate-300 justify-between rounded-md w-full px-2 py-1  shadow-md items-center">
@@ -142,7 +149,8 @@
                     tooltipPosition="left">{{ item.item.description }}</h3>
               </div>
               <div>
-                <p-button (click)="selectItem(item); shoppingCartItemMenu.show($event)" [text]="true" icon="pi pi-ellipsis-v" severity="secondary"
+                <p-button (click)="selectItem(item); shoppingCartItemMenu.show($event)" [text]="true"
+                          icon="pi pi-ellipsis-v" severity="secondary"
                           size="small"></p-button>
                 <p-menu #shoppingCartItemMenu [model]="shoppingCartItemMenuItems" [popup]="true"></p-menu>
               </div>
@@ -161,7 +169,8 @@
         <div class="pr-8">
           <p-button class="hidden md:block" icon="pi pi-plus" label="Add new item" severity="primary" size="small"
                     (click)="openAddItemDialog()"></p-button>
-          <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item" severity="primary"
+          <p-button (click)="openAddItemDialog()" class="md:hidden" icon="pi pi-plus" pTooltip="Add new item"
+                    severity="primary"
                     size="small"></p-button>
         </div>
       </div>
@@ -178,11 +187,13 @@
             class="text-sm">{{ formatAmount(item.item) }}</p>
         </div>
         <div class="flex gap-8 justify-between items-center">
-          <p-button [text]="true" class="hidden md:block" icon="pi pi-shopping-cart" label="Move to cart" severity="info"
+          <p-button [text]="true" class="hidden md:block" icon="pi pi-shopping-cart" label="Move to cart"
+                    severity="info"
                     size="small"
                     [outlined]="true"
                     (click)="toggleChecked(item.id)"></p-button>
-          <p-button (click)="toggleChecked(item.id)" [outlined]="true" [text]="true" class="md:hidden" icon="pi pi-shopping-cart"
+          <p-button (click)="toggleChecked(item.id)" [outlined]="true" [text]="true" class="md:hidden"
+                    icon="pi pi-shopping-cart"
                     pTooltip="Move to cart"
                     severity="info"
                     size="small"></p-button>
@@ -251,13 +262,18 @@
     <form [formGroup]="addItemForm">
       <div class="flex flex-col gap-2">
         <label for="description">Name</label>
-        <input id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
+        <input [hidden]="!!shoppingListDetailDto?.group" id="description" type="text" formControlName="name" pInputText placeholder="e.g. Milk" [minLength]="2"
                [maxLength]="60">
+        <p-autoComplete [hidden]="!shoppingListDetailDto?.group" id="description" appendTo="body" dropdown="true" (onSelect)="selectSuggestedPantryItem()"
+                        [suggestions]="filteredPantryItems" (completeMethod)="filterPantryItems($event)" type="text"
+                        formControlName="name" placeholder="e.g. Milk" [minLength]="1"
+                        [maxlength]="60"></p-autoComplete>
       </div>
       <div class="">
         <label for="amount">Amount</label>
         <div class="flex flex-col md:flex-row pb-4">
-          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" locale="de-DE" [min]="1"
+          <p-inputNumber formControlName="amount" id="amount" [showButtons]="true" inputId="amount" locale="de-DE"
+                         [min]="1"
                          [max]="1000" placeholder="e.g. 1"></p-inputNumber>
           <p-dropdown [options]="units" appendTo="body" formControlName="unit" optionLabel="label" placeholder="Unit"
 
@@ -288,7 +304,8 @@
       <div class="pb-8">
         <label for="editAmount">Amount</label>
         <div class="flex flex-col md:flex-row">
-          <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" locale="de-DE" inputId="amount" [min]="1"
+          <p-inputNumber formControlName="amount" id="editAmount" [showButtons]="true" locale="de-DE" inputId="amount"
+                         [min]="1"
                          [max]="1000" placeholder="e.g. 1"></p-inputNumber>
           <p-dropdown formControlName="unit" [options]="units" optionLabel="label" placeholder="Unit"
                       [scrollHeight]="'120px'"

@@ -115,6 +115,8 @@ export class ShoppingListDetailComponent implements OnInit {
   itemToEdit: ShoppingListItemDto | undefined;
   showEditModal: boolean = false;
   allMissingItems: ItemDetailDto[] = [];
+  allPantryItems: ItemDetailDto[];
+  filteredPantryItems: String[];
 
   ngOnInit(): void {
     this.route.params.subscribe({
@@ -186,6 +188,18 @@ export class ShoppingListDetailComponent implements OnInit {
     })
   }
 
+  loadPantryItems() {
+    this.pantryService.getPantryById(this.shoppingListDetailDto.group.id).subscribe({
+      next: data => {
+        this.allPantryItems = data.items
+      },
+      error: error => {
+        console.error(error);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load pantry items'});
+      }
+    });
+  }
+
   setShoppingCartMenuItems() {
     this.shoppingCartItemMenuItems = [
       {
@@ -202,7 +216,6 @@ export class ShoppingListDetailComponent implements OnInit {
             rejectButtonStyleClass: "p-button-secondary",
             accept: () => {
               this.addItemToPantry(this.selectedItem.id);
-              this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item moved to pantry'});
             }
           })
         }
@@ -258,6 +271,7 @@ export class ShoppingListDetailComponent implements OnInit {
         this.shoppingListDetailDto = shoppingList;
         this.setShoppingCartMenuItems();
         this.loadAllMissingItems();
+        this.loadPantryItems();
       },
       error: err => {
         console.error(err);
@@ -689,4 +703,22 @@ export class ShoppingListDetailComponent implements OnInit {
   }
 
   protected readonly formatAmount = formatAmount;
+
+  filterPantryItems($event: AutoCompleteCompleteEvent) {
+    console.log("asdf")
+    this.filteredPantryItems = this.allPantryItems.filter(
+      item => item.description.toLowerCase().includes($event.query.toLowerCase())
+    ).map(item => item.description)
+
+  }
+
+  selectSuggestedPantryItem() {
+    // Get itemDescription from form
+    let itemDescription = this.addItemForm.controls.name.value;
+    // Get selected pantry item
+    let pantryItem = this.allPantryItems.find(item => item.description === itemDescription);
+    // Set unit
+    this.addItemForm.controls.unit.setValue(pantryItem.unit);
+
+  }
 }
