@@ -19,8 +19,6 @@ export class VisualizationComponent implements OnInit {
   constructor(
     private service: GroupService,
     private paymentService: PaymentService,
-    protected userService: UserService,
-    private friendshipService: FriendshipService,
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
@@ -304,24 +302,6 @@ export class VisualizationComponent implements OnInit {
       maintainAspectRatio: false,
       aspectRatio: 0.6,
       plugins: {
-        tooltip: {
-          enabled: true,
-          mode: 'index',
-          callbacks: {
-            title: function (tooltipItems) {
-              return tooltipItems[0].label;
-            },
-            label: function (context) {
-              let label = context.dataset.label;
-              let value = context.element.x;
-              value = Math.round(value*100)/100
-              if (value == 0) {
-                return ''
-              }
-              return `${label}: ${value} €`;
-            }
-          }
-        },
         legend: {
           labels: {
             color: "black"
@@ -1024,6 +1004,7 @@ export class VisualizationComponent implements OnInit {
     if (this.rangeDates && this.rangeDates.length === 2 && this.rangeDates[0] && this.rangeDates[1]) {
       this.getExpenses(this.rangeDates);
     }
+    this.formatDataForDebtsPerUserOverTime()
   }
 
   calcPlaceholderForDateInput() {
