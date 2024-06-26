@@ -191,7 +191,7 @@ export class VisualizationComponent implements OnInit {
         this.charts = this.charts.map(chart => {
           return {
             ...chart,
-            data: { ...chart.data }
+            data: {...chart.data}
           };
         });
       },
@@ -248,7 +248,7 @@ export class VisualizationComponent implements OnInit {
       // Correct for payer
       let payerDataPoints = dataPointsPerUser.get(payment.payerEmail)
       payerDataPoints.forEach(dataPoint => {
-        if (new Date(dataPoint.x)  > payment.date) {
+        if (new Date(dataPoint.x) > payment.date) {
           dataPoint.y += payment.amount
         }
       })
@@ -340,7 +340,7 @@ export class VisualizationComponent implements OnInit {
       data: graphData,
       options: graphOptions,
       type: "line",
-      title: "Debts of group members over time",
+      title: "Debts of Members Over Time",
       description: "This graph shows how the debts of each group member change over time."
     };
 
@@ -591,7 +591,7 @@ export class VisualizationComponent implements OnInit {
         tooltip: {
           enabled: true,
           callbacks: {
-            label: function(tooltipItem) {
+            label: function (tooltipItem) {
               let value = tooltipItem.raw;
               return `Amount: ${value} €`;
             }
@@ -648,8 +648,7 @@ export class VisualizationComponent implements OnInit {
   getDescriptionForSpendEuroInCategory() {
 
 
-
-    return"This pie chart shows the breakdown of your spending by category. The different sections of the chart show the relative share of each spending category in the total budget.";
+    return "This pie chart shows the breakdown of your spending by category. The different sections of the chart show the relative share of each spending category in the total budget.";
   }
 
   private formatDataAmountSpendPerPerson() {
@@ -779,31 +778,66 @@ export class VisualizationComponent implements OnInit {
 
 
     let graphData: ChartData<"bar">;
+    graphData = {
+      labels: [],
+      datasets: []
+    }
     let graphOptions: ChartOptions<"bar">;
 
-    let expensesByUser = groupExpensesByUserEmail(this.expenses);
-
-    let expensesPerUserPerMonth = sumExpensesPerUserPerMonth(expensesByUser);
 
     // Create the data for the graph
-    let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let datasets = [];
     let colors = ['#0f518a', '#4bc0c0', '#36a2eb', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40'];
     colors.filter(t => t);
 
-    for (let userEmail in expensesPerUserPerMonth) {
-      let data = [];
-      for (let i = 0; i < 12; i++) {
-        data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+    // for (let userEmail in expensesPerUserPerMonth) {
+    //   let data = [];
+    //   for (let i = 0; i < 12; i++) {
+    //     data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+    //   }
+    //   datasets.push({
+    //     label: userEmail,
+    //     data: data,
+    //     backgroundColor: getRandomColorForEmail(userEmail)
+    //   })
+    // }
+
+    // Group expenses by user
+    let expensesByUser = groupExpensesByUserEmail(this.expenses)
+    // user -> first of month -> amount
+    let expensesPerUserPerMonth = new Map<string, Map<string, number>>();
+    // Initialize the map
+    for (let member of this.group.members) {
+      expensesPerUserPerMonth.set(member, new Map<string, number>());
+    }
+
+
+    // Get the expenses per user per month
+    for (let [user, expenses] of Object.entries(expensesByUser)) {
+      for (let expense of expenses) {
+        let month = expense.date.toISOString().slice(0, 7);
+        let key = `${month}-01`
+        let amount = expensesPerUserPerMonth.get(user).get(key) || 0;
+        expensesPerUserPerMonth.get(user).set(key, amount + expense.amount);
       }
-      datasets.push({
-        label: userEmail,
+    }
+
+    console.log(expensesPerUserPerMonth)
+
+    for (let [user, monthMap] of expensesPerUserPerMonth) {
+      let data = []
+      for (let [month, amount] of monthMap) {
+        data.push({x: month, y: amount})
+      }
+      graphData.datasets.push({
+        label: user,
         data: data,
-        backgroundColor: getRandomColorForEmail(userEmail)
+        backgroundColor: getRandomColorForEmail(user)
       })
     }
 
-    graphData = {labels, datasets};
+    console.log(graphData)
+
+
     graphOptions = {
       maintainAspectRatio: true,
       responsive: false,
@@ -834,6 +868,10 @@ export class VisualizationComponent implements OnInit {
       },
       scales: {
         x: {
+          type: "time",
+          time: {
+            unit: "month",
+          },
           stacked: true,
           ticks: {
             color: this.textColorSecondary
@@ -1008,7 +1046,7 @@ export class VisualizationComponent implements OnInit {
   }
 
   calcPlaceholderForDateInput() {
-    if(this.rangeDates && this.rangeDates[0] && this.rangeDates[1]) {
+    if (this.rangeDates && this.rangeDates[0] && this.rangeDates[1]) {
       return this.rangeDates[0].toLocaleDateString() + ' - ' + this.rangeDates[1].toLocaleDateString();
     }
     return ''
