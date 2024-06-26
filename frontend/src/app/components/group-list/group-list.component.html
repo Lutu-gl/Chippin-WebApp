@@ -37,7 +37,7 @@
       (completeMethod)="filterMembers($event)"
       (onSelect)="addMember($event)"
       [dropdown]="true"
-      [disabled]="membersEmails.length > 15"
+      [disabled]="membersEmails.length >= 15"
       [forceSelection]="friends"
       emptyMessage="No friends found"
       id = "inputMembers"
