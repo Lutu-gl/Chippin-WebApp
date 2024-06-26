@@ -249,7 +249,6 @@ public class ShoppingListDataGenerator implements DataGenerator {
 
         }
 
-//        shoppingListRepository.saveAll(shoppingListsToSave);
 
         // --- Specific shopping lists for Chippin Group ---
         GroupEntity chippInGroup = groupRepository.findByGroupName("Chippin");
