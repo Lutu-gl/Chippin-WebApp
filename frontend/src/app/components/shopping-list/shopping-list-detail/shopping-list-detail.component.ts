@@ -156,17 +156,12 @@ export class ShoppingListDetailComponent implements OnInit {
             header: "Delete Item",
             message: "Are you sure you want to delete this item?",
             acceptLabel: "Delete",
-            acceptIcon: "pi pi-trash",
-            acceptButtonStyleClass: "p-button-danger p-button-text",
+            acceptButtonStyleClass: "p-button-danger",
             rejectLabel: "Cancel",
-            rejectIcon: "pi pi-times",
-            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            rejectButtonStyleClass: "p-button-secondary",
             accept: () => {
               this.deleteItem(this.selectedItem.id);
               this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item deleted'});
-            },
-            reject: () => {
-              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
             }
           })
         }
@@ -202,15 +197,12 @@ export class ShoppingListDetailComponent implements OnInit {
             header: `Move "${this.selectedItem.item.description}" to pantry?`,
             message: `Are you sure you want to move "${this.selectedItem.item.description}" to the pantry?`,
             acceptLabel: "Move",
-            acceptButtonStyleClass: "p-button-primary p-button-text",
+            acceptButtonStyleClass: "p-button-primary",
             rejectLabel: "Cancel",
-            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            rejectButtonStyleClass: "p-button-secondary",
             accept: () => {
               this.addItemToPantry(this.selectedItem.id);
               this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item moved to pantry'});
-            },
-            reject: () => {
-              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Move canceled'})
             }
           })
         }
@@ -232,17 +224,12 @@ export class ShoppingListDetailComponent implements OnInit {
             header: "Delete Item",
             message: "Are you sure you want to delete this item?",
             acceptLabel: "Delete",
-            acceptIcon: "pi pi-trash",
-            acceptButtonStyleClass: "p-button-danger p-button-text",
+            acceptButtonStyleClass: "p-button-danger",
             rejectLabel: "Cancel",
-            rejectIcon: "pi pi-times",
-            rejectButtonStyleClass: "p-button-secondary p-button-text",
+            rejectButtonStyleClass: "p-button-secondary",
             accept: () => {
               this.deleteItem(this.selectedItem.id);
               this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item deleted'});
-            },
-            reject: () => {
-              this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
             }
           })
         }
@@ -253,6 +240,7 @@ export class ShoppingListDetailComponent implements OnInit {
         command: () => {
           // Move item back to shopping list
           this.toggleChecked(this.selectedItem.id);
+          this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item moved back to shopping list'});
         }
       }
     ]
@@ -291,7 +279,7 @@ export class ShoppingListDetailComponent implements OnInit {
     this.shoppingListService.deleteShoppingList(this.shoppingListId).subscribe({
       next: () => {
         this.messageService.add({severity: 'success', summary: 'Success', detail: 'Shopping list deleted'});
-        this.router.navigate(['/']);
+        this.router.navigate(['/home/shopping-lists']);
       },
       error: error => {
         console.error(error);
@@ -350,8 +338,20 @@ export class ShoppingListDetailComponent implements OnInit {
       next: () => {
         this.loadShoppingListDetailDto();
       },
-      error: err => {
-        console.error(err);
+      error: error => {
+        console.error(error);
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not update item', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+        }
       }
     })
   }
@@ -365,14 +365,11 @@ export class ShoppingListDetailComponent implements OnInit {
       header: "Move items to the pantry",
       message: `Are you sure you want to move all items in the shopping cart to the pantry?`,
       acceptLabel: "Move",
-      acceptButtonStyleClass: "p-button-primary p-button-text",
+      acceptButtonStyleClass: "p-button-primary",
       rejectLabel: "Cancel",
-      rejectButtonStyleClass: "p-button-secondary p-button-text",
+      rejectButtonStyleClass: "p-button-secondary",
       accept: () => {
         this.moveAllItemsInCartToPantry();
-      },
-      reject: () => {
-        this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Move canceled'})
       }
     })
   }
@@ -388,8 +385,20 @@ export class ShoppingListDetailComponent implements OnInit {
           detail: 'Moved items in shopping cart to group pantry'
         });
       },
-      error: err => {
-        console.error(err);
+      error: error => {
+        console.error(error);
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not move items to pantry', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not move items to pantry!`});
+        }
       }
     })
   }
@@ -401,15 +410,12 @@ export class ShoppingListDetailComponent implements OnInit {
       message: "Are you sure you want to delete this shopping list?",
       acceptLabel: "Delete",
       acceptIcon: "none",
-      acceptButtonStyleClass: "p-button-danger p-button-text",
+      acceptButtonStyleClass: "p-button-danger",
       rejectLabel: "Cancel",
       rejectIcon: "none",
-      rejectButtonStyleClass: "p-button-secondary p-button-text",
+      rejectButtonStyleClass: "p-button-secondary",
       accept: () => {
         this.deleteShoppingList();
-      },
-      reject: () => {
-        this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
       }
     })
   }
@@ -459,9 +465,20 @@ export class ShoppingListDetailComponent implements OnInit {
         this.displayAddItemDialog = false;
         this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item added'});
       },
-      error: err => {
-        console.error(err);
-        this.messageService.add({severity: 'error', summary: 'Error adding item', detail: err.error});
+      error: error => {
+        console.error(error);
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not add item', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not add item!`});
+        }
       }
     })
 
@@ -571,9 +588,20 @@ export class ShoppingListDetailComponent implements OnInit {
         this.displayEditItemDialog = false;
         this.messageService.add({severity: 'success', summary: 'Success', detail: 'Item updated'});
       },
-      error: err => {
-        console.error(err);
-        this.messageService.add({severity: 'error', summary: 'Error updating item', detail: err.error});
+      error: error => {
+        console.error(error);
+        if (error && error.error && error.error.errors) {
+          for (let i = 0; i < error.error.errors.length; i++) {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.errors[i]}`});
+          }
+        } else if (error && error.error && error.error.message) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.message}`});
+        } else if (error && error.error && error.error.detail) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `${error.error.detail}`});
+        } else {
+          console.error('Could not update item', error);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: `Could not update item!`});
+        }
       }
     })
 
@@ -592,14 +620,11 @@ export class ShoppingListDetailComponent implements OnInit {
       header: "Delete all items in shopping cart",
       message: `Are you sure you want to delete all items in the shopping cart?`,
       acceptLabel: "Delete",
-      acceptButtonStyleClass: "p-button-danger p-button-text",
+      acceptButtonStyleClass: "p-button-danger",
       rejectLabel: "Cancel",
-      rejectButtonStyleClass: "p-button-secondary p-button-text",
+      rejectButtonStyleClass: "p-button-secondary",
       accept: () => {
         this.deleteAllItemsInCart();
-      },
-      reject: () => {
-        this.messageService.add({severity: 'info', summary: 'Canceled', detail: 'Delete canceled'})
       }
     })
   }
