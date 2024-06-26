@@ -705,7 +705,6 @@ export class ShoppingListDetailComponent implements OnInit {
   protected readonly formatAmount = formatAmount;
 
   filterPantryItems($event: AutoCompleteCompleteEvent) {
-    console.log("asdf")
     this.filteredPantryItems = this.allPantryItems.filter(
       item => item.description.toLowerCase().includes($event.query.toLowerCase())
     ).map(item => item.description)
