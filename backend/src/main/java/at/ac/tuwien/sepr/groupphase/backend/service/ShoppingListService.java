@@ -46,8 +46,9 @@ public interface ShoppingListService {
      * @param itemCreateDto  the item to add
      * @param userId         the id of the user adding the item
      * @return the added item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
-    ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId);
+    ShoppingListItem addItemForUser(Long shoppingListId, ItemCreateDto itemCreateDto, Long userId) throws ConflictException;
 
     /**
      * Delete an item from a shopping list.
@@ -94,8 +95,10 @@ public interface ShoppingListService {
      * @param shoppingListItemUpdateDto the updated item
      * @param userId                    the id of the user updating the item
      * @return the updated item
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
-    ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId);
+    ShoppingListItem updateItemForUser(Long shoppingListId, Long itemId, ShoppingListItemUpdateDto shoppingListItemUpdateDto, Long userId)
+        throws ConflictException;
 
     /**
      * Move an item from a shopping list to the pantry.
@@ -138,8 +141,9 @@ public interface ShoppingListService {
      * @param items          the items to add
      * @param userId         the id of the user adding the items
      * @return the added items
+     * @throws ConflictException if the maximum amount of the item is exceeded
      */
-    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId);
+    List<ShoppingListItem> addItemsForUser(Long shoppingListId, List<ItemCreateDto> items, Long userId) throws ConflictException;
 
     /**
      * Get the amount of a specific item in all shopping lists of a group.

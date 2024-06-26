@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {PrimeNGConfig} from "primeng/api";
+import "chartjs-adapter-date-fns"
 
 @Component({
   selector: 'app-root',

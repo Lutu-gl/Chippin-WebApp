@@ -6,11 +6,9 @@ import {AuthService} from "../../services/auth.service";
 import {ExpenseDetailDto} from "../../dtos/expense";
 import {GroupDto} from "../../dtos/group";
 import {ChartData, ChartOptions} from "chart.js";
-import {
-  getRandomColorForEmail,
-  groupExpensesByUserEmail,
-  sumExpensesPerUserPerMonth
-} from "./chartHelper";
+import {getRandomColorForEmail, groupExpensesByUserEmail, sumExpensesPerUserPerMonth} from "./chartHelper";
+import {PaymentDto} from "../../dtos/payment";
+import {PaymentService} from "../../services/payment.service";
 
 @Component({
   selector: 'app-visualization',
@@ -20,6 +18,7 @@ import {
 export class VisualizationComponent implements OnInit {
   constructor(
     private service: GroupService,
+    private paymentService: PaymentService,
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
@@ -35,6 +34,9 @@ export class VisualizationComponent implements OnInit {
   id: number;
   group: GroupDto;
   expenses: ExpenseDetailDto[];
+  allExpenses: ExpenseDetailDto[];
+  payments: PaymentDto[];
+  allPayments: PaymentDto[];
   // documentStyle: any;
 
   minimumExpensesSatisfied = true;
@@ -121,24 +123,45 @@ export class VisualizationComponent implements OnInit {
     });
   }
 
+  getPayments(dates: Date[]) {
+    this.paymentService.getPaymentsByGroupId(this.id).subscribe({
+      next: res => {
+
+        // Convert date from backend to Date()
+        res.forEach(p => {
+          p.date = new Date(p.date);
+          if (p.date.getTime() < this.minDate.getTime()) {
+            this.minDate = p.date;
+          }
+        })
+
+        this.allPayments = res;
+        this.payments = res.filter(p => p.date.getTime() >= dates[0].getTime() && p.date.getTime() <= dates[1].getTime());
+
+
+        this.formatDataForDebtsPerUserOverTime()
+
+      }
+    })
+  }
+
   getExpenses(dates: Date[]) {
 
     this.service.getAllExpensesById(this.id).subscribe({
       next: res => {
+
+        this.getPayments([new Date(1970), new Date()])
+
         //Convert date from backend to Date()
         res.forEach(e => {
-          let date: String[] = e.date.toString().split('-');
-
-          date[2] = date[2].split('T')[0];
-
-          e.date = new Date(+date[0], +date[1]-1, +date[2]);
-          if(e.date.getTime() < this.minDate.getTime()) {
+          e.date = new Date(e.date);
+          if (e.date.getTime() < this.minDate.getTime()) {
             this.minDate = e.date;
           }
         })
 
 
-        if(!this.rangeDates) {
+        if (!this.rangeDates) {
           this.rangeDates = [this.minDate, this.today];
         }
 
@@ -149,6 +172,7 @@ export class VisualizationComponent implements OnInit {
           return
         }
 
+        this.allExpenses = res;
         //filter date
         const endDate = new Date(dates[1].getTime());
         endDate.setDate(endDate.getDate() + 1);
@@ -167,7 +191,7 @@ export class VisualizationComponent implements OnInit {
         this.charts = this.charts.map(chart => {
           return {
             ...chart,
-            data: { ...chart.data }
+            data: {...chart.data}
           };
         });
       },
@@ -186,6 +210,147 @@ export class VisualizationComponent implements OnInit {
         }
       }
     })
+  }
+
+  formatDataForDebtsPerUserOverTime() {
+    let graphData: ChartData<"line", { x: string, y: number }[]>
+    let graphOptions: ChartOptions<"line">
+
+    let dataPointsPerUser = new Map<string, { x: string, y: number }[]>();
+    // Initialize data points for each user
+    for (let member of this.group.members) {
+      dataPointsPerUser.set(member, []);
+    }
+
+    // Loop over all expenses and add them to the data points
+    for (let expense of this.allExpenses.filter(e => e.deleted === false)) {
+      let previousAmount = dataPointsPerUser.get(expense.payerEmail).length > 0 ?
+        dataPointsPerUser.get(expense.payerEmail)[dataPointsPerUser.get(expense.payerEmail).length - 1].y : 0;
+      dataPointsPerUser.get(expense.payerEmail).push({
+        x: expense.date.toISOString(),
+        y: previousAmount + expense.amount - expense.amount * expense.participants[expense.payerEmail]
+      });
+      for (let participant in expense.participants) {
+        if (participant !== expense.payerEmail) {
+          let previousAmount = dataPointsPerUser.get(participant).length > 0 ?
+            dataPointsPerUser.get(participant)[dataPointsPerUser.get(participant).length - 1].y : 0;
+          dataPointsPerUser.get(participant).push({
+            x: expense.date.toISOString(),
+            y: previousAmount - expense.amount * expense.participants[participant]
+          });
+        }
+      }
+    }
+
+
+    // Correct for payments
+    for (let payment of this.allPayments.filter(p => p.deleted === false)) {
+      // Correct for payer
+      let payerDataPoints = dataPointsPerUser.get(payment.payerEmail)
+      payerDataPoints.forEach(dataPoint => {
+        if (new Date(dataPoint.x) > payment.date) {
+          dataPoint.y += payment.amount
+        }
+      })
+      // Correct for receiver
+      let receiverDataPoints = dataPointsPerUser.get(payment.receiverEmail)
+      receiverDataPoints.forEach(dataPoint => {
+        if (new Date(dataPoint.x) > payment.date) {
+          dataPoint.y -= payment.amount
+        }
+      })
+      // Add data points for the payment
+      dataPointsPerUser.get(payment.payerEmail).push({
+        x: payment.date.toISOString(),
+        y: dataPointsPerUser.get(payment.payerEmail)[dataPointsPerUser.get(payment.payerEmail).length - 1].y + payment.amount
+      })
+      dataPointsPerUser.get(payment.receiverEmail).push({
+        x: payment.date.toISOString(),
+        y: dataPointsPerUser.get(payment.receiverEmail)[dataPointsPerUser.get(payment.receiverEmail).length - 1].y - payment.amount
+      })
+      // Sort the data points by date
+      dataPointsPerUser.get(payment.payerEmail).sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime())
+      dataPointsPerUser.get(payment.receiverEmail).sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime())
+    }
+
+    // Sort dataPoints
+    for (let [user, dataPoints] of dataPointsPerUser) {
+      dataPoints.sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime())
+    }
+
+    // Filter date range with 24 hours added to the end date
+    for (let [user, dataPoints] of dataPointsPerUser) {
+      dataPointsPerUser.set(user, dataPoints.filter(dataPoint => new Date(dataPoint.x) >= this.rangeDates[0] && new Date(dataPoint.x) <= new Date(this.rangeDates[1].getTime() + 24 * 60 * 60 * 1000)))
+    }
+
+    let datasets = [];
+    for (let [user, dataPoints] of dataPointsPerUser) {
+      datasets.push({
+        label: user,
+        data: dataPoints,
+        borderColor: getRandomColorForEmail(user),
+        tension: 0.3
+      })
+    }
+
+    graphData = {
+      labels: [],
+      datasets: datasets
+    }
+
+    graphOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: "black"
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: "time",
+          time: {
+            unit: "day",
+          },
+          ticks: {
+            color: this.textColor
+          },
+          title: {
+            display: true,
+            text: "Time",
+            color: this.textColor
+          }
+        },
+        y: {
+          ticks: {
+            color: this.textColor
+          },
+          title: {
+            display: true,
+            text: "Amount owed/debt in €",
+            color: this.textColor
+          }
+        }
+      }
+    };
+
+    let finalData = {
+      data: graphData,
+      options: graphOptions,
+      type: "line",
+      title: "Debts of Members Over Time",
+      description: "This graph shows how the debts of each group member change over time."
+    };
+
+    let chart = this.charts.findIndex(c => c.title === finalData.title);
+    if (chart !== -1) {
+      this.charts[chart] = finalData;
+    } else {
+      this.charts.push(finalData);
+    }
+
   }
 
   formatDataExpensesPayedPerPerson() {
@@ -298,7 +463,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -426,7 +591,7 @@ export class VisualizationComponent implements OnInit {
         tooltip: {
           enabled: true,
           callbacks: {
-            label: function(tooltipItem) {
+            label: function (tooltipItem) {
               let value = tooltipItem.raw;
               return `Amount: ${value} €`;
             }
@@ -473,7 +638,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -483,8 +648,7 @@ export class VisualizationComponent implements OnInit {
   getDescriptionForSpendEuroInCategory() {
 
 
-
-    return"This pie chart shows the breakdown of your spending by category. The different sections of the chart show the relative share of each spending category in the total budget.";
+    return "This pie chart shows the breakdown of your spending by category. The different sections of the chart show the relative share of each spending category in the total budget.";
   }
 
   private formatDataAmountSpendPerPerson() {
@@ -595,7 +759,7 @@ export class VisualizationComponent implements OnInit {
       dates: dates
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -614,31 +778,61 @@ export class VisualizationComponent implements OnInit {
 
 
     let graphData: ChartData<"bar">;
+    graphData = {
+      labels: [],
+      datasets: []
+    }
     let graphOptions: ChartOptions<"bar">;
 
-    let expensesByUser = groupExpensesByUserEmail(this.expenses);
-
-    let expensesPerUserPerMonth = sumExpensesPerUserPerMonth(expensesByUser);
 
     // Create the data for the graph
-    let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let datasets = [];
     let colors = ['#0f518a', '#4bc0c0', '#36a2eb', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40', '#ffcd56', '#ff6384', '#ff9f40'];
     colors.filter(t => t);
 
-    for (let userEmail in expensesPerUserPerMonth) {
-      let data = [];
-      for (let i = 0; i < 12; i++) {
-        data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+    // for (let userEmail in expensesPerUserPerMonth) {
+    //   let data = [];
+    //   for (let i = 0; i < 12; i++) {
+    //     data.push(expensesPerUserPerMonth[userEmail][i] || 0);
+    //   }
+    //   datasets.push({
+    //     label: userEmail,
+    //     data: data,
+    //     backgroundColor: getRandomColorForEmail(userEmail)
+    //   })
+    // }
+
+    // Group expenses by user
+    let expensesByUser = groupExpensesByUserEmail(this.expenses)
+    // user -> first of month -> amount
+    let expensesPerUserPerMonth = new Map<string, Map<string, number>>();
+    // Initialize the map
+    for (let member of this.group.members) {
+      expensesPerUserPerMonth.set(member, new Map<string, number>());
+    }
+
+
+    // Get the expenses per user per month
+    for (let [user, expenses] of Object.entries(expensesByUser)) {
+      for (let expense of expenses) {
+        let month = expense.date.toISOString().slice(0, 7);
+        let key = `${month}-01`
+        let amount = expensesPerUserPerMonth.get(user).get(key) || 0;
+        expensesPerUserPerMonth.get(user).set(key, amount + expense.amount);
       }
-      datasets.push({
-        label: userEmail,
+    }
+
+    for (let [user, monthMap] of expensesPerUserPerMonth) {
+      let data = []
+      for (let [month, amount] of monthMap) {
+        data.push({x: month, y: amount})
+      }
+      graphData.datasets.push({
+        label: user,
         data: data,
-        backgroundColor: getRandomColorForEmail(userEmail)
+        backgroundColor: getRandomColorForEmail(user)
       })
     }
 
-    graphData = {labels, datasets};
     graphOptions = {
       maintainAspectRatio: true,
       responsive: false,
@@ -669,6 +863,10 @@ export class VisualizationComponent implements OnInit {
       },
       scales: {
         x: {
+          type: "time",
+          time: {
+            unit: "month",
+          },
           stacked: true,
           ticks: {
             color: this.textColorSecondary
@@ -707,7 +905,7 @@ export class VisualizationComponent implements OnInit {
       description: `This stacked bar chart shows the monthly spending of each group member.`
     };
     let chart = this.charts.findIndex(c => c.title === finalData.title);
-    if(chart !== -1){
+    if (chart !== -1) {
       this.charts[chart] = finalData;
     } else {
       this.charts.push(finalData);
@@ -830,6 +1028,7 @@ export class VisualizationComponent implements OnInit {
       personAmountPayedMapCash.set(participant, Number((currentAmount + amount * expense.amount).toFixed(2)));
     }
   }
+
   private getCategoryColor(alpha): string[] {
     return ['rgba(15, 81, 138, ' + alpha + ')', 'rgba(75, 192, 192, ' + alpha + ')', 'rgba(54, 162, 235, ' + alpha + ')', 'rgba(255, 205, 86, ' + alpha + ')', 'rgba(255, 99, 132, ' + alpha + ')', 'rgba(255, 159, 64, ' + alpha + ')'];
   }
@@ -838,10 +1037,11 @@ export class VisualizationComponent implements OnInit {
     if (this.rangeDates && this.rangeDates.length === 2 && this.rangeDates[0] && this.rangeDates[1]) {
       this.getExpenses(this.rangeDates);
     }
+    this.formatDataForDebtsPerUserOverTime()
   }
 
   calcPlaceholderForDateInput() {
-    if(this.rangeDates && this.rangeDates[0] && this.rangeDates[1]) {
+    if (this.rangeDates && this.rangeDates[0] && this.rangeDates[1]) {
       return this.rangeDates[0].toLocaleDateString() + ' - ' + this.rangeDates[1].toLocaleDateString();
     }
     return ''
