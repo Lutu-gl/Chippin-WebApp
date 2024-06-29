@@ -1,19 +1,16 @@
-# SE PR Group Phase
+# Frontend
 
-## First Steps
+## How to run it
 
-Navigate to the root folder of the project and execute `npm install`. Based on the *package.json* file, npm will download all required node_modules to run an Angular application.
-Afterwards, execute `npm install -g @angular/cli` to install the Angular CLI globally.
+To run the frontend application please follow these steps:
+1. Execute `npm install`. Based on the *package.json* file, npm will download all required node_modules to run an Angular application.
+2. Execute `npm run start` to start the frontend. Navigate to `http://localhost:4200/`.
 
 ## Development
 
 ### Development server
 
-Run `ng serve` to start the web application. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-### Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `ng serve` to start the web application. Navigate to `http://localhost:4200/`. 
 
 ### Build
 
