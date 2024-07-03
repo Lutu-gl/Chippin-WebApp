@@ -22,6 +22,7 @@ jobs:
           mvn -B clean install
 
   test-frontend:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,6 +45,7 @@ jobs:
           npm run build
 
   e2e-test:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
