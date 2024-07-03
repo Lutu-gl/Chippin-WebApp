@@ -1,0 +1,81 @@
+name: CI Pipeline
+
+on:
+  push
+  pull_request
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Maven
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build and test backend
+        run: |
+          cd backend
+          mvn -B clean install
+
+  test-frontend:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci --legacy-peer-deps
+
+      - name: Lint frontend code
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+  e2e-test:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Maven
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci --legacy-peer-deps
+
+      - name: Start frontend
+        run: |
+          cd frontend
+          npm run start &
+          sleep 10
+
+      - name: Install backend dependencies and build
+        run: |
+          cd backend
+          mvn -B clean install -DskipTests
+          java -jar target/*.jar &
+          sleep 30
+
+      - name: Install e2e dependencies and run tests
+        run: |
+          cd e2e
+          npm ci --legacy-peer-deps
+          npx cypress run
