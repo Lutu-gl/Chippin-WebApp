@@ -16,6 +16,15 @@ Chippin is therefore a comprehensive solution that makes joint financial and pur
 
 Please navigate in the frontend and backend folder and follow the instructions there. 
 
+You have to install the following tools:
+
+node v20.11.1
+
+npm 10.2.4
+
+java openjdk 21.0.2
+
+mvn 3.9.6
 
 ## Developement Team and Projekt Overview
 
